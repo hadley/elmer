@@ -1,0 +1,23 @@
+Package: elmer
+Title: Call LLM APIs from R
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Hadley", "Wickham", , "hadley@rstudio.com", role = c("aut", "cre")),
+    person("RStudio", role = c("cph", "fnd"))
+  )
+Description: A consistent interface for calling LLM APIs. Includes support
+    for streaming.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports:
+    cli,
+    httr2 (>= 1.0.3.9000),
+    jsonlite,
+    rlang
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Remotes:
+    r-lib/httr2
