@@ -15,6 +15,7 @@ Imports:
     cli,
     httr2 (>= 1.0.3.9000),
     jsonlite,
+    R6,
     rlang
 Suggests:
     testthat (>= 3.0.0)
