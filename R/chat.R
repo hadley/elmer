@@ -74,7 +74,7 @@ Chat <- R6::R6Class("Chat", public = list(
       tools = self$tools,
       base_url = self$base_url,
       model = self$model,
-      stream = TRUE,
+      stream = stream,
       api_key = self$api_key
     )
     self$add_message(result$choices[[1]]$delta)
