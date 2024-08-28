@@ -12,7 +12,7 @@ open_ai_request <- function(base_url = "https://api.openai.com/v1",
 open_ai_key <- function() {
   key <- Sys.getenv("OPENAI_API_KEY")
   if (identical(key, "")) {
-    cli::cli_abort("Can't find env var {.code open_ai_key}.")
+    cli::cli_abort("Can't find env var {.code OPENAI_API_KEY}.")
   }
   key
 }

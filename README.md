@@ -21,3 +21,11 @@ You can install the development version of elmer from
 # install.packages("pak")
 pak::pak("hadley/elmer")
 ```
+
+## Usage
+
+To use elmer, you need an OpenAI API key. You can get one from [your
+developer console](https://platform.openai.com/account/api-keys). Then
+you should save that value as the `OPENAI_API_KEY` environment variable
+in your `~/.Renviron` (an easy way to open that file is to call
+`usethis::use_renviron()`).
