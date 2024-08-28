@@ -9,6 +9,8 @@ merge_dicts <- function(left, right) {
       left[right_k] <- list(NULL)
     } else if (is.null(left_v)) {
       left[[right_k]] <- right_v
+    } else if (identical(left_v, right_v)) {
+      next
     } else if (is.character(left_v)) {
       left[[right_k]] <- paste0(left_v, right_v)
     } else if (is.list(left_v)) {
@@ -17,8 +19,6 @@ merge_dicts <- function(left, right) {
       } else {
         left[[right_k]] <- merge_lists(left_v, right_v)
       }
-    } else if (identical(left_v, right_v)) {
-      next
     } else if (!identical(class(left_v), class(right_v))) {
       stop(paste0("additional_kwargs['", right_k, "'] already exists in this message, but with a different type."))
     } else {

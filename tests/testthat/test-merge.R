@@ -4,7 +4,6 @@ test_that("NULLS + values", {
 })
 
 test_that("equal values are ok", {
-  # Merge equal numeric values.
   expect_equal(merge_dicts(list(a = 1), list(a = 1)), list(a = 1))
   expect_equal(merge_dicts(list(a = 1.5), list(a = 1.5)), list(a = 1.5))
   expect_equal(
@@ -12,17 +11,17 @@ test_that("equal values are ok", {
     list(a = list(b = 1, c = 2))
   )
 
-  # Merge equal logical values.
   expect_equal(merge_dicts(list(a = TRUE), list(a = TRUE)), list(a = TRUE))
   expect_equal(merge_dicts(list(a = FALSE), list(a = FALSE)), list(a = FALSE))
 
+  expect_equal(merge_dicts(list(a = "x"), list(a = "x")), list(a = "x"))
 })
 
 test_that("strings are concatenated", {
-  expect_equal(merge_dicts(list(a = "txt"), list(a = "txt")), list(a = "txttxt"))
+  expect_equal(merge_dicts(list(a = "a"), list(a = "b")), list(a = "ab"))
   expect_equal(
-    merge_dicts(list(a = list(b = "txt")), list(a = list(b = "txt"))),
-    list(a = list(b = "txttxt"))
+    merge_dicts(list(a = list(b = "a")), list(a = list(b = "b"))),
+    list(a = list(b = "ab"))
   )
 })
 
