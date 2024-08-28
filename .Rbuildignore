@@ -1,3 +1,6 @@
 ^elmer\.Rproj$
 ^\.Rproj\.user$
 ^LICENSE\.md$
+^\.github$
+^codecov\.yml$
+^README\.Rmd$
