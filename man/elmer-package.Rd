@@ -8,6 +8,14 @@
 \description{
 A consistent interface for calling LLM APIs. Includes support for streaming.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/hadley/elmer}
+  \item Report bugs at \url{https://github.com/hadley/elmer/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Hadley Wickham \email{hadley@rstudio.com}
 

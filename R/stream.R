@@ -2,7 +2,6 @@
 req_perform_chat <- function(req, messages) {
 
   force(messages)
-  force(stream)
   results <- list()
   resp <- httr2::req_perform_connection(req)
 
