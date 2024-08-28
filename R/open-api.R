@@ -16,7 +16,7 @@ open_ai_chat <- function(messages,
   req <- httr2::req_body_json(req, data)
 
   if (stream) {
-    resp <- httr2::req_perform_connection(req)
+    resp <- httr2::req_perform_connection(req, mode = "text")
     results <- list()
     repeat({
       event <- httr2::resp_stream_sse(resp)
