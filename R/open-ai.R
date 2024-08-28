@@ -36,6 +36,8 @@ open_ai_chat <- function(messages,
 
   if (stream) {
     resp <- httr2::req_perform_connection(req, mode = "text")
+    on.exit(close(resp))
+
     results <- list()
     repeat({
       event <- httr2::resp_stream_sse(resp)
