@@ -8,7 +8,7 @@
 #' chat$chat("Give me five numbers from a random normal distribution. Briefly explain your work.")
 new_chat <- function(system_prompt = NULL,
                      base_url = "https://api.openai.com/v1",
-                     api_key = open_api_key(),
+                     api_key = open_ai_key(),
                      model = "gpt-4o-mini") {
 
 
