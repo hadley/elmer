@@ -2,6 +2,10 @@
 #' chat <- new_chat()
 #' chat$chat("What is the difference between a tibble and a data frame?")
 #' chat$chat("Please summarise into a very concise bulleted list.")
+#'
+#' chat <- new_chat()
+#' chat$add_tool(rnorm)
+#' chat$chat("Give me five numbers from a random normal distribution. Briefly explain your work.")
 new_chat <- function(system_prompt = NULL,
                      base_url = "https://api.openai.com/v1",
                      api_key = open_api_key(),
@@ -42,12 +46,24 @@ Chat <- R6::R6Class("Chat", public = list(
     invisible(self)
   },
 
+  add_tool = function(tool) {
+    self$tools <- c(self$tools, list(tool))
+    invisible(self)
+  },
+
+  register_tool = function(name, description, arguments, strict = TRUE) {
+    tool <- tool_def(
+      name = name,
+      description = description,
+      arguments = arguments,
+      strict = strict
+    )
+    self$add_tool(tool)
+  },
+
   chat = function(text, stream = TRUE) {
-    self$add_message(list(
-      role = "user",
-      content = text
-    ))
-    self$submit_messages()
+    self$add_message(list(role = "user", content = text))
+    self$submit_messages(stream = stream)
     self$tool_loop()
     invisible(self)
   },
@@ -63,7 +79,7 @@ Chat <- R6::R6Class("Chat", public = list(
     )
     self$add_message(result$choices[[1]]$delta)
     invisible(self)
- },
+  },
 
   tool_loop = function() {
     if (is.null(self$tools)) {
@@ -76,7 +92,7 @@ Chat <- R6::R6Class("Chat", public = list(
     if (is.null(tool_message)) {
       return()
     }
-    self$add_message(tool_message)
-    self$submit_messages()
+    self$messages <- c(self$messages, tool_message)
+    self$submit_messages(stream = FALSE)
   }
 ))
