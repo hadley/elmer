@@ -4,7 +4,6 @@ open_ai_chat <- function(messages,
                          model = "gpt-4o-mini",
                          stream = TRUE,
                          api_key = open_api_key()) {
-
   data <- list(
     model = model,
     stream = stream,
@@ -15,7 +14,6 @@ open_ai_chat <- function(messages,
   req <- open_ai_request(base_url = base_url, key = api_key)
   req <- httr2::req_url_path_append(req, "/chat/completions")
   req <- httr2::req_body_json(req, data)
-
 
   if (stream) {
     resp <- httr2::req_perform_connection(req)
@@ -34,7 +32,6 @@ open_ai_chat <- function(messages,
     resp <- httr2::req_perform(req)
     results <- resp_body_json(resp)
   }
-
 
   results
 }
