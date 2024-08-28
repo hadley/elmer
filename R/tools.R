@@ -16,10 +16,13 @@ call_tools <- function(message) {
   })
 }
 
+# Should we check `fun` against registered tools?
+# Also need to handle edge caess: https://platform.openai.com/docs/guides/function-calling/edge-cases
 call_tool <- function(fun, arguments) {
-  # How to handle errors?
-  # Should we check `fun` against registered tools?
-  # Also need to handle edge caess: https://platform.openai.com/docs/guides/function-calling/edge-cases
-
-  do.call(fun, arguments)
+  tryCatch(
+    do.call(fun, arguments),
+    error = function(e) {
+       paste0("Error calling tool: ", conditionMessage(e))
+     }
+  )
 }
