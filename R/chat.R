@@ -1,7 +1,9 @@
 #' @examples
 #' chat <- new_chat()
-#' chat$chat("What is the difference between a tibble and a data frame?")
-#' chat$chat("Please summarise into a very concise bulleted list.")
+#' chat$chat("What is the difference between a tibble and a data frame? Answer briefly")
+#' chat$chat("Please summarise into a very concise bulleted list.", stream = FALSE)
+#' chat$chat("Even more concise!!!", stream = FALSE)
+#' chat$chat("Even more concise! Use emoji to save characters", stream = FALSE)
 #'
 #' chat <- new_chat()
 #' chat$add_tool(rnorm)
@@ -77,7 +79,12 @@ Chat <- R6::R6Class("Chat", public = list(
       stream = stream,
       api_key = self$api_key
     )
-    self$add_message(result$choices[[1]]$delta)
+    if (stream) {
+      self$add_message(result$choices[[1]]$delta)
+    } else {
+      self$add_message(result$choices[[1]]$message)
+    }
+
     invisible(self)
   },
 

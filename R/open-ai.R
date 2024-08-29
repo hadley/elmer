@@ -51,7 +51,8 @@ open_ai_chat <- function(messages,
     })
   } else {
     resp <- httr2::req_perform(req)
-    results <- resp_body_json(resp)
+    results <- httr2::resp_body_json(resp)
+    cat(results$choices[[1]]$message$content)
   }
 
   results
