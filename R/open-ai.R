@@ -2,7 +2,7 @@ open_ai_request <- function(base_url = "https://api.openai.com/v1",
                             key = open_ai_key()) {
   req <- httr2::request(base_url)
   req <- httr2::req_auth_bearer_token(req, Sys.getenv("OPENAI_API_KEY"))
-  req <- httr2::req_retry(req, max_tries = 1)
+  req <- httr2::req_retry(req, max_tries = 2)
   req <- httr2::req_error(req, body = function(resp) {
      httr2::resp_body_json(resp)$error$message
   })
