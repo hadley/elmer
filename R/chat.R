@@ -1,3 +1,6 @@
+#' @include coro-utils.R
+NULL
+
 #' @examples
 #' chat <- new_chat()
 #' chat$chat("What is the difference between a tibble and a data frame? Answer briefly")
@@ -63,15 +66,37 @@ Chat <- R6::R6Class("Chat", public = list(
     self$add_tool(tool)
   },
 
-  chat = function(text, stream = TRUE) {
-    self$add_message(list(role = "user", content = text))
-    self$submit_messages(stream = stream)
-    self$tool_loop()
-    invisible(self)
+  # Returns a single message (the final response from the assistant), even if
+  # multiple rounds of back and forth happened.
+  chat = function(text) {
+    coro::collect(self$chat_impl(text, stream = FALSE))
+    last_message <- self$messages[[length(self$messages)]]
+    stopifnot(identical(last_message[["role"]], "assistant"))
+    last_message$content
   },
 
-  submit_messages = function(stream = TRUE) {
-    result <- open_ai_chat(
+  # Yields completion chunks.
+  stream = function(text) {
+    self$chat_impl(text, stream = TRUE)
+  },
+
+  # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
+  # complete assistant messages.
+  chat_impl = generator_method(function(self, text, stream) {
+    self$add_message(list(role = "user", content = text))
+    for (chunk in self$submit_messages(stream = stream)) {
+      yield(chunk)
+    }
+    for (chunk in self$tool_loop(stream = stream)) {
+      yield(chunk)
+    }
+    invisible(self)
+  }),
+
+  # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
+  # complete assistant messages.
+  submit_messages = generator_method(function(self, stream) {
+    response <- open_ai_chat(
       messages = self$messages,
       tools = self$tools,
       base_url = self$base_url,
@@ -79,27 +104,38 @@ Chat <- R6::R6Class("Chat", public = list(
       stream = stream,
       api_key = self$api_key
     )
+    
     if (stream) {
+      result <- list()
+      for (chunk in response) {
+        result <- merge_dicts(result, chunk)
+        yield(chunk$choices[[1]]$delta)
+      }
       self$add_message(result$choices[[1]]$delta)
     } else {
-      self$add_message(result$choices[[1]]$message)
+      yield(response)
+      self$add_message(response$choices[[1]]$message)
     }
-
+    
     invisible(self)
-  },
+  }),
 
-  tool_loop = function() {
+  # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
+  # complete assistant messages.
+  tool_loop = generator_method(function(self, stream) {
     if (is.null(self$tools)) {
       return()
     }
-
+  
     last_message <- self$messages[[length(self$messages)]]
     tool_message <- call_tools(last_message)
-
+  
     if (is.null(tool_message)) {
       return()
     }
     self$messages <- c(self$messages, tool_message)
-    self$submit_messages(stream = FALSE)
-  }
+    for (chunk in self$submit_messages(stream = stream)) {
+      yield(chunk)
+    }
+  })
 ))
