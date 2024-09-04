@@ -16,7 +16,7 @@ Imports:
     httr2 (>= 1.0.3.9000),
     jsonlite,
     R6,
-    rlang
+    rlang (>= 1.1.0)
 Suggests:
     testthat (>= 3.0.0),
     withr
