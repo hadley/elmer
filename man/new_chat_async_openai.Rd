@@ -26,6 +26,12 @@ variable.}
 
 \item{quiet}{If \code{TRUE} does not print output as its received.}
 }
+\value{
+A promise that resolves to a string (probably Markdown).
+
+A \href{https://coro.r-lib.org/reference/async_generator.html}{coro async generator}
+that yields string promises.
+}
 \description{
 This function returns an R6 object that takes care of managing the state
 associated with the chat; i.e. it records the messages that you send to the
@@ -86,12 +92,30 @@ chat$chat("
 \if{html}{\out{<div class="r">}}\preformatted{ChatAsyncOpenAI$new(base_url, model, api_key, system_prompt, quiet = TRUE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{base_url}}{The base URL to the endpoint; the default uses ChatGPT.}
+
+\item{\code{model}}{The model to use for the chat; defaults to GPT-4o mini.}
+
+\item{\code{api_key}}{The API key to use for authentication. You generally should
+not supply this directly, but instead set the \code{OPENAI_API_KEY} environment
+variable.}
+
+\item{\code{system_prompt}}{A system prompt to set the behavior of the assistant.}
+
+\item{\code{quiet}}{If \code{TRUE} does not print output as its received.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ChatOpenAI-chat"></a>}}
 \if{latex}{\out{\hypertarget{method-ChatOpenAI-chat}{}}}
 \subsection{Method \code{chat()}}{
-Submit text to the chatbot.
+Submit text to the chatbot, and receive a promise that
+resolves with the response all at once.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ChatAsyncOpenAI$chat(text)}\if{html}{\out{</div>}}
 }
@@ -99,7 +123,7 @@ Submit text to the chatbot.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{text}}{The text to send to the chatbot}
+\item{\code{text}}{The text to send to the chatbot.}
 }
 \if{html}{\out{</div>}}
 }
@@ -108,10 +132,19 @@ Submit text to the chatbot.
 \if{html}{\out{<a id="method-ChatOpenAI-stream"></a>}}
 \if{latex}{\out{\hypertarget{method-ChatOpenAI-stream}{}}}
 \subsection{Method \code{stream()}}{
+Submit text to the chatbot, returning asynchronously
+streaming results.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ChatAsyncOpenAI$stream(text)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{text}}{The text to send to the chatbot.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ChatOpenAI-register_tool"></a>}}

@@ -75,6 +75,13 @@ new_chat_async_openai <- function(system_prompt = NULL,
 #' @rdname new_chat_async_openai
 ChatAsyncOpenAI <- R6::R6Class("ChatOpenAI",
   public = list(
+    #' @param system_prompt A system prompt to set the behavior of the assistant.
+    #' @param base_url The base URL to the endpoint; the default uses ChatGPT.
+    #' @param api_key The API key to use for authentication. You generally should
+    #'   not supply this directly, but instead set the `OPENAI_API_KEY` environment
+    #'   variable.
+    #' @param model The model to use for the chat; defaults to GPT-4o mini.
+    #' @param quiet If `TRUE` does not print output as its received.
     initialize = function(base_url, model, api_key, system_prompt, quiet = TRUE) {
       private$base_url <- base_url
       private$model <- model
@@ -87,8 +94,10 @@ ChatAsyncOpenAI <- R6::R6Class("ChatOpenAI",
       ))
     },
 
-    #' @description Submit text to the chatbot.
-    #' @param text The text to send to the chatbot
+    #' @description Submit text to the chatbot, and receive a promise that
+    #'   resolves with the response all at once.
+    #' @param text The text to send to the chatbot.
+    #' @returns A promise that resolves to a string (probably Markdown).
     chat = function(text) {
       check_string(text)
 
@@ -102,7 +111,12 @@ ChatAsyncOpenAI <- R6::R6Class("ChatOpenAI",
       })
     },
 
-    # Yields completion chunks.
+    #' @description Submit text to the chatbot, returning asynchronously
+    #'   streaming results.
+    #' @param text The text to send to the chatbot.
+    #' @returns A [coro async
+    #'   generator](https://coro.r-lib.org/reference/async_generator.html)
+    #'   that yields string promises.
     stream = function(text) {
       private$chat_impl(text, stream = TRUE)
     },

@@ -72,6 +72,13 @@ new_chat_openai <- function(system_prompt = NULL,
 #' @rdname new_chat_openai
 ChatOpenAI <- R6::R6Class("ChatOpenAI",
   public = list(
+    #' @param system_prompt A system prompt to set the behavior of the assistant.
+    #' @param base_url The base URL to the endpoint; the default uses ChatGPT.
+    #' @param api_key The API key to use for authentication. You generally should
+    #'   not supply this directly, but instead set the `OPENAI_API_KEY` environment
+    #'   variable.
+    #' @param model The model to use for the chat; defaults to GPT-4o mini.
+    #' @param quiet If `TRUE` does not print output as its received.
     initialize = function(base_url, model, api_key, system_prompt, quiet = TRUE) {
       private$base_url <- base_url
       private$model <- model
@@ -84,8 +91,10 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
       ))
     },
 
-    #' @description Submit text to the chatbot.
-    #' @param text The text to send to the chatbot
+    #' @description Submit text to the chatbot, and receive the response all at
+    #'   once.
+    #' @param text The text to send to the chatbot.
+    #' @returns A string response (probably Markdown).
     chat = function(text) {
       check_string(text)
 
@@ -97,7 +106,12 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
       last_message$content
     },
 
-    # Yields completion chunks.
+    #' @description Submit text to the chatbot, returning streaming results.
+    #' @param text The text to send to the chatbot.
+    #' @returns A [coro
+    #'   generator](https://coro.r-lib.org/articles/generator.html#iterating)
+    #'   that yields strings. While iterating, the generator will block while
+    #'   waiting for more content from the chatbot.
     stream = function(text) {
       private$chat_impl(text, stream = TRUE)
     },
