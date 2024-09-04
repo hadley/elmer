@@ -2,4 +2,5 @@
 
 export(new_chat)
 export(new_chat_async)
+export(tool_arg)
 import(rlang)

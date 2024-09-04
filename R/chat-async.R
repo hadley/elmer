@@ -2,7 +2,7 @@
 NULL
 
 #' @examples
-#' chat <- new_chat()
+#' chat <- new_chat_async()
 #' chat$chat("What is the difference between a tibble and a data frame? Answer briefly")
 #' chat$chat("Please summarise into a very concise bulleted list.", stream = FALSE)
 #' chat$chat("Even more concise!!!", stream = FALSE)

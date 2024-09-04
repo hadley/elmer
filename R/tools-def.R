@@ -25,6 +25,7 @@ tool_def <- function(name, description, arguments, strict = TRUE) {
   )
 }
 
+#' @export
 tool_arg <- function(type, description, required = TRUE) {
   list(
     type = type,

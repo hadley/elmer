@@ -106,7 +106,11 @@ Chat <- R6::R6Class("Chat", public = list(
         break
       }
     }
-    invisible(self)
+
+    # Work around https://github.com/r-lib/coro/issues/51
+    if (FALSE) {
+      yield(NULL)
+    }
   }),
 
   # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
@@ -125,15 +129,20 @@ Chat <- R6::R6Class("Chat", public = list(
       result <- list()
       for (chunk in response) {
         result <- merge_dicts(result, chunk)
-        yield(chunk$choices[[1]]$delta)
+        if (!is.null(chunk$choices[[1]]$delta$content)) {
+          yield(chunk$choices[[1]]$delta$content)
+        }
       }
       self$add_message(result$choices[[1]]$delta)
     } else {
-      yield(response)
       self$add_message(response$choices[[1]]$message)
+      yield(response)
     }
 
-    invisible(self)
+    # Work around https://github.com/r-lib/coro/issues/51
+    if (FALSE) {
+      yield(NULL)
+    }
   }),
 
   invoke_tools = function() {
