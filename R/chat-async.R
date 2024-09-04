@@ -39,7 +39,10 @@ AsyncChat <- R6::R6Class("AsyncChat", public = list(
   api_key = NULL,
 
   messages = NULL,
-  tools = NULL,
+  # OpenAI-compliant tool metadata
+  tool_infos = NULL,
+  # Named list of R functions that implement tools
+  tool_funs = NULL,
 
   initialize = function(base_url, model, api_key) {
     self$base_url <- base_url
@@ -52,19 +55,29 @@ AsyncChat <- R6::R6Class("AsyncChat", public = list(
     invisible(self)
   },
 
-  add_tool = function(tool) {
-    self$tools <- c(self$tools, list(tool))
+  add_tool = function(name, fun, tool) {
+    # Remove existing, if any
+    if (!is.null(self$tool_funs[[name]])) {
+      self$tool_infos <- Filter(function(info) info$name != name, self$tool_infos)
+    }
+
+    self$tool_infos <- c(self$tool_infos, list(tool))
+    self$tool_funs[[name]] <- fun
+
     invisible(self)
   },
 
-  register_tool = function(name, description, arguments, strict = TRUE) {
+  register_tool = function(fun, name, description, arguments, strict = TRUE) {
+    if (!is.function(fun)) {
+      stop("fun must be a function")
+    }
     tool <- tool_def(
       name = name,
       description = description,
       arguments = arguments,
       strict = strict
     )
-    self$add_tool(tool)
+    self$add_tool(name, fun, tool)
   },
 
   # Returns a single message (the final response from the assistant), even if
@@ -87,11 +100,13 @@ AsyncChat <- R6::R6Class("AsyncChat", public = list(
   # complete assistant messages.
   chat_impl = async_generator_method(function(self, text, stream) {
     self$add_message(list(role = "user", content = text))
-    for (chunk in await_each(self$submit_messages(stream = stream))) {
-      yield(chunk)
-    }
-    for (chunk in await_each(self$tool_loop(stream = stream))) {
-      yield(chunk)
+    while (TRUE) {
+      for (chunk in await_each(self$submit_messages(stream = stream))) {
+        yield(chunk)
+      }
+      if (!self$invoke_tools()) {
+        break
+      }
     }
 
     # Work around https://github.com/r-lib/coro/issues/51
@@ -105,7 +120,7 @@ AsyncChat <- R6::R6Class("AsyncChat", public = list(
   submit_messages = async_generator_method(function(self, stream) {
     response <- open_ai_chat_async(
       messages = self$messages,
-      tools = self$tools,
+      tools = self$tool_infos,
       base_url = self$base_url,
       model = self$model,
       stream = stream,
@@ -133,19 +148,16 @@ AsyncChat <- R6::R6Class("AsyncChat", public = list(
     }
   }),
 
-  # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
-  # complete assistant messages.
-  tool_loop = async_generator_method(function(self, stream) {
-    if (!is.null(self$tools)) {
+  invoke_tools = function() {
+    if (length(self$tool_infos) > 0) {
       last_message <- self$messages[[length(self$messages)]]
-      tool_message <- call_tools(last_message)
+      tool_message <- call_tools(self$tool_funs, last_message)
 
       if (!is.null(tool_message)) {
         self$messages <- c(self$messages, tool_message)
-        for (chunk in await_each(self$submit_messages(stream = stream))) {
-          yield(chunk)
-        }
+        return(TRUE)
       }
     }
-  })
+    FALSE
+  }
 ))

@@ -6,6 +6,7 @@ open_ai_request <- function(base_url = "https://api.openai.com/v1",
   req <- httr2::req_error(req, body = function(resp) {
     httr2::resp_body_json(resp)$error$message
   })
+  # req <- httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE)
   req
 }
 
@@ -23,6 +24,11 @@ open_ai_chat_req <- function(messages,
                              model = "gpt-4o-mini",
                              stream = TRUE,
                              api_key = open_ai_key()) {
+  if (length(tools) == 0) {
+    # OpenAI rejects tools=[]
+    tools <- NULL
+  }
+
   data <- list(
     model = model,
     stream = stream,
