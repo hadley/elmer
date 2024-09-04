@@ -60,7 +60,7 @@ new_chat_openai <- function(system_prompt = NULL,
   system_prompt <- system_prompt %||%
     "You are a helpful assistant from New Zealand who is an experienced R programmer"
 
-  Chat$new(
+  ChatOpenAI$new(
     base_url = base_url,
     model = model,
     api_key = api_key,
@@ -70,7 +70,7 @@ new_chat_openai <- function(system_prompt = NULL,
 }
 
 #' @rdname new_chat_openai
-Chat <- R6::R6Class("Chat",
+ChatOpenAI <- R6::R6Class("ChatOpenAI",
   public = list(
     initialize = function(base_url, model, api_key, system_prompt, quiet = TRUE) {
       private$base_url <- base_url
@@ -175,6 +175,24 @@ Chat <- R6::R6Class("Chat",
     }
   )
 )
+
+#' @export
+print.ChatOpenAI <- function(x, ...) {
+  cat("<ChatOpenAI>\n")
+  messages <- x$.__enclos_env__$private$messages
+  for (message in messages) {
+    color <- switch(message$role,
+      user = "blue",
+      system = ,
+      assistant = "green"
+    )
+    cat(cli::rule(message$role, col = color), "\n", sep = "")
+    cat(message$content, "\n", sep = "")
+  }
+
+  invisible()
+
+}
 
 
 last_message <- function(chat) {

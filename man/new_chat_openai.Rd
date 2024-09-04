@@ -2,7 +2,7 @@
 % Please edit documentation in R/chat.R
 \name{new_chat_openai}
 \alias{new_chat_openai}
-\alias{Chat}
+\alias{ChatOpenAI}
 \title{Create a chatbot that speaks to an OpenAI compatible endpoint}
 \usage{
 new_chat_openai(
@@ -71,28 +71,28 @@ chat$chat("
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-Chat-new}{\code{Chat$new()}}
-\item \href{#method-Chat-chat}{\code{Chat$chat()}}
-\item \href{#method-Chat-register_tool}{\code{Chat$register_tool()}}
-\item \href{#method-Chat-clone}{\code{Chat$clone()}}
+\item \href{#method-ChatOpenAI-new}{\code{ChatOpenAI$new()}}
+\item \href{#method-ChatOpenAI-chat}{\code{ChatOpenAI$chat()}}
+\item \href{#method-ChatOpenAI-register_tool}{\code{ChatOpenAI$register_tool()}}
+\item \href{#method-ChatOpenAI-clone}{\code{ChatOpenAI$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Chat-new"></a>}}
-\if{latex}{\out{\hypertarget{method-Chat-new}{}}}
+\if{html}{\out{<a id="method-ChatOpenAI-new"></a>}}
+\if{latex}{\out{\hypertarget{method-ChatOpenAI-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$new(base_url, model, api_key, system_prompt, quiet = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$new(base_url, model, api_key, system_prompt, quiet = TRUE)}\if{html}{\out{</div>}}
 }
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Chat-chat"></a>}}
-\if{latex}{\out{\hypertarget{method-Chat-chat}{}}}
+\if{html}{\out{<a id="method-ChatOpenAI-chat"></a>}}
+\if{latex}{\out{\hypertarget{method-ChatOpenAI-chat}{}}}
 \subsection{Method \code{chat()}}{
 Submit text to the chatbot.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$chat(text, stream = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$chat(text, stream = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -106,14 +106,14 @@ Submit text to the chatbot.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Chat-register_tool"></a>}}
-\if{latex}{\out{\hypertarget{method-Chat-register_tool}{}}}
+\if{html}{\out{<a id="method-ChatOpenAI-register_tool"></a>}}
+\if{latex}{\out{\hypertarget{method-ChatOpenAI-register_tool}{}}}
 \subsection{Method \code{register_tool()}}{
 Register a tool (an R function) that the chatbot can use.
 If the chatbot decides to use the function, elmer will automatically
 call it and submit the results back.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$register_tool(name, description, arguments, strict = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$register_tool(name, description, arguments, strict = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -133,12 +133,12 @@ Should be a list of objects created by \code{\link[=tool_arg]{tool_arg()}}.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Chat-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-Chat-clone}{}}}
+\if{html}{\out{<a id="method-ChatOpenAI-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-ChatOpenAI-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$clone(deep = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
