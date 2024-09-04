@@ -71,4 +71,54 @@ open_ai_chat_stream <- coro::generator(function(req) {
     json <- jsonlite::parse_json(event$data)
     yield(json)
   }
+
+  # Work around https://github.com/r-lib/coro/issues/51
+  if (FALSE) {
+    yield(NULL)
+  }
 })
+
+open_ai_chat_async <- function(messages,
+  tools = list(),
+  base_url = "https://api.openai.com/v1",
+  model = "gpt-4o-mini",
+  stream = TRUE,
+  api_key = open_ai_key()) {
+  req <- open_ai_chat_req(
+    messages = messages, tools = tools, base_url = base_url,
+    model = model, stream = stream, api_key = api_key
+  )
+
+  if (stream) {
+    open_ai_chat_stream_async(req)
+  } else {
+    resp <- httr2::req_perform_promise(req)
+    promises::then(resp, httr2::resp_body_json)
+  }
+}
+
+open_ai_chat_stream_async <- coro::async_generator(function(req, polling_interval_secs = 0.1) {
+  resp <- httr2::req_perform_connection(req, mode = "text", blocking = FALSE)
+  on.exit(close(resp))
+  # TODO: Investigate if this works with async generators
+  # reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
+
+  while (TRUE) {
+    event <- httr2::resp_stream_sse(resp)
+    if (is.null(event)) {
+      # TODO: Detect if connection is closed and stop polling
+      await(coro::async_sleep(polling_interval_secs))
+    } else if (event$data == "[DONE]") {
+      break
+    } else {
+      json <- jsonlite::parse_json(event$data)
+      yield(json)
+    }
+  }
+
+  # Work around https://github.com/r-lib/coro/issues/51
+  if (FALSE) {
+    yield(NULL)
+  }
+})
+

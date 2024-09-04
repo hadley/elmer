@@ -28,8 +28,8 @@ generator_method <- function(func) {
     base::quote(coro::generator(!!fn))
   )
   generator <- eval(expr, parent.frame())
-  
-  unique_id <- as.character(sample.int(9999999, 1))
+
+  unique_id <- as.character(sample.int(99999999, 1))
   generators[[unique_id]] <- generator
 
   rlang::inject(
@@ -39,4 +39,33 @@ generator_method <- function(func) {
       elmer:::generators[[!!unique_id]](self, ...)
     }
   )
+}
+
+# Same as generator_method, but for async logic
+async_generator_method <- function(func, print = FALSE) {
+  fn <- substitute(func)
+
+  stopifnot(
+    "generator methods must have `self` parameter" = identical(names(formals(func))[1], "self")
+  )
+
+  expr <- rlang::inject(
+    base::quote(coro::async_generator(!!fn))
+  )
+  generator <- eval(expr, parent.frame())
+
+  unique_id <- paste0("a", sample.int(99999999, 1))
+  generators[[unique_id]] <- generator
+
+  gen <- rlang::inject(
+    function(...) {
+      # Must use elmer::: because the lexical environment of this function is
+      # about to get wrecked by R6
+      elmer:::generators[[!!unique_id]](self, ...)
+    }
+  )
+  if (print) {
+    print(gen, internals = TRUE)
+  }
+  gen
 }

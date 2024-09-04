@@ -12,7 +12,7 @@ NULL
 #' chat$add_tool(rnorm)
 #' chat$chat("Give me five numbers from a random normal distribution. Briefly explain your work.")
 #' @export
-new_chat <- function(system_prompt = NULL,
+new_chat_async <- function(system_prompt = NULL,
                      base_url = "https://api.openai.com/v1",
                      api_key = open_ai_key(),
                      model = "gpt-4o-mini") {
@@ -21,7 +21,7 @@ new_chat <- function(system_prompt = NULL,
   system_prompt <- system_prompt %||%
     "You are a helpful assistant from New Zealand who is an experienced R programmer"
 
-  chat <- Chat$new(
+  chat <- AsyncChat$new(
     base_url = base_url,
     model = model,
     api_key = api_key
@@ -33,7 +33,7 @@ new_chat <- function(system_prompt = NULL,
   chat
 }
 
-Chat <- R6::R6Class("Chat", public = list(
+AsyncChat <- R6::R6Class("AsyncChat", public = list(
   base_url = NULL,
   model = NULL,
   api_key = NULL,
@@ -70,10 +70,12 @@ Chat <- R6::R6Class("Chat", public = list(
   # Returns a single message (the final response from the assistant), even if
   # multiple rounds of back and forth happened.
   chat = function(text) {
-    coro::collect(self$chat_impl(text, stream = FALSE))
-    last_message <- self$messages[[length(self$messages)]]
-    stopifnot(identical(last_message[["role"]], "assistant"))
-    last_message$content
+    done <- coro::async_collect(self$chat_impl(text, stream = FALSE))
+    promises::then(done, function(dummy) {
+      last_message <- self$messages[[length(self$messages)]]
+      stopifnot(identical(last_message[["role"]], "assistant"))
+      last_message$content
+    })
   },
 
   # Yields completion chunks.
@@ -83,21 +85,25 @@ Chat <- R6::R6Class("Chat", public = list(
 
   # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
   # complete assistant messages.
-  chat_impl = generator_method(function(self, text, stream) {
+  chat_impl = async_generator_method(function(self, text, stream) {
     self$add_message(list(role = "user", content = text))
-    for (chunk in self$submit_messages(stream = stream)) {
+    for (chunk in await_each(self$submit_messages(stream = stream))) {
       yield(chunk)
     }
-    for (chunk in self$tool_loop(stream = stream)) {
+    for (chunk in await_each(self$tool_loop(stream = stream))) {
       yield(chunk)
     }
-    invisible(self)
+
+    # Work around https://github.com/r-lib/coro/issues/51
+    if (FALSE) {
+      yield(NULL)
+    }
   }),
 
   # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
   # complete assistant messages.
-  submit_messages = generator_method(function(self, stream) {
-    response <- open_ai_chat(
+  submit_messages = async_generator_method(function(self, stream) {
+    response <- open_ai_chat_async(
       messages = self$messages,
       tools = self$tools,
       base_url = self$base_url,
@@ -108,35 +114,38 @@ Chat <- R6::R6Class("Chat", public = list(
 
     if (stream) {
       result <- list()
-      for (chunk in response) {
+      for (chunk in await_each(response)) {
         result <- merge_dicts(result, chunk)
-        yield(chunk$choices[[1]]$delta)
+        if (!is.null(chunk$choices[[1]]$delta$content)) {
+          yield(chunk$choices[[1]]$delta$content)
+        }
       }
       self$add_message(result$choices[[1]]$delta)
     } else {
-      yield(response)
-      self$add_message(response$choices[[1]]$message)
+      response_value <- await(response)
+      self$add_message(response_value$choices[[1]]$message)
+      yield(response_value)
     }
 
-    invisible(self)
+    # Work around https://github.com/r-lib/coro/issues/51
+    if (FALSE) {
+      yield(NULL)
+    }
   }),
 
   # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
   # complete assistant messages.
-  tool_loop = generator_method(function(self, stream) {
-    if (is.null(self$tools)) {
-      return()
-    }
+  tool_loop = async_generator_method(function(self, stream) {
+    if (!is.null(self$tools)) {
+      last_message <- self$messages[[length(self$messages)]]
+      tool_message <- call_tools(last_message)
 
-    last_message <- self$messages[[length(self$messages)]]
-    tool_message <- call_tools(last_message)
-
-    if (is.null(tool_message)) {
-      return()
-    }
-    self$messages <- c(self$messages, tool_message)
-    for (chunk in self$submit_messages(stream = stream)) {
-      yield(chunk)
+      if (!is.null(tool_message)) {
+        self$messages <- c(self$messages, tool_message)
+        for (chunk in await_each(self$submit_messages(stream = stream))) {
+          yield(chunk)
+        }
+      }
     }
   })
 ))
