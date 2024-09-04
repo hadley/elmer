@@ -97,24 +97,24 @@ variable.</p></dd>
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 
-<ul><li><p><a href="#method-Chat-new"><code>Chat$new()</code></a></p></li>
-<li><p><a href="#method-Chat-chat"><code>Chat$chat()</code></a></p></li>
-<li><p><a href="#method-Chat-register_tool"><code>Chat$register_tool()</code></a></p></li>
-<li><p><a href="#method-Chat-clone"><code>Chat$clone()</code></a></p></li>
-</ul></div><p></p><hr><a id="method-Chat-new"></a><div class="section">
+<ul><li><p><a href="#method-ChatOpenAI-new"><code>ChatOpenAI$new()</code></a></p></li>
+<li><p><a href="#method-ChatOpenAI-chat"><code>ChatOpenAI$chat()</code></a></p></li>
+<li><p><a href="#method-ChatOpenAI-register_tool"><code>ChatOpenAI$register_tool()</code></a></p></li>
+<li><p><a href="#method-ChatOpenAI-clone"><code>ChatOpenAI$clone()</code></a></p></li>
+</ul></div><p></p><hr><a id="method-ChatOpenAI-new"></a><div class="section">
 <h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
 
 <div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/new_chat_openai.html">Chat</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">base_url</span>, <span class="va">model</span>, <span class="va">api_key</span>, <span class="va">system_prompt</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/new_chat_openai.html">ChatOpenAI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">base_url</span>, <span class="va">model</span>, <span class="va">api_key</span>, <span class="va">system_prompt</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 
-</div><p></p><hr><a id="method-Chat-chat"></a><div class="section">
+</div><p></p><hr><a id="method-ChatOpenAI-chat"></a><div class="section">
 <h3 id="method-chat-">Method <code>chat()</code><a class="anchor" aria-label="anchor" href="#method-chat-"></a></h3>
 <p>Submit text to the chatbot.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="va">text</span>, stream <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="va">text</span>, stream <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -130,13 +130,13 @@ variable.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-Chat-register_tool"></a><div class="section">
+</div><p></p><hr><a id="method-ChatOpenAI-register_tool"></a><div class="section">
 <h3 id="method-register-tool-">Method <code>register_tool()</code><a class="anchor" aria-label="anchor" href="#method-register-tool-"></a></h3>
 <p>Register a tool (an R function) that the chatbot can use.
 If the chatbot decides to use the function, elmer will automatically
 call it and submit the results back.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span><span class="va">name</span>, <span class="va">description</span>, <span class="va">arguments</span>, strict <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span><span class="va">name</span>, <span class="va">description</span>, <span class="va">arguments</span>, strict <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -162,11 +162,11 @@ Should be a list of objects created by <code><a href="tool_arg.html">tool_arg()<
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-Chat-clone"></a><div class="section">
+</div><p></p><hr><a id="method-ChatOpenAI-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
