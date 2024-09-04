@@ -17,7 +17,7 @@ Imports:
     httr2 (>= 1.0.3.9000),
     jsonlite,
     R6,
-    rlang
+    rlang (>= 1.1.0)
 Suggests:
     testthat (>= 3.0.0),
     withr
@@ -31,8 +31,11 @@ Collate:
     'chat-async.R'
     'chat.R'
     'elmer-package.R'
+    'import-standalone-obj-type.R'
     'import-standalone-purrr.R'
+    'import-standalone-types-check.R'
     'merge.R'
     'open-ai.R'
     'tools-def.R'
     'tools.R'
+    'utils.R'

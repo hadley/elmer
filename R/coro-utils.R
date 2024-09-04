@@ -23,6 +23,9 @@ generator_method <- function(func) {
   stopifnot(
     "generator methods must have `self` parameter" = identical(names(formals(func))[1], "self")
   )
+  stopifnot(
+    "generator methods must have `self` parameter" = identical(names(formals(func))[2], "private")
+  )
 
   expr <- rlang::inject(
     base::quote(coro::generator(!!fn))
@@ -36,7 +39,7 @@ generator_method <- function(func) {
     function(...) {
       # Must use elmer::: because the lexical environment of this function is
       # about to get wrecked by R6
-      elmer:::generators[[!!unique_id]](self, ...)
+      elmer:::generators[[!!unique_id]](self, private, ...)
     }
   )
 }
@@ -47,6 +50,9 @@ async_generator_method <- function(func, print = FALSE) {
 
   stopifnot(
     "generator methods must have `self` parameter" = identical(names(formals(func))[1], "self")
+  )
+  stopifnot(
+    "generator methods must have `self` parameter" = identical(names(formals(func))[2], "private")
   )
 
   expr <- rlang::inject(
@@ -61,7 +67,7 @@ async_generator_method <- function(func, print = FALSE) {
     function(...) {
       # Must use elmer::: because the lexical environment of this function is
       # about to get wrecked by R6
-      elmer:::generators[[!!unique_id]](self, ...)
+      elmer:::generators[[!!unique_id]](self, private, ...)
     }
   )
   if (print) {

@@ -1,5 +1,4 @@
 
-
 tool_def <- function(name, description, arguments, strict = TRUE) {
   arg_names <- names(arguments)
   arg_required <- map_lgl(arguments, function(arg) {
@@ -25,33 +24,21 @@ tool_def <- function(name, description, arguments, strict = TRUE) {
   )
 }
 
+#' Define arguments for a tool
+#'
 #' @export
+#' @param type Argument type.
+#' @param description Description of argument as free text.
+#' @param required Is the argument required?
+#' @keywords internal
 tool_arg <- function(type, description, required = TRUE) {
+  check_string(type)
+  check_string(description)
+  check_bool(required)
+
   list(
     type = type,
     description = description,
     required = required
   )
 }
-
-# rnorm <- tool_def(
-#   "rnorm",
-#   "Drawn numbers from a random normal distribution",
-#   list(
-#     tool_arg(
-#       "n",
-#       type = "integer",
-#       description = "The number of observations. Must be a positive integer."
-#     ),
-#     tool_arg(
-#       "mean",
-#       type = "number",
-#       description = "The mean value of the distribution."
-#     ),
-#     tool_arg(
-#       "sd",
-#       type = "number",
-#       description = "The standard deviation of the distribution. Must be a non-negative number."
-#     )
-#   )
-# )
