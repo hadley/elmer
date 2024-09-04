@@ -14,7 +14,7 @@ NULL
 #' @export
 new_chat_async <- function(system_prompt = NULL,
                      base_url = "https://api.openai.com/v1",
-                     api_key = open_ai_key(),
+                     api_key = openai_key(),
                      model = "gpt-4o-mini") {
 
 
@@ -118,7 +118,7 @@ AsyncChat <- R6::R6Class("AsyncChat", public = list(
   # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
   # complete assistant messages.
   submit_messages = async_generator_method(function(self, stream) {
-    response <- open_ai_chat_async(
+    response <- openai_chat_async(
       messages = self$messages,
       tools = self$tool_infos,
       base_url = self$base_url,
