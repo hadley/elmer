@@ -23,5 +23,6 @@ Suggests:
 Config/testthat/edition: 3
 Remotes:
     r-lib/httr2
-URL: https://github.com/hadley/elmer
+URL: https://github.com/hadley/elmer, https://hadley.github.io/elmer/
 BugReports: https://github.com/hadley/elmer/issues
+Config/Needs/website: tidyverse/tidytemplate
