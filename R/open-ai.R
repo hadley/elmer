@@ -52,7 +52,7 @@ openai_chat_async <- function(messages,
   )
 
   if (stream) {
-    openai_chat_stream_async(req, quiet)
+    openai_chat_stream_async(req)
   } else {
     resp <- httr2::req_perform_promise(req)
     promises::then(resp, httr2::resp_body_json)
