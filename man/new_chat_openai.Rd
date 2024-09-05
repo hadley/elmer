@@ -78,6 +78,7 @@ chat$chat("
 \item \href{#method-ChatOpenAI-new}{\code{ChatOpenAI$new()}}
 \item \href{#method-ChatOpenAI-chat}{\code{ChatOpenAI$chat()}}
 \item \href{#method-ChatOpenAI-stream}{\code{ChatOpenAI$stream()}}
+\item \href{#method-ChatOpenAI-console}{\code{ChatOpenAI$console()}}
 \item \href{#method-ChatOpenAI-register_tool}{\code{ChatOpenAI$register_tool()}}
 \item \href{#method-ChatOpenAI-clone}{\code{ChatOpenAI$clone()}}
 }
@@ -112,8 +113,9 @@ variable.}
 \if{html}{\out{<a id="method-ChatOpenAI-chat"></a>}}
 \if{latex}{\out{\hypertarget{method-ChatOpenAI-chat}{}}}
 \subsection{Method \code{chat()}}{
-Submit text to the chatbot, and receive the response all at
-once.
+Submit text to the chatbot, and return the response as a
+simple string. If the chat was created with \code{quiet=FALSE}, the response
+will be printed to stdout as it is received.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$chat(text)}\if{html}{\out{</div>}}
 }
@@ -142,6 +144,18 @@ Submit text to the chatbot, returning streaming results.
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ChatOpenAI-console"></a>}}
+\if{latex}{\out{\hypertarget{method-ChatOpenAI-console}{}}}
+\subsection{Method \code{console()}}{
+Enter an interactive chat console. This is a REPL-like
+interface where you can chat with the assistant in real-time. (Only
+available in \code{\link[=interactive]{interactive()}} mode.)
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$console()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ChatOpenAI-register_tool"></a>}}

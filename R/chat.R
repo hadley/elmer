@@ -91,8 +91,9 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
       ))
     },
 
-    #' @description Submit text to the chatbot, and receive the response all at
-    #'   once.
+    #' @description Submit text to the chatbot, and return the response as a
+    #'   simple string. If the chat was created with `quiet=FALSE`, the response
+    #'   will be printed to stdout as it is received.
     #' @param text The text to send to the chatbot.
     #' @returns A string response (probably Markdown).
     chat = function(text) {
@@ -100,10 +101,15 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
       # Returns a single message (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
-      coro::collect(private$chat_impl(text, stream = FALSE))
+      coro::collect(private$chat_impl(text, stream = !private$quiet))
       last_message <- private$messages[[length(private$messages)]]
       stopifnot(identical(last_message[["role"]], "assistant"))
-      last_message$content
+
+      if (!private$quiet) {
+        invisible(last_message$content)
+      } else {
+        last_message$content
+      }
     },
 
     #' @description Submit text to the chatbot, returning streaming results.
@@ -114,6 +120,48 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     #'   waiting for more content from the chatbot.
     stream = function(text) {
       private$chat_impl(text, stream = TRUE)
+    },
+
+    #' @description Enter an interactive chat console. This is a REPL-like
+    #'   interface where you can chat with the assistant in real-time. (Only
+    #'   available in [interactive()] mode.)
+    console = function() {
+      if (!interactive()) {
+        abort("The chat console is only available in interactive mode.")
+      }
+
+      cli::cat_boxx(
+        c("Entering chat console. Use \"\"\" for multi-line input.",
+          "Press Ctrl+C to quit."),
+        padding = c(0, 2, 0, 2),
+        border_style = "double"
+      )
+
+      while (TRUE) {
+        # Prompt for user input
+        user_input <- readline(prompt = ">>> ")
+
+        if (!grepl("\\S", user_input)) {
+          next
+        }
+
+        if (grepl('^\\s*"""', user_input)) {
+          while (TRUE) {
+            next_input <- readline(prompt = '... ')
+            user_input <- paste0(user_input, "\n", next_input)
+            if (grepl('"""\\s*$', next_input)) {
+              break
+            }
+          }
+          # Strip leading and trailing """, using regex
+          user_input <- gsub('^\\s*"""\\s*', '', user_input)
+          user_input <- gsub('\\s*"""\\s*$', '', user_input)
+        }
+
+        # Process the input using the provided LLM function
+        self$chat(user_input)
+        cat("\n")
+      }
     },
 
     #' @description Register a tool (an R function) that the chatbot can use.
@@ -203,25 +251,34 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
         api_key = private$api_key
       )
 
+      if (!private$quiet) {
+        # Like `cat()` but with automatic word wrapping
+        emit <- cat_word_wrap()
+      } else {
+        emit <- function(...) invisible()
+      }
+
       if (stream) {
         result <- list()
+        any_content <- FALSE
         for (chunk in response) {
           result <- merge_dicts(result, chunk)
           if (!is.null(chunk$choices[[1]]$delta$content)) {
-            if (!private$quiet) {
-              cat(chunk$choices[[1]]$delta$content)
-            }
+            emit(chunk$choices[[1]]$delta$content)
             yield(chunk$choices[[1]]$delta$content)
+            any_content <- TRUE
           }
+        }
+        if (any_content) {
+          emit("\n")
+          yield("\n")
         }
         private$add_message(result$choices[[1]]$delta)
       } else {
         private$add_message(response$choices[[1]]$message)
         if (!is.null(response$choices[[1]]$message$content)) {
-          if (!private$quiet) {
-            cat(response$choices[[1]]$message$content)
-            cat("\n")
-          }
+          emit(response$choices[[1]]$message$content)
+          emit("\n")
           yield(response$choices[[1]]$message$content)
         }
       }

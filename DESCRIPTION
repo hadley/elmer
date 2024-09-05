@@ -27,6 +27,7 @@ Remotes:
 URL: https://github.com/hadley/elmer
 BugReports: https://github.com/hadley/elmer/issues
 Collate: 
+    'cat-wordwrap.R'
     'coro-utils.R'
     'chat-async.R'
     'chat.R'
