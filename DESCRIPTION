@@ -2,8 +2,8 @@ Package: elmer
 Title: Call LLM APIs from R
 Version: 0.0.0.9000
 Authors@R: c(
-    person("Hadley", "Wickham", , "hadley@rstudio.com", role = c("aut", "cre")),
-    person("RStudio", role = c("cph", "fnd"))
+    person("Hadley", "Wickham", , "hadley@posit.co", role = c("aut", "cre")),
+    person("Posit Software, PBC", role = c("cph", "fnd"))
   )
 Description: A consistent interface for calling LLM APIs. Includes support
     for streaming.
