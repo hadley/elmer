@@ -1,31 +1,3 @@
-sync <- function(expr) {
-  p <- force(expr)
-
-  done <- FALSE
-  success <- NULL
-  error <- NULL
-
-  promises::then(p,
-    function(result) {
-      success <<- result
-      done <<- TRUE
-    },
-    function(err) {
-      error <<- err
-      done <<- TRUE
-    }
-  )
-
-  while (!done) {
-    later::run_now(0.25)
-  }
-  if (!is.null(error)) {
-    stop(error)
-  } else {
-    success
-  }
-}
-
 test_that("can perform a simple chat with batch and streaming", {
   chat <- new_chat_async_openai(
     "You're a helpful assistant that returns very minimal output",
