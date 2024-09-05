@@ -1,12 +1,12 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
-<url><loc>/404.html</loc></url>
-<url><loc>/LICENSE-text.html</loc></url>
-<url><loc>/LICENSE.html</loc></url>
-<url><loc>/authors.html</loc></url>
-<url><loc>/index.html</loc></url>
-<url><loc>/reference/elmer-package.html</loc></url>
-<url><loc>/reference/index.html</loc></url>
-<url><loc>/reference/new_chat_openai.html</loc></url>
-<url><loc>/reference/tool_arg.html</loc></url>
+<url><loc>https://hadley.github.io/elmer/404.html</loc></url>
+<url><loc>https://hadley.github.io/elmer/LICENSE-text.html</loc></url>
+<url><loc>https://hadley.github.io/elmer/LICENSE.html</loc></url>
+<url><loc>https://hadley.github.io/elmer/authors.html</loc></url>
+<url><loc>https://hadley.github.io/elmer/index.html</loc></url>
+<url><loc>https://hadley.github.io/elmer/reference/elmer-package.html</loc></url>
+<url><loc>https://hadley.github.io/elmer/reference/index.html</loc></url>
+<url><loc>https://hadley.github.io/elmer/reference/new_chat_openai.html</loc></url>
+<url><loc>https://hadley.github.io/elmer/reference/tool_arg.html</loc></url>
 </urlset>
 
