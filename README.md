@@ -167,6 +167,11 @@ same arguments for construction, and has similar `chat()` and `stream()`
 methods; but the `chat()` and `stream()` methods return promises instead
 of the actual response.
 
+Note that async chat does not support the `console()` method, as async
+programming is not too relevant for interactive usage. It’s also highly
+unlikely you’d want responses to be streamed to the console, so
+`quiet = TRUE` is the default.
+
 ``` r
 library(promises)
 
@@ -177,6 +182,13 @@ chat_async <- new_chat_async_openai(
   quiet = TRUE
 )
 ```
+
+Just like with regular chat objects, asynchronous chat objects are
+stateful, maintaining the conversation history as you interact with it.
+Note that this means it doesn’t make sense to issue multiple chat/stream
+operations on the same chat object concurrently, as the conversation
+history will become corrupted. If you need to run multiple chat sessions
+concurrently, create multiple chat objects.
 
 ### Asynchronous chat
 

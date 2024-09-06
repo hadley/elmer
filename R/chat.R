@@ -92,20 +92,25 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     },
 
     #' @description Submit text to the chatbot, and return the response as a
-    #'   simple string. If the chat was created with `quiet=FALSE`, the response
-    #'   will be printed to stdout as it is received.
+    #'   simple string. If not in quiet mode, the response will be printed to
+    #'   stdout as it is received.
     #' @param text The text to send to the chatbot.
+    #' @param quiet Whether to emit the response to stdout as it is received. If
+    #'   `NULL`, then the value of `quiet` set when the chat object was created
+    #'   will be used.
     #' @returns A string response (probably Markdown).
-    chat = function(text) {
+    chat = function(text, quiet = NULL) {
       check_string(text)
+
+      quiet <- quiet %||% private$quiet
 
       # Returns a single message (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
-      coro::collect(private$chat_impl(text, stream = !private$quiet))
+      coro::collect(private$chat_impl(text, stream = !quiet, quiet = quiet))
       last_message <- private$messages[[length(private$messages)]]
       stopifnot(identical(last_message[["role"]], "assistant"))
 
-      if (!private$quiet) {
+      if (!quiet) {
         invisible(last_message$content)
       } else {
         last_message$content
@@ -114,12 +119,15 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     #' @description Submit text to the chatbot, returning streaming results.
     #' @param text The text to send to the chatbot.
+    #' @param quiet Whether to emit the response to stdout as it is received. If
+    #'   `NULL`, then the value of `quiet` set when the chat object was created
+    #'   will be used.
     #' @returns A [coro
     #'   generator](https://coro.r-lib.org/articles/generator.html#iterating)
     #'   that yields strings. While iterating, the generator will block while
     #'   waiting for more content from the chatbot.
-    stream = function(text) {
-      private$chat_impl(text, stream = TRUE)
+    stream = function(text, quiet = NULL) {
+      private$chat_impl(text, stream = TRUE, quiet = quiet)
     },
 
     #' @description Enter an interactive chat console. This is a REPL-like
@@ -222,10 +230,10 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant messages.
-    chat_impl = generator_method(function(self, private, text, stream) {
+    chat_impl = generator_method(function(self, private, text, stream, quiet = NULL) {
       private$add_message(list(role = "user", content = text))
       while (TRUE) {
-        for (chunk in private$submit_messages(stream = stream)) {
+        for (chunk in private$submit_messages(stream = stream, quiet = quiet)) {
           yield(chunk)
         }
         if (!private$invoke_tools()) {
@@ -241,7 +249,9 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant messages.
-    submit_messages = generator_method(function(self, private, stream) {
+    submit_messages = generator_method(function(self, private, stream, quiet = NULL) {
+      quiet <- quiet %||% private$quiet
+
       response <- openai_chat(
         messages = private$messages,
         tools = private$tool_infos,
@@ -251,7 +261,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
         api_key = private$api_key
       )
 
-      if (!private$quiet) {
+      if (!quiet) {
         # Like `cat()` but with automatic word wrapping
         emit <- cat_word_wrap()
       } else {

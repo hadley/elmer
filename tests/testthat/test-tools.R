@@ -26,11 +26,11 @@ test_that("repeated tool calls (sync)", {
   )
 
   result <- coro::collect(chat$stream("Pick a random number. If it's positive, tell me the current time in New York. If it's negative, tell me the current time in Seattle. Use ISO-8601."))
-  expect_identical(paste(result, collapse = ""), "2020-08-01T14:00:00")
+  expect_identical(paste(result, collapse = ""), "2020-08-01T14:00:00\n")
 
   not_actually_random_number <- -1
   result <- coro::collect(chat$stream("Great. Do it again."))
-  expect_identical(paste(result, collapse = ""), "2020-08-01T11:00:00")
+  expect_identical(paste(result, collapse = ""), "2020-08-01T11:00:00\n")
 
   expect_snapshot(chat)
 })
@@ -59,11 +59,11 @@ test_that("repeated tool calls (async)", {
   )
 
   result <- sync(coro::async_collect(chat_async$stream("Pick a random number. If it's positive, tell me the current time in New York. If it's negative, tell me the current time in Seattle. Use ISO-8601.")))
-  expect_identical(paste(result, collapse = ""), "2020-08-01T14:00:00")
+  expect_identical(paste(result, collapse = ""), "2020-08-01T14:00:00\n")
 
   not_actually_random_number <- -1
   result <- sync(coro::async_collect(chat_async$stream("Great. Do it again.")))
-  expect_identical(paste(result, collapse = ""), "2020-08-01T11:00:00")
+  expect_identical(paste(result, collapse = ""), "2020-08-01T11:00:00\n")
 
   expect_snapshot(chat_async)
 })

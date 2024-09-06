@@ -9,7 +9,7 @@ test_that("can perform a simple chat with batch and streaming", {
   expect_equal(last_message(chat)$content, "2")
 
   chunks <- sync(coro::async_collect(chat$stream("What's 2 + 2")))
-  expect_equal(paste(chunks, collapse = ""), "4")
+  expect_equal(paste(chunks, collapse = ""), "4\n")
   expect_equal(last_message(chat)$content, "4")
 
   chunks <- sync(coro::async_collect(chat$stream("What are the canonical colors of the ROYGBIV rainbow? Answer with each color on its own line, no punctuation.")))

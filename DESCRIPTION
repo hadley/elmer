@@ -23,7 +23,7 @@ Suggests:
     withr
 Config/testthat/edition: 3
 Remotes:
-    r-lib/httr2
+    r-lib/httr2@manual-pushback
 URL: https://github.com/hadley/elmer
 BugReports: https://github.com/hadley/elmer/issues
 Collate: 
