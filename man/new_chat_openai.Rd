@@ -10,7 +10,7 @@ new_chat_openai(
   base_url = "https://api.openai.com/v1",
   api_key = openai_key(),
   model = "gpt-4o-mini",
-  quiet = FALSE
+  echo = FALSE
 )
 }
 \arguments{
@@ -24,19 +24,12 @@ variable.}
 
 \item{model}{The model to use for the chat; defaults to GPT-4o mini.}
 
-\item{quiet}{If \code{TRUE} does not print output as its received.}
+\item{echo}{If \code{TRUE}, the \code{chat()} method streams the response to stdout by
+default. (Note that this has no effect on the \code{stream()}, \code{chat_async()},
+and \code{stream_async()} methods.)}
 }
 \value{
-A string response (probably Markdown).
-
 A promise that resolves to a string (probably Markdown).
-
-A \href{https://coro.r-lib.org/articles/generator.html#iterating}{coro generator}
-that yields strings. While iterating, the generator will block while
-waiting for more content from the chatbot.
-
-A \href{https://coro.r-lib.org/reference/async_generator.html}{coro async generator}
-that yields string promises.
 }
 \description{
 This function returns an R6 object that takes care of managing the state
@@ -95,7 +88,7 @@ chat$chat("
 \if{latex}{\out{\hypertarget{method-ChatOpenAI-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$new(base_url, model, api_key, system_prompt, quiet = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$new(base_url, model, api_key, system_prompt, echo = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -111,7 +104,9 @@ variable.}
 
 \item{\code{system_prompt}}{A system prompt to set the behavior of the assistant.}
 
-\item{\code{quiet}}{If \code{TRUE} does not print output as its received.}
+\item{\code{echo}}{If \code{TRUE}, the \code{chat()} method streams the response to stdout
+(while also returning the final response). Note that this has no effect
+on the \code{stream()}, \code{chat_async()}, and \code{stream_async()} methods.}
 }
 \if{html}{\out{</div>}}
 }
@@ -121,10 +116,9 @@ variable.}
 \if{latex}{\out{\hypertarget{method-ChatOpenAI-chat}{}}}
 \subsection{Method \code{chat()}}{
 Submit text to the chatbot, and return the response as a
-simple string. If not in quiet mode, the response will be printed to
-stdout as it is received.
+simple string (probably Markdown).
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$chat(text, quiet = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$chat(text, echo = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -132,8 +126,8 @@ stdout as it is received.
 \describe{
 \item{\code{text}}{The text to send to the chatbot.}
 
-\item{\code{quiet}}{Whether to emit the response to stdout as it is received. If
-\code{NULL}, then the value of \code{quiet} set when the chat object was created
+\item{\code{echo}}{Whether to emit the response to stdout as it is received. If
+\code{NULL}, then the value of \code{echo} set when the chat object was created
 will be used.}
 }
 \if{html}{\out{</div>}}
@@ -144,20 +138,15 @@ will be used.}
 \if{latex}{\out{\hypertarget{method-ChatOpenAI-chat_async}{}}}
 \subsection{Method \code{chat_async()}}{
 Submit text to the chatbot, and receive a promise that
-resolves with the response all at once. If not in quiet mode, the
-response will be printed to stdout as it is received.
+resolves with the response all at once.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$chat_async(text, quiet = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$chat_async(text)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{text}}{The text to send to the chatbot.}
-
-\item{\code{quiet}}{Whether to emit the response to stdout as it is received. If
-\code{NULL}, then the value of \code{quiet} set when the chat object was created
-will be used.}
 }
 \if{html}{\out{</div>}}
 }
@@ -167,18 +156,17 @@ will be used.}
 \if{latex}{\out{\hypertarget{method-ChatOpenAI-stream}{}}}
 \subsection{Method \code{stream()}}{
 Submit text to the chatbot, returning streaming results.
+Returns A \href{https://coro.r-lib.org/articles/generator.html#iterating}{coro generator}
+that yields strings. While iterating, the generator will block while
+waiting for more content from the chatbot.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$stream(text, quiet = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$stream(text)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{text}}{The text to send to the chatbot.}
-
-\item{\code{quiet}}{Whether to emit the response to stdout as it is received. If
-\code{NULL}, then the value of \code{quiet} set when the chat object was created
-will be used.}
 }
 \if{html}{\out{</div>}}
 }
@@ -188,19 +176,16 @@ will be used.}
 \if{latex}{\out{\hypertarget{method-ChatOpenAI-stream_async}{}}}
 \subsection{Method \code{stream_async()}}{
 Submit text to the chatbot, returning asynchronously
-streaming results.
+streaming results. Returns a \href{https://coro.r-lib.org/reference/async_generator.html}{coro async generator} that
+yields string promises.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$stream_async(text, quiet = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$stream_async(text)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{text}}{The text to send to the chatbot.}
-
-\item{\code{quiet}}{Whether to emit the response to stdout as it is received. If
-\code{NULL}, then the value of \code{quiet} set when the chat object was created
-will be used.}
 }
 \if{html}{\out{</div>}}
 }

@@ -41,7 +41,8 @@ library(elmer)
 
 chat <- new_chat_openai(
   model = "gpt-4o-mini",
-  system_prompt = "You are a friendly but terse assistant."
+  system_prompt = "You are a friendly but terse assistant.",
+  echo = TRUE
 )
 ```
 
@@ -86,22 +87,19 @@ The second most interactive way to chat using elmer is to call the
     Other languages that had an impact include Scheme and various data analysis
     languages.
 
-By default, the `chat` method streams the response to the console as it
-arrives. When the entire response is received, it is returned as a
-character vector (invisibly, so it’s not printed twice).
+If you initialize the chat object with `echo = TRUE`, as we did above,
+the `chat` method streams the response to the console as it arrives.
+When the entire response is received, it is returned as a character
+vector (invisibly, so it’s not printed twice).
 
 This mode is useful when you want to see the response as it arrives, but
 you don’t want to enter the chat console.
 
 ### Programmatic chat
 
-If you don’t want to see the response as it arrives, you can use the
-`quiet` argument to suppress output. You can either pass `quiet=TRUE` as
-an argument to `chat$chat()`, or as an argument to `new_chat_openai()`
-if you want all interactions to be quiet by default.
-
-**The remaining examples on this page will use a chat object created
-with `quiet = TRUE`.**
+If you don’t want to see the response as it arrives, you can turn off
+echoing by leaving off the `echo = TRUE` argument to
+`new_chat_openai()`.
 
     > chat <- new_chat_openai(
     +   model = "gpt-4o-mini",
@@ -110,9 +108,6 @@ with `quiet = TRUE`.**
     + )
     > chat$chat("Is R a functional programming language?")
     [1] "Yes, R supports functional programming concepts. It allows functions to be first-class objects, supports higher-order functions, and encourages the use of functions as core components of code. However, it also supports procedural and object-oriented programming styles."
-
-When called with `quiet=TRUE`, the `chat` method still returns the
-entire response as a character vector, but without making it invisible.
 
 This mode is useful for programming using elmer, when the result is
 either not intended for human consumption or when you want to process
