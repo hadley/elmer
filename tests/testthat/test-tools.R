@@ -25,7 +25,7 @@ test_that("repeated tool calls (sync)", {
     strict = FALSE
   )
 
-  result <- coro::collect(chat$stream("Pick a random number. If it's positive, tell me the current time in New York. If it's negative, tell me the current time in Seattle. Use ISO-8601."))
+  result <- coro::collect(chat$stream("Pick a random number. If it's positive, tell me the current time in New York. If it's negative, tell me the current time in Seattle. Use ISO-8601, e.g. '2006-01-02T15:04:05'."))
   expect_identical(paste(result, collapse = ""), "2020-08-01T14:00:00\n")
 
   not_actually_random_number <- -1
@@ -38,7 +38,7 @@ test_that("repeated tool calls (sync)", {
 test_that("repeated tool calls (async)", {
   not_actually_random_number <- 1
 
-  chat_async <- new_chat_async_openai(system_prompt = "Be very terse, not even punctuation.", quiet = TRUE)
+  chat_async <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.", quiet = TRUE)
   chat_async$register_tool(
     fun = function(tz) format(as.POSIXct(as.POSIXct("2020-08-01 18:00:00", tz="UTC"), tz=tz)),
     "get_time",
@@ -58,11 +58,11 @@ test_that("repeated tool calls (async)", {
     strict = FALSE
   )
 
-  result <- sync(coro::async_collect(chat_async$stream("Pick a random number. If it's positive, tell me the current time in New York. If it's negative, tell me the current time in Seattle. Use ISO-8601.")))
+  result <- sync(coro::async_collect(chat_async$stream_async("Pick a random number. If it's positive, tell me the current time in New York. If it's negative, tell me the current time in Seattle. Use ISO-8601.")))
   expect_identical(paste(result, collapse = ""), "2020-08-01T14:00:00\n")
 
   not_actually_random_number <- -1
-  result <- sync(coro::async_collect(chat_async$stream("Great. Do it again.")))
+  result <- sync(coro::async_collect(chat_async$stream_async("Great. Do it again.")))
   expect_identical(paste(result, collapse = ""), "2020-08-01T11:00:00\n")
 
   expect_snapshot(chat_async)

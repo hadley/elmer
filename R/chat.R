@@ -117,6 +117,29 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
       }
     },
 
+    #' @description Submit text to the chatbot, and receive a promise that
+    #'   resolves with the response all at once. If not in quiet mode, the
+    #'   response will be printed to stdout as it is received.
+    #' @param text The text to send to the chatbot.
+    #' @param quiet Whether to emit the response to stdout as it is received. If
+    #'   `NULL`, then the value of `quiet` set when the chat object was created
+    #'   will be used.
+    #' @returns A promise that resolves to a string (probably Markdown).
+    chat_async = function(text, quiet = NULL) {
+      check_string(text)
+
+      quiet <- quiet %||% private$quiet
+
+      # Returns a single message (the final response from the assistant), even if
+      # multiple rounds of back and forth happened.
+      done <- coro::async_collect(private$chat_impl_async(text, stream = FALSE, quiet = quiet))
+      promises::then(done, function(dummy) {
+        last_message <- private$messages[[length(private$messages)]]
+        stopifnot(identical(last_message[["role"]], "assistant"))
+        last_message$content
+      })
+    },
+
     #' @description Submit text to the chatbot, returning streaming results.
     #' @param text The text to send to the chatbot.
     #' @param quiet Whether to emit the response to stdout as it is received. If
@@ -128,6 +151,19 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     #'   waiting for more content from the chatbot.
     stream = function(text, quiet = NULL) {
       private$chat_impl(text, stream = TRUE, quiet = quiet)
+    },
+
+    #' @description Submit text to the chatbot, returning asynchronously
+    #'   streaming results.
+    #' @param text The text to send to the chatbot.
+    #' @param quiet Whether to emit the response to stdout as it is received. If
+    #'   `NULL`, then the value of `quiet` set when the chat object was created
+    #'   will be used.
+    #' @returns A [coro async
+    #'   generator](https://coro.r-lib.org/reference/async_generator.html)
+    #'   that yields string promises.
+    stream_async = function(text, quiet = NULL) {
+      private$chat_impl_async(text, stream = TRUE, quiet = quiet)
     },
 
     #' @description Enter an interactive chat console. This is a REPL-like
@@ -249,6 +285,25 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant messages.
+    chat_impl_async = async_generator_method(function(self, private, text, stream, quiet = NULL) {
+      private$add_message(list(role = "user", content = text))
+      while (TRUE) {
+        for (chunk in await_each(private$submit_messages_async(stream = stream, quiet = quiet))) {
+          yield(chunk)
+        }
+        if (!private$invoke_tools()) {
+          break
+        }
+      }
+
+      # Work around https://github.com/r-lib/coro/issues/51
+      if (FALSE) {
+        yield(NULL)
+      }
+    }),
+
+    # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
+    # complete assistant messages.
     submit_messages = generator_method(function(self, private, stream, quiet = NULL) {
       quiet <- quiet %||% private$quiet
 
@@ -290,6 +345,59 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
           emit(response$choices[[1]]$message$content)
           emit("\n")
           yield(response$choices[[1]]$message$content)
+        }
+      }
+
+      # Work around https://github.com/r-lib/coro/issues/51
+      if (FALSE) {
+        yield(NULL)
+      }
+    }),
+
+    # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
+    # complete assistant messages.
+    submit_messages_async = async_generator_method(function(self, private, stream, quiet = NULL) {
+      quiet <- quiet %||% private$quiet
+
+      response <- openai_chat_async(
+        messages = private$messages,
+        tools = private$tool_infos,
+        base_url = private$base_url,
+        model = private$model,
+        stream = stream,
+        api_key = private$api_key
+      )
+
+      if (!quiet) {
+        # Like `cat()` but with automatic word wrapping
+        emit <- cat_word_wrap()
+      } else {
+        emit <- function(...) invisible()
+      }
+
+      if (stream) {
+        result <- list()
+        any_content <- FALSE
+        for (chunk in await_each(response)) {
+          result <- merge_dicts(result, chunk)
+          if (!is.null(chunk$choices[[1]]$delta$content)) {
+            emit(chunk$choices[[1]]$delta$content)
+            yield(chunk$choices[[1]]$delta$content)
+            any_content <- TRUE
+          }
+        }
+        if (any_content) {
+          emit("\n")
+          yield("\n")
+        }
+        private$add_message(result$choices[[1]]$delta)
+      } else {
+        response_value <- await(response)
+        private$add_message(response_value$choices[[1]]$message)
+        if (!is.null(response_value$choices[[1]]$message$content)) {
+          emit(response_value$choices[[1]]$message$content)
+          emit("\n")
+          yield(response_value$choices[[1]]$message$content)
         }
       }
 

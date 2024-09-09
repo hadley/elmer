@@ -29,9 +29,14 @@ variable.}
 \value{
 A string response (probably Markdown).
 
+A promise that resolves to a string (probably Markdown).
+
 A \href{https://coro.r-lib.org/articles/generator.html#iterating}{coro generator}
 that yields strings. While iterating, the generator will block while
 waiting for more content from the chatbot.
+
+A \href{https://coro.r-lib.org/reference/async_generator.html}{coro async generator}
+that yields string promises.
 }
 \description{
 This function returns an R6 object that takes care of managing the state
@@ -77,7 +82,9 @@ chat$chat("
 \itemize{
 \item \href{#method-ChatOpenAI-new}{\code{ChatOpenAI$new()}}
 \item \href{#method-ChatOpenAI-chat}{\code{ChatOpenAI$chat()}}
+\item \href{#method-ChatOpenAI-chat_async}{\code{ChatOpenAI$chat_async()}}
 \item \href{#method-ChatOpenAI-stream}{\code{ChatOpenAI$stream()}}
+\item \href{#method-ChatOpenAI-stream_async}{\code{ChatOpenAI$stream_async()}}
 \item \href{#method-ChatOpenAI-console}{\code{ChatOpenAI$console()}}
 \item \href{#method-ChatOpenAI-register_tool}{\code{ChatOpenAI$register_tool()}}
 \item \href{#method-ChatOpenAI-clone}{\code{ChatOpenAI$clone()}}
@@ -114,16 +121,43 @@ variable.}
 \if{latex}{\out{\hypertarget{method-ChatOpenAI-chat}{}}}
 \subsection{Method \code{chat()}}{
 Submit text to the chatbot, and return the response as a
-simple string. If the chat was created with \code{quiet=FALSE}, the response
-will be printed to stdout as it is received.
+simple string. If not in quiet mode, the response will be printed to
+stdout as it is received.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$chat(text)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$chat(text, quiet = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{text}}{The text to send to the chatbot.}
+
+\item{\code{quiet}}{Whether to emit the response to stdout as it is received. If
+\code{NULL}, then the value of \code{quiet} set when the chat object was created
+will be used.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ChatOpenAI-chat_async"></a>}}
+\if{latex}{\out{\hypertarget{method-ChatOpenAI-chat_async}{}}}
+\subsection{Method \code{chat_async()}}{
+Submit text to the chatbot, and receive a promise that
+resolves with the response all at once. If not in quiet mode, the
+response will be printed to stdout as it is received.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$chat_async(text, quiet = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{text}}{The text to send to the chatbot.}
+
+\item{\code{quiet}}{Whether to emit the response to stdout as it is received. If
+\code{NULL}, then the value of \code{quiet} set when the chat object was created
+will be used.}
 }
 \if{html}{\out{</div>}}
 }
@@ -134,13 +168,39 @@ will be printed to stdout as it is received.
 \subsection{Method \code{stream()}}{
 Submit text to the chatbot, returning streaming results.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$stream(text)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$stream(text, quiet = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{text}}{The text to send to the chatbot.}
+
+\item{\code{quiet}}{Whether to emit the response to stdout as it is received. If
+\code{NULL}, then the value of \code{quiet} set when the chat object was created
+will be used.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ChatOpenAI-stream_async"></a>}}
+\if{latex}{\out{\hypertarget{method-ChatOpenAI-stream_async}{}}}
+\subsection{Method \code{stream_async()}}{
+Submit text to the chatbot, returning asynchronously
+streaming results.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$stream_async(text, quiet = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{text}}{The text to send to the chatbot.}
+
+\item{\code{quiet}}{Whether to emit the response to stdout as it is received. If
+\code{NULL}, then the value of \code{quiet} set when the chat object was created
+will be used.}
 }
 \if{html}{\out{</div>}}
 }
