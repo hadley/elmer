@@ -1,7 +1,6 @@
 test_that("can perform a simple chat with batch and streaming", {
   chat <- new_chat_openai(
-    "You're a helpful assistant that returns very minimal output. If asked a math question, return only the answer.",
-    quiet = TRUE
+    "You're a helpful assistant that returns very minimal output. If asked a math question, return only the answer."
   )
 
   result <- sync(chat$chat_async("What's 1 + 1"))
@@ -19,8 +18,7 @@ test_that("can perform a simple chat with batch and streaming", {
 
 test_that("has a basic print method", {
   chat <- new_chat_openai(
-    "You're a helpful assistant that returns very minimal output",
-     quiet = TRUE
+    "You're a helpful assistant that returns very minimal output"
   )
 
   sync(chat$chat_async("What's 1 + 1"))

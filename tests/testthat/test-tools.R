@@ -5,7 +5,7 @@ test_that("call tool gives useful error", {
 test_that("repeated tool calls (sync)", {
   not_actually_random_number <- 1
 
-  chat <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.", quiet = TRUE)
+  chat <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.")
   chat$register_tool(
     fun = function(tz) format(as.POSIXct(as.POSIXct("2020-08-01 18:00:00", tz="UTC"), tz=tz)),
     "get_time",
@@ -38,7 +38,7 @@ test_that("repeated tool calls (sync)", {
 test_that("repeated tool calls (async)", {
   not_actually_random_number <- 1
 
-  chat_async <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.", quiet = TRUE)
+  chat_async <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.")
   chat_async$register_tool(
     fun = function(tz) format(as.POSIXct(as.POSIXct("2020-08-01 18:00:00", tz="UTC"), tz=tz)),
     "get_time",

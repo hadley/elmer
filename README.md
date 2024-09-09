@@ -104,7 +104,6 @@ echoing by leaving off the `echo = TRUE` argument to
     > chat <- new_chat_openai(
     +   model = "gpt-4o-mini",
     +   system_prompt = "You are a friendly but terse assistant.",
-    +   quiet = TRUE
     + )
     > chat$chat("Is R a functional programming language?")
     [1] "Yes, R supports functional programming concepts. It allows functions to be first-class objects, supports higher-order functions, and encourages the use of functions as core components of code. However, it also supports procedural and object-oriented programming styles."

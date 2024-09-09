@@ -1,7 +1,6 @@
 test_that("can perform a simple chat with batch and streaming", {
   chat <- new_chat_openai(
     "You're a helpful assistant that returns very minimal output. If asked a math question, return only the answer.",
-    quiet = TRUE
   )
 
   result <- chat$chat("What's 1 + 1")
@@ -19,10 +18,23 @@ test_that("can perform a simple chat with batch and streaming", {
 
 test_that("has a basic print method", {
   chat <- new_chat_openai(
-    "You're a helpful assistant that returns very minimal output",
-    quiet = TRUE
+    "You're a helpful assistant that returns very minimal output"
   )
 
   chat$chat("What's 1 + 1")
   expect_snapshot(chat)
+})
+
+test_that("can echo", {
+  chat <- new_chat_openai(
+    "You're a helpful assistant that returns very minimal output",
+    echo = TRUE
+  )
+
+  chat <- new_chat_openai(
+    "You're a helpful assistant that returns very minimal output"
+  )
+
+  testthat::expect_output(chat$chat("Echo this."), NA)
+  testthat::expect_output(chat$chat("Echo this.", echo = TRUE), "Echo this.")
 })

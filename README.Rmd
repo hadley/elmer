@@ -95,8 +95,7 @@ If you don't want to see the response as it arrives, you can turn off echoing by
 ```
 > chat <- new_chat_openai(
 +   model = "gpt-4o-mini",
-+   system_prompt = "You are a friendly but terse assistant.",
-+   quiet = TRUE
++   system_prompt = "You are a friendly but terse assistant."
 + )
 > chat$chat("Is R a functional programming language?")
 [1] "Yes, R supports functional programming concepts. It allows functions to be first-class objects, supports higher-order functions, and encourages the use of functions as core components of code. However, it also supports procedural and object-oriented programming styles."
