@@ -161,41 +161,24 @@ multiple chat sessions concurrently. This is primarily useful in Shiny
 applications, where using the methods described above would block the
 Shiny app for other users for the duration of each response.
 
-To use async chat, create a new chat object with
-`new_chat_async_openai()` instead of `new_chat_openai()`. It takes the
-same arguments for construction, and has similar `chat()` and `stream()`
-methods; but the `chat()` and `stream()` methods return promises instead
-of the actual response.
+To use async chat, instead of `chat()`/`stream()`, call
+`chat_async()`/`stream_async()`. The `_async` variants take the same
+arguments for construction, but return promises instead of the actual
+response.
 
-Note that async chat does not support the `console()` method, as async
-programming is not too relevant for interactive usage. It’s also highly
-unlikely you’d want responses to be streamed to the console, so
-`quiet = TRUE` is the default.
-
-``` r
-library(promises)
-
-chat_async <- new_chat_async_openai(
-  model = "gpt-4o-mini",
-  system_prompt = "You are a friendly but terse assistant.",
-  # TODO: Do we need quiet = TRUE for async?
-  quiet = TRUE
-)
-```
-
-Just like with regular chat objects, asynchronous chat objects are
-stateful, maintaining the conversation history as you interact with it.
-Note that this means it doesn’t make sense to issue multiple chat/stream
-operations on the same chat object concurrently, as the conversation
-history will become corrupted. If you need to run multiple chat sessions
-concurrently, create multiple chat objects.
+Remember that chat objects are stateful, maintaining the conversation
+history as you interact with it. Note that this means it doesn’t make
+sense to issue multiple chat/stream operations on the same chat object
+concurrently, as the conversation history could become corrupted with
+interleaved conversation fragments. If you need to run multiple chat
+sessions concurrently, create multiple chat objects.
 
 ### Asynchronous chat
 
 For asynchronous, non-streaming chat, you use the `chat()` method as
 before, but handle the result as a promise instead of a string.
 
-    > chat_async$chat("How's your day going?") %...>% print()
+    > chat$chat_async("How's your day going?") %...>% print()
     >
     I'm just a computer program, so I don't have feelings, but I'm here to help you with any questions you have.
 
@@ -211,7 +194,7 @@ regular [generator](https://coro.r-lib.org/articles/generator.html),
 except instead of giving you strings, it gives you promises that resolve
 to strings.
 
-    > stream <- chat_async$stream("What are some common uses of R?")
+    > stream <- chat$stream_async("What are some common uses of R?")
     > coro::async(function() {
     +   for (chunk in await_each(stream)) {
     +     cat(toupper(chunk))
@@ -234,7 +217,7 @@ Async generators are very advanced, and require a good understanding of
 asynchronous programming in R. They are also the only way to present
 streaming results in Shiny without blocking other users. Fortunately,
 Shiny will soon have chat components that will make this easier, where
-you can simply hand the result of `stream()` to a chat output.
+you can simply hand the result of `stream_async()` to a chat output.
 
 ## Tool integrations
 
