@@ -1,6 +1,6 @@
 test_that("can perform a simple chat with batch and streaming", {
   chat <- new_chat_openai(
-    "You're a helpful assistant that returns very minimal output",
+    "You're a helpful assistant that returns very minimal output. If asked a math question, return only the answer.",
     quiet = TRUE
   )
 

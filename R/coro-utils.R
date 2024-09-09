@@ -10,6 +10,10 @@
 # R6 classes that depend on this will be instantiated at package build time; so
 # the coro generator functions will be burned into the package .Rds file.
 
+# So `R CMD check` doesn't get confused about these variables being used from
+# methods
+utils::globalVariables(c("self", "private", "generator_env", "exits"))
+
 generators <- new.env()
 
 # Decorator for anonymous functions; the return value is intended to be used as
