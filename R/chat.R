@@ -83,9 +83,8 @@ new_chat_openai <- function(system_prompt = NULL,
   }
 
   if (!is.null(system_prompt)) {
-    if (!is.null(messages)) {
-      if (length(messages) == 0 ||
-          messages[[1]][["role"]] != "system" ||
+    if (!is.null(messages) && length(messages) > 0) {
+      if (messages[[1]][["role"]] != "system" ||
           !identical(messages[[1]][["content"]], system_prompt)) {
         stop("If both `system_prompt` and `messages` are provided, `messages` must start with the `system_prompt`.")
       }
@@ -451,8 +450,8 @@ print.ChatOpenAI <- function(x, ...) {
   for (message in x$messages()) {
     color <- switch(message$role,
       user = cli::col_blue,
-      system = identity,
-      assistant = cli::col_green
+      assistant = cli::col_green,
+      identity
     )
     cli::cli_rule("{color(message$role)}")
     # Using cli_text for word wrapping. Passing `"{message$content}"` instead of

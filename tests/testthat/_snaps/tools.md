@@ -11,10 +11,13 @@
       chat
     Output
       <ChatOpenAI>
+    Message
       -- system ----------------------------------------------------------------------
       Be very terse, not even punctuation.
       -- user ------------------------------------------------------------------------
-      Pick a random number. If it's positive, tell me the current time in New York. If it's negative, tell me the current time in Seattle. Use ISO-8601, e.g. '2006-01-02T15:04:05'.
+      Pick a random number. If it's positive, tell me the current time in New York.
+      If it's negative, tell me the current time in Seattle. Use ISO-8601, e.g.
+      '2006-01-02T15:04:05'.
       -- assistant -------------------------------------------------------------------
       
       -- tool ------------------------------------------------------------------------
@@ -44,10 +47,12 @@
       chat_async
     Output
       <ChatOpenAI>
+    Message
       -- system ----------------------------------------------------------------------
       Be very terse, not even punctuation.
       -- user ------------------------------------------------------------------------
-      Pick a random number. If it's positive, tell me the current time in New York. If it's negative, tell me the current time in Seattle. Use ISO-8601.
+      Pick a random number. If it's positive, tell me the current time in New York.
+      If it's negative, tell me the current time in Seattle. Use ISO-8601.
       -- assistant -------------------------------------------------------------------
       
       -- tool ------------------------------------------------------------------------
