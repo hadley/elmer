@@ -1,12 +1,17 @@
-call_tools <- function(message) {
+call_tools <- function(tools, message) {
   if (!has_name(message, "tool_calls")) {
     return()
   }
 
   lapply(message$tool_calls, function(call) {
     fun <- call$`function`
-    args <- jsonlite::fromJSON(fun$arguments)
-    result <- call_tool(fun$name, args)
+    tool_fun <- tools[[fun$name]]
+    if (is.null(tool_fun)) {
+      result <- paste0("Error calling tool: Unknown tool name '", call$`function`, "'")
+    } else {
+      args <- jsonlite::fromJSON(fun$arguments)
+      result <- call_tool(tool_fun, args)
+    }
 
     list(
       role = "tool",
@@ -22,7 +27,8 @@ call_tool <- function(fun, arguments) {
   tryCatch(
     do.call(fun, arguments),
     error = function(e) {
-       paste0("Error calling tool: ", conditionMessage(e))
-     }
+      # TODO: We need to report this somehow; it's way too hidden from the user
+      paste0("Error calling tool: ", conditionMessage(e))
+    }
   )
 }

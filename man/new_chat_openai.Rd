@@ -26,6 +26,18 @@ variable.}
 
 \item{quiet}{If \code{TRUE} does not print output as its received.}
 }
+\value{
+A string response (probably Markdown).
+
+A promise that resolves to a string (probably Markdown).
+
+A \href{https://coro.r-lib.org/articles/generator.html#iterating}{coro generator}
+that yields strings. While iterating, the generator will block while
+waiting for more content from the chatbot.
+
+A \href{https://coro.r-lib.org/reference/async_generator.html}{coro async generator}
+that yields string promises.
+}
 \description{
 This function returns an R6 object that takes care of managing the state
 associated with the chat; i.e. it records the messages that you send to the
@@ -45,18 +57,15 @@ chat$register_tool(
   name = "rnorm",
   description = "Drawn numbers from a random normal distribution",
   arguments = list(
-    tool_arg(
-      "n",
+    n = tool_arg(
       type = "integer",
       description = "The number of observations. Must be a positive integer."
     ),
-    tool_arg(
-      "mean",
+    mean = tool_arg(
       type = "number",
       description = "The mean value of the distribution."
     ),
-    tool_arg(
-      "sd",
+    sd = tool_arg(
       type = "number",
       description = "The standard deviation of the distribution. Must be a non-negative number."
     )
@@ -73,6 +82,10 @@ chat$chat("
 \itemize{
 \item \href{#method-ChatOpenAI-new}{\code{ChatOpenAI$new()}}
 \item \href{#method-ChatOpenAI-chat}{\code{ChatOpenAI$chat()}}
+\item \href{#method-ChatOpenAI-chat_async}{\code{ChatOpenAI$chat_async()}}
+\item \href{#method-ChatOpenAI-stream}{\code{ChatOpenAI$stream()}}
+\item \href{#method-ChatOpenAI-stream_async}{\code{ChatOpenAI$stream_async()}}
+\item \href{#method-ChatOpenAI-console}{\code{ChatOpenAI$console()}}
 \item \href{#method-ChatOpenAI-register_tool}{\code{ChatOpenAI$register_tool()}}
 \item \href{#method-ChatOpenAI-clone}{\code{ChatOpenAI$clone()}}
 }
@@ -85,25 +98,124 @@ chat$chat("
 \if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$new(base_url, model, api_key, system_prompt, quiet = TRUE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{base_url}}{The base URL to the endpoint; the default uses ChatGPT.}
+
+\item{\code{model}}{The model to use for the chat; defaults to GPT-4o mini.}
+
+\item{\code{api_key}}{The API key to use for authentication. You generally should
+not supply this directly, but instead set the \code{OPENAI_API_KEY} environment
+variable.}
+
+\item{\code{system_prompt}}{A system prompt to set the behavior of the assistant.}
+
+\item{\code{quiet}}{If \code{TRUE} does not print output as its received.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ChatOpenAI-chat"></a>}}
 \if{latex}{\out{\hypertarget{method-ChatOpenAI-chat}{}}}
 \subsection{Method \code{chat()}}{
-Submit text to the chatbot.
+Submit text to the chatbot, and return the response as a
+simple string. If not in quiet mode, the response will be printed to
+stdout as it is received.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$chat(text, stream = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$chat(text, quiet = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{text}}{The text to send to the chatbot}
+\item{\code{text}}{The text to send to the chatbot.}
 
-\item{\code{stream}}{Whether to stream the response or not.}
+\item{\code{quiet}}{Whether to emit the response to stdout as it is received. If
+\code{NULL}, then the value of \code{quiet} set when the chat object was created
+will be used.}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ChatOpenAI-chat_async"></a>}}
+\if{latex}{\out{\hypertarget{method-ChatOpenAI-chat_async}{}}}
+\subsection{Method \code{chat_async()}}{
+Submit text to the chatbot, and receive a promise that
+resolves with the response all at once. If not in quiet mode, the
+response will be printed to stdout as it is received.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$chat_async(text, quiet = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{text}}{The text to send to the chatbot.}
+
+\item{\code{quiet}}{Whether to emit the response to stdout as it is received. If
+\code{NULL}, then the value of \code{quiet} set when the chat object was created
+will be used.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ChatOpenAI-stream"></a>}}
+\if{latex}{\out{\hypertarget{method-ChatOpenAI-stream}{}}}
+\subsection{Method \code{stream()}}{
+Submit text to the chatbot, returning streaming results.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$stream(text, quiet = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{text}}{The text to send to the chatbot.}
+
+\item{\code{quiet}}{Whether to emit the response to stdout as it is received. If
+\code{NULL}, then the value of \code{quiet} set when the chat object was created
+will be used.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ChatOpenAI-stream_async"></a>}}
+\if{latex}{\out{\hypertarget{method-ChatOpenAI-stream_async}{}}}
+\subsection{Method \code{stream_async()}}{
+Submit text to the chatbot, returning asynchronously
+streaming results.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$stream_async(text, quiet = NULL)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{text}}{The text to send to the chatbot.}
+
+\item{\code{quiet}}{Whether to emit the response to stdout as it is received. If
+\code{NULL}, then the value of \code{quiet} set when the chat object was created
+will be used.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-ChatOpenAI-console"></a>}}
+\if{latex}{\out{\hypertarget{method-ChatOpenAI-console}{}}}
+\subsection{Method \code{console()}}{
+Enter an interactive chat console. This is a REPL-like
+interface where you can chat with the assistant in real-time. (Only
+available in \code{\link[=interactive]{interactive()}} mode.)
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$console()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ChatOpenAI-register_tool"></a>}}
@@ -113,19 +225,21 @@ Register a tool (an R function) that the chatbot can use.
 If the chatbot decides to use the function, elmer will automatically
 call it and submit the results back.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$register_tool(name, description, arguments, strict = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$register_tool(fun, name, description, arguments, strict = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
+\item{\code{fun}}{The function to be invoked when the tool is called.}
+
 \item{\code{name}}{The name of the function.}
 
 \item{\code{description}}{A detailed description of what the function does.
 Generally, the more information that you can provide here, the better.}
 
-\item{\code{arguments}}{A list of arguments that the function accepts.
-Should be a list of objects created by \code{\link[=tool_arg]{tool_arg()}}.}
+\item{\code{arguments}}{A named list of arguments that the function accepts.
+Should be a named list of objects created by \code{\link[=tool_arg]{tool_arg()}}.}
 
 \item{\code{strict}}{Should the argument definition be strictly enforced?}
 }

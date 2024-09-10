@@ -13,16 +13,32 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Imports:
     cli,
+    coro,
     httr2 (>= 1.0.3.9000),
     jsonlite,
     R6,
     rlang (>= 1.1.0)
 Suggests:
     testthat (>= 3.0.0),
-    withr
+    withr,
+    later,
+    promises
 Config/testthat/edition: 3
 Remotes:
     r-lib/httr2
 URL: https://github.com/hadley/elmer, https://hadley.github.io/elmer/
 BugReports: https://github.com/hadley/elmer/issues
 Config/Needs/website: tidyverse/tidytemplate
+Collate: 
+    'cat-wordwrap.R'
+    'coro-utils.R'
+    'chat.R'
+    'elmer-package.R'
+    'import-standalone-obj-type.R'
+    'import-standalone-purrr.R'
+    'import-standalone-types-check.R'
+    'merge.R'
+    'open-ai.R'
+    'tools-def.R'
+    'tools.R'
+    'utils.R'

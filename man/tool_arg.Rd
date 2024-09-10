@@ -4,11 +4,9 @@
 \alias{tool_arg}
 \title{Define arguments for a tool}
 \usage{
-tool_arg(name, type, description, required = TRUE)
+tool_arg(type, description, required = TRUE)
 }
 \arguments{
-\item{name}{Name of the argument}
-
 \item{type}{Argument type.}
 
 \item{description}{Description of argument as free text.}
