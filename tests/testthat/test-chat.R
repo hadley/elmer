@@ -31,6 +31,9 @@ test_that("can echo", {
     echo = TRUE
   )
 
+  testthat::expect_output(chat$chat("Echo this."), "Echo this.")
+  testthat::expect_output(chat$chat("Echo this.", echo = FALSE), NA)
+
   chat <- new_chat_openai(
     "You're a helpful assistant that returns very minimal output"
   )
