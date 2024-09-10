@@ -10,35 +10,21 @@ openai_chat <- function(messages,
   )
 
   if (stream) {
-    openai_chat_stream(req)
+    chat_stream(
+      req,
+      is_done = function(event) {
+        if (is.null(event)) {
+          abort("Connection failed")
+        }
+        identical(event$data, "[DONE]")
+      },
+      parse_data = function(event) jsonlite::parse_json(event$data)
+    )
   } else {
     resp <- httr2::req_perform(req)
     httr2::resp_body_json(resp)
   }
 }
-
-openai_chat_stream <- coro::generator(function(req) {
-  resp <- httr2::req_perform_connection(req)
-  on.exit(close(resp))
-  reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
-
-  while (TRUE) {
-    event <- httr2::resp_stream_sse(resp)
-    if (is.null(event)) {
-      abort("Connection failed")
-    }
-    if (event$data == "[DONE]") {
-      break
-    }
-    json <- jsonlite::parse_json(event$data)
-    yield(json)
-  }
-
-  # Work around https://github.com/r-lib/coro/issues/51
-  if (FALSE) {
-    yield(NULL)
-  }
-})
 
 openai_chat_async <- function(messages,
                               tools = list(),
@@ -124,22 +110,9 @@ openai_request <- function(base_url = "https://api.openai.com/v1",
   req <- httr2::req_error(req, body = function(resp) {
      httr2::resp_body_json(resp)$error$message
   })
-  # req <- httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE)
   req
 }
 
-openai_key_exists <- function() {
-  !identical(Sys.getenv("OPENAI_API_KEY"), "")
-}
-
 openai_key <- function() {
-  if (openai_key_exists()) {
-    Sys.getenv("OPENAI_API_KEY")
-  } else {
-    if (is_testing()) {
-      testthat::skip("OPENAI_API_KEY env var is not configured")
-    } else {
-      cli::cli_abort("Can't find env var {.code OPENAI_API_KEY}.")
-    }
-  }
+  get_key("OPENAI_API_KEY")
 }
