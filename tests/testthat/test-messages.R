@@ -23,3 +23,14 @@ test_that("system prompt can be passed explicitly or as message", {
     messages = list(list(role = "system", content = system_prompt))
   ))
 })
+
+test_that("existing conversation history is used", {
+  chat <- new_chat_openai(messages = list(
+    list(role = "system", content = "Return very minimal output."),
+    list(role = "user", content = "List the names of any 8 of Santa's 9 reindeer."),
+    list(role = "assistant", content = "Dasher, Dancer, Vixen, Comet, Cupid, Donner, Blitzen, and Rudolph.")
+  ))
+
+  resp <- chat$chat("Who is the remaining one?")
+  expect_match(resp, "Prancer\\.?")
+})

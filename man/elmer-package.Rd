@@ -12,16 +12,17 @@ A consistent interface for calling LLM APIs. Includes support for streaming.
 Useful links:
 \itemize{
   \item \url{https://github.com/hadley/elmer}
+  \item \url{https://hadley.github.io/elmer/}
   \item Report bugs at \url{https://github.com/hadley/elmer/issues}
 }
 
 }
 \author{
-\strong{Maintainer}: Hadley Wickham \email{hadley@rstudio.com}
+\strong{Maintainer}: Hadley Wickham \email{hadley@posit.co}
 
 Other contributors:
 \itemize{
-  \item RStudio [copyright holder, funder]
+  \item Posit Software, PBC [copyright holder, funder]
 }
 
 }

@@ -13,13 +13,17 @@ NULL
 #'   previous conversation). If not provided, the conversation begins from
 #'   scratch. Do not provide non-`NULL` values for both `messages` and
 #'   `system_prompt`.
+#'
+#'   Each message in the list should be a named list with at least `role`
+#'   (usually `system`, `user`, or `assistant`, but `tool` is also possible).
+#'   Normally there is also a `content` field, which is a string.
 #' @param base_url The base URL to the endpoint; the default uses OpenAI.
 #' @param api_key The API key to use for authentication. You generally should
 #'   not supply this directly, but instead set the `OPENAI_API_KEY` environment
 #'   variable.
-#' @param model The model to use for the chat; set to `NA` (the default) to use
-#'   a reasonable model, currently `gpt-4o-mini`. It's strongly suggested that
-#'   you explicitly choose a model for programmatic use.
+#' @param model The model to use for the chat; set to `NULL` (the default) to
+#'   use a reasonable model, currently `gpt-4o-mini`. We strongly recommend
+#'   explicitly choosing a model for all but the most casual use.
 #' @param echo If `TRUE`, the `chat()` method streams the response to stdout by
 #'   default. (Note that this has no effect on the `stream()`, `chat_async()`,
 #'   and `stream_async()` methods.)
@@ -58,29 +62,16 @@ new_chat_openai <- function(system_prompt = NULL,
                             messages = NULL,
                             base_url = "https://api.openai.com/v1",
                             api_key = openai_key(),
-                            model = NA,
+                            model = NULL,
                             echo = FALSE) {
   check_string(system_prompt, allow_null = TRUE)
-  check_string(base_url)
+  check_openai_conversation(messages, allow_null = TRUE)
+    check_string(base_url)
   check_string(api_key)
   check_string(model, allow_null = TRUE, allow_na = TRUE)
   check_bool(echo)
 
-  if (is.na(model)) {
-    model <- "gpt-4o-mini"
-  }
-
-  # TODO: Sanity check individual messages?
-  if (!is.null(messages)) {
-    if (!is.list(messages) ||
-        !(is.null(names(messages)) || all(names(messages) == ""))) {
-      stop_input_type(
-        messages,
-        "an unnamed list of messages",
-        allow_null = TRUE
-      )
-    }
-  }
+  model <- model %||% "gpt-4o-mini"
 
   if (!is.null(system_prompt)) {
     if (!is.null(messages) && length(messages) > 0) {
@@ -100,6 +91,28 @@ new_chat_openai <- function(system_prompt = NULL,
     api_key = api_key,
     echo = echo
   )
+}
+
+check_openai_conversation <- function(messages, allow_null = FALSE) {
+  if (is.null(messages) && isTRUE(allow_null)) {
+    return()
+  }
+
+  if (!is.list(messages) ||
+      !(is.null(names(messages)) || all(names(messages) == ""))) {
+    stop_input_type(
+      messages,
+      "an unnamed list of messages",
+      allow_null = FALSE
+    )
+  }
+
+  for (message in messages) {
+    if (!is.list(message) ||
+        !is.character(message$role)) {
+      stop("Each message must be a named list with at least a `role` field.")
+    }
+  }
 }
 
 #' @rdname new_chat_openai
