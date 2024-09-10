@@ -4,6 +4,7 @@
       chat
     Output
       <ChatOpenAI>
+    Message
       -- system ----------------------------------------------------------------------
       You're a helpful assistant that returns very minimal output
       -- user ------------------------------------------------------------------------

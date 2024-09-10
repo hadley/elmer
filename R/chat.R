@@ -9,11 +9,17 @@ NULL
 #' (aka an R function), it also takes care of the tool loop.
 #'
 #' @param system_prompt A system prompt to set the behavior of the assistant.
-#' @param base_url The base URL to the endpoint; the default uses ChatGPT.
+#' @param messages A list of messages to start the chat with (i.e., continuing a
+#'   previous conversation). If not provided, the conversation begins from
+#'   scratch. Do not provide non-`NULL` values for both `messages` and
+#'   `system_prompt`.
+#' @param base_url The base URL to the endpoint; the default uses OpenAI.
 #' @param api_key The API key to use for authentication. You generally should
 #'   not supply this directly, but instead set the `OPENAI_API_KEY` environment
 #'   variable.
-#' @param model The model to use for the chat; defaults to GPT-4o mini.
+#' @param model The model to use for the chat; set to `NA` (the default) to use
+#'   a reasonable model, currently `gpt-4o-mini`. It's strongly suggested that
+#'   you explicitly choose a model for programmatic use.
 #' @param echo If `TRUE`, the `chat()` method streams the response to stdout by
 #'   default. (Note that this has no effect on the `stream()`, `chat_async()`,
 #'   and `stream_async()` methods.)
@@ -49,24 +55,50 @@ NULL
 #'   Briefly explain your work.
 #' ")
 new_chat_openai <- function(system_prompt = NULL,
+                            messages = NULL,
                             base_url = "https://api.openai.com/v1",
                             api_key = openai_key(),
-                            model = "gpt-4o-mini",
+                            model = NA,
                             echo = FALSE) {
   check_string(system_prompt, allow_null = TRUE)
   check_string(base_url)
   check_string(api_key)
-  check_string(model)
+  check_string(model, allow_null = TRUE, allow_na = TRUE)
   check_bool(echo)
 
-  system_prompt <- system_prompt %||%
-    "You are a helpful assistant from New Zealand who is an experienced R programmer"
+  if (is.na(model)) {
+    model <- "gpt-4o-mini"
+  }
+
+  # TODO: Sanity check individual messages?
+  if (!is.null(messages)) {
+    if (!is.list(messages) ||
+        !(is.null(names(messages)) || all(names(messages) == ""))) {
+      stop_input_type(
+        messages,
+        "an unnamed list of messages",
+        allow_null = TRUE
+      )
+    }
+  }
+
+  if (!is.null(system_prompt)) {
+    if (!is.null(messages)) {
+      if (length(messages) == 0 ||
+          messages[[1]][["role"]] != "system" ||
+          !identical(messages[[1]][["content"]], system_prompt)) {
+        stop("If both `system_prompt` and `messages` are provided, `messages` must start with the `system_prompt`.")
+      }
+    } else {
+      messages <- list(list(role = "system", content = system_prompt))
+    }
+  }
 
   ChatOpenAI$new(
     base_url = base_url,
     model = model,
+    messages = messages,
     api_key = api_key,
-    system_prompt = system_prompt,
     echo = echo
   )
 }
@@ -74,25 +106,29 @@ new_chat_openai <- function(system_prompt = NULL,
 #' @rdname new_chat_openai
 ChatOpenAI <- R6::R6Class("ChatOpenAI",
   public = list(
-    #' @param system_prompt A system prompt to set the behavior of the assistant.
     #' @param base_url The base URL to the endpoint; the default uses ChatGPT.
     #' @param api_key The API key to use for authentication. You generally should
     #'   not supply this directly, but instead set the `OPENAI_API_KEY` environment
     #'   variable.
     #' @param model The model to use for the chat; defaults to GPT-4o mini.
+    #' @param messages An unnamed list of messages to start the chat with (i.e.,
+    #'   continuing a previous conversation). If `NULL` or zero-length list, the
+    #'   conversation begins from scratch.
     #' @param echo If `TRUE`, the `chat()` method streams the response to stdout
     #'   (while also returning the final response). Note that this has no effect
     #'   on the `stream()`, `chat_async()`, and `stream_async()` methods.
-    initialize = function(base_url, model, api_key, system_prompt, echo = FALSE) {
+    initialize = function(base_url, model, messages, api_key, echo = FALSE) {
       private$base_url <- base_url
       private$model <- model
+      private$msgs <- messages %||% list()
       private$api_key <- api_key
       private$echo <- echo
+    },
 
-      private$add_message(list(
-        role = "system",
-        content = system_prompt
-      ))
+    #' @description The messages that have been sent and received so far
+    #'   (starting with the system prompt, if any).
+    messages = function() {
+      private$msgs
     },
 
     #' @description Submit text to the chatbot, and return the response as a
@@ -109,7 +145,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
       # Returns a single message (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
       coro::collect(private$chat_impl(text, stream = echo, echo = echo))
-      last_message <- private$messages[[length(private$messages)]]
+      last_message <- private$msgs[[length(private$msgs)]]
       stopifnot(identical(last_message[["role"]], "assistant"))
 
       if (echo) {
@@ -132,7 +168,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
         private$chat_impl_async(text, stream = FALSE, echo = FALSE)
       )
       promises::then(done, function(dummy) {
-        last_message <- private$messages[[length(private$messages)]]
+        last_message <- private$msgs[[length(private$msgs)]]
         stopifnot(identical(last_message[["role"]], "assistant"))
         last_message$content
       })
@@ -230,7 +266,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     model = NULL,
     api_key = NULL,
 
-    messages = NULL,
+    msgs = NULL,
     echo = NULL,
 
     # OpenAI-compliant tool metadata
@@ -239,7 +275,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     tool_funs = NULL,
 
     add_message = function(message) {
-      private$messages <- c(private$messages, list(message))
+      private$msgs <- c(private$msgs, list(message))
       invisible(self)
     },
 
@@ -297,7 +333,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     # complete assistant messages.
     submit_messages = generator_method(function(self, private, stream, echo) {
       response <- openai_chat(
-        messages = private$messages,
+        messages = private$msgs,
         tools = private$tool_infos,
         base_url = private$base_url,
         model = private$model,
@@ -347,7 +383,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     # complete assistant messages.
     submit_messages_async = async_generator_method(function(self, private, stream, echo) {
       response <- openai_chat_async(
-        messages = private$messages,
+        messages = private$msgs,
         tools = private$tool_infos,
         base_url = private$base_url,
         model = private$model,
@@ -396,11 +432,11 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     invoke_tools = function() {
       if (length(private$tool_infos) > 0) {
-        last_message <- private$messages[[length(private$messages)]]
+        last_message <- private$msgs[[length(private$msgs)]]
         tool_message <- call_tools(private$tool_funs, last_message)
 
         if (!is.null(tool_message)) {
-          private$messages <- c(private$messages, tool_message)
+          private$msgs <- c(private$msgs, tool_message)
           return(TRUE)
         }
       }
@@ -412,15 +448,17 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 #' @export
 print.ChatOpenAI <- function(x, ...) {
   cat("<ChatOpenAI>\n")
-  messages <- x$.__enclos_env__$private$messages
-  for (message in messages) {
+  for (message in x$messages()) {
     color <- switch(message$role,
-      user = "blue",
-      system = ,
-      assistant = "green"
+      user = cli::col_blue,
+      system = identity,
+      assistant = cli::col_green
     )
-    cat(cli::rule(message$role, col = color), "\n", sep = "")
-    cat(message$content, "\n", sep = "")
+    cli::cli_rule("{color(message$role)}")
+    # Using cli_text for word wrapping. Passing `"{message$content}"` instead of
+    # `message$content` to avoid evaluation of the (potentially malicious)
+    # content.
+    cli::cli_text("{message$content}")
   }
 
   invisible(x)
@@ -428,6 +466,6 @@ print.ChatOpenAI <- function(x, ...) {
 
 
 last_message <- function(chat) {
-  messages <- chat$.__enclos_env__$private$messages
+  messages <- chat$messages()
   messages[[length(messages)]]
 }

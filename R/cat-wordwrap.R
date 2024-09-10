@@ -22,12 +22,13 @@ cat_word_wrap_impl <- coro::generator(function(con = stdout()) {
     cat(..., file = con, sep = "")
   }
 
+  console_width <- cli::console_width()
+
   pos_cursor <- 1
   buffer <- ""
 
   while (TRUE) {
     input <- coro::yield()
-    console_width <- as.integer(Sys.getenv("COLUMNS", getOption("width", 80))) * 0.9
 
     input <- paste0(buffer, input)
     buffer <- ""
