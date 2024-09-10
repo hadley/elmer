@@ -83,6 +83,16 @@ variable.</p></dd>
 
 </dl></div>
     <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>A string response (probably Markdown).</p>
+<p>A promise that resolves to a string (probably Markdown).</p>
+<p>A <a href="https://coro.r-lib.org/articles/generator.html#iterating" class="external-link">coro generator</a>
+that yields strings. While iterating, the generator will block while
+waiting for more content from the chatbot.</p>
+<p>A <a href="https://coro.r-lib.org/reference/async_generator.html" class="external-link">coro async generator</a>
+that yields string promises.</p>
+    </div>
+    <div class="section level2">
     <h2 id="methods">Methods<a class="anchor" aria-label="anchor" href="#methods"></a></h2>
 
 <div class="section">
@@ -90,6 +100,10 @@ variable.</p></dd>
 
 <ul><li><p><a href="#method-ChatOpenAI-new"><code>ChatOpenAI$new()</code></a></p></li>
 <li><p><a href="#method-ChatOpenAI-chat"><code>ChatOpenAI$chat()</code></a></p></li>
+<li><p><a href="#method-ChatOpenAI-chat_async"><code>ChatOpenAI$chat_async()</code></a></p></li>
+<li><p><a href="#method-ChatOpenAI-stream"><code>ChatOpenAI$stream()</code></a></p></li>
+<li><p><a href="#method-ChatOpenAI-stream_async"><code>ChatOpenAI$stream_async()</code></a></p></li>
+<li><p><a href="#method-ChatOpenAI-console"><code>ChatOpenAI$console()</code></a></p></li>
 <li><p><a href="#method-ChatOpenAI-register_tool"><code>ChatOpenAI$register_tool()</code></a></p></li>
 <li><p><a href="#method-ChatOpenAI-clone"><code>ChatOpenAI$clone()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-ChatOpenAI-new"></a><div class="section">
@@ -100,39 +114,152 @@ variable.</p></dd>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/new_chat_openai.html">ChatOpenAI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">base_url</span>, <span class="va">model</span>, <span class="va">api_key</span>, <span class="va">system_prompt</span>, quiet <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
-
-</div><p></p><hr><a id="method-ChatOpenAI-chat"></a><div class="section">
-<h3 id="method-chat-">Method <code>chat()</code><a class="anchor" aria-label="anchor" href="#method-chat-"></a></h3>
-<p>Submit text to the chatbot.</p><div class="section">
-<h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="va">text</span>, stream <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
 <div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>text</code></dt>
-<dd><p>The text to send to the chatbot</p></dd>
+<p></p><div class="arguments"><dl><dt><code>base_url</code></dt>
+<dd><p>The base URL to the endpoint; the default uses ChatGPT.</p></dd>
 
 
-<dt><code>stream</code></dt>
-<dd><p>Whether to stream the response or not.</p></dd>
+<dt><code>model</code></dt>
+<dd><p>The model to use for the chat; defaults to GPT-4o mini.</p></dd>
+
+
+<dt><code>api_key</code></dt>
+<dd><p>The API key to use for authentication. You generally should
+not supply this directly, but instead set the <code>OPENAI_API_KEY</code> environment
+variable.</p></dd>
+
+
+<dt><code>system_prompt</code></dt>
+<dd><p>A system prompt to set the behavior of the assistant.</p></dd>
+
+
+<dt><code>quiet</code></dt>
+<dd><p>If <code>TRUE</code> does not print output as its received.</p></dd>
 
 
 </dl><p></p></div>
 </div>
+
+</div><p></p><hr><a id="method-ChatOpenAI-chat"></a><div class="section">
+<h3 id="method-chat-">Method <code>chat()</code><a class="anchor" aria-label="anchor" href="#method-chat-"></a></h3>
+<p>Submit text to the chatbot, and return the response as a
+simple string. If not in quiet mode, the response will be printed to
+stdout as it is received.</p><div class="section">
+<h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="va">text</span>, quiet <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>text</code></dt>
+<dd><p>The text to send to the chatbot.</p></dd>
+
+
+<dt><code>quiet</code></dt>
+<dd><p>Whether to emit the response to stdout as it is received. If
+<code>NULL</code>, then the value of <code>quiet</code> set when the chat object was created
+will be used.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-ChatOpenAI-chat_async"></a><div class="section">
+<h3 id="method-chat-async-">Method <code>chat_async()</code><a class="anchor" aria-label="anchor" href="#method-chat-async-"></a></h3>
+<p>Submit text to the chatbot, and receive a promise that
+resolves with the response all at once. If not in quiet mode, the
+response will be printed to stdout as it is received.</p><div class="section">
+<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">chat_async</span><span class="op">(</span><span class="va">text</span>, quiet <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>text</code></dt>
+<dd><p>The text to send to the chatbot.</p></dd>
+
+
+<dt><code>quiet</code></dt>
+<dd><p>Whether to emit the response to stdout as it is received. If
+<code>NULL</code>, then the value of <code>quiet</code> set when the chat object was created
+will be used.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-ChatOpenAI-stream"></a><div class="section">
+<h3 id="method-stream-">Method <code>stream()</code><a class="anchor" aria-label="anchor" href="#method-stream-"></a></h3>
+<p>Submit text to the chatbot, returning streaming results.</p><div class="section">
+<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">stream</span><span class="op">(</span><span class="va">text</span>, quiet <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>text</code></dt>
+<dd><p>The text to send to the chatbot.</p></dd>
+
+
+<dt><code>quiet</code></dt>
+<dd><p>Whether to emit the response to stdout as it is received. If
+<code>NULL</code>, then the value of <code>quiet</code> set when the chat object was created
+will be used.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-ChatOpenAI-stream_async"></a><div class="section">
+<h3 id="method-stream-async-">Method <code>stream_async()</code><a class="anchor" aria-label="anchor" href="#method-stream-async-"></a></h3>
+<p>Submit text to the chatbot, returning asynchronously
+streaming results.</p><div class="section">
+<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">stream_async</span><span class="op">(</span><span class="va">text</span>, quiet <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>text</code></dt>
+<dd><p>The text to send to the chatbot.</p></dd>
+
+
+<dt><code>quiet</code></dt>
+<dd><p>Whether to emit the response to stdout as it is received. If
+<code>NULL</code>, then the value of <code>quiet</code> set when the chat object was created
+will be used.</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-ChatOpenAI-console"></a><div class="section">
+<h3 id="method-console-">Method <code>console()</code><a class="anchor" aria-label="anchor" href="#method-console-"></a></h3>
+<p>Enter an interactive chat console. This is a REPL-like
+interface where you can chat with the assistant in real-time. (Only
+available in <code><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive()</a></code> mode.)</p><div class="section">
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">console</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
 
 </div><p></p><hr><a id="method-ChatOpenAI-register_tool"></a><div class="section">
 <h3 id="method-register-tool-">Method <code>register_tool()</code><a class="anchor" aria-label="anchor" href="#method-register-tool-"></a></h3>
 <p>Register a tool (an R function) that the chatbot can use.
 If the chatbot decides to use the function, elmer will automatically
 call it and submit the results back.</p><div class="section">
-<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span><span class="va">name</span>, <span class="va">description</span>, <span class="va">arguments</span>, strict <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span><span class="va">fun</span>, <span class="va">name</span>, <span class="va">description</span>, <span class="va">arguments</span>, strict <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>name</code></dt>
+<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>fun</code></dt>
+<dd><p>The function to be invoked when the tool is called.</p></dd>
+
+
+<dt><code>name</code></dt>
 <dd><p>The name of the function.</p></dd>
 
 
@@ -142,8 +269,8 @@ Generally, the more information that you can provide here, the better.</p></dd>
 
 
 <dt><code>arguments</code></dt>
-<dd><p>A list of arguments that the function accepts.
-Should be a list of objects created by <code><a href="tool_arg.html">tool_arg()</a></code>.</p></dd>
+<dd><p>A named list of arguments that the function accepts.
+Should be a named list of objects created by <code><a href="tool_arg.html">tool_arg()</a></code>.</p></dd>
 
 
 <dt><code>strict</code></dt>
@@ -156,12 +283,12 @@ Should be a list of objects created by <code><a href="tool_arg.html">tool_arg()<
 </div><p></p><hr><a id="method-ChatOpenAI-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
+<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 
@@ -187,18 +314,15 @@ Should be a list of objects created by <code><a href="tool_arg.html">tool_arg()<
 <span class="r-in"><span>  name <span class="op">=</span> <span class="st">"rnorm"</span>,</span></span>
 <span class="r-in"><span>  description <span class="op">=</span> <span class="st">"Drawn numbers from a random normal distribution"</span>,</span></span>
 <span class="r-in"><span>  arguments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>    <span class="fu"><a href="tool_arg.html">tool_arg</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>      <span class="st">"n"</span>,</span></span>
+<span class="r-in"><span>    n <span class="op">=</span> <span class="fu"><a href="tool_arg.html">tool_arg</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>      type <span class="op">=</span> <span class="st">"integer"</span>,</span></span>
 <span class="r-in"><span>      description <span class="op">=</span> <span class="st">"The number of observations. Must be a positive integer."</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span>,</span></span>
-<span class="r-in"><span>    <span class="fu"><a href="tool_arg.html">tool_arg</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>      <span class="st">"mean"</span>,</span></span>
+<span class="r-in"><span>    mean <span class="op">=</span> <span class="fu"><a href="tool_arg.html">tool_arg</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>      type <span class="op">=</span> <span class="st">"number"</span>,</span></span>
 <span class="r-in"><span>      description <span class="op">=</span> <span class="st">"The mean value of the distribution."</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span>,</span></span>
-<span class="r-in"><span>    <span class="fu"><a href="tool_arg.html">tool_arg</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>      <span class="st">"sd"</span>,</span></span>
+<span class="r-in"><span>    sd <span class="op">=</span> <span class="fu"><a href="tool_arg.html">tool_arg</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>      type <span class="op">=</span> <span class="st">"number"</span>,</span></span>
 <span class="r-in"><span>      description <span class="op">=</span> <span class="st">"The standard deviation of the distribution. Must be a non-negative number."</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span></span></span>

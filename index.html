@@ -60,9 +60,135 @@
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"hadley/elmer"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a>
+<h2 id="prerequisites">Prerequisites<a class="anchor" aria-label="anchor" href="#prerequisites"></a>
 </h2>
 <p>To use elmer, you need an OpenAI API key. You can get one from <a href="https://platform.openai.com/account/api-keys" class="external-link">your developer console</a>. Then you should save that value as the <code>OPENAI_API_KEY</code> environment variable in your <code>~/.Renviron</code> (an easy way to open that file is to call <code>usethis::use_renviron()</code>).</p>
+</div>
+<div class="section level2">
+<h2 id="using-elmer">Using elmer<a class="anchor" aria-label="anchor" href="#using-elmer"></a>
+</h2>
+<p>You chat with elmer in several different ways, depending on whether you are working interactively or programmatically. They all start with creating a new chat object:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/hadley/elmer" class="external-link">elmer</a></span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/new_chat_openai.html">new_chat_openai</a></span><span class="op">(</span></span>
+<span>  model <span class="op">=</span> <span class="st">"gpt-4o-mini"</span>,</span>
+<span>  system_prompt <span class="op">=</span> <span class="st">"You are a friendly but terse assistant."</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<p>Chat objects are stateful: they retain the context of the conversation, so each new query can build on the previous ones. This is true regardless of which of the various ways of chatting you use.</p>
+<div class="section level3">
+<h3 id="interactive-chat-console">Interactive chat console<a class="anchor" aria-label="anchor" href="#interactive-chat-console"></a>
+</h3>
+<p>The most interactive, least programmatic way of using elmer is to chat with it directly in your R console.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="sc">&gt;</span> chat<span class="sc">$</span><span class="fu">console</span>()</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>╔════════════════════════════════════════════════════════╗</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>║  Entering chat console. Use <span class="st">""" for multi-line input.  ║</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="st">║  Press Ctrl+C to quit.                                 ║</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="st">╚════════════════════════════════════════════════════════╝</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="st">&gt;&gt;&gt; Who were the original creators of R?</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="st">R was originally created by Ross Ihaka and Robert Gentleman at the University of</span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="st">Auckland, New Zealand.</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a></span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="st">&gt;&gt;&gt; When was that?</span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="st">R was initially released in 1995. Development began a few years prior to that,</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="st">in the early 1990s.</span></span></code></pre></div>
+<p>The chat console is useful for quickly exploring the capabilities of the model, especially when you’ve customized the chat object with tool integrations (see below).</p>
+<p>Again, keep in mind that the chat object retains state, so when you enter the chat console, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist even after you exit back to the R prompt.</p>
+</div>
+<div class="section level3">
+<h3 id="interactive-method-call">Interactive method call<a class="anchor" aria-label="anchor" href="#interactive-method-call"></a>
+</h3>
+<p>The second most interactive way to chat using elmer is to call the <code>chat()</code> method.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a><span class="sc">&gt;</span> chat<span class="sc">$</span><span class="fu">chat</span>(<span class="st">"What preceding languages most influenced R?"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>R was primarily influenced by the S programming language, particularly S<span class="sc">-</span>PLUS.</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>Other languages that had an impact include Scheme and various data analysis</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>languages.</span></code></pre></div>
+<p>By default, the <code>chat</code> method streams the response to the console as it arrives. When the entire response is received, it is returned as a character vector (invisibly, so it’s not printed twice).</p>
+<p>This mode is useful when you want to see the response as it arrives, but you don’t want to enter the chat console.</p>
+</div>
+<div class="section level3">
+<h3 id="programmatic-chat">Programmatic chat<a class="anchor" aria-label="anchor" href="#programmatic-chat"></a>
+</h3>
+<p>If you don’t want to see the response as it arrives, you can use the <code>quiet</code> argument to suppress output. You can either pass <code>quiet=TRUE</code> as an argument to <code>chat$chat()</code>, or as an argument to <code><a href="reference/new_chat_openai.html">new_chat_openai()</a></code> if you want all interactions to be quiet by default.</p>
+<p><strong>The remaining examples on this page will use a chat object created with <code>quiet = TRUE</code>.</strong></p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="sc">&gt;</span> chat <span class="ot">&lt;-</span> <span class="fu">new_chat_openai</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="sc">+</span>   <span class="at">model =</span> <span class="st">"gpt-4o-mini"</span>,</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="sc">+</span>   <span class="at">system_prompt =</span> <span class="st">"You are a friendly but terse assistant."</span>,</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="sc">+</span>   <span class="at">quiet =</span> <span class="cn">TRUE</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="sc">+</span> )</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="sc">&gt;</span> chat<span class="sc">$</span><span class="fu">chat</span>(<span class="st">"Is R a functional programming language?"</span>)</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">"Yes, R supports functional programming concepts. It allows functions to be first-class objects, supports higher-order functions, and encourages the use of functions as core components of code. However, it also supports procedural and object-oriented programming styles."</span></span></code></pre></div>
+<p>When called with <code>quiet=TRUE</code>, the <code>chat</code> method still returns the entire response as a character vector, but without making it invisible.</p>
+<p>This mode is useful for programming using elmer, when the result is either not intended for human consumption or when you want to process the response before displaying it.</p>
+</div>
+<div class="section level3">
+<h3 id="streaming-results">Streaming results<a class="anchor" aria-label="anchor" href="#streaming-results"></a>
+</h3>
+<p>The <code>chat()</code> method does not return any results until the entire response has been received. (It can <em>print</em> the streaming results to the console, but it <em>returns</em> the result only when the response is complete.)</p>
+<p>If you want to process the response as it arrives, you can use the <code>stream()</code> method. This may be useful when you want to display the response in realtime, but somewhere other than the R console (like writing to a file, or an HTTP response, or a Shiny chat window); or when you want to manipulate the response before displaying it, without giving up the immediacy of streaming.</p>
+<p>The <code>stream()</code> method returns a <a href="https://coro.r-lib.org/articles/generator.html" class="external-link">generator</a> from the <a href="https://coro.r-lib.org/" class="external-link">coro package</a>, which you can loop over to process the response as it arrives.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="sc">&gt;</span> stream <span class="ot">&lt;-</span> chat<span class="sc">$</span><span class="fu">stream</span>(<span class="st">"What are some common uses of R?"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="sc">&gt;</span> coro<span class="sc">::</span><span class="fu">loop</span>(<span class="cf">for</span> (chunk <span class="cf">in</span> stream) {</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="sc">+</span>   <span class="fu">cat</span>(<span class="fu">toupper</span>(chunk))</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="sc">+</span> })</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a>R IS COMMONLY USED FOR<span class="sc">:</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="fl">1.</span> <span class="sc">**</span>STATISTICAL ANALYSIS<span class="sc">**</span><span class="er">:</span> PERFORMING COMPLEX STATISTICAL TESTS AND ANALYSES.</span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="fl">2.</span> <span class="sc">**</span>DATA VISUALIZATION<span class="sc">**</span><span class="er">:</span> CREATING GRAPHS, CHARTS, AND PLOTS USING PACKAGES LIKE GGPLOT2.</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="fl">3.</span> <span class="sc">**</span>DATA MANIPULATION<span class="sc">**</span><span class="er">:</span> CLEANING AND TRANSFORMING DATA WITH PACKAGES LIKE DPLYR AND TIDYR.</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="fl">4.</span> <span class="sc">**</span>MACHINE LEARNING<span class="sc">**</span><span class="er">:</span> BUILDING PREDICTIVE MODELS WITH LIBRARIES LIKE CARET AND RANDOMFOREST.</span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="fl">5.</span> <span class="sc">**</span>BIOINFORMATICS<span class="sc">**</span><span class="er">:</span> ANALYZING BIOLOGICAL DATA AND GENOMIC STUDIES.</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="fl">6.</span> <span class="sc">**</span>ECONOMETRICS<span class="sc">**</span><span class="er">:</span> PERFORMING ECONOMIC DATA ANALYSIS AND MODELING.</span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="fl">7.</span> <span class="sc">**</span>REPORTING<span class="sc">**</span><span class="er">:</span> GENERATING DYNAMIC REPORTS AND DASHBOARDS WITH R MARKDOWN.</span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="fl">8.</span> <span class="sc">**</span>TIME SERIES ANALYSIS<span class="sc">**</span><span class="er">:</span> ANALYZING TEMPORAL DATA AND FORECASTING.</span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a>THESE USES MAKE R A POWERFUL TOOL FOR DATA SCIENTISTS, STATISTICIANS, AND RESEARCHERS.</span></code></pre></div>
+</div>
+</div>
+<div class="section level2">
+<h2 id="async-usage-advanced">Async usage (Advanced)<a class="anchor" aria-label="anchor" href="#async-usage-advanced"></a>
+</h2>
+<p>elmer also supports async usage, which is useful when you want to run multiple chat sessions concurrently. This is primarily useful in Shiny applications, where using the methods described above would block the Shiny app for other users for the duration of each response.</p>
+<p>To use async chat, instead of <code>chat()</code>/<code>stream()</code>, call <code>chat_async()</code>/<code>stream_async()</code>. The <code>_async</code> variants take the same arguments for construction, but return promises instead of the actual response.</p>
+<p>Remember that chat objects are stateful, maintaining the conversation history as you interact with it. Note that this means it doesn’t make sense to issue multiple chat/stream operations on the same chat object concurrently, as the conversation history could become corrupted with interleaved conversation fragments. If you need to run multiple chat sessions concurrently, create multiple chat objects.</p>
+<div class="section level3">
+<h3 id="asynchronous-chat">Asynchronous chat<a class="anchor" aria-label="anchor" href="#asynchronous-chat"></a>
+</h3>
+<p>For asynchronous, non-streaming chat, you use the <code>chat()</code> method as before, but handle the result as a promise instead of a string.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="sc">&gt;</span> chat<span class="sc">$</span><span class="fu">chat_async</span>(<span class="st">"How's your day going?"</span>) <span class="sc">%...&gt;%</span> <span class="fu">print</span>()</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="sc">&gt;</span></span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>I<span class="st">'m just a computer program, so I don'</span>t have feelings, but I<span class="st">'m here to help you with any questions you have.</span></span></code></pre></div>
+<p>TODO: Shiny example</p>
+</div>
+<div class="section level3">
+<h3 id="asynchronous-streaming">Asynchronous streaming<a class="anchor" aria-label="anchor" href="#asynchronous-streaming"></a>
+</h3>
+<p>For asynchronous streaming, you use the <code>stream()</code> method as before, but the result is a <a href="https://coro.r-lib.org/reference/async_generator.html" class="external-link">async generator</a> from the <a href="https://coro.r-lib.org/" class="external-link">coro package</a>. This is the same as a regular <a href="https://coro.r-lib.org/articles/generator.html" class="external-link">generator</a>, except instead of giving you strings, it gives you promises that resolve to strings.</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="sc">&gt;</span> stream <span class="ot">&lt;-</span> chat<span class="sc">$</span><span class="fu">stream_async</span>(<span class="st">"What are some common uses of R?"</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="sc">&gt;</span> coro<span class="sc">::</span><span class="fu">async</span>(<span class="cf">function</span>() {</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="sc">+</span>   <span class="cf">for</span> (chunk <span class="cf">in</span> <span class="fu">await_each</span>(stream)) {</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="sc">+</span>     <span class="fu">cat</span>(<span class="fu">toupper</span>(chunk))</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="sc">+</span>   }</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="sc">+</span> })()</span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="sc">&lt;</span>Promise [pending]<span class="sc">&gt;</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="er">&gt;</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a>R IS COMMONLY USED FOR<span class="sc">:</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="fl">1.</span> <span class="sc">**</span>STATISTICAL ANALYSIS<span class="sc">**</span><span class="er">:</span> PERFORMING VARIOUS STATISTICAL TESTS AND MODELS.</span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="fl">2.</span> <span class="sc">**</span>DATA VISUALIZATION<span class="sc">**</span><span class="er">:</span> CREATING PLOTS AND GRAPHS TO VISUALIZE DATA.</span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="fl">3.</span> <span class="sc">**</span>DATA MANIPULATION<span class="sc">**</span><span class="er">:</span> CLEANING AND TRANSFORMING DATA WITH PACKAGES LIKE DPLYR.</span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="fl">4.</span> <span class="sc">**</span>MACHINE LEARNING<span class="sc">**</span><span class="er">:</span> BUILDING PREDICTIVE MODELS AND ALGORITHMS.</span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="fl">5.</span> <span class="sc">**</span>BIOINFORMATICS<span class="sc">**</span><span class="er">:</span> ANALYZING BIOLOGICAL DATA, ESPECIALLY IN GENOMICS.</span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="fl">6.</span> <span class="sc">**</span>TIME SERIES ANALYSIS<span class="sc">**</span><span class="er">:</span> ANALYZING TEMPORAL DATA FOR TRENDS AND FORECASTS.</span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="fl">7.</span> <span class="sc">**</span>REPORT GENERATION<span class="sc">**</span><span class="er">:</span> CREATING DYNAMIC REPORTS WITH R MARKDOWN.</span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="fl">8.</span> <span class="sc">**</span>GEOSPATIAL ANALYSIS<span class="sc">**</span><span class="er">:</span> MAPPING AND ANALYZING GEOGRAPHIC DATA.</span></code></pre></div>
+<p>Async generators are very advanced, and require a good understanding of asynchronous programming in R. They are also the only way to present streaming results in Shiny without blocking other users. Fortunately, Shiny will soon have chat components that will make this easier, where you can simply hand the result of <code>stream_async()</code> to a chat output.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="tool-integrations">Tool integrations<a class="anchor" aria-label="anchor" href="#tool-integrations"></a>
+</h2>
+<p>TODO</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="links">
