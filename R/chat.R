@@ -454,10 +454,20 @@ print.ChatOpenAI <- function(x, ...) {
       identity
     )
     cli::cli_rule("{color(message$role)}")
-    # Using cli_text for word wrapping. Passing `"{message$content}"` instead of
-    # `message$content` to avoid evaluation of the (potentially malicious)
-    # content.
-    cli::cli_text("{message$content}")
+    if (!is.null(message$content)) {
+      # Using cli_text for word wrapping. Passing `"{message$content}"` instead of
+      # `message$content` to avoid evaluation of the (potentially malicious)
+      # content.
+      cli::cli_text("{message$content}")
+    }
+    if (!is.null(message$tool_calls)) {
+      cli::cli_text("Tool calls:")
+      for (tool_call in message$tool_calls) {
+        funcname <- tool_call$`function`$name
+        args <- tool_call$`function`$arguments
+        cli::cli_text("{funcname}({args})")
+      }
+    }
   }
 
   invisible(x)
