@@ -41,7 +41,8 @@ library(elmer)
 
 chat <- new_chat_openai(
   model = "gpt-4o-mini",
-  system_prompt = "You are a friendly but terse assistant."
+  system_prompt = "You are a friendly but terse assistant.",
+  echo = TRUE
 )
 ```
 
@@ -54,7 +55,10 @@ regardless of which of the various ways of chatting you use.
 The most interactive, least programmatic way of using elmer is to chat
 with it directly in your R console.
 
-    > chat$console()
+``` r
+chat$console()
+```
+
     ╔════════════════════════════════════════════════════════╗
     ║  Entering chat console. Use """ for multi-line input.  ║
     ║  Press Ctrl+C to quit.                                 ║
@@ -81,38 +85,37 @@ chat console will persist even after you exit back to the R prompt.
 The second most interactive way to chat using elmer is to call the
 `chat()` method.
 
-    > chat$chat("What preceding languages most influenced R?")
+``` r
+chat$chat("What preceding languages most influenced R?")
+```
+
     R was primarily influenced by the S programming language, particularly S-PLUS.
     Other languages that had an impact include Scheme and various data analysis
     languages.
 
-By default, the `chat` method streams the response to the console as it
-arrives. When the entire response is received, it is returned as a
-character vector (invisibly, so it’s not printed twice).
+If you initialize the chat object with `echo = TRUE`, as we did above,
+the `chat` method streams the response to the console as it arrives.
+When the entire response is received, it is returned as a character
+vector (invisibly, so it’s not printed twice).
 
 This mode is useful when you want to see the response as it arrives, but
 you don’t want to enter the chat console.
 
 ### Programmatic chat
 
-If you don’t want to see the response as it arrives, you can use the
-`quiet` argument to suppress output. You can either pass `quiet=TRUE` as
-an argument to `chat$chat()`, or as an argument to `new_chat_openai()`
-if you want all interactions to be quiet by default.
+If you don’t want to see the response as it arrives, you can turn off
+echoing by leaving off the `echo = TRUE` argument to
+`new_chat_openai()`.
 
-**The remaining examples on this page will use a chat object created
-with `quiet = TRUE`.**
+``` r
+chat <- new_chat_openai(
+  model = "gpt-4o-mini",
+  system_prompt = "You are a friendly but terse assistant."
+)
+chat$chat("Is R a functional programming language?")
+```
 
-    > chat <- new_chat_openai(
-    +   model = "gpt-4o-mini",
-    +   system_prompt = "You are a friendly but terse assistant.",
-    +   quiet = TRUE
-    + )
-    > chat$chat("Is R a functional programming language?")
     [1] "Yes, R supports functional programming concepts. It allows functions to be first-class objects, supports higher-order functions, and encourages the use of functions as core components of code. However, it also supports procedural and object-oriented programming styles."
-
-When called with `quiet=TRUE`, the `chat` method still returns the
-entire response as a character vector, but without making it invisible.
 
 This mode is useful for programming using elmer, when the result is
 either not intended for human consumption or when you want to process
@@ -137,10 +140,13 @@ The `stream()` method returns a
 [coro package](https://coro.r-lib.org/), which you can loop over to
 process the response as it arrives.
 
-    > stream <- chat$stream("What are some common uses of R?")
-    > coro::loop(for (chunk in stream) {
-    +   cat(toupper(chunk))
-    + })
+``` r
+stream <- chat$stream("What are some common uses of R?")
+coro::loop(for (chunk in stream) {
+  cat(toupper(chunk))
+})
+```
+
     R IS COMMONLY USED FOR:
 
     1. **STATISTICAL ANALYSIS**: PERFORMING COMPLEX STATISTICAL TESTS AND ANALYSES.
@@ -178,8 +184,12 @@ sessions concurrently, create multiple chat objects.
 For asynchronous, non-streaming chat, you use the `chat()` method as
 before, but handle the result as a promise instead of a string.
 
-    > chat$chat_async("How's your day going?") %...>% print()
-    >
+``` r
+library(promises)
+
+chat$chat_async("How's your day going?") %...>% print()
+```
+
     I'm just a computer program, so I don't have feelings, but I'm here to help you with any questions you have.
 
 TODO: Shiny example
@@ -194,12 +204,15 @@ regular [generator](https://coro.r-lib.org/articles/generator.html),
 except instead of giving you strings, it gives you promises that resolve
 to strings.
 
-    > stream <- chat$stream_async("What are some common uses of R?")
-    > coro::async(function() {
-    +   for (chunk in await_each(stream)) {
-    +     cat(toupper(chunk))
-    +   }
-    + })()
+``` r
+stream <- chat$stream_async("What are some common uses of R?")
+coro::async(function() {
+  for (chunk in await_each(stream)) {
+    cat(toupper(chunk))
+  }
+})()
+```
+
     <Promise [pending]>
     >
     R IS COMMONLY USED FOR:
