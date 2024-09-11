@@ -302,6 +302,17 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
       invisible(self)
     }
   ),
+  active = list(
+    system_prompt = function() {
+      if (length(private$msgs) == 0) {
+        return(NULL)
+      }
+      if (private$msgs[[1]][["role"]] != "system") {
+        return(NULL)
+      }
+      private$msgs[[1]][["content"]]
+    }
+  ),
   private = list(
     base_url = NULL,
     model = NULL,
