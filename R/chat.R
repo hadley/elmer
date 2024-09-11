@@ -73,16 +73,7 @@ new_chat_openai <- function(system_prompt = NULL,
 
   model <- model %||% "gpt-4o-mini"
 
-  if (!is.null(system_prompt)) {
-    if (!is.null(messages) && length(messages) > 0) {
-      if (messages[[1]][["role"]] != "system" ||
-          !identical(messages[[1]][["content"]], system_prompt)) {
-        stop("If both `system_prompt` and `messages` are provided, `messages` must start with the `system_prompt`.")
-      }
-    } else {
-      messages <- list(list(role = "system", content = system_prompt))
-    }
-  }
+  messages <- apply_system_prompt_openai(system_prompt, messages)
 
   ChatOpenAI$new(
     base_url = base_url,
@@ -91,6 +82,34 @@ new_chat_openai <- function(system_prompt = NULL,
     api_key = api_key,
     echo = echo
   )
+}
+
+apply_system_prompt_openai <- function(system_prompt, messages) {
+  if (is.null(system_prompt)) {
+    return(messages)
+  }
+
+  system_prompt_message <- list(
+    role = "system",
+    content = system_prompt
+  )
+
+  # No messages; start with just the system prompt
+  if (length(messages) == 0) {
+    return(list(system_prompt_message))
+  }
+
+  # No existing system prompt message; prepend the new one
+  if (messages[[1]][["role"]] != "system") {
+    return(c(list(system_prompt_message), messages))
+  }
+
+  # Duplicate system prompt; return as-is
+  if (messages[[1]][["content"]] == system_prompt) {
+    return(messages)
+  }
+
+  stop("`system_prompt` and `messages[[1]]` contained conflicting system prompts")
 }
 
 check_openai_conversation <- function(messages, allow_null = FALSE) {
@@ -138,9 +157,19 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     },
 
     #' @description The messages that have been sent and received so far
-    #'   (starting with the system prompt, if any).
-    messages = function() {
-      private$msgs
+    #'   (optionally starting with the system prompt, if any).
+    #' @param include_system_prompt Whether to include the system prompt in the
+    #'   messages (if any exists).
+    messages = function(include_system_prompt = FALSE) {
+      if (length(private$msgs) == 0) {
+        return(private$msgs)
+      }
+
+      if (!include_system_prompt && private$msgs[[1]][["role"]] == "system") {
+        private$msgs[-1]
+      } else {
+        private$msgs
+      }
     },
 
     #' @description Submit text to the chatbot, and return the response as a
@@ -459,8 +488,10 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
 #' @export
 print.ChatOpenAI <- function(x, ...) {
-  cat("<ChatOpenAI>\n")
-  for (message in x$messages()) {
+  msgs <- x$messages(include_system_prompt = TRUE)
+  msgs_without_system_prompt <- x$messages(include_system_prompt = FALSE)
+  cat(paste0("<ChatOpenAI messages=", length(msgs_without_system_prompt), ">\n"))
+  for (message in msgs) {
     color <- switch(message$role,
       user = cli::col_blue,
       assistant = cli::col_green,
