@@ -49,9 +49,10 @@ server, and the messages that you receive back. If you register a tool
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">new_chat_openai</span><span class="op">(</span></span>
 <span>  system_prompt <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  messages <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  base_url <span class="op">=</span> <span class="st">"https://api.openai.com/v1"</span>,</span>
 <span>  api_key <span class="op">=</span> <span class="fu">openai_key</span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  model <span class="op">=</span> <span class="st">"gpt-4o-mini"</span>,</span>
+<span>  model <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  echo <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -64,8 +65,18 @@ server, and the messages that you receive back. If you register a tool
 <dd><p>A system prompt to set the behavior of the assistant.</p></dd>
 
 
+<dt id="arg-messages">messages<a class="anchor" aria-label="anchor" href="#arg-messages"></a></dt>
+<dd><p>A list of messages to start the chat with (i.e., continuing a
+previous conversation). If not provided, the conversation begins from
+scratch. Do not provide non-<code>NULL</code> values for both <code>messages</code> and
+<code>system_prompt</code>.</p>
+<p>Each message in the list should be a named list with at least <code>role</code>
+(usually <code>system</code>, <code>user</code>, or <code>assistant</code>, but <code>tool</code> is also possible).
+Normally there is also a <code>content</code> field, which is a string.</p></dd>
+
+
 <dt id="arg-base-url">base_url<a class="anchor" aria-label="anchor" href="#arg-base-url"></a></dt>
-<dd><p>The base URL to the endpoint; the default uses ChatGPT.</p></dd>
+<dd><p>The base URL to the endpoint; the default uses OpenAI.</p></dd>
 
 
 <dt id="arg-api-key">api_key<a class="anchor" aria-label="anchor" href="#arg-api-key"></a></dt>
@@ -75,7 +86,9 @@ variable.</p></dd>
 
 
 <dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
-<dd><p>The model to use for the chat; defaults to GPT-4o mini.</p></dd>
+<dd><p>The model to use for the chat; set to <code>NULL</code> (the default) to
+use a reasonable model, currently <code>gpt-4o-mini</code>. We strongly recommend
+explicitly choosing a model for all but the most casual use.</p></dd>
 
 
 <dt id="arg-echo">echo<a class="anchor" aria-label="anchor" href="#arg-echo"></a></dt>
@@ -95,6 +108,7 @@ and <code>stream_async()</code> methods.)</p></dd>
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
 
 <ul><li><p><a href="#method-ChatOpenAI-new"><code>ChatOpenAI$new()</code></a></p></li>
+<li><p><a href="#method-ChatOpenAI-messages"><code>ChatOpenAI$messages()</code></a></p></li>
 <li><p><a href="#method-ChatOpenAI-chat"><code>ChatOpenAI$chat()</code></a></p></li>
 <li><p><a href="#method-ChatOpenAI-chat_async"><code>ChatOpenAI$chat_async()</code></a></p></li>
 <li><p><a href="#method-ChatOpenAI-stream"><code>ChatOpenAI$stream()</code></a></p></li>
@@ -107,7 +121,7 @@ and <code>stream_async()</code> methods.)</p></dd>
 
 <div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/new_chat_openai.html">ChatOpenAI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">base_url</span>, <span class="va">model</span>, <span class="va">api_key</span>, <span class="va">system_prompt</span>, echo <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/new_chat_openai.html">ChatOpenAI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">base_url</span>, <span class="va">model</span>, <span class="va">messages</span>, <span class="va">api_key</span>, echo <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -120,14 +134,16 @@ and <code>stream_async()</code> methods.)</p></dd>
 <dd><p>The model to use for the chat; defaults to GPT-4o mini.</p></dd>
 
 
+<dt><code>messages</code></dt>
+<dd><p>An unnamed list of messages to start the chat with (i.e.,
+continuing a previous conversation). If <code>NULL</code> or zero-length list, the
+conversation begins from scratch.</p></dd>
+
+
 <dt><code>api_key</code></dt>
 <dd><p>The API key to use for authentication. You generally should
 not supply this directly, but instead set the <code>OPENAI_API_KEY</code> environment
 variable.</p></dd>
-
-
-<dt><code>system_prompt</code></dt>
-<dd><p>A system prompt to set the behavior of the assistant.</p></dd>
 
 
 <dt><code>echo</code></dt>
@@ -139,11 +155,20 @@ on the <code>stream()</code>, <code>chat_async()</code>, and <code>stream_async(
 </dl><p></p></div>
 </div>
 
+</div><p></p><hr><a id="method-ChatOpenAI-messages"></a><div class="section">
+<h3 id="method-messages-">Method <code>messages()</code><a class="anchor" aria-label="anchor" href="#method-messages-"></a></h3>
+<p>The messages that have been sent and received so far
+(starting with the system prompt, if any).</p><div class="section">
+<h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">messages</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+
 </div><p></p><hr><a id="method-ChatOpenAI-chat"></a><div class="section">
 <h3 id="method-chat-">Method <code>chat()</code><a class="anchor" aria-label="anchor" href="#method-chat-"></a></h3>
 <p>Submit text to the chatbot, and return the response as a
 simple string (probably Markdown).</p><div class="section">
-<h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
+<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="va">text</span>, echo <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -166,7 +191,7 @@ will be used.</p></dd>
 <h3 id="method-chat-async-">Method <code>chat_async()</code><a class="anchor" aria-label="anchor" href="#method-chat-async-"></a></h3>
 <p>Submit text to the chatbot, and receive a promise that
 resolves with the response all at once.</p><div class="section">
-<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
+<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">chat_async</span><span class="op">(</span><span class="va">text</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -185,7 +210,7 @@ resolves with the response all at once.</p><div class="section">
 Returns A <a href="https://coro.r-lib.org/articles/generator.html#iterating" class="external-link">coro generator</a>
 that yields strings. While iterating, the generator will block while
 waiting for more content from the chatbot.</p><div class="section">
-<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">stream</span><span class="op">(</span><span class="va">text</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -203,7 +228,7 @@ waiting for more content from the chatbot.</p><div class="section">
 <p>Submit text to the chatbot, returning asynchronously
 streaming results. Returns a <a href="https://coro.r-lib.org/reference/async_generator.html" class="external-link">coro async generator</a> that
 yields string promises.</p><div class="section">
-<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">stream_async</span><span class="op">(</span><span class="va">text</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -221,7 +246,7 @@ yields string promises.</p><div class="section">
 <p>Enter an interactive chat console. This is a REPL-like
 interface where you can chat with the assistant in real-time. (Only
 available in <code><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive()</a></code> mode.)</p><div class="section">
-<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">console</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -231,7 +256,7 @@ available in <code><a href="https://rdrr.io/r/base/interactive.html" class="exte
 <p>Register a tool (an R function) that the chatbot can use.
 If the chatbot decides to use the function, elmer will automatically
 call it and submit the results back.</p><div class="section">
-<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span><span class="va">fun</span>, <span class="va">name</span>, <span class="va">description</span>, <span class="va">arguments</span>, strict <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -265,7 +290,7 @@ Should be a named list of objects created by <code><a href="tool_arg.html">tool_
 </div><p></p><hr><a id="method-ChatOpenAI-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
