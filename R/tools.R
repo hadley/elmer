@@ -32,3 +32,44 @@ call_tool <- function(fun, arguments) {
     }
   )
 }
+
+#' @export
+create_tool_metadata <- function(symbol) {
+  sym <- rlang::ensym(symbol)
+
+  file_contents <- NULL
+  fake_pager <- function(files, header, title, delete.file) {
+    if (delete.file) {
+      on.exit(unlink(files))
+    }
+
+    for (file in files) {
+      file_contents <<- c(
+        file_contents,
+        readLines(files, warn = FALSE),
+        "\n"
+      )
+    }
+  }
+
+  op <- options(help_type = "text", pager = fake_pager)
+  on.exit(options(op), add = TRUE)
+  rd_opts <- tools::Rd2txt_options(underline_titles = FALSE)
+  on.exit(tools::Rd2txt_options(rd_opts), add = TRUE)
+
+  help_files <- rlang::inject(`?`(!!sym))
+  if (length(help_files) == 0) {
+    cli::cli_abort("No help files found")
+  }
+
+  # Has side effect of setting file_contents
+  print(help_files)
+
+  help_text <- paste(file_contents, collapse = "\n")
+
+  tool_prompt <- readLines(system.file("tool_prompt.md", package = "elmer"), warn = FALSE)
+  tool_prompt <- paste(tool_prompt, collapse = "\n")
+
+  chat <- new_chat_openai(system_prompt = tool_prompt, echo = TRUE)
+  chat$chat(paste0("Function name: ", as.character(sym), "\n\nFunction documentation:\n\n", help_text))
+}
