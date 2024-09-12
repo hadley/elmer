@@ -12,7 +12,7 @@
 
 # So `R CMD check` doesn't get confused about these variables being used from
 # methods
-utils::globalVariables(c("self", "private", "generator_env", "exits"))
+utils::globalVariables(c("self", "private"))
 
 generators <- new.env()
 
@@ -41,9 +41,9 @@ generator_method <- function(func) {
 
   rlang::inject(
     function(...) {
-      # Must use elmer::: because the lexical environment of this function is
-      # about to get wrecked by R6
-      elmer:::generators[[!!unique_id]](self, private, ...)
+      # Can't simply use `generators` because the lexical environment of this
+      # function is about to get wrecked by R6
+      getNamespace("elmer")[["generators"]][[!!unique_id]](self, private, ...)
     }
   )
 }
@@ -69,9 +69,9 @@ async_generator_method <- function(func, print = FALSE) {
 
   gen <- rlang::inject(
     function(...) {
-      # Must use elmer::: because the lexical environment of this function is
-      # about to get wrecked by R6
-      elmer:::generators[[!!unique_id]](self, private, ...)
+      # Can't simply use `generators` because the lexical environment of this
+      # function is about to get wrecked by R6
+      getNamespace("elmer")[["generators"]][[!!unique_id]](self, private, ...)
     }
   )
   if (print) {

@@ -17,7 +17,8 @@ split_spaces <- function(text) {
   result
 }
 
-cat_word_wrap_impl <- coro::generator(function(con = stdout()) {
+cat_word_wrap_impl <- NULL
+rlang::on_load(cat_word_wrap_impl <<- coro::generator(function(con = stdout()) {
   CAT <- function(...) {
     cat(..., file = con, sep = "")
   }
@@ -77,7 +78,7 @@ cat_word_wrap_impl <- coro::generator(function(con = stdout()) {
       }
     }
   }
-})
+}))
 
 # cat_word_wrap() is a function that returns a function that can be used to
 # print text to the console with word wrapping. It uses the COLUMNS environment
