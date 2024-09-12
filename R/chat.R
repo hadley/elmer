@@ -285,8 +285,12 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     #'   Generally, the more information that you can provide here, the better.
     #' @param arguments A named list of arguments that the function accepts.
     #'   Should be a named list of objects created by [tool_arg()].
-    #' @param strict Should the argument definition be strictly enforced?
-    register_tool = function(fun, name, description, arguments, strict = TRUE) {
+    #' @param strict Should the argument definition be strictly enforced? If
+    #'   `TRUE`, enables [Structured
+    #'   Output](https://platform.openai.com/docs/guides/structured-outputs)
+    #'   mode, which comes with a number of [additional
+    #'   requirements](https://platform.openai.com/docs/guides/structured-outputs/supported-schemas).
+    register_tool = function(fun, name, description, arguments, strict = FALSE) {
       check_function(fun)
       check_string(name)
       check_string(description)

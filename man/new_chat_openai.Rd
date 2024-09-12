@@ -131,11 +131,19 @@ on the \code{stream()}, \code{chat_async()}, and \code{stream_async()} methods.}
 \if{latex}{\out{\hypertarget{method-ChatOpenAI-messages}{}}}
 \subsection{Method \code{messages()}}{
 The messages that have been sent and received so far
-(starting with the system prompt, if any).
+(optionally starting with the system prompt, if any).
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$messages()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$messages(include_system_prompt = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{include_system_prompt}}{Whether to include the system prompt in the
+messages (if any exists).}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ChatOpenAI-chat"></a>}}
@@ -236,7 +244,7 @@ Register a tool (an R function) that the chatbot can use.
 If the chatbot decides to use the function, elmer will automatically
 call it and submit the results back.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$register_tool(fun, name, description, arguments, strict = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$register_tool(fun, name, description, arguments, strict = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -252,7 +260,9 @@ Generally, the more information that you can provide here, the better.}
 \item{\code{arguments}}{A named list of arguments that the function accepts.
 Should be a named list of objects created by \code{\link[=tool_arg]{tool_arg()}}.}
 
-\item{\code{strict}}{Should the argument definition be strictly enforced?}
+\item{\code{strict}}{Should the argument definition be strictly enforced? If
+\code{TRUE}, enables \href{https://platform.openai.com/docs/guides/structured-outputs}{Structured Output}
+mode, which comes with a number of \href{https://platform.openai.com/docs/guides/structured-outputs/supported-schemas}{additional requirements}.}
 }
 \if{html}{\out{</div>}}
 }

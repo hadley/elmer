@@ -33,10 +33,7 @@ call_tool <- function(fun, arguments) {
   )
 }
 
-#' @export
-create_tool_metadata <- function(symbol) {
-  sym <- rlang::ensym(symbol)
-
+get_help_text <- function(topic, package = NULL) {
   file_contents <- NULL
   fake_pager <- function(files, header, title, delete.file) {
     if (delete.file) {
@@ -57,7 +54,7 @@ create_tool_metadata <- function(symbol) {
   rd_opts <- tools::Rd2txt_options(underline_titles = FALSE)
   on.exit(tools::Rd2txt_options(rd_opts), add = TRUE)
 
-  help_files <- rlang::inject(`?`(!!sym))
+  help_files <- utils::help((topic), package = (package))
   if (length(help_files) == 0) {
     cli::cli_abort("No help files found")
   }
@@ -65,11 +62,40 @@ create_tool_metadata <- function(symbol) {
   # Has side effect of setting file_contents
   print(help_files)
 
-  help_text <- paste(file_contents, collapse = "\n")
+  paste(file_contents, collapse = "\n")
+}
+
+#' @export
+create_tool_metadata <- function(topic, model = "gpt-4o", echo = interactive()) {
+  expr <- rlang::enexpr(topic)
+
+  pkg <- NULL
+  fun <- format(expr)
+
+  # Ensure `expr` is a string literal, a symbol, or an expression of the form
+  # `pkg::fun` or `pkg:::fun`.
+  if (rlang::is_call(expr)) {
+    if (!identical(expr[[1]], quote(`::`)) ||
+        !rlang::is_symbol(expr[[2]]) ||
+        !rlang::is_symbol(expr[[3]])) {
+      cli::cli_abort("Expected a symbol or a string literal, or an expression of the form `pkg::fun` or `pkg:::fun`.")
+    }
+    pkg <- as.character(expr[[2]])
+    fun <- as.character(expr[[3]])
+  } else if (!rlang::is_symbol(expr) && !rlang::is_string(expr)) {
+    cli::cli_abort("Expected a symbol or a string literal, or an expression of the form `pkg::fun` or `pkg:::fun`.")
+  }
+
+  help_text <- get_help_text(fun, pkg)
+
+  topic_str <- format(expr)
 
   tool_prompt <- readLines(system.file("tool_prompt.md", package = "elmer"), warn = FALSE)
   tool_prompt <- paste(tool_prompt, collapse = "\n")
 
-  chat <- new_chat_openai(system_prompt = tool_prompt, echo = TRUE)
-  chat$chat(paste0("Function name: ", as.character(sym), "\n\nFunction documentation:\n\n", help_text))
+  chat <- new_chat_openai(system_prompt = tool_prompt, model = model, echo = echo)
+  chat$chat(paste0(
+    "Function name: ", topic_str,
+    "\n\nFunction documentation:\n\n", help_text
+  ))
 }
