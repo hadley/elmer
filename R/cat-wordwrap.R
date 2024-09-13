@@ -18,7 +18,7 @@ split_spaces <- function(text) {
 }
 
 cat_word_wrap_impl <- NULL
-rlang::on_load(cat_word_wrap_impl <<- coro::generator(function(con = stdout()) {
+rlang::on_load(cat_word_wrap_impl <- coro::generator(function(con = stdout()) {
   CAT <- function(...) {
     cat(..., file = con, sep = "")
   }

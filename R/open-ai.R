@@ -18,7 +18,7 @@ openai_chat <- function(messages,
 }
 
 openai_chat_stream <- NULL
-rlang::on_load(openai_chat_stream <<- coro::generator(function(req) {
+rlang::on_load(openai_chat_stream <- coro::generator(function(req) {
   resp <- httr2::req_perform_connection(req)
   on.exit(close(resp))
   reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
@@ -61,7 +61,7 @@ openai_chat_async <- function(messages,
 }
 
 openai_chat_stream_async <- NULL
-rlang::on_load(openai_chat_stream_async <<- coro::async_generator(function(req, polling_interval_secs = 0.1) {
+rlang::on_load(openai_chat_stream_async <- coro::async_generator(function(req, polling_interval_secs = 0.1) {
   resp <- httr2::req_perform_connection(req, blocking = FALSE)
   on.exit(close(resp))
   # TODO: Investigate if this works with async generators
