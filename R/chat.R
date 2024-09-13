@@ -172,20 +172,21 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
       }
     },
 
-    #' @description Submit text to the chatbot, and return the response as a
+    #' @description Submit input to the chatbot, and return the response as a
     #'   simple string (probably Markdown).
-    #' @param text The text to send to the chatbot.
+    #' @param input The input to send to the chatbot. Can be a string, or a list
+    #'   of strings and images.
     #' @param echo Whether to emit the response to stdout as it is received. If
     #'   `NULL`, then the value of `echo` set when the chat object was created
     #'   will be used.
-    chat = function(text, echo = NULL) {
-      check_string(text)
+    chat = function(input, echo = NULL) {
+      input <- normalize_chat_input(input)
 
       echo <- echo %||% private$echo
 
       # Returns a single message (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
-      coro::collect(private$chat_impl(text, stream = echo, echo = echo))
+      coro::collect(private$chat_impl(input, stream = echo, echo = echo))
       last_message <- private$msgs[[length(private$msgs)]]
       stopifnot(identical(last_message[["role"]], "assistant"))
 
@@ -196,17 +197,18 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
       }
     },
 
-    #' @description Submit text to the chatbot, and receive a promise that
+    #' @description Submit input to the chatbot, and receive a promise that
     #'   resolves with the response all at once.
-    #' @param text The text to send to the chatbot.
+    #' @param input The input to send to the chatbot. Can be a string, or a list
+    #'   of strings and images.
     #' @returns A promise that resolves to a string (probably Markdown).
-    chat_async = function(text) {
-      check_string(text)
+    chat_async = function(input) {
+      input <- normalize_chat_input(input)
 
       # Returns a single message (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
       done <- coro::async_collect(
-        private$chat_impl_async(text, stream = FALSE, echo = FALSE)
+        private$chat_impl_async(input, stream = FALSE, echo = FALSE)
       )
       promises::then(done, function(dummy) {
         last_message <- private$msgs[[length(private$msgs)]]
@@ -215,23 +217,27 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
       })
     },
 
-    #' @description Submit text to the chatbot, returning streaming results.
+    #' @description Submit input to the chatbot, returning streaming results.
     #'   Returns A [coro
     #'   generator](https://coro.r-lib.org/articles/generator.html#iterating)
     #'   that yields strings. While iterating, the generator will block while
     #'   waiting for more content from the chatbot.
-    #' @param text The text to send to the chatbot.
-    stream = function(text) {
-      private$chat_impl(text, stream = TRUE, echo = FALSE)
+    #' @param input The input to send to the chatbot. Can be a string, or a list
+    #'   of strings and images.
+    stream = function(input) {
+      input <- normalize_chat_input(input)
+      private$chat_impl(input, stream = TRUE, echo = FALSE)
     },
 
-    #' @description Submit text to the chatbot, returning asynchronously
+    #' @description Submit input to the chatbot, returning asynchronously
     #'   streaming results. Returns a [coro async
     #'   generator](https://coro.r-lib.org/reference/async_generator.html) that
     #'   yields string promises.
-    #' @param text The text to send to the chatbot.
-    stream_async = function(text) {
-      private$chat_impl_async(text, stream = TRUE, echo = FALSE)
+    #' @param input The input to send to the chatbot. Can be a string, or a list
+    #'   of strings and images.
+    stream_async = function(input) {
+      input <- normalize_chat_input(input)
+      private$chat_impl_async(input, stream = TRUE, echo = FALSE)
     },
 
     #' @description Enter an interactive chat console. This is a REPL-like
@@ -345,8 +351,8 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant messages.
-    chat_impl = generator_method(function(self, private, text, stream, echo) {
-      private$add_message(list(role = "user", content = text))
+    chat_impl = generator_method(function(self, private, user_message, stream, echo) {
+      private$add_message(user_message)
       while (TRUE) {
         for (chunk in private$submit_messages(stream = stream, echo = echo)) {
           yield(chunk)
@@ -364,8 +370,8 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant messages.
-    chat_impl_async = async_generator_method(function(self, private, text, stream, echo) {
-      private$add_message(list(role = "user", content = text))
+    chat_impl_async = async_generator_method(function(self, private, user_message, stream, echo) {
+      private$add_message(user_message)
       while (TRUE) {
         for (chunk in await_each(private$submit_messages_async(stream = stream, echo = echo))) {
           yield(chunk)
@@ -513,7 +519,7 @@ print.ChatOpenAI <- function(x, ...) {
       # Using cli_text for word wrapping. Passing `"{message$content}"` instead of
       # `message$content` to avoid evaluation of the (potentially malicious)
       # content.
-      cli::cli_text("{message$content}")
+      cli::cli_text("{format_content(message$content)}")
     }
     if (!is.null(message$tool_calls)) {
       cli::cli_text("Tool calls:")
@@ -535,8 +541,127 @@ print.ChatOpenAI <- function(x, ...) {
   invisible(x)
 }
 
+#' @export
+#' @examplesIf elmer:::openai_key_exists()
+#' chat <- new_chat_openai(echo = TRUE)
+#' chat$chat(
+#'   list(
+#'     "What do you see in these images?",
+#'     content_image_url("https://www.r-project.org/Rlogo.png"),
+#'     content_image_file(system.file("httr2.png", package = "elmer"))
+#'   )
+#' )
+content_image_url <- function(url, detail = c("auto", "low", "high")) {
+  # TODO: Allow vector input?
+  check_string(url)
+
+  list(type = "image_url", image_url = list(url = url))
+}
+
+#' @rdname content_image_url
+#' @export
+content_image_file <- function(path, detail = c("auto", "low", "high"), content_type = "auto", resize = NULL) {
+  # TODO: Allow vector input?
+  check_string(path)
+  if (!file.exists(path)) {
+    stop("File does not exist: ", path)
+  }
+
+  if (content_type == "auto") {
+    # OpenAI supports .png, .jpeg, .jpg, .webp, .gif
+    # https://platform.openai.com/docs/guides/vision/what-type-of-files-can-i-upload
+    ext <- tolower(tools::file_ext(path))
+    content_type <- switch(
+      ext,
+      png = "image/png",
+      jpeg = "image/jpeg",
+      jpg = "image/jpeg",
+      webp = "image/webp",
+      gif = "image/gif",
+      stop("Unsupported image file extension: ", ext)
+    )
+  }
+
+  if (!is.null(resize)) {
+    # Load the image
+    img <- magick::image_read(path)
+    img <- magick::image_scale(img, "512x512")
+    buf <- magick::image_write(img, format = magick::image_info(img)$format)
+    base64 <- base64enc::base64encode(buf)
+  } else {
+    base64 <- base64enc::base64encode(path)
+  }
+
+  data_uri <- paste0("data:", content_type, ";base64,", base64)
+
+  content_image_url(data_uri)
+}
+
 
 last_message <- function(chat) {
   messages <- chat$messages()
   messages[[length(messages)]]
+}
+
+# Define allowed types - add new types here in the future
+allowed_input_types <- c("text", "image_url")
+
+normalize_chat_input <- function(input) {
+  if (is.list(input)) {
+    # If input is already a list, process all elements
+    content <- lapply(input, process_single_input)
+  } else if (is.character(input)) {
+    # If input is a single string, convert it to the required format
+    check_string(input)
+    content <- input
+  } else {
+    stop("Input must be a string or a list")
+  }
+
+  return(list(role = "user", content = content))
+}
+
+process_single_input <- function(item) {
+  if (is.character(item)) {
+    # If item is a string, convert it to text format
+    return(list(type = "text", text = item))
+  } else if (is.list(item)) {
+    if (!"type" %in% names(item)) {
+      stop("List item must have a 'type' field")
+    }
+
+    type <- item[["type"]]
+    if (!is.character(type) || length(type) != 1) {
+      stop("'type' must be a single string")
+    }
+
+    if (!type %in% allowed_input_types) {
+      stop(sprintf("Invalid type '%s'. Allowed types are: %s",
+        type, paste(allowed_input_types, collapse = ", ")))
+    }
+
+    if (!type %in% names(item)) {
+      stop(sprintf("List item of type '%s' must have a '%s' field", type, type))
+    }
+
+    if (is.null(item[[type]])) {
+      stop(sprintf("'%s' field cannot be NULL", type))
+    }
+
+    return(item)
+  } else {
+    stop("Each item must be a string or a list")
+  }
+}
+
+format_content <- function(content) {
+  if (is.character(content)) {
+    return(content)
+  } else if (is.list(content)) {
+    return(paste0(lapply(content, function(x) {
+      type <- x[["type"]]
+      value <- x[[type]]
+      paste0("[", type, "]: ", value)
+    }), collapse = "\n"))
+  }
 }
