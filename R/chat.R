@@ -278,7 +278,9 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     #' @description Register a tool (an R function) that the chatbot can use.
     #'   If the chatbot decides to use the function, elmer will automatically
-    #'   call it and submit the results back.
+    #'   call it and submit the results back. (See [create_tool_metadata()] for
+    #'   an AI-enabled helper function that can write a `register_tool` call
+    #'   for you in some cases.)
     #' @param fun The function to be invoked when the tool is called.
     #' @param name The name of the function.
     #' @param description A detailed description of what the function does.

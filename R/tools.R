@@ -65,6 +65,31 @@ get_help_text <- function(topic, package = NULL) {
   paste(file_contents, collapse = "\n")
 }
 
+#' Create metadata for a tool
+#'
+#' @description In order to use a function as a tool in a chat, you need to
+#' craft the right metadata to pass to `register_tool()`. This function helps
+#' you do that for documented package functions by extracting the function's R
+#' documentation and creating a `register_tool` call for you, using an LLM. It's
+#' meant to be used interactively while writing your code, not as part of your
+#' final code.
+#'
+#' Note that this function is inherently imperfect. It can't handle all possible
+#' R functions, because not all parameters are suitable for use in a tool call
+#' (for example, because they're not serializable to simple JSON objects). The
+#' documentation might not specify the expected shape of arguments to the level
+#' of detail that would allow an exact JSON schema to be generated.
+#'
+#' @param topic A symbol or string literal naming the function to create
+#'   metadata for. Can also be an expression of the form `pkg::fun`.
+#' @param model The OpenAI model to use for generating the metadata. Defaults to
+#'  "gpt-4o", which is highly recommended over "gpt-4o-mini".
+#' @param echo Emit the registration code to the console. Defaults to `TRUE` in
+#'   interactive sessions.
+#'
+#' @return A `register_tool` call that you can copy and paste into your code.
+#'   Returned invisibly if `echo` is `TRUE`.
+#'
 #' @export
 create_tool_metadata <- function(topic, model = "gpt-4o", echo = interactive()) {
   expr <- rlang::enexpr(topic)
