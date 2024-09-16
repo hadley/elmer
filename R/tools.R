@@ -114,24 +114,24 @@ get_help_text <- function(topic, package = NULL) {
 #'
 #' @export
 create_tool_metadata <- function(topic, model = "gpt-4o", echo = interactive(), verbose = FALSE) {
-  expr <- rlang::enexpr(topic)
+  expr <- enexpr(topic)
 
   pkg <- NULL
   fun <- format(expr)
 
   # Ensure `expr` is a string literal, a symbol, or an expression of the form
   # `pkg::fun` or `pkg:::fun`.
-  if (rlang::is_call(expr)) {
+  if (is_call(expr)) {
     if (!identical(expr[[1]], quote(`::`)) ||
-        !rlang::is_symbol(expr[[2]]) ||
-        !rlang::is_symbol(expr[[3]])) {
+        !is_symbol(expr[[2]]) ||
+        !is_symbol(expr[[3]])) {
       cli::cli_abort("Expected a symbol or a string literal, or an expression of the form `pkg::fun` or `pkg:::fun`.")
     }
     pkg <- as.character(expr[[2]])
     fun <- as.character(expr[[3]])
-  } else if (rlang::is_symbol(expr)) {
+  } else if (is_symbol(expr)) {
     fun <- as.character(expr)
-  } else if (!rlang::is_string(expr)) {
+  } else if (!is_string(expr)) {
     cli::cli_abort("Expected a symbol or a string literal, or an expression of the form `pkg::fun` or `pkg:::fun`.")
   }
 

@@ -528,7 +528,7 @@ print.ChatOpenAI <- function(x, ...) {
         args <- tool_call$`function`$arguments
         tryCatch({
           args_parsed <- jsonlite::parse_json(tool_call$`function`$arguments)
-          args <- rlang::call2(funcname, !!!args_parsed)
+          args <- call2(funcname, !!!args_parsed)
           cli::cli_text(format(args))
         }, error = function(e) {
           # In case parsing the JSON fails

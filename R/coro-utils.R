@@ -31,7 +31,7 @@ generator_method <- function(func) {
     "generator methods must have `self` parameter" = identical(names(formals(func))[2], "private")
   )
 
-  expr <- rlang::inject(
+  expr <- inject(
     base::quote(coro::generator(!!fn))
   )
   generator <- eval(expr, parent.frame())
@@ -39,7 +39,7 @@ generator_method <- function(func) {
   unique_id <- as.character(sample.int(99999999, 1))
   generators[[unique_id]] <- generator
 
-  rlang::inject(
+  inject(
     function(...) {
       # Must use elmer::: because the lexical environment of this function is
       # about to get wrecked by R6
@@ -59,7 +59,7 @@ async_generator_method <- function(func, print = FALSE) {
     "generator methods must have `self` parameter" = identical(names(formals(func))[2], "private")
   )
 
-  expr <- rlang::inject(
+  expr <- inject(
     base::quote(coro::async_generator(!!fn))
   )
   generator <- eval(expr, parent.frame())
@@ -67,7 +67,7 @@ async_generator_method <- function(func, print = FALSE) {
   unique_id <- paste0("a", sample.int(99999999, 1))
   generators[[unique_id]] <- generator
 
-  gen <- rlang::inject(
+  gen <- inject(
     function(...) {
       # Must use elmer::: because the lexical environment of this function is
       # about to get wrecked by R6
