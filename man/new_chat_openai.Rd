@@ -59,6 +59,7 @@ chat$chat("
 
 chat <- new_chat_openai()
 chat$register_tool(
+  fun = rnorm,
   name = "rnorm",
   description = "Drawn numbers from a random normal distribution",
   arguments = list(
@@ -81,6 +82,13 @@ chat$chat("
   Briefly explain your work.
 ")
 \dontshow{\}) # examplesIf}
+}
+\section{Active bindings}{
+\if{html}{\out{<div class="r6-active-bindings">}}
+\describe{
+\item{\code{system_prompt}}{The system prompt, if any, as a string.}
+}
+\if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
@@ -131,11 +139,19 @@ on the \code{stream()}, \code{chat_async()}, and \code{stream_async()} methods.}
 \if{latex}{\out{\hypertarget{method-ChatOpenAI-messages}{}}}
 \subsection{Method \code{messages()}}{
 The messages that have been sent and received so far
-(starting with the system prompt, if any).
+(optionally starting with the system prompt, if any).
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$messages()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$messages(include_system_prompt = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{include_system_prompt}}{Whether to include the system prompt in the
+messages (if any exists).}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-ChatOpenAI-chat"></a>}}
