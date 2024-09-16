@@ -579,10 +579,12 @@ content_image_url <- function(url, detail = c("auto", "low", "high")) {
 #'   `.gif`.
 #' @param content_type The content type of the image (e.g. `image/png`). If
 #'   `"auto"`, the content type is inferred from the file extension.
-#' @param resize If `low`, resize images to fit within 512x512. If `high`,
-#'   resize to fit within 2000x768 or 768x2000. If `FALSE`, do not resize. You
-#'   can also pass a custom string to resize the image to a specific size, e.g.
-#'   `"200x200"` to resize to 200x200 pixels while preserving aspect ratio.
+#' @param resize If `"low"`, resize images to fit within 512x512. If `"high"`,
+#'   resize to fit within 2000x768 or 768x2000. (See the [OpenAI
+#'   docs](https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding)
+#'   for more on why these specific sizes are used.) If `FALSE`, do not resize.
+#'   You can also pass a custom string to resize the image to a specific size,
+#'   e.g. `"200x200"` to resize to 200x200 pixels while preserving aspect ratio.
 #'   Append `>` to resize only if the image is larger than the specified size,
 #'   and `!` to ignore aspect ratio (e.g. `"300x200>!"`). All values other than
 #'   `FALSE` require the `magick` package.

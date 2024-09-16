@@ -24,10 +24,11 @@ file extensions are \code{.png}, \code{.jpeg}, \code{.jpg}, \code{.webp}, and (n
 \item{content_type}{The content type of the image (e.g. \code{image/png}). If
 \code{"auto"}, the content type is inferred from the file extension.}
 
-\item{resize}{If \code{low}, resize images to fit within 512x512. If \code{high},
-resize to fit within 2000x768 or 768x2000. If \code{FALSE}, do not resize. You
-can also pass a custom string to resize the image to a specific size, e.g.
-\code{"200x200"} to resize to 200x200 pixels while preserving aspect ratio.
+\item{resize}{If \code{"low"}, resize images to fit within 512x512. If \code{"high"},
+resize to fit within 2000x768 or 768x2000. (See the \href{https://platform.openai.com/docs/guides/vision/low-or-high-fidelity-image-understanding}{OpenAI docs}
+for more on why these specific sizes are used.) If \code{FALSE}, do not resize.
+You can also pass a custom string to resize the image to a specific size,
+e.g. \code{"200x200"} to resize to 200x200 pixels while preserving aspect ratio.
 Append \code{>} to resize only if the image is larger than the specified size,
 and \code{!} to ignore aspect ratio (e.g. \code{"300x200>!"}). All values other than
 \code{FALSE} require the \code{magick} package.}
