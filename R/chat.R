@@ -174,13 +174,13 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     #' @description Submit input to the chatbot, and return the response as a
     #'   simple string (probably Markdown).
-    #' @param input The input to send to the chatbot. Can be a string, or a list
-    #'   of strings and images.
+    #' @param ... The input to send to the chatbot. Can be strings or images.
     #' @param echo Whether to emit the response to stdout as it is received. If
     #'   `NULL`, then the value of `echo` set when the chat object was created
     #'   will be used.
-    chat = function(input, echo = NULL) {
-      input <- normalize_chat_input(input)
+    chat = function(..., echo = NULL) {
+      rlang::check_dots_unnamed()
+      input <- normalize_chat_input(...)
 
       echo <- echo %||% private$echo
 
@@ -199,11 +199,11 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     #' @description Submit input to the chatbot, and receive a promise that
     #'   resolves with the response all at once.
-    #' @param input The input to send to the chatbot. Can be a string, or a list
-    #'   of strings and images.
+    #' @param ... The input to send to the chatbot. Can be strings or images.
     #' @returns A promise that resolves to a string (probably Markdown).
-    chat_async = function(input) {
-      input <- normalize_chat_input(input)
+    chat_async = function(...) {
+      rlang::check_dots_unnamed()
+      input <- normalize_chat_input(...)
 
       # Returns a single message (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
@@ -222,10 +222,10 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     #'   generator](https://coro.r-lib.org/articles/generator.html#iterating)
     #'   that yields strings. While iterating, the generator will block while
     #'   waiting for more content from the chatbot.
-    #' @param input The input to send to the chatbot. Can be a string, or a list
-    #'   of strings and images.
-    stream = function(input) {
-      input <- normalize_chat_input(input)
+    #' @param ... The input to send to the chatbot. Can be strings or images.
+    stream = function(...) {
+      rlang::check_dots_unnamed()
+      input <- normalize_chat_input(...)
       private$chat_impl(input, stream = TRUE, echo = FALSE)
     },
 
@@ -233,10 +233,10 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     #'   streaming results. Returns a [coro async
     #'   generator](https://coro.r-lib.org/reference/async_generator.html) that
     #'   yields string promises.
-    #' @param input The input to send to the chatbot. Can be a string, or a list
-    #'   of strings and images.
-    stream_async = function(input) {
-      input <- normalize_chat_input(input)
+    #' @param ... The input to send to the chatbot. Can be strings or images.
+    stream_async = function(...) {
+      rlang::check_dots_unnamed()
+      input <- normalize_chat_input(...)
       private$chat_impl_async(input, stream = TRUE, echo = FALSE)
     },
 
@@ -606,16 +606,17 @@ last_message <- function(chat) {
 # Define allowed types - add new types here in the future
 allowed_input_types <- c("text", "image_url")
 
-normalize_chat_input <- function(input) {
-  if (is.list(input)) {
-    # If input is already a list, process all elements
-    content <- lapply(input, process_single_input)
-  } else if (is.character(input)) {
-    # If input is a single string, convert it to the required format
-    check_string(input)
-    content <- input
+normalize_chat_input <- function(...) {
+  input <- rlang::list2(...)
+
+  stopifnot(is.null(names(input)) || all(names(input) == ""))
+
+  if (length(input) == 1 && rlang::is_string(input[[1]])) {
+    # The common case of just a string, can be left as a string
+    content <- input[[1]]
   } else {
-    stop("Input must be a string or a list")
+    # Otherwise, process all elements
+    content <- lapply(input, process_single_input)
   }
 
   return(list(role = "user", content = content))
