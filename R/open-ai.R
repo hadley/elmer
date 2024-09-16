@@ -12,18 +12,18 @@ openai_chat <- function(messages,
   if (stream) {
     openai_chat_stream(req)
   } else {
-    resp <- httr2::req_perform(req)
-    httr2::resp_body_json(resp)
+    resp <- req_perform(req)
+    resp_body_json(resp)
   }
 }
 
 openai_chat_stream <- coro::generator(function(req) {
-  resp <- httr2::req_perform_connection(req)
+  resp <- req_perform_connection(req)
   on.exit(close(resp))
   reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
 
   while (TRUE) {
-    event <- httr2::resp_stream_sse(resp)
+    event <- resp_stream_sse(resp)
     if (is.null(event)) {
       abort("Connection failed")
     }
@@ -54,19 +54,19 @@ openai_chat_async <- function(messages,
   if (stream) {
     openai_chat_stream_async(req)
   } else {
-    resp <- httr2::req_perform_promise(req)
-    promises::then(resp, httr2::resp_body_json)
+    resp <- req_perform_promise(req)
+    promises::then(resp, resp_body_json)
   }
 }
 
 openai_chat_stream_async <- coro::async_generator(function(req, polling_interval_secs = 0.1) {
-  resp <- httr2::req_perform_connection(req, blocking = FALSE)
+  resp <- req_perform_connection(req, blocking = FALSE)
   on.exit(close(resp))
   # TODO: Investigate if this works with async generators
   # reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
 
   while (TRUE) {
-    event <- httr2::resp_stream_sse(resp)
+    event <- resp_stream_sse(resp)
     if (is.null(event)) {
       # TODO: Detect if connection is closed and stop polling
       await(coro::async_sleep(polling_interval_secs))
@@ -111,20 +111,20 @@ openai_chat_req <- function(messages,
   )
 
   req <- openai_request(base_url = base_url, key = api_key)
-  req <- httr2::req_url_path_append(req, "/chat/completions")
-  req <- httr2::req_body_json(req, data)
+  req <- req_url_path_append(req, "/chat/completions")
+  req <- req_body_json(req, data)
   req
 }
 
 openai_request <- function(base_url = "https://api.openai.com/v1",
                            key = openai_key()) {
-  req <- httr2::request(base_url)
-  req <- httr2::req_auth_bearer_token(req, Sys.getenv("OPENAI_API_KEY"))
-  req <- httr2::req_retry(req, max_tries = 2)
-  req <- httr2::req_error(req, body = function(resp) {
-     httr2::resp_body_json(resp)$error$message
+  req <- request(base_url)
+  req <- req_auth_bearer_token(req, Sys.getenv("OPENAI_API_KEY"))
+  req <- req_retry(req, max_tries = 2)
+  req <- req_error(req, body = function(resp) {
+     resp_body_json(resp)$error$message
   })
-  # req <- httr2::req_verbose(req, body_req = TRUE, body_resp = TRUE)
+  # req <- req_verbose(req, body_req = TRUE, body_resp = TRUE)
   req
 }
 

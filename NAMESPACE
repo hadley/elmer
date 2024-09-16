@@ -3,5 +3,6 @@
 S3method(print,ChatOpenAI)
 export(new_chat_openai)
 export(tool_arg)
+import(httr2)
 import(rlang)
 importFrom(R6,R6Class)

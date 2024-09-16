@@ -135,7 +135,7 @@ check_openai_conversation <- function(messages, allow_null = FALSE) {
 }
 
 #' @rdname new_chat_openai
-ChatOpenAI <- R6::R6Class("ChatOpenAI",
+pr_pChatOpenAI <- R6::R6Class("ChatOpenAI",
   public = list(
     #' @param base_url The base URL to the endpoint; the default uses ChatGPT.
     #' @param api_key The API key to use for authentication. You generally should
