@@ -13,7 +13,7 @@ BugReports: https://github.com/hadley/elmer/issues
 Imports:
     cli,
     coro,
-    httr2 (>= 1.0.3.9000),
+    httr2 (>= 1.0.4),
     jsonlite,
     R6,
     rlang (>= 1.1.0)
@@ -45,3 +45,4 @@ Collate:
     'tools-def.R'
     'tools.R'
     'utils.R'
+    'zzz.R'

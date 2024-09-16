@@ -307,6 +307,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     }
   ),
   active = list(
+    #' @field system_prompt The system prompt, if any, as a string.
     system_prompt = function() {
       if (length(private$msgs) == 0) {
         return(NULL)
