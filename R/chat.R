@@ -559,10 +559,18 @@ content_image_url <- function(url, detail = c("auto", "low", "high")) {
 }
 
 #' @rdname content_image_url
+#' @param resize If `low`, resize images to fit within 512x512. If `high`,
+#'   resize to fit within 2000x768 or 768x2000. If `FALSE`, do not resize. You
+#'   can also pass a custom string to resize the image to a specific size, e.g.
+#'   `"200x200"` to resize to 200x200 pixels while preserving aspect ratio.
+#'   Append `>` to resize only if the image is larger than the specified size,
+#'   and `!` to ignore aspect ratio (e.g. `"300x200>!"`).
+#'   All values other than `FALSE` require the `magick` package.
 #' @export
-content_image_file <- function(path, detail = c("auto", "low", "high"), content_type = "auto", resize = NULL) {
+content_image_file <- function(path, content_type = "auto", resize = "low") {
   # TODO: Allow vector input?
   check_string(path)
+
   if (!file.exists(path)) {
     stop("File does not exist: ", path)
   }
@@ -582,10 +590,28 @@ content_image_file <- function(path, detail = c("auto", "low", "high"), content_
     )
   }
 
-  if (!is.null(resize)) {
-    # Load the image
+  # Implement resizing logic
+  if (!isFALSE(resize)) {
+    rlang::check_installed("magick", "to resize images")
+
     img <- magick::image_read(path)
-    img <- magick::image_scale(img, "512x512")
+
+    if (resize == "low") {
+      img <- magick::image_resize(img, "512x512>")
+    } else if (resize == "high") {
+      # Get current image dimensions
+      dims <- magick::image_info(img)
+      width <- dims$width
+      height <- dims$height
+
+      if (width > height) {
+        img <- magick::image_resize(img, "2000x768>")
+      } else {
+        img <- magick::image_resize(img, "768x2000>")
+      }
+    } else {
+      img <- magick::image_resize(img, resize)
+    }
     buf <- magick::image_write(img, format = magick::image_info(img)$format)
     base64 <- base64enc::base64encode(buf)
   } else {
@@ -611,9 +637,9 @@ normalize_chat_input <- function(...) {
 
   stopifnot(is.null(names(input)) || all(names(input) == ""))
 
-  if (length(input) == 1 && rlang::is_string(input[[1]])) {
+  if (length(input) == 1 && is.character(input[[1]])) {
     # The common case of just a string, can be left as a string
-    content <- input[[1]]
+    content <- paste(input[[1]], collapse = "\n")
   } else {
     # Otherwise, process all elements
     content <- lapply(input, process_single_input)
@@ -625,7 +651,7 @@ normalize_chat_input <- function(...) {
 process_single_input <- function(item) {
   if (is.character(item)) {
     # If item is a string, convert it to text format
-    return(list(type = "text", text = item))
+    return(list(type = "text", text = paste(item, collapse = "\n")))
   } else if (is.list(item)) {
     if (!"type" %in% names(item)) {
       stop("List item must have a 'type' field")
@@ -647,6 +673,10 @@ process_single_input <- function(item) {
 
     if (is.null(item[[type]])) {
       stop(sprintf("'%s' field cannot be NULL", type))
+    }
+
+    if (type == "text") {
+      item[["text"]] <- paste(item[[type]], collapse = "\n")
     }
 
     return(item)
