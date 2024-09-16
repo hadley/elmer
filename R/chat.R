@@ -110,7 +110,7 @@ apply_system_prompt_openai <- function(system_prompt, messages) {
     return(messages)
   }
 
-  stop("`system_prompt` and `messages[[1]]` contained conflicting system prompts")
+  cli::cli_abort("`system_prompt` and `messages[[1]]` contained conflicting system prompts")
 }
 
 check_openai_conversation <- function(messages, allow_null = FALSE) {
@@ -130,7 +130,7 @@ check_openai_conversation <- function(messages, allow_null = FALSE) {
   for (message in messages) {
     if (!is.list(message) ||
         !is.character(message$role)) {
-      stop("Each message must be a named list with at least a `role` field.")
+      cli::cli_abort("Each message must be a named list with at least a `role` field.")
     }
   }
 }
@@ -594,7 +594,7 @@ content_image_file <- function(path, content_type = "auto", resize = "low") {
   check_string(path)
 
   if (!file.exists(path)) {
-    stop("File does not exist: ", path)
+    cli::cli_abort("File does not exist: {path}")
   }
 
   if (content_type == "auto") {
@@ -608,7 +608,7 @@ content_image_file <- function(path, content_type = "auto", resize = "low") {
       jpg = "image/jpeg",
       webp = "image/webp",
       gif = "image/gif",
-      stop("Unsupported image file extension: ", ext)
+      cli::cli_abort("Unsupported image file extension: {ext}")
     )
   }
 
@@ -657,6 +657,7 @@ allowed_input_types <- c("text", "image_url")
 normalize_chat_input <- function(...) {
   input <- rlang::list2(...)
 
+  # This should never happen because the callers should all be checking
   stopifnot(is.null(names(input)) || all(names(input) == ""))
 
   if (length(input) == 1 && is.character(input[[1]])) {
@@ -676,25 +677,24 @@ process_single_input <- function(item) {
     return(list(type = "text", text = paste(item, collapse = "\n")))
   } else if (is.list(item)) {
     if (!"type" %in% names(item)) {
-      stop("List item must have a 'type' field")
+      cli::cli_abort("List item must have a 'type' field")
     }
 
     type <- item[["type"]]
     if (!is.character(type) || length(type) != 1) {
-      stop("'type' must be a single string")
+      cli::cli_abort("'type' must be a single string")
     }
 
     if (!type %in% allowed_input_types) {
-      stop(sprintf("Invalid type '%s'. Allowed types are: %s",
-        type, paste(allowed_input_types, collapse = ", ")))
+      cli::cli_abort("Invalid type '{type}'. Allowed types are: {paste(allowed_input_types, collapse = ', ')}")
     }
 
     if (!type %in% names(item)) {
-      stop(sprintf("List item of type '%s' must have a '%s' field", type, type))
+      cli::cli_abort("List item of type '{type}' must have a '{type}' field")
     }
 
     if (is.null(item[[type]])) {
-      stop(sprintf("'%s' field cannot be NULL", type))
+      cli::cli_abort("'{type}' field cannot be NULL")
     }
 
     if (type == "text") {
@@ -703,7 +703,7 @@ process_single_input <- function(item) {
 
     return(item)
   } else {
-    stop("Input content must be a string or a list")
+    cli::cli_abort("Input content must be a string or a list")
   }
 }
 
