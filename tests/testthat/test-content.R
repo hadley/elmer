@@ -10,13 +10,20 @@ test_that("image query", {
   expect_match(response, "baseball")
 })
 
-test_that("inputs are validated", {
+test_that("invalid inputs give useful errors", {
   chat <- new_chat_openai()
 
-  expect_error(chat$chat(1))
-  expect_error(chat$chat(TRUE))
-  expect_error(chat$chat(list()))
-  expect_error(chat$chat(question = "Are unicorns real?"))
+  expect_snapshot(error = TRUE, {
+    chat$chat(question = "Are unicorns real?")
+    chat$chat(TRUE)
+    chat$chat(list())
+    chat$chat(list(type = "unicorn"))
+    chat$chat(list(type = "text"))
+    chat$chat(list(type = "text", text = NULL))
+  })
+})
+
+test_that("inputs are validated", {
 
   expect_identical(
     normalize_chat_input("Simple string"),
@@ -68,13 +75,17 @@ test_that("inputs are validated", {
 test_that("image resizing", {
   img_file <- system.file("httr2.png", package = "elmer")
 
-  expect_error(content_image_file(img_file, resize = TRUE))
-  expect_error(content_image_file(img_file, resize = "blah"))
+  expect_snapshot(error = TRUE, {
+    content_image_file("DOESNTEXIST")
+    content_image_file(test_path("test-content.R"))
+    content_image_file(img_file, resize = TRUE)
+    content_image_file(img_file, resize = "blah")
+  })
 
-  expect_error(content_image_file(img_file), NA)
-  expect_error(content_image_file(img_file, resize = "low"), NA)
-  expect_error(content_image_file(img_file, resize = "high"), NA)
-  expect_error(content_image_file(img_file, resize = FALSE), NA)
-  expect_error(content_image_file(img_file, resize = "100x100"), NA)
-  expect_error(content_image_file(img_file, resize = "100x100>!"), NA)
+  expect_no_error(content_image_file(img_file))
+  expect_no_error(content_image_file(img_file, resize = "low"))
+  expect_no_error(content_image_file(img_file, resize = "high"))
+  expect_no_error(content_image_file(img_file, resize = "none"))
+  expect_no_error(content_image_file(img_file, resize = "100x100"))
+  expect_no_error(content_image_file(img_file, resize = "100x100>!"))
 })
