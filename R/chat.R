@@ -345,7 +345,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant messages.
-    chat_impl = generator_method(function(self, private, text, stream, echo) {
+    chat_impl = R6_decorate(coro::generator, function(self, private, text, stream, echo) {
       private$add_message(list(role = "user", content = text))
       while (TRUE) {
         for (chunk in private$submit_messages(stream = stream, echo = echo)) {
@@ -364,7 +364,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant messages.
-    chat_impl_async = async_generator_method(function(self, private, text, stream, echo) {
+    chat_impl_async = R6_decorate(coro::async_generator, function(self, private, text, stream, echo) {
       private$add_message(list(role = "user", content = text))
       while (TRUE) {
         for (chunk in await_each(private$submit_messages_async(stream = stream, echo = echo))) {
@@ -383,7 +383,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant messages.
-    submit_messages = generator_method(function(self, private, stream, echo) {
+    submit_messages = R6_decorate(coro::generator, function(self, private, stream, echo) {
       response <- openai_chat(
         messages = private$msgs,
         tools = private$tool_infos,
@@ -433,7 +433,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant messages.
-    submit_messages_async = async_generator_method(function(self, private, stream, echo) {
+    submit_messages_async = R6_decorate(coro::async_generator, function(self, private, stream, echo) {
       response <- openai_chat_async(
         messages = private$msgs,
         tools = private$tool_infos,

@@ -10,72 +10,48 @@
 # R6 classes that depend on this will be instantiated at package build time; so
 # the coro generator functions will be burned into the package .Rds file.
 
-# So `R CMD check` doesn't get confused about these variables being used from
-# methods
-utils::globalVariables(c("self", "private", "generator_env", "exits"))
+generators <- new_environment()
+generators$cur_id <- 1L
 
-generators <- new.env()
+new_id <- function() {
+  generators$cur_id <- generators$cur_id + 1L
+  as.character(generators$cur_id)
+}
 
 # Decorator for anonymous functions; the return value is intended to be used as
 # an R6 method. Unlike regular R6 methods, the decorated function must have
 # `self` as the first argument (which will be automatically passed in by the
 # decorator). If necessary we can also provide access to `private` in the same
 # way.
-generator_method <- function(func) {
-  fn <- substitute(func)
+R6_decorate <- function(wrapper, func, print = FALSE) {
+  wrapper <- enexpr(wrapper)
+  fn <- enexpr(func)
 
-  stopifnot(
-    "generator methods must have `self` parameter" = identical(names(formals(func))[1], "self")
-  )
-  stopifnot(
-    "generator methods must have `self` parameter" = identical(names(formals(func))[2], "private")
-  )
+  arg_names <- names(formals(func))
+  if (length(arg_names) < 2) {
+    cli::cli_abort("Function must have at least two arguments.", internal = TRUE)
+  } else if (arg_names[[1]] != "self") {
+    cli::cli_abort("First argument must be {.arg self}.")
+  } else if (arg_names[[2]] != "private") {
+    cli::cli_abort("Second argument must be {.arg private}.")
+  }
 
-  expr <- rlang::inject(
-    base::quote(coro::generator(!!fn))
-  )
-  generator <- eval(expr, parent.frame())
+  args_def <- formals(func)[-(1:2)]
+  args_call <- lapply(set_names(names(args_def)), as.symbol)
 
-  unique_id <- as.character(sample.int(99999999, 1))
-  generators[[unique_id]] <- generator
+  id <- new_id()
+  generators[[id]] <- inject((!!wrapper)(!!fn), parent.frame())
 
-  rlang::inject(
-    function(...) {
-      # Must use elmer::: because the lexical environment of this function is
-      # about to get wrecked by R6
-      elmer:::generators[[!!unique_id]](self, private, ...)
-    }
-  )
-}
+  # Supress R CMD check note
+  self <- private <- NULL
 
-# Same as generator_method, but for async logic
-async_generator_method <- function(func, print = FALSE) {
-  fn <- substitute(func)
-
-  stopifnot(
-    "generator methods must have `self` parameter" = identical(names(formals(func))[1], "self")
-  )
-  stopifnot(
-    "generator methods must have `self` parameter" = identical(names(formals(func))[2], "private")
-  )
-
-  expr <- rlang::inject(
-    base::quote(coro::async_generator(!!fn))
-  )
-  generator <- eval(expr, parent.frame())
-
-  unique_id <- paste0("a", sample.int(99999999, 1))
-  generators[[unique_id]] <- generator
-
-  gen <- rlang::inject(
-    function(...) {
-      # Must use elmer::: because the lexical environment of this function is
-      # about to get wrecked by R6
-      elmer:::generators[[!!unique_id]](self, private, ...)
-    }
+  # Must use elmer::: because the lexical environment of this function is
+  # about to get wrecked by R6
+  gen_method <- new_function(args_def,
+    expr(elmer:::generators[[!!id]](self, private, !!!args_call))
   )
   if (print) {
-    print(gen, internals = TRUE)
+    print(gen_method, internals = TRUE)
   }
-  gen
+  gen_method
 }
