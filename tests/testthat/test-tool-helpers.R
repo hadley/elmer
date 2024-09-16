@@ -40,12 +40,12 @@ no_srcfile <- eval(quote(
 test_that("roxygen2 comment extraction works", {
   aliased_function <- has_roxygen_comments
 
-  expect_snapshot(extract_roxygen_and_signature(has_roxygen_comments))
-  expect_snapshot(extract_roxygen_and_signature(aliased_function))
-  expect_snapshot(extract_roxygen_and_signature(indented_comments))
-  expect_snapshot(extract_roxygen_and_signature(no_srcfile))
+  expect_snapshot(extract_comments_and_signature(has_roxygen_comments))
+  expect_snapshot(extract_comments_and_signature(aliased_function))
+  expect_snapshot(extract_comments_and_signature(indented_comments))
+  expect_snapshot(extract_comments_and_signature(no_srcfile))
 })
 
 test_that("basic signature extraction works", {
-  expect_snapshot(extract_roxygen_and_signature(no_roxygen_comments))
+  expect_snapshot(extract_comments_and_signature(no_roxygen_comments))
 })
