@@ -59,6 +59,7 @@ chat$chat("
 
 chat <- new_chat_openai()
 chat$register_tool(
+  fun = rnorm,
   name = "rnorm",
   description = "Drawn numbers from a random normal distribution",
   arguments = list(
@@ -158,7 +159,8 @@ simple string (probably Markdown).
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{...}}{The input to send to the chatbot. Can be strings or images.}
+\item{\code{...}}{The input to send to the chatbot. Can be strings or images
+(see \code{\link[=content_image_file]{content_image_file()}} and \code{\link[=content_image_url]{content_image_url()}}.}
 
 \item{\code{echo}}{Whether to emit the response to stdout as it is received. If
 \code{NULL}, then the value of \code{echo} set when the chat object was created

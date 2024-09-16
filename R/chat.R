@@ -37,6 +37,7 @@ NULL
 #'
 #' chat <- new_chat_openai()
 #' chat$register_tool(
+#'   fun = rnorm,
 #'   name = "rnorm",
 #'   description = "Drawn numbers from a random normal distribution",
 #'   arguments = list(
@@ -174,7 +175,8 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     #' @description Submit input to the chatbot, and return the response as a
     #'   simple string (probably Markdown).
-    #' @param ... The input to send to the chatbot. Can be strings or images.
+    #' @param ... The input to send to the chatbot. Can be strings or images
+    #'   (see [content_image_file()] and [content_image_url()].
     #' @param echo Whether to emit the response to stdout as it is received. If
     #'   `NULL`, then the value of `echo` set when the chat object was created
     #'   will be used.
@@ -586,6 +588,8 @@ content_image_url <- function(url, detail = c("auto", "low", "high")) {
 #'   `FALSE` require the `magick` package.
 #' @export
 content_image_file <- function(path, content_type = "auto", resize = "low") {
+  rlang::check_installed("base64enc", "to encode images")
+
   # TODO: Allow vector input?
   check_string(path)
 
@@ -699,7 +703,7 @@ process_single_input <- function(item) {
 
     return(item)
   } else {
-    stop("Each item must be a string or a list")
+    stop("Input content must be a string or a list")
   }
 }
 
