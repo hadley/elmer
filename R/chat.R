@@ -709,12 +709,12 @@ process_single_input <- function(item) {
 
 format_content <- function(content) {
   if (is.character(content)) {
-    return(content)
+    content
   } else if (is.list(content)) {
-    return(paste0(lapply(content, function(x) {
+    paste0(lapply(content, function(x) {
       type <- x[["type"]]
       value <- x[[type]]
       paste0("[", type, "]: ", value)
-    }), collapse = "\n"))
+    }), collapse = "\n")
   }
 }
