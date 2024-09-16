@@ -29,11 +29,11 @@ R6_decorate <- function(wrapper, func, print = FALSE) {
 
   arg_names <- names(formals(func))
   if (length(arg_names) < 2) {
-    cli::cli_abort("Function must have at least two arguments.", internal = TRUE)
+    cli::cli_abort("Function must have at least two arguments.", .internal = TRUE)
   } else if (arg_names[[1]] != "self") {
-    cli::cli_abort("First argument must be {.arg self}.")
+    cli::cli_abort("First argument must be {.arg self}.", .internal = TRUE)
   } else if (arg_names[[2]] != "private") {
-    cli::cli_abort("Second argument must be {.arg private}.")
+    cli::cli_abort("Second argument must be {.arg private}.", .internal = TRUE)
   }
 
   args_def <- formals(func)[-(1:2)]
