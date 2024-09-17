@@ -6,6 +6,8 @@
 \alias{elmer-package}
 \title{elmer: Call LLM APIs from R}
 \description{
+\if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
+
 A consistent interface for calling LLM APIs. Includes support for streaming.
 }
 \seealso{
