@@ -182,16 +182,17 @@ messages (if any exists).</p></dd>
 
 </div><p></p><hr><a id="method-ChatOpenAI-chat"></a><div class="section">
 <h3 id="method-chat-">Method <code>chat()</code><a class="anchor" aria-label="anchor" href="#method-chat-"></a></h3>
-<p>Submit text to the chatbot, and return the response as a
+<p>Submit input to the chatbot, and return the response as a
 simple string (probably Markdown).</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="va">text</span>, echo <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="va">...</span>, echo <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-3">Arguments<a class="anchor" aria-label="anchor" href="#arguments-3"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>text</code></dt>
-<dd><p>The text to send to the chatbot.</p></dd>
+<p></p><div class="arguments"><dl><dt><code>...</code></dt>
+<dd><p>The input to send to the chatbot. Can be strings or images
+(see <code><a href="content_image_url.html">content_image_file()</a></code> and <code><a href="content_image_url.html">content_image_url()</a></code>.</p></dd>
 
 
 <dt><code>echo</code></dt>
@@ -205,16 +206,16 @@ will be used.</p></dd>
 
 </div><p></p><hr><a id="method-ChatOpenAI-chat_async"></a><div class="section">
 <h3 id="method-chat-async-">Method <code>chat_async()</code><a class="anchor" aria-label="anchor" href="#method-chat-async-"></a></h3>
-<p>Submit text to the chatbot, and receive a promise that
+<p>Submit input to the chatbot, and receive a promise that
 resolves with the response all at once.</p><div class="section">
 <h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">chat_async</span><span class="op">(</span><span class="va">text</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">chat_async</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>text</code></dt>
-<dd><p>The text to send to the chatbot.</p></dd>
+<p></p><div class="arguments"><dl><dt><code>...</code></dt>
+<dd><p>The input to send to the chatbot. Can be strings or images.</p></dd>
 
 
 </dl><p></p></div>
@@ -222,18 +223,18 @@ resolves with the response all at once.</p><div class="section">
 
 </div><p></p><hr><a id="method-ChatOpenAI-stream"></a><div class="section">
 <h3 id="method-stream-">Method <code>stream()</code><a class="anchor" aria-label="anchor" href="#method-stream-"></a></h3>
-<p>Submit text to the chatbot, returning streaming results.
+<p>Submit input to the chatbot, returning streaming results.
 Returns A <a href="https://coro.r-lib.org/articles/generator.html#iterating" class="external-link">coro generator</a>
 that yields strings. While iterating, the generator will block while
 waiting for more content from the chatbot.</p><div class="section">
 <h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">stream</span><span class="op">(</span><span class="va">text</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">stream</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>text</code></dt>
-<dd><p>The text to send to the chatbot.</p></dd>
+<p></p><div class="arguments"><dl><dt><code>...</code></dt>
+<dd><p>The input to send to the chatbot. Can be strings or images.</p></dd>
 
 
 </dl><p></p></div>
@@ -241,17 +242,17 @@ waiting for more content from the chatbot.</p><div class="section">
 
 </div><p></p><hr><a id="method-ChatOpenAI-stream_async"></a><div class="section">
 <h3 id="method-stream-async-">Method <code>stream_async()</code><a class="anchor" aria-label="anchor" href="#method-stream-async-"></a></h3>
-<p>Submit text to the chatbot, returning asynchronously
+<p>Submit input to the chatbot, returning asynchronously
 streaming results. Returns a <a href="https://coro.r-lib.org/reference/async_generator.html" class="external-link">coro async generator</a> that
 yields string promises.</p><div class="section">
 <h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">stream_async</span><span class="op">(</span><span class="va">text</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">stream_async</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>text</code></dt>
-<dd><p>The text to send to the chatbot.</p></dd>
+<p></p><div class="arguments"><dl><dt><code>...</code></dt>
+<dd><p>The input to send to the chatbot. Can be strings or images.</p></dd>
 
 
 </dl><p></p></div>

@@ -118,18 +118,33 @@
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>languages.</span></code></pre></div>
 <p>If you initialize the chat object with <code>echo = TRUE</code>, as we did above, the <code>chat</code> method streams the response to the console as it arrives. When the entire response is received, it is returned as a character vector (invisibly, so it’s not printed twice).</p>
 <p>This mode is useful when you want to see the response as it arrives, but you don’t want to enter the chat console.</p>
+<div class="section level4">
+<h4 id="vision-image-input">Vision (image input)<a class="anchor" aria-label="anchor" href="#vision-image-input"></a>
+</h4>
+<p>If you want to ask a question about an image, you can pass one or more additional input arguments using <code><a href="reference/content_image_url.html">content_image_file()</a></code> and/or <code><a href="reference/content_image_url.html">content_image_url()</a></code>.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span></span>
+<span>  <span class="fu"><a href="reference/content_image_url.html">content_image_url</a></span><span class="op">(</span><span class="st">"https://www.r-project.org/Rlogo.png"</span><span class="op">)</span>,</span>
+<span>  <span class="st">"Can you explain this logo?"</span></span>
+<span><span class="op">)</span></span></code></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>The logo of R features a stylized letter <span class="st">"R"</span> <span class="cf">in</span> blue, enclosed <span class="cf">in</span> an oval shape that resembles the letter <span class="st">"O,"</span> </span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>signifying the programming language<span class="st">'s name. The design conveys a modern and professional look, reflecting its use </span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="st">in statistical computing and data analysis. The blue color often represents trust and reliability, which aligns </span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="st">with R'</span>s role <span class="cf">in</span> data science.</span></code></pre></div>
+<p>The <code>content_image_url</code> function takes a URL to an image file and sends that URL directly to the API. The <code>content_image_file</code> function takes a path to a local image file and encodes it as a base64 string to send to the API. Note that by default, <code>content_image_file</code> automatically resizes the image to fit within 512x512 pixels; set the <code>resize</code> parameter to <code>"high"</code> if higher resolution is needed.</p>
+</div>
 </div>
 <div class="section level3">
 <h3 id="programmatic-chat">Programmatic chat<a class="anchor" aria-label="anchor" href="#programmatic-chat"></a>
 </h3>
 <p>If you don’t want to see the response as it arrives, you can turn off echoing by leaving off the <code>echo = TRUE</code> argument to <code><a href="reference/new_chat_openai.html">new_chat_openai()</a></code>.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/new_chat_openai.html">new_chat_openai</a></span><span class="op">(</span></span>
 <span>  model <span class="op">=</span> <span class="st">"gpt-4o-mini"</span>,</span>
 <span>  system_prompt <span class="op">=</span> <span class="st">"You are a friendly but terse assistant."</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="st">"Is R a functional programming language?"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">"Yes, R supports functional programming concepts. It allows functions to be first-class objects, supports higher-order functions, and encourages the use of functions as core components of code. However, it also supports procedural and object-oriented programming styles."</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>[<span class="dv">1</span>] <span class="st">"Yes, R supports functional programming concepts. It allows functions to be first-class objects, supports higher-order functions, and encourages the use of functions as core components of code. However, it also supports procedural and object-oriented programming styles."</span></span></code></pre></div>
 <p>This mode is useful for programming using elmer, when the result is either not intended for human consumption or when you want to process the response before displaying it.</p>
 </div>
 <div class="section level3">
@@ -138,23 +153,23 @@
 <p>The <code>chat()</code> method does not return any results until the entire response has been received. (It can <em>print</em> the streaming results to the console, but it <em>returns</em> the result only when the response is complete.)</p>
 <p>If you want to process the response as it arrives, you can use the <code>stream()</code> method. This may be useful when you want to display the response in realtime, but somewhere other than the R console (like writing to a file, or an HTTP response, or a Shiny chat window); or when you want to manipulate the response before displaying it, without giving up the immediacy of streaming.</p>
 <p>The <code>stream()</code> method returns a <a href="https://coro.r-lib.org/articles/generator.html" class="external-link">generator</a> from the <a href="https://coro.r-lib.org/" class="external-link">coro package</a>, which you can loop over to process the response as it arrives.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">stream</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">stream</span><span class="op">(</span><span class="st">"What are some common uses of R?"</span><span class="op">)</span></span>
 <span><span class="fu">coro</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coro/man/collect.html" class="external-link">loop</a></span><span class="op">(</span><span class="kw">for</span> <span class="op">(</span><span class="va">chunk</span> <span class="kw">in</span> <span class="va">stream</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/chartr.html" class="external-link">toupper</a></span><span class="op">(</span><span class="va">chunk</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb10"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>R IS COMMONLY USED FOR<span class="sc">:</span></span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="fl">1.</span> <span class="sc">**</span>STATISTICAL ANALYSIS<span class="sc">**</span><span class="er">:</span> PERFORMING COMPLEX STATISTICAL TESTS AND ANALYSES.</span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="fl">2.</span> <span class="sc">**</span>DATA VISUALIZATION<span class="sc">**</span><span class="er">:</span> CREATING GRAPHS, CHARTS, AND PLOTS USING PACKAGES LIKE GGPLOT2.</span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="fl">3.</span> <span class="sc">**</span>DATA MANIPULATION<span class="sc">**</span><span class="er">:</span> CLEANING AND TRANSFORMING DATA WITH PACKAGES LIKE DPLYR AND TIDYR.</span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="fl">4.</span> <span class="sc">**</span>MACHINE LEARNING<span class="sc">**</span><span class="er">:</span> BUILDING PREDICTIVE MODELS WITH LIBRARIES LIKE CARET AND RANDOMFOREST.</span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="fl">5.</span> <span class="sc">**</span>BIOINFORMATICS<span class="sc">**</span><span class="er">:</span> ANALYZING BIOLOGICAL DATA AND GENOMIC STUDIES.</span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="fl">6.</span> <span class="sc">**</span>ECONOMETRICS<span class="sc">**</span><span class="er">:</span> PERFORMING ECONOMIC DATA ANALYSIS AND MODELING.</span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="fl">7.</span> <span class="sc">**</span>REPORTING<span class="sc">**</span><span class="er">:</span> GENERATING DYNAMIC REPORTS AND DASHBOARDS WITH R MARKDOWN.</span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="fl">8.</span> <span class="sc">**</span>TIME SERIES ANALYSIS<span class="sc">**</span><span class="er">:</span> ANALYZING TEMPORAL DATA AND FORECASTING.</span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a></span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a>THESE USES MAKE R A POWERFUL TOOL FOR DATA SCIENTISTS, STATISTICIANS, AND RESEARCHERS.</span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>R IS COMMONLY USED FOR<span class="sc">:</span></span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a></span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a><span class="fl">1.</span> <span class="sc">**</span>STATISTICAL ANALYSIS<span class="sc">**</span><span class="er">:</span> PERFORMING COMPLEX STATISTICAL TESTS AND ANALYSES.</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="fl">2.</span> <span class="sc">**</span>DATA VISUALIZATION<span class="sc">**</span><span class="er">:</span> CREATING GRAPHS, CHARTS, AND PLOTS USING PACKAGES LIKE GGPLOT2.</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="fl">3.</span> <span class="sc">**</span>DATA MANIPULATION<span class="sc">**</span><span class="er">:</span> CLEANING AND TRANSFORMING DATA WITH PACKAGES LIKE DPLYR AND TIDYR.</span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="fl">4.</span> <span class="sc">**</span>MACHINE LEARNING<span class="sc">**</span><span class="er">:</span> BUILDING PREDICTIVE MODELS WITH LIBRARIES LIKE CARET AND RANDOMFOREST.</span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="fl">5.</span> <span class="sc">**</span>BIOINFORMATICS<span class="sc">**</span><span class="er">:</span> ANALYZING BIOLOGICAL DATA AND GENOMIC STUDIES.</span>
+<span id="cb12-8"><a href="#cb12-8" tabindex="-1"></a><span class="fl">6.</span> <span class="sc">**</span>ECONOMETRICS<span class="sc">**</span><span class="er">:</span> PERFORMING ECONOMIC DATA ANALYSIS AND MODELING.</span>
+<span id="cb12-9"><a href="#cb12-9" tabindex="-1"></a><span class="fl">7.</span> <span class="sc">**</span>REPORTING<span class="sc">**</span><span class="er">:</span> GENERATING DYNAMIC REPORTS AND DASHBOARDS WITH R MARKDOWN.</span>
+<span id="cb12-10"><a href="#cb12-10" tabindex="-1"></a><span class="fl">8.</span> <span class="sc">**</span>TIME SERIES ANALYSIS<span class="sc">**</span><span class="er">:</span> ANALYZING TEMPORAL DATA AND FORECASTING.</span>
+<span id="cb12-11"><a href="#cb12-11" tabindex="-1"></a></span>
+<span id="cb12-12"><a href="#cb12-12" tabindex="-1"></a>THESE USES MAKE R A POWERFUL TOOL FOR DATA SCIENTISTS, STATISTICIANS, AND RESEARCHERS.</span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
@@ -167,36 +182,36 @@
 <h3 id="asynchronous-chat">Asynchronous chat<a class="anchor" aria-label="anchor" href="#asynchronous-chat"></a>
 </h3>
 <p>For asynchronous, non-streaming chat, you use the <code>chat()</code> method as before, but handle the result as a promise instead of a string.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rstudio.github.io/promises/" class="external-link">promises</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">chat</span><span class="op">$</span><span class="fu">chat_async</span><span class="op">(</span><span class="st">"How's your day going?"</span><span class="op">)</span> <span class="op"><a href="https://rstudio.github.io/promises/reference/pipes.html" class="external-link">%...&gt;%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb12"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>I<span class="st">'m just a computer program, so I don'</span>t have feelings, but I<span class="st">'m here to help you with any questions you have.</span></span></code></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>I<span class="st">'m just a computer program, so I don'</span>t have feelings, but I<span class="st">'m here to help you with any questions you have.</span></span></code></pre></div>
 <p>TODO: Shiny example</p>
 </div>
 <div class="section level3">
 <h3 id="asynchronous-streaming">Asynchronous streaming<a class="anchor" aria-label="anchor" href="#asynchronous-streaming"></a>
 </h3>
 <p>For asynchronous streaming, you use the <code>stream()</code> method as before, but the result is a <a href="https://coro.r-lib.org/reference/async_generator.html" class="external-link">async generator</a> from the <a href="https://coro.r-lib.org/" class="external-link">coro package</a>. This is the same as a regular <a href="https://coro.r-lib.org/articles/generator.html" class="external-link">generator</a>, except instead of giving you strings, it gives you promises that resolve to strings.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">stream</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">stream_async</span><span class="op">(</span><span class="st">"What are some common uses of R?"</span><span class="op">)</span></span>
 <span><span class="fu">coro</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coro/man/async.html" class="external-link">async</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="kw">for</span> <span class="op">(</span><span class="va">chunk</span> <span class="kw">in</span> <span class="fu">await_each</span><span class="op">(</span><span class="va">stream</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/chartr.html" class="external-link">toupper</a></span><span class="op">(</span><span class="va">chunk</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
 <span><span class="op">}</span><span class="op">)</span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb14"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a><span class="sc">&lt;</span>Promise [pending]<span class="sc">&gt;</span></span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a><span class="er">&gt;</span></span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>R IS COMMONLY USED FOR<span class="sc">:</span></span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a></span>
-<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="fl">1.</span> <span class="sc">**</span>STATISTICAL ANALYSIS<span class="sc">**</span><span class="er">:</span> PERFORMING VARIOUS STATISTICAL TESTS AND MODELS.</span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="fl">2.</span> <span class="sc">**</span>DATA VISUALIZATION<span class="sc">**</span><span class="er">:</span> CREATING PLOTS AND GRAPHS TO VISUALIZE DATA.</span>
-<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="fl">3.</span> <span class="sc">**</span>DATA MANIPULATION<span class="sc">**</span><span class="er">:</span> CLEANING AND TRANSFORMING DATA WITH PACKAGES LIKE DPLYR.</span>
-<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="fl">4.</span> <span class="sc">**</span>MACHINE LEARNING<span class="sc">**</span><span class="er">:</span> BUILDING PREDICTIVE MODELS AND ALGORITHMS.</span>
-<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="fl">5.</span> <span class="sc">**</span>BIOINFORMATICS<span class="sc">**</span><span class="er">:</span> ANALYZING BIOLOGICAL DATA, ESPECIALLY IN GENOMICS.</span>
-<span id="cb14-10"><a href="#cb14-10" tabindex="-1"></a><span class="fl">6.</span> <span class="sc">**</span>TIME SERIES ANALYSIS<span class="sc">**</span><span class="er">:</span> ANALYZING TEMPORAL DATA FOR TRENDS AND FORECASTS.</span>
-<span id="cb14-11"><a href="#cb14-11" tabindex="-1"></a><span class="fl">7.</span> <span class="sc">**</span>REPORT GENERATION<span class="sc">**</span><span class="er">:</span> CREATING DYNAMIC REPORTS WITH R MARKDOWN.</span>
-<span id="cb14-12"><a href="#cb14-12" tabindex="-1"></a><span class="fl">8.</span> <span class="sc">**</span>GEOSPATIAL ANALYSIS<span class="sc">**</span><span class="er">:</span> MAPPING AND ANALYZING GEOGRAPHIC DATA.</span></code></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" tabindex="-1"></a><span class="sc">&lt;</span>Promise [pending]<span class="sc">&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" tabindex="-1"></a><span class="er">&gt;</span></span>
+<span id="cb16-3"><a href="#cb16-3" tabindex="-1"></a>R IS COMMONLY USED FOR<span class="sc">:</span></span>
+<span id="cb16-4"><a href="#cb16-4" tabindex="-1"></a></span>
+<span id="cb16-5"><a href="#cb16-5" tabindex="-1"></a><span class="fl">1.</span> <span class="sc">**</span>STATISTICAL ANALYSIS<span class="sc">**</span><span class="er">:</span> PERFORMING VARIOUS STATISTICAL TESTS AND MODELS.</span>
+<span id="cb16-6"><a href="#cb16-6" tabindex="-1"></a><span class="fl">2.</span> <span class="sc">**</span>DATA VISUALIZATION<span class="sc">**</span><span class="er">:</span> CREATING PLOTS AND GRAPHS TO VISUALIZE DATA.</span>
+<span id="cb16-7"><a href="#cb16-7" tabindex="-1"></a><span class="fl">3.</span> <span class="sc">**</span>DATA MANIPULATION<span class="sc">**</span><span class="er">:</span> CLEANING AND TRANSFORMING DATA WITH PACKAGES LIKE DPLYR.</span>
+<span id="cb16-8"><a href="#cb16-8" tabindex="-1"></a><span class="fl">4.</span> <span class="sc">**</span>MACHINE LEARNING<span class="sc">**</span><span class="er">:</span> BUILDING PREDICTIVE MODELS AND ALGORITHMS.</span>
+<span id="cb16-9"><a href="#cb16-9" tabindex="-1"></a><span class="fl">5.</span> <span class="sc">**</span>BIOINFORMATICS<span class="sc">**</span><span class="er">:</span> ANALYZING BIOLOGICAL DATA, ESPECIALLY IN GENOMICS.</span>
+<span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="fl">6.</span> <span class="sc">**</span>TIME SERIES ANALYSIS<span class="sc">**</span><span class="er">:</span> ANALYZING TEMPORAL DATA FOR TRENDS AND FORECASTS.</span>
+<span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="fl">7.</span> <span class="sc">**</span>REPORT GENERATION<span class="sc">**</span><span class="er">:</span> CREATING DYNAMIC REPORTS WITH R MARKDOWN.</span>
+<span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="fl">8.</span> <span class="sc">**</span>GEOSPATIAL ANALYSIS<span class="sc">**</span><span class="er">:</span> MAPPING AND ANALYZING GEOGRAPHIC DATA.</span></code></pre></div>
 <p>Async generators are very advanced, and require a good understanding of asynchronous programming in R. They are also the only way to present streaming results in Shiny without blocking other users. Fortunately, Shiny will soon have chat components that will make this easier, where you can simply hand the result of <code>stream_async()</code> to a chat output.</p>
 </div>
 </div>
