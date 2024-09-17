@@ -37,6 +37,7 @@ NULL
 #'
 #' chat <- new_chat_openai()
 #' chat$register_tool(
+#'   fun = rnorm,
 #'   name = "rnorm",
 #'   description = "Drawn numbers from a random normal distribution",
 #'   arguments = list(
@@ -109,7 +110,7 @@ apply_system_prompt_openai <- function(system_prompt, messages) {
     return(messages)
   }
 
-  stop("`system_prompt` and `messages[[1]]` contained conflicting system prompts")
+  cli::cli_abort("`system_prompt` and `messages[[1]]` contained conflicting system prompts")
 }
 
 check_openai_conversation <- function(messages, allow_null = FALSE) {
@@ -129,7 +130,7 @@ check_openai_conversation <- function(messages, allow_null = FALSE) {
   for (message in messages) {
     if (!is.list(message) ||
         !is.character(message$role)) {
-      stop("Each message must be a named list with at least a `role` field.")
+      cli::cli_abort("Each message must be a named list with at least a `role` field.")
     }
   }
 }
@@ -172,20 +173,21 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
       }
     },
 
-    #' @description Submit text to the chatbot, and return the response as a
+    #' @description Submit input to the chatbot, and return the response as a
     #'   simple string (probably Markdown).
-    #' @param text The text to send to the chatbot.
+    #' @param ... The input to send to the chatbot. Can be strings or images
+    #'   (see [content_image_file()] and [content_image_url()].
     #' @param echo Whether to emit the response to stdout as it is received. If
     #'   `NULL`, then the value of `echo` set when the chat object was created
     #'   will be used.
-    chat = function(text, echo = NULL) {
-      check_string(text)
+    chat = function(..., echo = NULL) {
+      input <- normalize_chat_input(...)
 
       echo <- echo %||% private$echo
 
       # Returns a single message (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
-      coro::collect(private$chat_impl(text, stream = echo, echo = echo))
+      coro::collect(private$chat_impl(input, stream = echo, echo = echo))
       last_message <- private$msgs[[length(private$msgs)]]
       stopifnot(identical(last_message[["role"]], "assistant"))
 
@@ -196,17 +198,17 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
       }
     },
 
-    #' @description Submit text to the chatbot, and receive a promise that
+    #' @description Submit input to the chatbot, and receive a promise that
     #'   resolves with the response all at once.
-    #' @param text The text to send to the chatbot.
+    #' @param ... The input to send to the chatbot. Can be strings or images.
     #' @returns A promise that resolves to a string (probably Markdown).
-    chat_async = function(text) {
-      check_string(text)
+    chat_async = function(...) {
+      input <- normalize_chat_input(...)
 
       # Returns a single message (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
       done <- coro::async_collect(
-        private$chat_impl_async(text, stream = FALSE, echo = FALSE)
+        private$chat_impl_async(input, stream = FALSE, echo = FALSE)
       )
       promises::then(done, function(dummy) {
         last_message <- private$msgs[[length(private$msgs)]]
@@ -215,23 +217,25 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
       })
     },
 
-    #' @description Submit text to the chatbot, returning streaming results.
+    #' @description Submit input to the chatbot, returning streaming results.
     #'   Returns A [coro
     #'   generator](https://coro.r-lib.org/articles/generator.html#iterating)
     #'   that yields strings. While iterating, the generator will block while
     #'   waiting for more content from the chatbot.
-    #' @param text The text to send to the chatbot.
-    stream = function(text) {
-      private$chat_impl(text, stream = TRUE, echo = FALSE)
+    #' @param ... The input to send to the chatbot. Can be strings or images.
+    stream = function(...) {
+      input <- normalize_chat_input(...)
+      private$chat_impl(input, stream = TRUE, echo = FALSE)
     },
 
-    #' @description Submit text to the chatbot, returning asynchronously
+    #' @description Submit input to the chatbot, returning asynchronously
     #'   streaming results. Returns a [coro async
     #'   generator](https://coro.r-lib.org/reference/async_generator.html) that
     #'   yields string promises.
-    #' @param text The text to send to the chatbot.
-    stream_async = function(text) {
-      private$chat_impl_async(text, stream = TRUE, echo = FALSE)
+    #' @param ... The input to send to the chatbot. Can be strings or images.
+    stream_async = function(...) {
+      input <- normalize_chat_input(...)
+      private$chat_impl_async(input, stream = TRUE, echo = FALSE)
     },
 
     #' @description Enter an interactive chat console. This is a REPL-like
@@ -309,6 +313,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     }
   ),
   active = list(
+    #' @field system_prompt The system prompt, if any, as a string.
     system_prompt = function() {
       if (length(private$msgs) == 0) {
         return(NULL)
@@ -351,8 +356,8 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant messages.
-    chat_impl = generator_method(function(self, private, text, stream, echo) {
-      private$add_message(list(role = "user", content = text))
+    chat_impl = generator_method(function(self, private, user_message, stream, echo) {
+      private$add_message(user_message)
       while (TRUE) {
         for (chunk in private$submit_messages(stream = stream, echo = echo)) {
           yield(chunk)
@@ -370,8 +375,8 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant messages.
-    chat_impl_async = async_generator_method(function(self, private, text, stream, echo) {
-      private$add_message(list(role = "user", content = text))
+    chat_impl_async = async_generator_method(function(self, private, user_message, stream, echo) {
+      private$add_message(user_message)
       while (TRUE) {
         for (chunk in await_each(private$submit_messages_async(stream = stream, echo = echo))) {
           yield(chunk)
@@ -519,7 +524,7 @@ print.ChatOpenAI <- function(x, ...) {
       # Using cli_text for word wrapping. Passing `"{message$content}"` instead of
       # `message$content` to avoid evaluation of the (potentially malicious)
       # content.
-      cli::cli_text("{message$content}")
+      cli::cli_text("{format_content(message$content)}")
     }
     if (!is.null(message$tool_calls)) {
       cli::cli_text("Tool calls:")
@@ -541,6 +546,18 @@ print.ChatOpenAI <- function(x, ...) {
   invisible(x)
 }
 
+
+format_content <- function(content) {
+  if (is.character(content)) {
+    content
+  } else if (is.list(content)) {
+    paste0(lapply(content, function(x) {
+      type <- x[["type"]]
+      value <- x[[type]]
+      paste0("[", type, "]: ", value)
+    }), collapse = "\n")
+  }
+}
 
 last_message <- function(chat) {
   messages <- chat$messages()

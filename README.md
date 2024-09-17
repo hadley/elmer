@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# elmer
+# elmer <a href="https://hadley.github.io/elmer/"><img src="man/figures/logo.png" align="right" height="138" alt="elmer website" /></a>
 
 <!-- badges: start -->
 
@@ -100,6 +100,31 @@ vector (invisibly, so it’s not printed twice).
 
 This mode is useful when you want to see the response as it arrives, but
 you don’t want to enter the chat console.
+
+#### Vision (image input)
+
+If you want to ask a question about an image, you can pass one or more
+additional input arguments using `content_image_file()` and/or
+`content_image_url()`.
+
+``` r
+chat$chat(
+  content_image_url("https://www.r-project.org/Rlogo.png"),
+  "Can you explain this logo?"
+)
+```
+
+    The logo of R features a stylized letter "R" in blue, enclosed in an oval shape that resembles the letter "O," 
+    signifying the programming language's name. The design conveys a modern and professional look, reflecting its use 
+    in statistical computing and data analysis. The blue color often represents trust and reliability, which aligns 
+    with R's role in data science.
+
+The `content_image_url` function takes a URL to an image file and sends
+that URL directly to the API. The `content_image_file` function takes a
+path to a local image file and encodes it as a base64 string to send to
+the API. Note that by default, `content_image_file` automatically
+resizes the image to fit within 512x512 pixels; set the `resize`
+parameter to `"high"` if higher resolution is needed.
 
 ### Programmatic chat
 

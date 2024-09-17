@@ -22,60 +22,60 @@ generators <- new.env()
 # decorator). If necessary we can also provide access to `private` in the same
 # way.
 generator_method <- function(func) {
-  fn <- substitute(func)
+  fn <- rlang::enexpr(func)
 
   stopifnot(
     "generator methods must have `self` parameter" = identical(names(formals(func))[1], "self")
   )
   stopifnot(
-    "generator methods must have `self` parameter" = identical(names(formals(func))[2], "private")
+    "generator methods must have `private` parameter" = identical(names(formals(func))[2], "private")
   )
 
-  expr <- inject(
-    base::quote(coro::generator(!!fn))
-  )
-  generator <- eval(expr, parent.frame())
-
-  unique_id <- as.character(sample.int(99999999, 1))
-  generators[[unique_id]] <- generator
-
-  inject(
-    function(...) {
-      # Must use elmer::: because the lexical environment of this function is
-      # about to get wrecked by R6
-      elmer:::generators[[!!unique_id]](self, private, ...)
-    }
-  )
+  deferred_method_transform(fn, coro::generator, parent.frame())
 }
 
 # Same as generator_method, but for async logic
-async_generator_method <- function(func, print = FALSE) {
-  fn <- substitute(func)
+async_generator_method <- function(func) {
+  fn <- rlang::enexpr(func)
 
   stopifnot(
-    "generator methods must have `self` parameter" = identical(names(formals(func))[1], "self")
+    "async generator methods must have `self` parameter" = identical(names(formals(func))[1], "self")
   )
   stopifnot(
-    "generator methods must have `self` parameter" = identical(names(formals(func))[2], "private")
+    "async generator methods must have `private` parameter" = identical(names(formals(func))[2], "private")
   )
 
-  expr <- inject(
-    base::quote(coro::async_generator(!!fn))
-  )
-  generator <- eval(expr, parent.frame())
+  deferred_method_transform(fn, coro::async_generator, parent.frame())
+}
+
+# Takes a quoted function expression and a transformer function, and returns a
+# function that will _lazily_ transform the lambda function using `transformer`
+# upon first call. This is necessary because the transformation needs to be done
+# not at package build time, but after package load time.
+#
+# Elsewhere in elmer, we use rlang::on_load to defer the transformation of
+# generators until after package load time. We can't do that for R6 methods
+# because nesting R6 class definitions inside of rlang::on_load causes roxygen2
+# to get confused.
+deferred_method_transform <- function(lambda_expr, transformer, eval_env) {
+  tr <- rlang::enexpr(transformer)
+  force(eval_env)
 
   unique_id <- paste0("a", sample.int(99999999, 1))
-  generators[[unique_id]] <- generator
 
-  gen <- inject(
+  delayedAssign(unique_id, {
+    expr <- rlang::inject(
+      base::quote((!!tr)(!!lambda_expr))
+    )
+    generator <- eval(expr, eval_env)
+    generator
+  }, assign.env = generators)
+
+  rlang::inject(
     function(...) {
-      # Must use elmer::: because the lexical environment of this function is
-      # about to get wrecked by R6
-      elmer:::generators[[!!unique_id]](self, private, ...)
+      # Can't simply use `generators` because the lexical environment of this
+      # function is about to get wrecked by R6
+      getNamespace("elmer")[["generators"]][[!!unique_id]](self, private, ...)
     }
   )
-  if (print) {
-    print(gen, internals = TRUE)
-  }
-  gen
 }
