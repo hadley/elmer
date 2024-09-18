@@ -282,15 +282,21 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
     #' @description Register a tool (an R function) that the chatbot can use.
     #'   If the chatbot decides to use the function, elmer will automatically
-    #'   call it and submit the results back.
+    #'   call it and submit the results back. (See [create_tool_metadata()] for
+    #'   an AI-enabled helper function that can write a `register_tool` call
+    #'   for you in some cases.)
     #' @param fun The function to be invoked when the tool is called.
     #' @param name The name of the function.
     #' @param description A detailed description of what the function does.
     #'   Generally, the more information that you can provide here, the better.
     #' @param arguments A named list of arguments that the function accepts.
     #'   Should be a named list of objects created by [tool_arg()].
-    #' @param strict Should the argument definition be strictly enforced?
-    register_tool = function(fun, name, description, arguments, strict = TRUE) {
+    #' @param strict Should the argument definition be strictly enforced? If
+    #'   `TRUE`, enables [Structured
+    #'   Output](https://platform.openai.com/docs/guides/structured-outputs)
+    #'   mode, which comes with a number of [additional
+    #'   requirements](https://platform.openai.com/docs/guides/structured-outputs/supported-schemas).
+    register_tool = function(fun, name, description, arguments, strict = FALSE) {
       check_function(fun)
       check_string(name)
       check_string(description)
@@ -527,7 +533,7 @@ print.ChatOpenAI <- function(x, ...) {
         args <- tool_call$`function`$arguments
         tryCatch({
           args_parsed <- jsonlite::parse_json(tool_call$`function`$arguments)
-          args <- rlang::call2(funcname, !!!args_parsed)
+          args <- call2(funcname, !!!args_parsed)
           cli::cli_text(format(args))
         }, error = function(e) {
           # In case parsing the JSON fails

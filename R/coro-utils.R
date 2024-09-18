@@ -12,7 +12,7 @@
 
 # So `R CMD check` doesn't get confused about these variables being used from
 # methods
-utils::globalVariables(c("self", "private"))
+utils::globalVariables(c("self", "private", "generator_env", "exits"))
 
 generators <- new.env()
 

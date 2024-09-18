@@ -1,5 +1,5 @@
 
-tool_def <- function(name, description, arguments, strict = TRUE) {
+tool_def <- function(name, description, arguments, strict = FALSE) {
   arg_names <- names(arguments)
   arg_required <- map_lgl(arguments, function(arg) {
     arg$required %||% FALSE
@@ -27,11 +27,14 @@ tool_def <- function(name, description, arguments, strict = TRUE) {
 #' Define arguments for a tool
 #'
 #' @export
-#' @param type Argument type.
+#' @param type Argument type (`"null"`, `"boolean"`, `"object"`, `"array"`,
+#'   `"number"`, or `"string"`).
 #' @param description Description of argument as free text.
 #' @param required Is the argument required?
+#' @param ... Additional JSON Schema properties (e.g. `properties`, `enum`,
+#'   `pattern`).
 #' @keywords internal
-tool_arg <- function(type, description, required = TRUE) {
+tool_arg <- function(type, description, ..., required = TRUE) {
   check_string(type)
   check_string(description)
   check_bool(required)
@@ -39,6 +42,7 @@ tool_arg <- function(type, description, required = TRUE) {
   list(
     type = type,
     description = description,
-    required = required
+    required = required,
+    ...
   )
 }
