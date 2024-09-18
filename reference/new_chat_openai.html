@@ -272,9 +272,11 @@ available in <code><a href="https://rdrr.io/r/base/interactive.html" class="exte
 <h3 id="method-register-tool-">Method <code>register_tool()</code><a class="anchor" aria-label="anchor" href="#method-register-tool-"></a></h3>
 <p>Register a tool (an R function) that the chatbot can use.
 If the chatbot decides to use the function, elmer will automatically
-call it and submit the results back.</p><div class="section">
+call it and submit the results back. (See <code><a href="create_tool_metadata.html">create_tool_metadata()</a></code> for
+an AI-enabled helper function that can write a <code>register_tool</code> call
+for you in some cases.)</p><div class="section">
 <h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span><span class="va">fun</span>, <span class="va">name</span>, <span class="va">description</span>, <span class="va">arguments</span>, strict <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">ChatOpenAI</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span><span class="va">fun</span>, <span class="va">name</span>, <span class="va">description</span>, <span class="va">arguments</span>, strict <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -298,7 +300,9 @@ Should be a named list of objects created by <code><a href="tool_arg.html">tool_
 
 
 <dt><code>strict</code></dt>
-<dd><p>Should the argument definition be strictly enforced?</p></dd>
+<dd><p>Should the argument definition be strictly enforced? If
+<code>TRUE</code>, enables <a href="https://platform.openai.com/docs/guides/structured-outputs" class="external-link">Structured Output</a>
+mode, which comes with a number of <a href="https://platform.openai.com/docs/guides/structured-outputs/supported-schemas" class="external-link">additional requirements</a>.</p></dd>
 
 
 </dl><p></p></div>
@@ -369,7 +373,7 @@ Should be a named list of objects created by <code><a href="tool_arg.html">tool_
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
 </div>
 
     </footer></div>
