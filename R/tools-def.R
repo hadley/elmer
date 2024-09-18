@@ -27,7 +27,8 @@ tool_def <- function(name, description, arguments, strict = FALSE) {
 #' Define arguments for a tool
 #'
 #' @export
-#' @param type Argument type.
+#' @param type Argument type (`"null"`, `"boolean"`, `"object"`, `"array"`,
+#'   `"number"`, or `"string"`).
 #' @param description Description of argument as free text.
 #' @param required Is the argument required?
 #' @param ... Additional JSON Schema properties (e.g. `properties`, `enum`,
