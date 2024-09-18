@@ -381,7 +381,8 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
         for (chunk in await_each(private$submit_messages_async(stream = stream, echo = echo))) {
           yield(chunk)
         }
-        if (!private$invoke_tools()) {
+        tools_called <- await(private$invoke_tools_async())
+        if (!tools_called) {
           break
         }
       }
@@ -496,15 +497,28 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     invoke_tools = function() {
       if (length(private$tool_infos) > 0) {
         last_message <- private$msgs[[length(private$msgs)]]
-        tool_message <- call_tools(private$tool_funs, last_message)
+        tool_messages <- call_tools(private$tool_funs, last_message)
 
-        if (!is.null(tool_message)) {
-          private$msgs <- c(private$msgs, tool_message)
+        if (!is.null(tool_messages)) {
+          private$msgs <- c(private$msgs, tool_messages)
           return(TRUE)
         }
       }
       FALSE
-    }
+    },
+
+    invoke_tools_async = async_method(function(self, private) {
+      if (length(private$tool_infos) > 0) {
+        last_message <- private$msgs[[length(private$msgs)]]
+        tool_messages <- await(call_tools_async(private$tool_funs, last_message))
+
+        if (!is.null(tool_messages)) {
+          private$msgs <- c(private$msgs, tool_messages)
+          return(TRUE)
+        }
+      }
+      FALSE
+    })
   )
 )
 
