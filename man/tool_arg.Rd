@@ -4,12 +4,16 @@
 \alias{tool_arg}
 \title{Define arguments for a tool}
 \usage{
-tool_arg(type, description, required = TRUE)
+tool_arg(type, description, ..., required = TRUE)
 }
 \arguments{
-\item{type}{Argument type.}
+\item{type}{Argument type (\code{"null"}, \code{"boolean"}, \code{"object"}, \code{"array"},
+\code{"number"}, or \code{"string"}).}
 
 \item{description}{Description of argument as free text.}
+
+\item{...}{Additional JSON Schema properties (e.g. \code{properties}, \code{enum},
+\code{pattern}).}
 
 \item{required}{Is the argument required?}
 }

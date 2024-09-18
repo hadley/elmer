@@ -8,31 +8,34 @@ Authors@R: c(
 Description: A consistent interface for calling LLM APIs. Includes support
     for streaming.
 License: MIT + file LICENSE
-Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+URL: https://github.com/hadley/elmer, https://hadley.github.io/elmer/
+BugReports: https://github.com/hadley/elmer/issues
 Imports:
     cli,
     coro,
-    httr2 (>= 1.0.3.9000),
+    httr2 (>= 1.0.4.9000),
     jsonlite,
     R6,
     rlang (>= 1.1.0)
 Suggests:
-    testthat (>= 3.0.0),
-    withr,
+    base64enc,
     later,
-    promises
-Config/testthat/edition: 3
+    magick,
+    promises,
+    testthat (>= 3.0.0),
+    withr
 Remotes:
     r-lib/httr2
-URL: https://github.com/hadley/elmer, https://hadley.github.io/elmer/
-BugReports: https://github.com/hadley/elmer/issues
 Config/Needs/website: tidyverse/tidytemplate
-Collate: 
+Config/testthat/edition: 3
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Collate:
     'cat-wordwrap.R'
     'coro-utils.R'
     'chat.R'
+    'content.R'
     'elmer-package.R'
     'import-standalone-obj-type.R'
     'import-standalone-purrr.R'
@@ -42,3 +45,4 @@ Collate:
     'tools-def.R'
     'tools.R'
     'utils.R'
+    'zzz.R'
