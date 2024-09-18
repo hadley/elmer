@@ -29,7 +29,7 @@ NULL
 #'   and `stream_async()` methods.)
 #' @export
 #' @examplesIf elmer:::openai_key_exists()
-#' chat <- new_chat_openai()
+#' chat <- new_chat_claude()
 #' chat$chat("
 #'   What is the difference between a tibble and a data frame?
 #'   Answer with a bulleted list
@@ -59,85 +59,36 @@ NULL
 #'   Give me five numbers from a random normal distribution.
 #'   Briefly explain your work.
 #' ")
-new_chat_openai <- function(system_prompt = NULL,
+new_chat_claude <- function(system_prompt = NULL,
                             messages = NULL,
-                            base_url = "https://api.openai.com/v1",
-                            api_key = openai_key(),
+                            base_url = claude_base_url,
+                            api_key = claude_key(),
                             model = NULL,
                             echo = FALSE) {
   check_string(system_prompt, allow_null = TRUE)
   check_openai_conversation(messages, allow_null = TRUE)
-    check_string(base_url)
+  check_string(base_url)
   check_string(api_key)
   check_string(model, allow_null = TRUE, allow_na = TRUE)
   check_bool(echo)
 
-  model <- model %||% "gpt-4o-mini"
+  model <- model %||% claude_model
 
-  messages <- apply_system_prompt_openai(system_prompt, messages)
-
-  ChatOpenAI$new(
+  ChatClaude$new(
     base_url = base_url,
     model = model,
+    system_prompt = system_prompt,
     messages = messages,
     api_key = api_key,
     echo = echo
   )
 }
 
-apply_system_prompt_openai <- function(system_prompt, messages) {
-  if (is.null(system_prompt)) {
-    return(messages)
-  }
-
-  system_prompt_message <- list(
-    role = "system",
-    content = system_prompt
-  )
-
-  # No messages; start with just the system prompt
-  if (length(messages) == 0) {
-    return(list(system_prompt_message))
-  }
-
-  # No existing system prompt message; prepend the new one
-  if (messages[[1]][["role"]] != "system") {
-    return(c(list(system_prompt_message), messages))
-  }
-
-  # Duplicate system prompt; return as-is
-  if (messages[[1]][["content"]] == system_prompt) {
-    return(messages)
-  }
-
-  cli::cli_abort("`system_prompt` and `messages[[1]]` contained conflicting system prompts")
-}
-
-check_openai_conversation <- function(messages, allow_null = FALSE) {
-  if (is.null(messages) && isTRUE(allow_null)) {
-    return()
-  }
-
-  if (!is.list(messages) ||
-      !(is.null(names(messages)) || all(names(messages) == ""))) {
-    stop_input_type(
-      messages,
-      "an unnamed list of messages",
-      allow_null = FALSE
-    )
-  }
-
-  for (message in messages) {
-    if (!is.list(message) ||
-        !is.character(message$role)) {
-      cli::cli_abort("Each message must be a named list with at least a `role` field.")
-    }
-  }
-}
-
 #' @rdname new_chat_openai
-ChatOpenAI <- R6::R6Class("ChatOpenAI",
+ChatClaude <- R6::R6Class("ChatClaude",
   public = list(
+    system_prompt = NULL,
+
     #' @param base_url The base URL to the endpoint; the default uses ChatGPT.
     #' @param api_key The API key to use for authentication. You generally should
     #'   not supply this directly, but instead set the `OPENAI_API_KEY` environment
@@ -149,9 +100,10 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     #' @param echo If `TRUE`, the `chat()` method streams the response to stdout
     #'   (while also returning the final response). Note that this has no effect
     #'   on the `stream()`, `chat_async()`, and `stream_async()` methods.
-    initialize = function(base_url, model, messages, api_key, echo = FALSE) {
+    initialize = function(base_url, model, system_prompt, messages, api_key, echo = FALSE) {
       private$base_url <- base_url
       private$model <- model
+      self$system_prompt <- system_prompt
       private$msgs <- messages %||% list()
       private$api_key <- api_key
       private$echo <- echo
@@ -161,16 +113,8 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     #'   (optionally starting with the system prompt, if any).
     #' @param include_system_prompt Whether to include the system prompt in the
     #'   messages (if any exists).
-    messages = function(include_system_prompt = FALSE) {
-      if (length(private$msgs) == 0) {
-        return(private$msgs)
-      }
-
-      if (!include_system_prompt && private$msgs[[1]][["role"]] == "system") {
-        private$msgs[-1]
-      } else {
-        private$msgs
-      }
+    messages = function() {
+      private$msgs
     },
 
     #' @description Submit input to the chatbot, and return the response as a
@@ -312,18 +256,6 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
       invisible(self)
     }
   ),
-  active = list(
-    #' @field system_prompt The system prompt, if any, as a string.
-    system_prompt = function() {
-      if (length(private$msgs) == 0) {
-        return(NULL)
-      }
-      if (private$msgs[[1]][["role"]] != "system") {
-        return(NULL)
-      }
-      private$msgs[[1]][["content"]]
-    }
-  ),
   private = list(
     base_url = NULL,
     model = NULL,
@@ -395,8 +327,9 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant messages.
     submit_messages = generator_method(function(self, private, stream, echo) {
-      response <- openai_chat(
+      response <- claude_chat(
         messages = private$msgs,
+        system_prompt = self$system_prompt,
         tools = private$tool_infos,
         base_url = private$base_url,
         model = private$model,
@@ -413,27 +346,40 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
       if (stream) {
         result <- list()
-        any_content <- FALSE
-        for (chunk in response) {
-          browser()
-          result <- merge_dicts(result, chunk)
-          if (!is.null(chunk$choices[[1]]$delta$content)) {
-            emit(chunk$choices[[1]]$delta$content)
-            yield(chunk$choices[[1]]$delta$content)
-            any_content <- TRUE
+        for (event in response) {
+
+          if (event$type == "ping") {
+            next
+          } else if (event$type == "message_start") {
+            result$role <- event$message$role
+          } else if (event$type == "content_block_start") {
+            result$content[[event$index + 1L]] <- event$content_block
+          } else if (event$type == "content_block_delta") {
+            result$content[[event$index + 1L]]$text <- paste0(result$content[[event$index + 1L]]$text, event$delta$text)
+            emit(event$delta$text)
+            yield(event$delta$text)
+          } else if (event$type == "content_block_stop") {
+            emit("\n")
+            yield("\n")
+          } else if (event$type == "message_delta") {
+            # TODO: do something with stop reason
+          } else {
+            browser()
           }
         }
-        if (any_content) {
-          emit("\n")
-          yield("\n")
-        }
-        private$add_message(result$choices[[1]]$delta)
+        private$add_message(result)
       } else {
-        private$add_message(response$choices[[1]]$message)
-        if (!is.null(response$choices[[1]]$message$content)) {
-          emit(response$choices[[1]]$message$content)
+        message <- list(
+          role = response$role,
+          content = response$content
+        )
+        private$add_message(message)
+
+        # Print response if its text
+        if (!is.null(response$content[[1]]$text)) {
+          emit(response$content[[1]]$text)
           emit("\n")
-          yield(response$choices[[1]]$message$content)
+          yield(response$content[[1]]$text)
         }
       }
 
@@ -508,59 +454,3 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     }
   )
 )
-
-#' @export
-print.ChatOpenAI <- function(x, ...) {
-  msgs <- x$messages(include_system_prompt = TRUE)
-  msgs_without_system_prompt <- x$messages(include_system_prompt = FALSE)
-  cat(paste0("<ChatOpenAI messages=", length(msgs_without_system_prompt), ">\n"))
-  for (message in msgs) {
-    color <- switch(message$role,
-      user = cli::col_blue,
-      assistant = cli::col_green,
-      identity
-    )
-    cli::cli_rule("{color(message$role)}")
-    if (!is.null(message$content)) {
-      # Using cli_text for word wrapping. Passing `"{message$content}"` instead of
-      # `message$content` to avoid evaluation of the (potentially malicious)
-      # content.
-      cli::cli_text("{format_content(message$content)}")
-    }
-    if (!is.null(message$tool_calls)) {
-      cli::cli_text("Tool calls:")
-      for (tool_call in message$tool_calls) {
-        funcname <- tool_call$`function`$name
-        args <- tool_call$`function`$arguments
-        tryCatch({
-          args_parsed <- jsonlite::parse_json(tool_call$`function`$arguments)
-          args <- call2(funcname, !!!args_parsed)
-          cli::cli_text(format(args))
-        }, error = function(e) {
-          # In case parsing the JSON fails
-          cli::cli_text("{funcname}({args})")
-        })
-      }
-    }
-  }
-
-  invisible(x)
-}
-
-
-format_content <- function(content) {
-  if (is.character(content)) {
-    content
-  } else if (is.list(content)) {
-    paste0(lapply(content, function(x) {
-      type <- x[["type"]]
-      value <- x[[type]]
-      paste0("[", type, "]: ", value)
-    }), collapse = "\n")
-  }
-}
-
-last_message <- function(chat) {
-  messages <- chat$messages()
-  messages[[length(messages)]]
-}

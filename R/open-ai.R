@@ -11,7 +11,6 @@ openai_chat <- function(messages,
 
   if (stream) {
     chat_stream(
-      req,
       is_done = function(event) {
         if (is.null(event)) {
           abort("Connection failed")
@@ -19,7 +18,7 @@ openai_chat <- function(messages,
         identical(event$data, "[DONE]")
       },
       parse_data = function(event) jsonlite::parse_json(event$data)
-    )
+    )(req)
   } else {
     resp <- req_perform(req)
     resp_body_json(resp)

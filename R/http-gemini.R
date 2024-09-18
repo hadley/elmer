@@ -15,10 +15,9 @@ gemini_chat <- function(messages,
 
   if (stream) {
     chat_stream(
-      req,
       is_done = function(event) is.null(event),
       parse_data = function(event) jsonlite::parse_json(event$data)
-    )
+    )(req)
   } else {
     resp <- httr2::req_perform(req)
     httr2::resp_body_json(resp)

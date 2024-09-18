@@ -1,4 +1,5 @@
 claude_chat <- function(messages,
+                        system_prompt = NULL,
                         tools = list(),
                         model = claude_model,
                         stream = TRUE,
@@ -8,6 +9,7 @@ claude_chat <- function(messages,
 
   req <- claude_chat_request(
     messages = messages,
+    system = system_prompt,
     tools = tools,
     base_url = base_url,
     model = model,
@@ -18,10 +20,9 @@ claude_chat <- function(messages,
 
   if (stream) {
     chat_stream(
-      req,
       is_done = function(event) identical(event$type, "message_stop"),
       parse_data = function(event) jsonlite::parse_json(event$data)
-    )
+    )(req)
   } else {
     resp <- httr2::req_perform(req)
     httr2::resp_body_json(resp)

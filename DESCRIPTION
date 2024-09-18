@@ -34,9 +34,13 @@ RoxygenNote: 7.3.2
 Collate:
     'cat-wordwrap.R'
     'coro-utils.R'
+    'chat-claude.R'
     'chat.R'
     'content.R'
     'elmer-package.R'
+    'http-claude.R'
+    'http-gemini.R'
+    'http.R'
     'import-standalone-obj-type.R'
     'import-standalone-purrr.R'
     'import-standalone-types-check.R'

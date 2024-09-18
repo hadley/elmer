@@ -1,9 +1,9 @@
 
-chat_stream <- function(req, is_done, parse_data) {
+chat_stream <- function(is_done, parse_data) {
   force(is_done)
   force(parse_data)
 
-  generator <- coro::generator(function(req) {
+  coro::generator(function(req) {
     resp <- httr2::req_perform_connection(req)
     on.exit(close(resp))
     reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
@@ -21,5 +21,27 @@ chat_stream <- function(req, is_done, parse_data) {
       yield(NULL)
     }
   })
-  generator(req)
 }
+
+openai_chat_stream <- coro::generator(function(req) {
+  resp <- req_perform_connection(req)
+  on.exit(close(resp))
+  reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
+
+  while (TRUE) {
+    event <- resp_stream_sse(resp)
+    if (is.null(event)) {
+      abort("Connection failed")
+    }
+    if (event$data == "[DONE]") {
+      break
+    }
+    json <- jsonlite::parse_json(event$data)
+    yield(json)
+  }
+
+  # Work around https://github.com/r-lib/coro/issues/51
+  if (FALSE) {
+    yield(NULL)
+  }
+})
