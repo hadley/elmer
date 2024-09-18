@@ -46,8 +46,12 @@ test_that("repeated tool calls (async)", {
     list("tz" = tool_arg(type = "string", description = "Time zone", required = TRUE)),
     strict = TRUE
   )
+  # An async tool
   chat_async$register_tool(
-    fun = function(n, mean, sd) { promises::promise_resolve(not_actually_random_number) },
+    fun = coro::async(function(n, mean, sd) {
+      await(coro::async_sleep(0.2))
+      not_actually_random_number
+    }),
     name = "rnorm",
     description = "Drawn numbers from a random normal distribution",
     arguments = list(
