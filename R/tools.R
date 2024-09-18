@@ -164,7 +164,7 @@ create_tool_metadata <- function(topic, model = "gpt-4o", echo = interactive(), 
 # If the function source cannot be found, at least provide the function
 # signature
 get_signature <- function(func) {
-  args <- capture.output(args(func))
+  args <- utils::capture.output(args(func))
   paste0(paste0(args[-length(args)], collapse = "\n"), " ...")
 }
 
