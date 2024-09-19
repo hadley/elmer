@@ -397,11 +397,11 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     # complete assistant messages.
     submit_messages = generator_method(function(self, private, stream, echo) {
       response <- openai_chat(
+        if (stream) "stream" else "batch",
         messages = private$msgs,
         tools = private$tool_infos,
         base_url = private$base_url,
         model = private$model,
-        stream = stream,
         api_key = private$api_key
       )
 
@@ -446,12 +446,12 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant messages.
     submit_messages_async = async_generator_method(function(self, private, stream, echo) {
-      response <- openai_chat_async(
+      response <- openai_chat(
+        if (stream) "async-stream" else "async-batch",
         messages = private$msgs,
         tools = private$tool_infos,
         base_url = private$base_url,
         model = private$model,
-        stream = stream,
         api_key = private$api_key
       )
 
