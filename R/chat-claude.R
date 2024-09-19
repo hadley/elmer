@@ -346,6 +346,7 @@ ChatClaude <- R6::R6Class("ChatClaude",
 
       if (stream) {
         result <- list()
+        # https://docs.anthropic.com/en/api/messages-streaming#basic-streaming-request
         for (event in response) {
 
           if (event$type == "ping") {
