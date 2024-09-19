@@ -6,7 +6,7 @@ openai_chat <- function(mode = c("batch", "stream", "async-stream", "async-batch
                         api_key = openai_key()) {
 
   mode <- arg_match(mode)
-  stream <- mode %in% c("stream", "stream-async")
+  stream <- mode %in% c("stream", "async-stream")
 
   req <- openai_chat_req(
     messages = messages,
