@@ -9,7 +9,7 @@ call_tools <- function(tools, message) {
     if (is.null(tool_fun)) {
       result <- paste0("Error calling tool: Unknown tool name '", call$`function`, "'")
     } else {
-      args <- jsonlite::fromJSON(fun$arguments)
+      args <- jsonlite::parse_json(fun$arguments)
       result <- call_tool(tool_fun, args)
       if (promises::is.promise(result)) {
         stop("An async tool was used with `chat()` or `stream()`. Async tools are supported, but you must call `chat_async()` or `stream_async()` instead.")
@@ -38,7 +38,7 @@ rlang::on_load(call_tools_async <- coro::async(function(tools, message) {
     p <- if (is.null(tool_fun)) {
       promises::promise_resolve(paste0("Error calling tool: Unknown tool name '", call$`function`, "'"))
     } else {
-      args <- jsonlite::fromJSON(fun$arguments)
+      args <- jsonlite::parse_json(fun$arguments)
       call_tool_async(tool_fun, args)
     }
     promises::then(p, function(result) {
