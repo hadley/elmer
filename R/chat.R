@@ -404,38 +404,34 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
         model = private$model,
         api_key = private$api_key
       )
-
-      if (echo) {
-        # Like `cat()` but with automatic word wrapping
-        emit <- cat_word_wrap()
-      } else {
-        emit <- function(...) invisible()
-      }
+      emit <- emitter(echo)
 
       if (stream) {
         result <- list()
-        any_content <- FALSE
+        any_text <- FALSE
+        result <- NULL
         for (chunk in response) {
-          result <- merge_dicts(result, chunk)
-          if (!is.null(chunk$choices[[1]]$delta$content)) {
-            emit(chunk$choices[[1]]$delta$content)
-            yield(chunk$choices[[1]]$delta$content)
-            any_content <- TRUE
+          text <- openai_chunk_text(chunk, streaming = TRUE)
+          if (!is.null(text)) {
+            emit(text)
+            yield(text)
+            any_text <- TRUE
           }
+
+          result <- openai_merge_chunks(result, chunk)
         }
-        if (any_content) {
-          emit("\n")
-          yield("\n")
-        }
-        private$add_message(result$choices[[1]]$delta)
+        if (any_text) emit("\n") # Flush buffer
+
+        message <- openai_result_message(result, streaming = TRUE)
       } else {
-        private$add_message(response$choices[[1]]$message)
-        if (!is.null(response$choices[[1]]$message$content)) {
-          emit(response$choices[[1]]$message$content)
-          emit("\n")
-          yield(response$choices[[1]]$message$content)
+        text <- openai_chunk_text(response, streaming = FALSE)
+        if (!is.null(text)) {
+          emit(text, "\n")
+          yield(text)
         }
+        message <- openai_result_message(response, streaming = FALSE)
       }
+      private$add_message(message)
 
       # Work around https://github.com/r-lib/coro/issues/51
       if (FALSE) {
@@ -454,39 +450,35 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
         model = private$model,
         api_key = private$api_key
       )
-
-      if (echo) {
-        # Like `cat()` but with automatic word wrapping
-        emit <- cat_word_wrap()
-      } else {
-        emit <- function(...) invisible()
-      }
+      emit <- emitter(echo)
 
       if (stream) {
-        result <- list()
-        any_content <- FALSE
+        any_text <- FALSE
+        result <- NULL
         for (chunk in await_each(response)) {
-          result <- merge_dicts(result, chunk)
-          if (!is.null(chunk$choices[[1]]$delta$content)) {
-            emit(chunk$choices[[1]]$delta$content)
-            yield(chunk$choices[[1]]$delta$content)
-            any_content <- TRUE
+          text <- openai_chunk_text(chunk, streaming = TRUE)
+          if (!is.null(text)) {
+            emit(text)
+            yield(text)
+            any_text <- TRUE
           }
+
+          result <- openai_merge_chunks(result, chunk)
         }
-        if (any_content) {
-          emit("\n")
-          yield("\n")
-        }
-        private$add_message(result$choices[[1]]$delta)
+        if (any_text) emit("\n") # Flush buffer
+
+        message <- openai_result_message(result, streaming = TRUE)
       } else {
-        response_value <- await(response)
-        private$add_message(response_value$choices[[1]]$message)
-        if (!is.null(response_value$choices[[1]]$message$content)) {
-          emit(response_value$choices[[1]]$message$content)
-          emit("\n")
-          yield(response_value$choices[[1]]$message$content)
+        result <- await(response)
+
+        text <- openai_chunk_text(result, streaming = FALSE)
+        if (!is.null(text)) {
+          emit(text, "\n")
+          yield(text)
         }
+        message <- openai_result_message(result, streaming = FALSE)
       }
+      private$add_message(message)
 
       # Work around https://github.com/r-lib/coro/issues/51
       if (FALSE) {

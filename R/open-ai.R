@@ -19,7 +19,7 @@ openai_chat <- function(mode = c("batch", "stream", "async-stream", "async-batch
 
   handle_response <- switch(mode,
     "batch" = function(req) resp_body_json(req_perform(req)),
-    "async-batch" = function(req) promises::then(req_perform(req), resp_body_json),
+    "async-batch" = function(req) promises::then(req_perform_promise(req), resp_body_json),
     "stream" = chat_stream(openai_chat_is_done, openai_chat_parse),
     "async-stream" = chat_stream_async(openai_chat_is_done, openai_chat_parse)
   )
@@ -34,6 +34,58 @@ openai_chat_is_done <- function(event) {
 openai_chat_parse <- function(event) {
   jsonlite::parse_json(event$data)
 }
+
+openai_chunk_text <- function(event, streaming) {
+  if (streaming) {
+    event$choices[[1]]$delta$content
+  } else {
+    event$choices[[1]]$message$content
+  }
+}
+openai_merge_chunks <- function(cur, chunk) {
+  if (is.null(cur)) {
+    chunk
+  } else {
+    merge_dicts(cur, chunk)
+  }
+}
+openai_result_message <- function(result, streaming) {
+  if (streaming) {
+    result$choices[[1]]$delta
+  } else {
+    result$choices[[1]]$message
+  }
+}
+
+openai_stream_messages <- coro::generator(function(response) {
+
+  result <- list()
+  any_content <- FALSE
+
+  for (chunk in response) {
+    result <- merge_dicts(result, chunk)
+
+    if (!is.null(chunk$choices[[1]]$delta$content)) {
+      yield(chunk$choices[[1]]$delta$content)
+      any_content <- TRUE
+    }
+  }
+
+  list(
+    handle_event = function(chunk) {
+    },
+    done = function() {
+      if (any_content) {
+        emit("\n")
+        yield("\n")
+      }
+    },
+    message = function() {
+      result$choices[[1]]$delta
+    }
+  )
+
+})
 
 openai_key <- function() {
   key <- Sys.getenv("OPENAI_API_KEY")
