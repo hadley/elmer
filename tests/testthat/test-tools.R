@@ -46,8 +46,12 @@ test_that("repeated tool calls (async)", {
     list("tz" = tool_arg(type = "string", description = "Time zone", required = TRUE)),
     strict = TRUE
   )
+  # An async tool
   chat_async$register_tool(
-    fun = function(n, mean, sd) { not_actually_random_number },
+    fun = coro::async(function(n, mean, sd) {
+      await(coro::async_sleep(0.2))
+      not_actually_random_number
+    }),
     name = "rnorm",
     description = "Drawn numbers from a random normal distribution",
     arguments = list(
@@ -66,4 +70,7 @@ test_that("repeated tool calls (async)", {
   expect_identical(paste(result, collapse = ""), "2020-08-01T11:00:00\n")
 
   expect_snapshot(chat_async)
+
+  # Can't use async tools with sync methods
+  expect_error(chat_async$chat("Great. Do it again."), "chat_async")
 })

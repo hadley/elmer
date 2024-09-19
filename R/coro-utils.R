@@ -48,6 +48,18 @@ async_generator_method <- function(func) {
   deferred_method_transform(fn, coro::async_generator, parent.frame())
 }
 
+async_method <- function(func) {
+  fn <- rlang::enexpr(func)
+
+  stopifnot(
+    "async methods must have `self` parameter" = identical(names(formals(func))[1], "self")
+  )
+  stopifnot(
+    "async methods must have `private` parameter" = identical(names(formals(func))[2], "private")
+  )
+
+  deferred_method_transform(fn, coro::async, parent.frame())
+}
 # Takes a quoted function expression and a transformer function, and returns a
 # function that will _lazily_ transform the lambda function using `transformer`
 # upon first call. This is necessary because the transformation needs to be done

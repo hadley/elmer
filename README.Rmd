@@ -260,7 +260,7 @@ Let's test it:
 get_current_time()
 ```
 ```
-[1] "2024-09-18 17:17:14 UTC"
+[1] "2024-09-18 17:47:14 UTC"
 ```
 
 ### Registering tools
