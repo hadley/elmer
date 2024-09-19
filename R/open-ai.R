@@ -1,9 +1,21 @@
+openai_model <- function(base_url = "https://api.openai.com/v1",
+                            model = "gpt-4o-mini",
+                            api_key = openai_key()) {
+  structure(
+    list(
+      base_url = base_url,
+      model = model,
+      api_key = api_key
+    ),
+    class = "elmer::openai_model"
+  )
+}
+
+
 openai_chat <- function(mode = c("batch", "stream", "async-stream", "async-batch"),
+                        model,
                         messages,
-                        tools = list(),
-                        base_url = "https://api.openai.com/v1",
-                        model = "gpt-4o-mini",
-                        api_key = openai_key()) {
+                        tools = list()) {
 
   mode <- arg_match(mode)
   stream <- mode %in% c("stream", "async-stream")
@@ -11,10 +23,8 @@ openai_chat <- function(mode = c("batch", "stream", "async-stream", "async-batch
   req <- openai_chat_req(
     messages = messages,
     tools = tools,
-    base_url = base_url,
     model = model,
-    stream = stream,
-    api_key = api_key
+    stream = stream
   )
 
   handle_response <- switch(mode,
@@ -95,25 +105,23 @@ openai_key <- function() {
   key
 }
 
-openai_chat_req <- function(messages,
+openai_chat_req <- function(model,
+                            messages,
                             tools = list(),
-                            base_url = "https://api.openai.com/v1",
-                            model = "gpt-4o-mini",
-                            stream = TRUE,
-                            api_key = openai_key()) {
+                            stream = FALSE) {
   if (length(tools) == 0) {
     # OpenAI rejects tools=[]
     tools <- NULL
   }
 
   data <- list(
-    model = model,
+    model = model$model,
     stream = stream,
     messages = messages,
     tools = tools
   )
 
-  req <- openai_request(base_url = base_url, key = api_key)
+  req <- openai_request(base_url = model$base_url, key = model$api_key)
   req <- req_url_path_append(req, "/chat/completions")
   req <- req_body_json(req, data)
   req

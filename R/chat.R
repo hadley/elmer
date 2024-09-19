@@ -150,10 +150,12 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     #'   (while also returning the final response). Note that this has no effect
     #'   on the `stream()`, `chat_async()`, and `stream_async()` methods.
     initialize = function(base_url, model, messages, api_key, echo = FALSE) {
-      private$base_url <- base_url
-      private$model <- model
+      private$model <- openai_model(
+        base_url = base_url,
+        model = model,
+        api_key = api_key
+      )
       private$msgs <- messages %||% list()
-      private$api_key <- api_key
       private$echo <- echo
     },
 
@@ -325,9 +327,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     }
   ),
   private = list(
-    base_url = NULL,
     model = NULL,
-    api_key = NULL,
 
     msgs = NULL,
     echo = NULL,
@@ -398,11 +398,9 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     submit_messages = generator_method(function(self, private, stream, echo) {
       response <- openai_chat(
         if (stream) "stream" else "batch",
-        messages = private$msgs,
-        tools = private$tool_infos,
-        base_url = private$base_url,
         model = private$model,
-        api_key = private$api_key
+        messages = private$msgs,
+        tools = private$tool_infos
       )
       emit <- emitter(echo)
 
@@ -444,11 +442,9 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     submit_messages_async = async_generator_method(function(self, private, stream, echo) {
       response <- openai_chat(
         if (stream) "async-stream" else "async-batch",
-        messages = private$msgs,
-        tools = private$tool_infos,
-        base_url = private$base_url,
         model = private$model,
-        api_key = private$api_key
+        messages = private$msgs,
+        tools = private$tool_infos
       )
       emit <- emitter(echo)
 
