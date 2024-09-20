@@ -96,10 +96,8 @@ cat_word_wrap <- function(con = stdout()) {
   cat_impl <- cat_word_wrap_impl(con)
   cat_impl("")
 
-  function(...) {
-    for (str in list(...)) {
-      cat_impl(str)
-    }
+  function(str) {
+    cat_impl(str)
     invisible(NULL)
   }
 }

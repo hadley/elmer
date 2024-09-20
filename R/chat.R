@@ -418,13 +418,18 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
           result <- openai_merge_chunks(result, chunk)
         }
-        if (any_text) emit("\n") # Flush buffer
+        # Ensure messages always end in a newline
+        if (any_text) {
+          emit("\n")
+          yield("\n")
+        }
 
         message <- openai_result_message(result, streaming = TRUE)
       } else {
         text <- openai_chunk_text(response, streaming = FALSE)
         if (!is.null(text)) {
-          emit(text, "\n")
+          text <- paste0(text, "\n")
+          emit(text)
           yield(text)
         }
         message <- openai_result_message(response, streaming = FALSE)
@@ -461,7 +466,11 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
           result <- openai_merge_chunks(result, chunk)
         }
-        if (any_text) emit("\n") # Flush buffer
+        # Ensure messages always end in a newline
+        if (any_text) {
+          emit("\n")
+          yield("\n")
+        }
 
         message <- openai_result_message(result, streaming = TRUE)
       } else {
@@ -469,7 +478,8 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 
         text <- openai_chunk_text(result, streaming = FALSE)
         if (!is.null(text)) {
-          emit(text, "\n")
+          text <- paste0(text, "\n")
+          emit(text)
           yield(text)
         }
         message <- openai_result_message(result, streaming = FALSE)
