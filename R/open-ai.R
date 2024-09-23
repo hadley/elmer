@@ -30,8 +30,8 @@ openai_chat <- function(mode = c("batch", "stream", "async-stream", "async-batch
   handle_response <- switch(mode,
     "batch" = function(req) resp_body_json(req_perform(req)),
     "async-batch" = function(req) promises::then(req_perform_promise(req), resp_body_json),
-    "stream" = chat_stream(openai_chat_is_done, openai_chat_parse),
-    "async-stream" = chat_stream_async(openai_chat_is_done, openai_chat_parse)
+    "stream" = openai_chat_stream,
+    "async-stream" = openai_chat_stream_async
   )
 
   handle_response(req)
@@ -44,6 +44,9 @@ openai_chat_is_done <- function(event) {
 openai_chat_parse <- function(event) {
   jsonlite::parse_json(event$data)
 }
+
+on_load(openai_chat_stream <- chat_stream(openai_chat_is_done, openai_chat_parse))
+on_load(openai_chat_stream_async <- chat_stream_async(openai_chat_is_done, openai_chat_parse))
 
 openai_chunk_text <- function(event, streaming) {
   if (streaming) {
