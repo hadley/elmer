@@ -25,7 +25,7 @@ chat_perform <- function(model,
   )
 }
 
-# Various ways of performing the chat request
+# Various ways of performing the chat request ----------------------------------
 chat_perform_value <- new_generic("chat_value", "model",
   function(model, req) {
     S7_dispatch()
@@ -104,6 +104,9 @@ on_load(
   })
 )
 
+
+# Extract data from streaming results ------------------------------------
+
 stream_is_done <- new_generic("stream_is_done", "model",
   function(model, event) {
     S7_dispatch()
@@ -129,6 +132,8 @@ stream_message <- new_generic("stream_message", "model",
     S7_dispatch()
   }
 )
+
+# Extract data from non-streaming results --------------------------------------
 
 value_text <- new_generic("value_text", "model",
   function(model, event) {
