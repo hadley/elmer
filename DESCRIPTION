@@ -46,6 +46,5 @@ Collate:
     'tools.R'
     'utils-cat.R'
     'utils-merge.R'
-    'utils-stream.R'
     'utils.R'
     'zzz.R'
