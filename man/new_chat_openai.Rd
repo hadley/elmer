@@ -47,6 +47,9 @@ chat API call.}
 default. (Note that this has no effect on the \code{stream()}, \code{chat_async()},
 and \code{stream_async()} methods.)}
 }
+\value{
+A \link{Chat} object.
+}
 \description{
 This function returns a \link{Chat} object that takes care of managing the state
 associated with the chat; i.e. it records the messages that you send to the

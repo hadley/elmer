@@ -1,4 +1,3 @@
-
 #' Create a chatbot that speaks to an OpenAI compatible endpoint
 #'
 #' This function returns a [Chat] object that takes care of managing the state
@@ -30,7 +29,7 @@
 #'   default. (Note that this has no effect on the `stream()`, `chat_async()`,
 #'   and `stream_async()` methods.)
 #' @export
-#' @value A [Chat] object
+#' @returns A [Chat] object.
 #' @examplesIf elmer:::openai_key_exists()
 #' chat <- new_chat_openai()
 #' chat$chat("
