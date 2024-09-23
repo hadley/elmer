@@ -1,4 +1,4 @@
-#' @include coro-utils.R
+#' @include utils-coro.R
 NULL
 
 #' Create a chatbot that speaks to an OpenAI compatible endpoint
