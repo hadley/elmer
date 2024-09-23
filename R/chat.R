@@ -26,6 +26,8 @@ NULL
 #'   explicitly choosing a model for all but the most casual use.
 #' @param seed Optional integer seed that ChatGPT uses to try and make output
 #'   more reproducible.
+#' @param api_args Named list of arbitrary extra arguments passed to every
+#'   chat API call.
 #' @param echo If `TRUE`, the `chat()` method streams the response to stdout by
 #'   default. (Note that this has no effect on the `stream()`, `chat_async()`,
 #'   and `stream_async()` methods.)
@@ -67,6 +69,7 @@ new_chat_openai <- function(system_prompt = NULL,
                             api_key = openai_key(),
                             model = NULL,
                             seed = NULL,
+                            api_args = list(),
                             echo = FALSE) {
   check_string(system_prompt, allow_null = TRUE)
   check_openai_conversation(messages, allow_null = TRUE)
@@ -81,16 +84,16 @@ new_chat_openai <- function(system_prompt = NULL,
     seed <- 1014
   }
 
-  messages <- apply_system_prompt_openai(system_prompt, messages)
-
-  ChatOpenAI$new(
+  model <- openai_model(
     base_url = base_url,
     model = model,
-    messages = messages,
-    api_key = api_key,
     seed = seed,
-    echo = echo
+    extra_args = api_args,
+    api_key = api_key
   )
+
+  messages <- apply_system_prompt_openai(system_prompt, messages)
+  ChatOpenAI$new(model = model, messages = messages, echo = echo)
 }
 
 apply_system_prompt_openai <- function(system_prompt, messages) {
@@ -146,25 +149,15 @@ check_openai_conversation <- function(messages, allow_null = FALSE) {
 #' @rdname new_chat_openai
 ChatOpenAI <- R6::R6Class("ChatOpenAI",
   public = list(
-    #' @param base_url The base URL to the endpoint; the default uses ChatGPT.
-    #' @param api_key The API key to use for authentication. You generally should
-    #'   not supply this directly, but instead set the `OPENAI_API_KEY` environment
-    #'   variable.
-    #' @param model The model to use for the chat; defaults to GPT-4o mini.
+    #' @param model Model object
     #' @param messages An unnamed list of messages to start the chat with (i.e.,
     #'   continuing a previous conversation). If `NULL` or zero-length list, the
     #'   conversation begins from scratch.
-    #' @param seed Optional integer seed that ChatGPT uses to try and make output
-    #'   more reproducible.
     #' @param echo If `TRUE`, the `chat()` method streams the response to stdout
     #'   (while also returning the final response). Note that this has no effect
     #'   on the `stream()`, `chat_async()`, and `stream_async()` methods.
-    initialize = function(base_url, model, messages, api_key, seed = NULL, echo = FALSE) {
-      private$model <- openai_model(
-        base_url = base_url,
-        model = model,
-        api_key = api_key
-      )
+    initialize = function(model, messages, seed = NULL, echo = FALSE) {
+      private$model <- model
       private$msgs <- messages %||% list()
       private$echo <- echo
     },
