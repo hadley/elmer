@@ -1,102 +1,76 @@
-openai_chat <- function(messages,
-                        tools = list(),
-                        base_url = "https://api.openai.com/v1",
-                        model = "gpt-4o-mini",
-                        stream = TRUE,
-                        seed = NULL,
-                        api_key = openai_key()) {
+openai_model <- function(base_url = "https://api.openai.com/v1",
+                            model = "gpt-4o-mini",
+                            seed = NULL,
+                            api_key = openai_key()) {
+  structure(
+    list(
+      base_url = base_url,
+      model = model,
+      seed = seed,
+      api_key = api_key
+    ),
+    class = "elmer::openai_model"
+  )
+}
+
+
+openai_chat <- function(mode = c("value", "stream", "async-stream", "async-value"),
+                        model,
+                        messages,
+                        tools = list()) {
+
+  mode <- arg_match(mode)
+  stream <- mode %in% c("stream", "async-stream")
+
   req <- openai_chat_req(
     messages = messages,
     tools = tools,
-    base_url = base_url,
     model = model,
-    stream = stream,
-    seed = seed,
-    api_key = api_key
+    stream = stream
   )
 
-  if (stream) {
-    openai_chat_stream(req)
-  } else {
-    resp <- req_perform(req)
-    resp_body_json(resp)
-  }
-}
-
-openai_chat_stream <- NULL
-rlang::on_load(openai_chat_stream <- coro::generator(function(req) {
-  resp <- req_perform_connection(req)
-  on.exit(close(resp))
-  reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
-
-  while (TRUE) {
-    event <- resp_stream_sse(resp)
-    if (is.null(event)) {
-      abort("Connection failed")
-    }
-    if (event$data == "[DONE]") {
-      break
-    }
-    json <- jsonlite::parse_json(event$data)
-    yield(json)
-  }
-
-  # Work around https://github.com/r-lib/coro/issues/51
-  if (FALSE) {
-    yield(NULL)
-  }
-}))
-
-openai_chat_async <- function(messages,
-                              tools = list(),
-                              base_url = "https://api.openai.com/v1",
-                              model = "gpt-4o-mini",
-                              stream = TRUE,
-                              seed = NULL,
-                              api_key = openai_key()) {
-  req <- openai_chat_req(
-    messages = messages,
-    tools = tools,
-    base_url = base_url,
-    model = model,
-    stream = stream,
-    seed = seed,
-    api_key = api_key
+  handle_response <- switch(mode,
+    "value" = function(req) resp_body_json(req_perform(req)),
+    "async-value" = function(req) promises::then(req_perform_promise(req), resp_body_json),
+    "stream" = openai_chat_stream,
+    "async-stream" = openai_chat_stream_async
   )
 
-  if (stream) {
-    openai_chat_stream_async(req)
-  } else {
-    resp <- req_perform_promise(req)
-    promises::then(resp, resp_body_json)
-  }
+  handle_response(req)
 }
 
-openai_chat_stream_async <- NULL
-rlang::on_load(openai_chat_stream_async <- coro::async_generator(function(req, polling_interval_secs = 0.1) {
-  resp <- req_perform_connection(req, blocking = FALSE)
-  on.exit(close(resp))
-  # TODO: Investigate if this works with async generators
-  # reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
+openai_chat_is_done <- function(event) {
+  identical(event$data, "[DONE]")
+}
 
-  while (TRUE) {
-    event <- resp_stream_sse(resp)
-    if (is.null(event)) {
-      # TODO: Detect if connection is closed and stop polling
-      await(coro::async_sleep(polling_interval_secs))
-    } else if (event$data == "[DONE]") {
-      break
-    } else {
-      json <- jsonlite::parse_json(event$data)
-      yield(json)
-    }
-  }
+openai_chat_parse <- function(event) {
+  jsonlite::parse_json(event$data)
+}
 
-  # Work around https://github.com/r-lib/coro/issues/51
-  if (FALSE) {
-    yield(NULL)
+on_load(openai_chat_stream <- chat_stream(openai_chat_is_done, openai_chat_parse))
+on_load(openai_chat_stream_async <- chat_stream_async(openai_chat_is_done, openai_chat_parse))
+
+openai_chunk_text <- function(event, streaming) {
+  if (streaming) {
+    event$choices[[1]]$delta$content
+  } else {
+    event$choices[[1]]$message$content
   }
-}))
+}
+openai_merge_chunks <- function(cur, chunk) {
+  if (is.null(cur)) {
+    chunk
+  } else {
+    merge_dicts(cur, chunk)
+  }
+}
+openai_result_message <- function(result, streaming) {
+  if (streaming) {
+    result$choices[[1]]$delta
+  } else {
+    result$choices[[1]]$message
+  }
+}
 
 openai_key <- function() {
   key <- Sys.getenv("OPENAI_API_KEY")
@@ -176,7 +150,7 @@ openai_chat_req <- function(messages,
     user = user
   ))
 
-  req <- openai_request(base_url = base_url, key = api_key)
+  req <- openai_request(base_url = model$base_url, key = model$api_key)
   req <- req_url_path_append(req, "/chat/completions")
   req <- req_body_json(req, data)
   req
