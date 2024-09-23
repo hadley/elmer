@@ -12,7 +12,7 @@ openai_model <- function(base_url = "https://api.openai.com/v1",
 }
 
 
-openai_chat <- function(mode = c("batch", "stream", "async-stream", "async-batch"),
+openai_chat <- function(mode = c("value", "stream", "async-stream", "async-value"),
                         model,
                         messages,
                         tools = list()) {
@@ -28,8 +28,8 @@ openai_chat <- function(mode = c("batch", "stream", "async-stream", "async-batch
   )
 
   handle_response <- switch(mode,
-    "batch" = function(req) resp_body_json(req_perform(req)),
-    "async-batch" = function(req) promises::then(req_perform_promise(req), resp_body_json),
+    "value" = function(req) resp_body_json(req_perform(req)),
+    "async-value" = function(req) promises::then(req_perform_promise(req), resp_body_json),
     "stream" = openai_chat_stream,
     "async-stream" = openai_chat_stream_async
   )

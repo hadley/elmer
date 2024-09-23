@@ -397,7 +397,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     # complete assistant messages.
     submit_messages = generator_method(function(self, private, stream, echo) {
       response <- openai_chat(
-        if (stream) "stream" else "batch",
+        if (stream) "stream" else "value",
         model = private$model,
         messages = private$msgs,
         tools = private$tool_infos
@@ -446,7 +446,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     # complete assistant messages.
     submit_messages_async = async_generator_method(function(self, private, stream, echo) {
       response <- openai_chat(
-        if (stream) "async-stream" else "async-batch",
+        if (stream) "async-stream" else "async-value",
         model = private$model,
         messages = private$msgs,
         tools = private$tool_infos
