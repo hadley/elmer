@@ -21,6 +21,15 @@
 #'   content_image_url("https://www.r-project.org/Rlogo.png"),
 #'   content_image_file(system.file("httr2.png", package = "elmer"))
 #' )
+#'
+#' plot(waiting ~ eruptions, data = faithful)
+#' chat <- new_chat_openai(echo = TRUE)
+#' chat$chat(
+#'   "Describe this plot in one paragraph, as suitable for inclusion in
+#'    alt-text. You should briefly describe the plot type, the axes, and
+#'    2-5 major visual patterns.",
+#'    content_image_plot()
+#' )
 content_image_url <- function(url, detail = c("auto", "low", "high")) {
   # TODO: Allow vector input?
   check_string(url)
@@ -106,6 +115,22 @@ content_image_file <- function(path, content_type = "auto", resize = "low") {
   content_image_url(data_uri)
 }
 
+#' @rdname content_image_url
+#' @export
+#' @param width,height Width and height in pixels.
+content_image_plot <- function(width = 768, height = 768) {
+  plot <- recordPlot()
+  old <- dev.cur()
+
+  path <- tempfile("elmer-plot-", fileext = ".png")
+  png(path, width = 1024, height = 1024)
+  replayPlot(plot)
+  dev.off()
+
+  dev.set(old)
+
+  content_image_file(path, "image/png", resize = "high")
+}
 
 # Define allowed types - add new types here in the future
 allowed_input_types <- c("text", "image_url")
