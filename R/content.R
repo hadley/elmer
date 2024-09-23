@@ -123,7 +123,9 @@ content_image_plot <- function(width = 768, height = 768) {
   old <- dev.cur()
 
   path <- tempfile("elmer-plot-", fileext = ".png")
-  png(path, width = 1024, height = 1024)
+  defer(unlink(path))
+
+  png(path, width = width, height = height)
   replayPlot(plot)
   dev.off()
 
