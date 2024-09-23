@@ -72,18 +72,9 @@ new_chat_openai <- function(system_prompt = NULL,
                             echo = FALSE) {
   check_string(system_prompt, allow_null = TRUE)
   openai_check_conversation(messages, allow_null = TRUE)
-  check_string(base_url)
-  check_string(api_key)
-  check_string(model, allow_null = TRUE, allow_na = TRUE)
-  check_number_decimal(seed, allow_null = TRUE)
   check_bool(echo)
 
-  model <- model %||% "gpt-4o-mini"
-  if (is_testing() && is.null(seed)) {
-    seed <- 1014
-  }
-
-  model <- openai_model(
+  model <- new_openai_model(
     base_url = base_url,
     model = model,
     seed = seed,
@@ -145,30 +136,48 @@ openai_check_conversation <- function(messages, allow_null = FALSE) {
   }
 }
 
+new_openai_model <- function(base_url = "https://api.openai.com/v1",
+                             model = NULL,
+                             seed = NULL,
+                             extra_args = list(),
+                             api_key = openai_key(),
+                             error_call = caller_env()) {
 
-openai_model <- function(base_url = "https://api.openai.com/v1",
-                         model = "gpt-4o-mini",
-                         seed = NULL,
-                         extra_args = list(),
-                         api_key = openai_key()) {
+  # These checks could/should be placed in the validator, but the S7 object is
+  # currently an implementation detail. Keeping these errors here avoids
+  # leaking that implementation detail to the user.
 
-  check_string(base_url)
-  check_string(model)
-  check_number_whole(seed, allow_null = TRUE)
-  # check_named_list(extra_args)
-  check_string(api_key)
+  check_string(base_url, call = error_call())
+  check_string(model, allow_null = TRUE, call = error_call())
+  check_number_whole(seed, allow_null = TRUE, call = error_call())
+  # check_named_list(extra_args, call = error_call())
+  check_string(api_key, call = error_call())
 
-  structure(
-    list(
-      base_url = base_url,
-      model = model,
-      seed = seed,
-      api_key = api_key,
-      extra_args = list()
-    ),
-    class = "elmer::openai_model"
+  model <- model %||% "gpt-4o-mini"
+  if (is_testing() && is.null(seed)) {
+    seed <- 1014
+  }
+
+  openai_model(
+    base_url = base_url,
+    model = model,
+    seed = seed,
+    api_key = api_key,
+    extra_args = list()
   )
 }
+
+openai_model <- new_class(
+  "openai_model",
+  package = "elmer",
+  properties = list(
+    base_url = class_character,
+    model = class_character,
+    seed = class_double,
+    api_key = class_character,
+    extra_args = class_list
+  )
+)
 
 openai_key_exists <- function() {
   key_exists("OPENAI_API_KEY")
@@ -222,18 +231,18 @@ openai_chat_request <- function(model,
                                 tools = list(),
                                 extra_args = list()) {
 
-  req <- request(model$base_url)
+  req <- request(model@base_url)
   req <- req_url_path_append(req, "/chat/completions")
-  req <- req_auth_bearer_token(req, model$api_key)
+  req <- req_auth_bearer_token(req, model@api_key)
   req <- req_retry(req, max_tries = 2)
   req <- req_error(req, body = function(resp) resp_body_json(resp)$error$message)
 
-  extra_args <- utils::modifyList(model$extra_args, extra_args)
+  extra_args <- utils::modifyList(model@extra_args, extra_args)
 
   data <- compact(list2(
     messages = messages,
-    model = model$model,
-    seed = model$seed,
+    model = model@model,
+    seed = model@seed,
     stream = stream,
     tools = tools,
     !!!extra_args

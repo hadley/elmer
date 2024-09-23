@@ -5,5 +5,6 @@
 ## usethis namespace: start
 #' @import rlang
 #' @import httr2
+#' @import S7
 ## usethis namespace: end
 NULL
