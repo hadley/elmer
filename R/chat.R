@@ -1,153 +1,14 @@
 #' @include utils-coro.R
 NULL
 
-#' Create a chatbot that speaks to an OpenAI compatible endpoint
+#' Chat object
 #'
-#' This function returns an R6 object that takes care of managing the state
-#' associated with the chat; i.e. it records the messages that you send to the
-#' server, and the messages that you receive back. If you register a tool
-#' (aka an R function), it also takes care of the tool loop.
+#' @description
+#' The Chat object represents a sequence of messages between the user and
+#' chat API. You should generally not create this object yourself, but instead
+#' call [new_chat_openai()] or friends.
 #'
-#' @param system_prompt A system prompt to set the behavior of the assistant.
-#' @param messages A list of messages to start the chat with (i.e., continuing a
-#'   previous conversation). If not provided, the conversation begins from
-#'   scratch. Do not provide non-`NULL` values for both `messages` and
-#'   `system_prompt`.
-#'
-#'   Each message in the list should be a named list with at least `role`
-#'   (usually `system`, `user`, or `assistant`, but `tool` is also possible).
-#'   Normally there is also a `content` field, which is a string.
-#' @param base_url The base URL to the endpoint; the default uses OpenAI.
-#' @param api_key The API key to use for authentication. You generally should
-#'   not supply this directly, but instead set the `OPENAI_API_KEY` environment
-#'   variable.
-#' @param model The model to use for the chat; set to `NULL` (the default) to
-#'   use a reasonable model, currently `gpt-4o-mini`. We strongly recommend
-#'   explicitly choosing a model for all but the most casual use.
-#' @param seed Optional integer seed that ChatGPT uses to try and make output
-#'   more reproducible.
-#' @param api_args Named list of arbitrary extra arguments passed to every
-#'   chat API call.
-#' @param echo If `TRUE`, the `chat()` method streams the response to stdout by
-#'   default. (Note that this has no effect on the `stream()`, `chat_async()`,
-#'   and `stream_async()` methods.)
-#' @export
-#' @examplesIf elmer:::openai_key_exists()
-#' chat <- new_chat_openai()
-#' chat$chat("
-#'   What is the difference between a tibble and a data frame?
-#'   Answer with a bulleted list
-#' ")
-#'
-#' chat <- new_chat_openai()
-#' chat$register_tool(
-#'   fun = rnorm,
-#'   name = "rnorm",
-#'   description = "Drawn numbers from a random normal distribution",
-#'   arguments = list(
-#'     n = tool_arg(
-#'       type = "integer",
-#'       description = "The number of observations. Must be a positive integer."
-#'     ),
-#'     mean = tool_arg(
-#'       type = "number",
-#'       description = "The mean value of the distribution."
-#'     ),
-#'     sd = tool_arg(
-#'       type = "number",
-#'       description = "The standard deviation of the distribution. Must be a non-negative number."
-#'     )
-#'   )
-#' )
-#' chat$chat("
-#'   Give me five numbers from a random normal distribution.
-#'   Briefly explain your work.
-#' ")
-new_chat_openai <- function(system_prompt = NULL,
-                            messages = NULL,
-                            base_url = "https://api.openai.com/v1",
-                            api_key = openai_key(),
-                            model = NULL,
-                            seed = NULL,
-                            api_args = list(),
-                            echo = FALSE) {
-  check_string(system_prompt, allow_null = TRUE)
-  check_openai_conversation(messages, allow_null = TRUE)
-  check_string(base_url)
-  check_string(api_key)
-  check_string(model, allow_null = TRUE, allow_na = TRUE)
-  check_number_decimal(seed, allow_null = TRUE)
-  check_bool(echo)
-
-  model <- model %||% "gpt-4o-mini"
-  if (is_testing() && is.null(seed)) {
-    seed <- 1014
-  }
-
-  model <- openai_model(
-    base_url = base_url,
-    model = model,
-    seed = seed,
-    extra_args = api_args,
-    api_key = api_key
-  )
-
-  messages <- apply_system_prompt_openai(system_prompt, messages)
-  ChatOpenAI$new(model = model, messages = messages, echo = echo)
-}
-
-apply_system_prompt_openai <- function(system_prompt, messages) {
-  if (is.null(system_prompt)) {
-    return(messages)
-  }
-
-  system_prompt_message <- list(
-    role = "system",
-    content = system_prompt
-  )
-
-  # No messages; start with just the system prompt
-  if (length(messages) == 0) {
-    return(list(system_prompt_message))
-  }
-
-  # No existing system prompt message; prepend the new one
-  if (messages[[1]][["role"]] != "system") {
-    return(c(list(system_prompt_message), messages))
-  }
-
-  # Duplicate system prompt; return as-is
-  if (messages[[1]][["content"]] == system_prompt) {
-    return(messages)
-  }
-
-  cli::cli_abort("`system_prompt` and `messages[[1]]` contained conflicting system prompts")
-}
-
-check_openai_conversation <- function(messages, allow_null = FALSE) {
-  if (is.null(messages) && isTRUE(allow_null)) {
-    return()
-  }
-
-  if (!is.list(messages) ||
-      !(is.null(names(messages)) || all(names(messages) == ""))) {
-    stop_input_type(
-      messages,
-      "an unnamed list of messages",
-      allow_null = FALSE
-    )
-  }
-
-  for (message in messages) {
-    if (!is.list(message) ||
-        !is.character(message$role)) {
-      cli::cli_abort("Each message must be a named list with at least a `role` field.")
-    }
-  }
-}
-
-#' @rdname new_chat_openai
-ChatOpenAI <- R6::R6Class("ChatOpenAI",
+Chat <- R6::R6Class("Chat",
   public = list(
     #' @param model Model object.
     #' @param messages An unnamed list of messages to start the chat with (i.e.,
@@ -526,7 +387,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
 )
 
 #' @export
-print.ChatOpenAI <- function(x, ...) {
+print.Chat <- function(x, ...) {
   msgs <- x$messages(include_system_prompt = TRUE)
   msgs_without_system_prompt <- x$messages(include_system_prompt = FALSE)
   cat(paste0("<ChatOpenAI messages=", length(msgs_without_system_prompt), ">\n"))

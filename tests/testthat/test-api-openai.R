@@ -4,33 +4,33 @@ test_that("system prompt is applied correctly", {
   user_msg <- list(role = "user", content = "bar")
 
   expect_equal(
-    apply_system_prompt_openai(NULL, list()),
+    openai_apply_system_prompt(NULL, list()),
     list()
   )
   expect_equal(
-    apply_system_prompt_openai(NULL, list(user_msg)),
+    openai_apply_system_prompt(NULL, list(user_msg)),
     list(user_msg)
   )
   expect_equal(
-    apply_system_prompt_openai(sys_prompt, NULL),
+    openai_apply_system_prompt(sys_prompt, NULL),
     list(sys_msg)
   )
   expect_equal(
-    apply_system_prompt_openai(sys_prompt, list()),
+    openai_apply_system_prompt(sys_prompt, list()),
     list(sys_msg)
   )
   expect_equal(
-    apply_system_prompt_openai(sys_prompt, list(user_msg)),
+    openai_apply_system_prompt(sys_prompt, list(user_msg)),
     list(sys_msg, user_msg)
   )
   expect_equal(
-    apply_system_prompt_openai(sys_prompt, list(sys_msg, user_msg)),
+    openai_apply_system_prompt(sys_prompt, list(sys_msg, user_msg)),
     list(sys_msg, user_msg)
   )
 
   sys_msg2 <- list(role = "system", content = "baz")
   expect_error(
-    apply_system_prompt_openai(sys_prompt, list(sys_msg2, user_msg))
+    openai_apply_system_prompt(sys_prompt, list(sys_msg2, user_msg))
   )
 
   chat <- new_chat_openai(system_prompt = sys_prompt, messages = list(user_msg))
