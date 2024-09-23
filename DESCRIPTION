@@ -16,6 +16,7 @@ Imports:
     httr2 (>= 1.0.4.9000),
     jsonlite,
     R6,
+    S7,
     rlang (>= 1.1.0)
 Suggests:
     base64enc,
