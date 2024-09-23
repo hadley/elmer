@@ -219,19 +219,6 @@ method(chat_request, openai_model) <- function(model,
   req
 }
 
-method(chat_perform_value, openai_model) <- function(model, req) {
-  resp_body_json(req_perform(req))
-}
-on_load(
-  method(chat_perform_stream, openai_model) <- chat_streamer()
-)
-method(chat_perform_async_value, openai_model) <- function(model, req) {
-  promises::then(req_perform_promise(req), resp_body_json)
-}
-on_load(
-  method(chat_perform_async_stream, openai_model) <- chat_streamer_async()
-)
-
 method(stream_is_done, openai_model) <- function(model, event) {
   identical(event$data, "[DONE]")
 }

@@ -31,20 +31,77 @@ chat_perform_value <- new_generic("chat_value", "model",
     S7_dispatch()
   }
 )
+method(chat_perform_value, class_any) <- function(model, req) {
+  resp_body_json(req_perform(req))
+}
+
 chat_perform_stream <- new_generic("chat_stream", "model",
   function(model, req) {
     S7_dispatch()
   }
 )
+on_load(
+  method(chat_perform_stream, class_any) <- coro::generator(function(model, req) {
+    resp <- httr2::req_perform_connection(req)
+    on.exit(close(resp))
+    reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
+
+    while (TRUE) {
+      event <- httr2::resp_stream_sse(resp)
+      if (is.null(event)) {
+        abort("Connection failed")
+      } else if (stream_is_done(model, event)) {
+        break
+      } else {
+        yield(stream_parse(model, event))
+      }
+    }
+
+    # Work around https://github.com/r-lib/coro/issues/51
+    if (FALSE) {
+      yield(NULL)
+    }
+  })
+)
+
 chat_perform_async_value <- new_generic("chat_async_value", "model",
   function(model, req) {
     S7_dispatch()
   }
 )
+method(chat_perform_async_value, class_any) <- function(model, req) {
+  promises::then(req_perform_promise(req), resp_body_json)
+}
+
 chat_perform_async_stream <- new_generic("chat_async_stream", "model",
-  function(model, req) {
+  function(model, req, ...) {
     S7_dispatch()
   }
+)
+on_load(
+  method(chat_perform_async_stream, openai_model) <- coro::async_generator(function(model, req, polling_interval_secs = 0.1) {
+    resp <- req_perform_connection(req, blocking = FALSE)
+    on.exit(close(resp))
+    # TODO: Investigate if this works with async generators
+    # reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
+
+    while (TRUE) {
+      event <- resp_stream_sse(resp)
+      if (is.null(event)) {
+        # TODO: Detect if connection is closed and stop polling
+        await(coro::async_sleep(polling_interval_secs))
+      } else if (stream_is_done(model, event)) {
+        break
+      } else {
+        yield(stream_parse(model, event))
+      }
+    }
+
+    # Work around https://github.com/r-lib/coro/issues/51
+    if (FALSE) {
+      yield(NULL)
+    }
+  })
 )
 
 stream_is_done <- new_generic("stream_is_done", "model",
