@@ -32,6 +32,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Collate:
+    'api-openai.R'
     'utils-coro.R'
     'chat.R'
     'content.R'
@@ -39,7 +40,6 @@ Collate:
     'import-standalone-obj-type.R'
     'import-standalone-purrr.R'
     'import-standalone-types-check.R'
-    'open-ai.R'
     'tools-def.R'
     'tools.R'
     'utils-cat.R'
