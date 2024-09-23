@@ -1,12 +1,18 @@
 openai_chat <- function(messages,
-                         tools = list(),
-                         base_url = "https://api.openai.com/v1",
-                         model = "gpt-4o-mini",
-                         stream = TRUE,
-                         api_key = openai_key()) {
+                        tools = list(),
+                        base_url = "https://api.openai.com/v1",
+                        model = "gpt-4o-mini",
+                        stream = TRUE,
+                        seed = NULL,
+                        api_key = openai_key()) {
   req <- openai_chat_req(
-    messages = messages, tools = tools, base_url = base_url,
-    model = model, stream = stream, api_key = api_key
+    messages = messages,
+    tools = tools,
+    base_url = base_url,
+    model = model,
+    stream = stream,
+    seed = seed,
+    api_key = api_key
   )
 
   if (stream) {
@@ -46,10 +52,16 @@ openai_chat_async <- function(messages,
                               base_url = "https://api.openai.com/v1",
                               model = "gpt-4o-mini",
                               stream = TRUE,
+                              seed = NULL,
                               api_key = openai_key()) {
   req <- openai_chat_req(
-    messages = messages, tools = tools, base_url = base_url,
-    model = model, stream = stream, api_key = api_key
+    messages = messages,
+    tools = tools,
+    base_url = base_url,
+    model = model,
+    stream = stream,
+    seed = seed,
+    api_key = api_key
   )
 
   if (stream) {
@@ -94,23 +106,75 @@ openai_key <- function() {
   key
 }
 
+# https://platform.openai.com/docs/api-reference/chat/create
 openai_chat_req <- function(messages,
-                            tools = list(),
                             base_url = "https://api.openai.com/v1",
                             model = "gpt-4o-mini",
+                            frequency_penalty = NULL,
+                            logit_bias = NULL,
+                            logprobs = NULL,
+                            top_logprobs = NULL,
+                            max_completion_tokens = NULL,
+                            n = NULL,
+                            presence_penalty = NULL,
+                            response_format = NULL,
+                            seed = NULL,
+                            service_tier = NULL,
+                            stop = NULL,
                             stream = TRUE,
+                            stream_options = NULL,
+                            temperature = NULL,
+                            top_p = NULL,
+                            tools = list(),
+                            tool_choice = NULL,
+                            parallel_tool_calls = NULL,
+                            user = NULL,
                             api_key = openai_key()) {
-  if (length(tools) == 0) {
-    # OpenAI rejects tools=[]
-    tools <- NULL
-  }
 
-  data <- list(
-    model = model,
-    stream = stream,
+  check_string(model)
+  check_number_decimal(frequency_penalty, min = -2, max = 2, allow_null = TRUE)
+  # logit_bias:  named list of integers that lets you boost/suppress individual tokens
+  check_bool(logprobs, allow_null = TRUE)
+  check_number_whole(top_logprobs, min = 0, max = 20, allow_null = TRUE)
+  check_number_whole(max_completion_tokens, min = 1, allow_null = TRUE)
+  check_number_whole(n, min = 1, allow_null = TRUE)
+  check_number_decimal(presence_penalty, min = -2, max = 2, allow_null = TRUE)
+  # response_format: object specifiying output format
+  check_number_whole(seed, allow_null = TRUE)
+  check_string(service_tier, allow_null = TRUE)
+  check_character(stop, allow_null = TRUE)
+  check_bool(stream)
+  # stream_options: object specifying stream options
+  check_number_decimal(temperature, min = 0, max = 2, allow_null = TRUE)
+  check_number_decimal(top_p, min = 0, max = 1, allow_null = TRUE)
+  # tools: list of tools to use
+  # tool_choice: object specifying tool choice
+  check_bool(parallel_tool_calls, allow_null = TRUE)
+  check_string(user, allow_null = TRUE)
+
+  data <- compact(list(
     messages = messages,
-    tools = tools
-  )
+    model = model,
+    frequency_penalty = frequency_penalty,
+    logit_bias = logit_bias,
+    logprobs = logprobs,
+    top_logprobs = top_logprobs,
+    max_completion_tokens = max_completion_tokens,
+    n = n,
+    presence_penalty = presence_penalty,
+    response_format = response_format,
+    seed = seed,
+    service_tier = service_tier,
+    stop = stop,
+    stream = stream,
+    stream_options = stream_options,
+    temperature = temperature,
+    top_p = top_p,
+    tools = tools,
+    tool_choice = tool_choice,
+    parallel_tool_calls = parallel_tool_calls,
+    user = user
+  ))
 
   req <- openai_request(base_url = base_url, key = api_key)
   req <- req_url_path_append(req, "/chat/completions")

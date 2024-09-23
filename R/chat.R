@@ -24,6 +24,8 @@ NULL
 #' @param model The model to use for the chat; set to `NULL` (the default) to
 #'   use a reasonable model, currently `gpt-4o-mini`. We strongly recommend
 #'   explicitly choosing a model for all but the most casual use.
+#' @param seed Optional integer seed that ChatGPT uses to try and make output
+#'   more reproducible.
 #' @param echo If `TRUE`, the `chat()` method streams the response to stdout by
 #'   default. (Note that this has no effect on the `stream()`, `chat_async()`,
 #'   and `stream_async()` methods.)
@@ -64,15 +66,20 @@ new_chat_openai <- function(system_prompt = NULL,
                             base_url = "https://api.openai.com/v1",
                             api_key = openai_key(),
                             model = NULL,
+                            seed = NULL,
                             echo = FALSE) {
   check_string(system_prompt, allow_null = TRUE)
   check_openai_conversation(messages, allow_null = TRUE)
-    check_string(base_url)
+  check_string(base_url)
   check_string(api_key)
   check_string(model, allow_null = TRUE, allow_na = TRUE)
+  check_number_decimal(seed, allow_null = TRUE)
   check_bool(echo)
 
   model <- model %||% "gpt-4o-mini"
+  if (is_testing() && is.null(seed)) {
+    seed <- 1014
+  }
 
   messages <- apply_system_prompt_openai(system_prompt, messages)
 
@@ -81,6 +88,7 @@ new_chat_openai <- function(system_prompt = NULL,
     model = model,
     messages = messages,
     api_key = api_key,
+    seed = seed,
     echo = echo
   )
 }
@@ -146,10 +154,12 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     #' @param messages An unnamed list of messages to start the chat with (i.e.,
     #'   continuing a previous conversation). If `NULL` or zero-length list, the
     #'   conversation begins from scratch.
+    #' @param seed Optional integer seed that ChatGPT uses to try and make output
+    #'   more reproducible.
     #' @param echo If `TRUE`, the `chat()` method streams the response to stdout
     #'   (while also returning the final response). Note that this has no effect
     #'   on the `stream()`, `chat_async()`, and `stream_async()` methods.
-    initialize = function(base_url, model, messages, api_key, echo = FALSE) {
+    initialize = function(base_url, model, messages, api_key, seed = NULL, echo = FALSE) {
       private$base_url <- base_url
       private$model <- model
       private$msgs <- messages %||% list()
@@ -328,6 +338,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
     base_url = NULL,
     model = NULL,
     api_key = NULL,
+    seed = NULL,
 
     msgs = NULL,
     echo = NULL,
@@ -402,6 +413,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
         base_url = private$base_url,
         model = private$model,
         stream = stream,
+        seed = private$seed,
         api_key = private$api_key
       )
 
@@ -451,6 +463,7 @@ ChatOpenAI <- R6::R6Class("ChatOpenAI",
         tools = private$tool_infos,
         base_url = private$base_url,
         model = private$model,
+        seed = private$seed,
         stream = stream,
         api_key = private$api_key
       )

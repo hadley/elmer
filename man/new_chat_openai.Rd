@@ -11,6 +11,7 @@ new_chat_openai(
   base_url = "https://api.openai.com/v1",
   api_key = openai_key(),
   model = NULL,
+  seed = NULL,
   echo = FALSE
 )
 }
@@ -35,6 +36,9 @@ variable.}
 \item{model}{The model to use for the chat; set to \code{NULL} (the default) to
 use a reasonable model, currently \verb{gpt-4o-mini}. We strongly recommend
 explicitly choosing a model for all but the most casual use.}
+
+\item{seed}{Optional integer seed that ChatGPT uses to try and make output
+more reproducible.}
 
 \item{echo}{If \code{TRUE}, the \code{chat()} method streams the response to stdout by
 default. (Note that this has no effect on the \code{stream()}, \code{chat_async()},
@@ -109,7 +113,7 @@ chat$chat("
 \if{latex}{\out{\hypertarget{method-ChatOpenAI-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$new(base_url, model, messages, api_key, echo = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{ChatOpenAI$new(base_url, model, messages, api_key, seed = NULL, echo = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -126,6 +130,9 @@ conversation begins from scratch.}
 \item{\code{api_key}}{The API key to use for authentication. You generally should
 not supply this directly, but instead set the \code{OPENAI_API_KEY} environment
 variable.}
+
+\item{\code{seed}}{Optional integer seed that ChatGPT uses to try and make output
+more reproducible.}
 
 \item{\code{echo}}{If \code{TRUE}, the \code{chat()} method streams the response to stdout
 (while also returning the final response). Note that this has no effect
