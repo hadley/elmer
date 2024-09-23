@@ -191,18 +191,23 @@ openai_chat_response <- function(mode = c("value", "stream", "async-stream", "as
     api_key = model$api_key
   )
 
-  handle_response <- switch(mode,
-    "value" = function(req) resp_body_json(req_perform(req)),
-    "async-value" = function(req) promises::then(req_perform_promise(req), resp_body_json),
-    "stream" = openai_chat_stream,
-    "async-stream" = openai_chat_stream_async
+  switch(mode,
+    "value" = openai_chat_value(req),
+    "stream" = openai_chat_stream(req),
+    "async-value" = openai_chat_async_value(req),
+    "async-stream" = openai_chat_async_stream(req)
   )
-
-  handle_response(req)
 }
 
+openai_chat_value <- function(req) {
+  resp_body_json(req_perform(req))
+}
 on_load(openai_chat_stream <- chat_stream(openai_stream_is_done, openai_stream_parse))
-on_load(openai_chat_stream_async <- chat_stream_async(openai_stream_is_done, openai_stream_parse))
+
+openai_chat_async_value <- function(req) {
+  promises::then(req_perform_promise(req), resp_body_json)
+}
+on_load(openai_chat_async_stream <- chat_stream_async(openai_stream_is_done, openai_stream_parse))
 
 # https://platform.openai.com/docs/api-reference/chat/create
 openai_chat_request <- function(messages,
