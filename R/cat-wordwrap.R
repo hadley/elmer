@@ -101,3 +101,11 @@ cat_word_wrap <- function(con = stdout()) {
     invisible(NULL)
   }
 }
+
+emitter <- function(echo) {
+  if (echo) {
+    cat_word_wrap()
+  } else {
+    function(...) invisible()
+  }
+}

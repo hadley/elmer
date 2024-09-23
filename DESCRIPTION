@@ -37,6 +37,7 @@ Collate:
     'chat.R'
     'content.R'
     'elmer-package.R'
+    'http.R'
     'import-standalone-obj-type.R'
     'import-standalone-purrr.R'
     'import-standalone-types-check.R'
