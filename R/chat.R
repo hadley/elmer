@@ -262,7 +262,7 @@ Chat <- R6::R6Class("Chat",
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant messages.
     submit_messages = generator_method(function(self, private, stream, echo) {
-      response <- openai_chat(
+      response <- openai_chat_response(
         if (stream) "stream" else "value",
         model = private$model,
         messages = private$msgs,
@@ -275,14 +275,14 @@ Chat <- R6::R6Class("Chat",
         any_text <- FALSE
         result <- NULL
         for (chunk in response) {
-          text <- openai_chunk_text(chunk, streaming = TRUE)
+          text <- openai_stream_text(chunk)
           if (!is.null(text)) {
             emit(text)
             yield(text)
             any_text <- TRUE
           }
 
-          result <- openai_merge_chunks(result, chunk)
+          result <- openai_stream_merge_chunks(result, chunk)
         }
         # Ensure messages always end in a newline
         if (any_text) {
@@ -290,15 +290,15 @@ Chat <- R6::R6Class("Chat",
           yield("\n")
         }
 
-        message <- openai_result_message(result, streaming = TRUE)
+        message <- openai_stream_message(result)
       } else {
-        text <- openai_chunk_text(response, streaming = FALSE)
+        text <- openai_value_text(response)
         if (!is.null(text)) {
           text <- paste0(text, "\n")
           emit(text)
           yield(text)
         }
-        message <- openai_result_message(response, streaming = FALSE)
+        message <- openai_value_message(response)
       }
       private$add_message(message)
 
@@ -311,7 +311,7 @@ Chat <- R6::R6Class("Chat",
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant messages.
     submit_messages_async = async_generator_method(function(self, private, stream, echo) {
-      response <- openai_chat(
+      response <- openai_chat_response(
         if (stream) "async-stream" else "async-value",
         model = private$model,
         messages = private$msgs,
@@ -323,14 +323,14 @@ Chat <- R6::R6Class("Chat",
         any_text <- FALSE
         result <- NULL
         for (chunk in await_each(response)) {
-          text <- openai_chunk_text(chunk, streaming = TRUE)
+          text <- openai_stream_text(chunk)
           if (!is.null(text)) {
             emit(text)
             yield(text)
             any_text <- TRUE
           }
 
-          result <- openai_merge_chunks(result, chunk)
+          result <- openai_stream_merge_chunks(result, chunk)
         }
         # Ensure messages always end in a newline
         if (any_text) {
@@ -338,17 +338,17 @@ Chat <- R6::R6Class("Chat",
           yield("\n")
         }
 
-        message <- openai_result_message(result, streaming = TRUE)
+        message <- openai_stream_message(result)
       } else {
         result <- await(response)
 
-        text <- openai_chunk_text(result, streaming = FALSE)
+        text <- openai_value_text(result)
         if (!is.null(text)) {
           text <- paste0(text, "\n")
           emit(text)
           yield(text)
         }
-        message <- openai_result_message(result, streaming = FALSE)
+        message <- openai_value_message(result)
       }
       private$add_message(message)
 

@@ -95,7 +95,6 @@ new_chat_openai <- function(system_prompt = NULL,
   Chat$new(model = model, messages = messages, echo = echo)
 }
 
-
 openai_apply_system_prompt <- function(system_prompt, messages) {
   if (is.null(system_prompt)) {
     return(messages)
@@ -164,16 +163,25 @@ openai_model <- function(base_url = "https://api.openai.com/v1",
   )
 }
 
+openai_key_exists <- function() {
+  key_exists("OPENAI_API_KEY")
+}
 
-openai_chat <- function(mode = c("value", "stream", "async-stream", "async-value"),
-                        model,
-                        messages,
-                        tools = list()) {
+openai_key <- function() {
+  key_get("OPENAI_API_KEY")
+}
+
+# HTTP request and response handling -------------------------------------
+
+openai_chat_response <- function(mode = c("value", "stream", "async-stream", "async-value"),
+                                 model,
+                                 messages,
+                                 tools = list()) {
 
   mode <- arg_match(mode)
   stream <- mode %in% c("stream", "async-stream")
 
-  req <- openai_chat_req(
+  req <- openai_chat_request(
     messages = messages,
     tools = tools,
     model = model$model,
@@ -193,52 +201,28 @@ openai_chat <- function(mode = c("value", "stream", "async-stream", "async-value
   handle_response(req)
 }
 
-openai_chat_is_done <- function(event) {
-  identical(event$data, "[DONE]")
-}
-
-openai_chat_parse <- function(event) {
-  jsonlite::parse_json(event$data)
-}
-
-on_load(openai_chat_stream <- chat_stream(openai_chat_is_done, openai_chat_parse))
-on_load(openai_chat_stream_async <- chat_stream_async(openai_chat_is_done, openai_chat_parse))
-
-openai_chunk_text <- function(event, streaming) {
-  if (streaming) {
-    event$choices[[1]]$delta$content
-  } else {
-    event$choices[[1]]$message$content
-  }
-}
-openai_merge_chunks <- function(cur, chunk) {
-  if (is.null(cur)) {
-    chunk
-  } else {
-    merge_dicts(cur, chunk)
-  }
-}
-openai_result_message <- function(result, streaming) {
-  if (streaming) {
-    result$choices[[1]]$delta
-  } else {
-    result$choices[[1]]$message
-  }
-}
+on_load(openai_chat_stream <- chat_stream(openai_stream_is_done, openai_stream_parse))
+on_load(openai_chat_stream_async <- chat_stream_async(openai_stream_is_done, openai_stream_parse))
 
 # https://platform.openai.com/docs/api-reference/chat/create
-openai_chat_req <- function(messages,
-                            tools = list(),
-                            model = "gpt-4o-mini",
-                            seed = NULL,
-                            stream = TRUE,
-                            extra_args = list(),
-                            base_url = "https://api.openai.com/v1",
-                            api_key = openai_key()) {
+openai_chat_request <- function(messages,
+                                tools = list(),
+                                model = "gpt-4o-mini",
+                                seed = NULL,
+                                stream = TRUE,
+                                extra_args = list(),
+                                base_url = "https://api.openai.com/v1",
+                                api_key = openai_key()) {
 
   check_string(model)
   check_number_whole(seed, allow_null = TRUE)
   check_bool(stream)
+
+  req <- request(base_url)
+  req <- req_url_path_append(req, "/chat/completions")
+  req <- req_auth_bearer_token(req, Sys.getenv("OPENAI_API_KEY"))
+  req <- req_retry(req, max_tries = 2)
+  req <- req_error(req, body = function(resp) resp_body_json(resp)$error$message)
 
   data <- compact(list2(
     messages = messages,
@@ -248,29 +232,34 @@ openai_chat_req <- function(messages,
     tools = tools,
     !!!extra_args
   ))
-
-  req <- openai_request(base_url = base_url, key = api_key)
-  req <- req_url_path_append(req, "/chat/completions")
   req <- req_body_json(req, data)
+
   req
 }
 
-openai_request <- function(base_url = "https://api.openai.com/v1",
-                           key = openai_key()) {
-  req <- request(base_url)
-  req <- req_auth_bearer_token(req, Sys.getenv("OPENAI_API_KEY"))
-  req <- req_retry(req, max_tries = 2)
-  req <- req_error(req, body = function(resp) {
-     resp_body_json(resp)$error$message
-  })
-  # req <- req_verbose(req, body_req = TRUE, body_resp = TRUE)
-  req
+openai_stream_is_done <- function(event) {
+  identical(event$data, "[DONE]")
+}
+openai_stream_parse <- function(event) {
+  jsonlite::parse_json(event$data)
+}
+openai_stream_text <- function(event, streaming) {
+  event$choices[[1]]$delta$content
+}
+openai_stream_message <- function(result) {
+  result$choices[[1]]$delta
+}
+openai_stream_merge_chunks <- function(cur, chunk) {
+  if (is.null(cur)) {
+    chunk
+  } else {
+    merge_dicts(cur, chunk)
+  }
 }
 
-openai_key_exists <- function() {
-  key_exists("OPENAI_API_KEY")
+openai_value_text <- function(event) {
+  event$choices[[1]]$message$content
 }
-
-openai_key <- function() {
-  key_get("OPENAI_API_KEY")
+openai_value_message <- function(result) {
+  result$choices[[1]]$message
 }
