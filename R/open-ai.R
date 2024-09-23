@@ -70,36 +70,6 @@ openai_result_message <- function(result, streaming) {
   }
 }
 
-openai_stream_messages <- coro::generator(function(response) {
-
-  result <- list()
-  any_content <- FALSE
-
-  for (chunk in response) {
-    result <- merge_dicts(result, chunk)
-
-    if (!is.null(chunk$choices[[1]]$delta$content)) {
-      yield(chunk$choices[[1]]$delta$content)
-      any_content <- TRUE
-    }
-  }
-
-  list(
-    handle_event = function(chunk) {
-    },
-    done = function() {
-      if (any_content) {
-        emit("\n")
-        yield("\n")
-      }
-    },
-    message = function() {
-      result$choices[[1]]$delta
-    }
-  )
-
-})
-
 openai_key <- function() {
   key <- Sys.getenv("OPENAI_API_KEY")
   if (identical(key, "")) {
