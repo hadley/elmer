@@ -1,11 +1,15 @@
 openai_model <- function(base_url = "https://api.openai.com/v1",
-                            model = "gpt-4o-mini",
-                            api_key = openai_key()) {
+                         model = "gpt-4o-mini",
+                         seed = NULL,
+                         extra_args = list(),
+                         api_key = openai_key()) {
   structure(
     list(
       base_url = base_url,
       model = model,
-      api_key = api_key
+      seed = seed,
+      api_key = api_key,
+      extra_args = list()
     ),
     class = "elmer::openai_model"
   )
@@ -23,8 +27,11 @@ openai_chat <- function(mode = c("value", "stream", "async-stream", "async-value
   req <- openai_chat_req(
     messages = messages,
     tools = tools,
-    model = model,
-    stream = stream
+    model = model$model,
+    seed = model$seed,
+    stream = stream,
+    base_url = model$base_url,
+    api_key = model$api_key
   )
 
   handle_response <- switch(mode,
@@ -78,23 +85,30 @@ openai_key <- function() {
   key
 }
 
-openai_chat_req <- function(model,
-                            messages,
+# https://platform.openai.com/docs/api-reference/chat/create
+openai_chat_req <- function(messages,
                             tools = list(),
-                            stream = FALSE) {
-  if (length(tools) == 0) {
-    # OpenAI rejects tools=[]
-    tools <- NULL
-  }
+                            model = "gpt-4o-mini",
+                            seed = NULL,
+                            stream = TRUE,
+                            extra_args = list(),
+                            base_url = "https://api.openai.com/v1",
+                            api_key = openai_key()) {
 
-  data <- list(
-    model = model$model,
-    stream = stream,
+  check_string(model)
+  check_number_whole(seed, allow_null = TRUE)
+  check_bool(stream)
+
+  data <- compact(list2(
     messages = messages,
-    tools = tools
-  )
+    model = model,
+    seed = seed,
+    stream = stream,
+    tools = tools,
+    !!!extra_args
+  ))
 
-  req <- openai_request(base_url = model$base_url, key = model$api_key)
+  req <- openai_request(base_url = base_url, key = api_key)
   req <- req_url_path_append(req, "/chat/completions")
   req <- req_body_json(req, data)
   req
