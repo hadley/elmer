@@ -1,11 +1,8 @@
-chat_stream <- function(is_done, parse_data) {
+chat_streamer <- function(model) {
   # silence R CMD check note
   yield <- NULL
 
-  force(is_done)
-  force(parse_data)
-
-  coro::generator(function(req) {
+  coro::generator(function(model, req) {
     resp <- httr2::req_perform_connection(req)
     on.exit(close(resp))
     reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
@@ -14,10 +11,10 @@ chat_stream <- function(is_done, parse_data) {
       event <- httr2::resp_stream_sse(resp)
       if (is.null(event)) {
         abort("Connection failed")
-      } else if (is_done(event)) {
+      } else if (stream_is_done(model, event)) {
         break
       } else {
-        yield(parse_data(event))
+        yield(stream_parse(model, event))
       }
     }
 
@@ -28,14 +25,12 @@ chat_stream <- function(is_done, parse_data) {
   })
 }
 
-chat_stream_async <- function(is_done, parse_data, polling_interval_secs = 0.1) {
+chat_streamer_async <- function(polling_interval_secs = 0.1) {
   # silence R CMD check note
   yield <- await <- NULL
-  force(is_done)
-  force(parse_data)
   force(polling_interval_secs)
 
-  coro::async_generator(function(req) {
+  coro::async_generator(function(model, req) {
     resp <- req_perform_connection(req, blocking = FALSE)
     on.exit(close(resp))
     # TODO: Investigate if this works with async generators
@@ -46,10 +41,10 @@ chat_stream_async <- function(is_done, parse_data, polling_interval_secs = 0.1) 
       if (is.null(event)) {
         # TODO: Detect if connection is closed and stop polling
         await(coro::async_sleep(polling_interval_secs))
-      } else if (is_done(event)) {
+      } else if (stream_is_done(model, event)) {
         break
       } else {
-        yield(parse_data(event))
+        yield(stream_parse(model, event))
       }
     }
 

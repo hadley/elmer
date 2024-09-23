@@ -1,3 +1,6 @@
+#' @include api.R
+NULL
+
 #' Create a chatbot that speaks to an OpenAI compatible endpoint
 #'
 #' This function returns a [Chat] object that takes care of managing the state
@@ -172,7 +175,7 @@ openai_model <- new_class(
   properties = list(
     base_url = class_character,
     model = class_character,
-    seed = class_double,
+    seed = class_double | NULL,
     api_key = class_character,
     extra_args = class_list
   )
@@ -188,47 +191,12 @@ openai_key <- function() {
 
 # HTTP request and response handling -------------------------------------
 
-openai_chat_response <- function(mode = c("value", "stream", "async-stream", "async-value"),
-                                 model,
-                                 messages,
-                                 tools = list(),
-                                 extra_args = list()) {
-
-  mode <- arg_match(mode)
-  stream <- mode %in% c("stream", "async-stream")
-
-  req <- openai_chat_request(
-    model = model,
-    messages = messages,
-    tools = tools,
-    stream = stream,
-    extra_args = extra_args
-  )
-
-  switch(mode,
-    "value" = openai_chat_value(req),
-    "stream" = openai_chat_stream(req),
-    "async-value" = openai_chat_async_value(req),
-    "async-stream" = openai_chat_async_stream(req)
-  )
-}
-
-openai_chat_value <- function(req) {
-  resp_body_json(req_perform(req))
-}
-on_load(openai_chat_stream <- chat_stream(openai_stream_is_done, openai_stream_parse))
-
-openai_chat_async_value <- function(req) {
-  promises::then(req_perform_promise(req), resp_body_json)
-}
-on_load(openai_chat_async_stream <- chat_stream_async(openai_stream_is_done, openai_stream_parse))
-
 # https://platform.openai.com/docs/api-reference/chat/create
-openai_chat_request <- function(model,
-                                stream = TRUE,
-                                messages = list(),
-                                tools = list(),
-                                extra_args = list()) {
+method(chat_request, openai_model) <- function(model,
+                                               stream = TRUE,
+                                               messages = list(),
+                                               tools = list(),
+                                               extra_args = list()) {
 
   req <- request(model@base_url)
   req <- req_url_path_append(req, "/chat/completions")
@@ -251,29 +219,42 @@ openai_chat_request <- function(model,
   req
 }
 
-openai_stream_is_done <- function(event) {
+method(chat_perform_value, openai_model) <- function(model, req) {
+  resp_body_json(req_perform(req))
+}
+on_load(
+  method(chat_perform_stream, openai_model) <- chat_streamer()
+)
+method(chat_perform_async_value, openai_model) <- function(model, req) {
+  promises::then(req_perform_promise(req), resp_body_json)
+}
+on_load(
+  method(chat_perform_async_stream, openai_model) <- chat_streamer_async()
+)
+
+method(stream_is_done, openai_model) <- function(model, event) {
   identical(event$data, "[DONE]")
 }
-openai_stream_parse <- function(event) {
+method(stream_parse, openai_model) <- function(model, event) {
   jsonlite::parse_json(event$data)
 }
-openai_stream_text <- function(event, streaming) {
+method(stream_text, openai_model) <- function(model, event) {
   event$choices[[1]]$delta$content
 }
-openai_stream_message <- function(result) {
-  result$choices[[1]]$delta
-}
-openai_stream_merge_chunks <- function(cur, chunk) {
-  if (is.null(cur)) {
+method(stream_merge_chunks, openai_model) <- function(model, result, chunk) {
+  if (is.null(result)) {
     chunk
   } else {
-    merge_dicts(cur, chunk)
+    merge_dicts(result, chunk)
   }
 }
+method(stream_message, openai_model) <- function(model, result) {
+  result$choices[[1]]$delta
+}
 
-openai_value_text <- function(event) {
+method(value_text, openai_model) <- function(model, event) {
   event$choices[[1]]$message$content
 }
-openai_value_message <- function(result) {
+method(value_message, openai_model) <- function(model, result) {
   result$choices[[1]]$message
 }
