@@ -1,4 +1,7 @@
 chat_stream <- function(is_done, parse_data) {
+  # silence R CMD check note
+  yield <- NULL
+
   force(is_done)
   force(parse_data)
 
@@ -26,6 +29,8 @@ chat_stream <- function(is_done, parse_data) {
 }
 
 chat_stream_async <- function(is_done, parse_data, polling_interval_secs = 0.1) {
+  # silence R CMD check note
+  yield <- await <- NULL
   force(is_done)
   force(parse_data)
   force(polling_interval_secs)

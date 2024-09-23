@@ -149,10 +149,12 @@ check_openai_conversation <- function(messages, allow_null = FALSE) {
 #' @rdname new_chat_openai
 ChatOpenAI <- R6::R6Class("ChatOpenAI",
   public = list(
-    #' @param model Model object
+    #' @param model Model object.
     #' @param messages An unnamed list of messages to start the chat with (i.e.,
     #'   continuing a previous conversation). If `NULL` or zero-length list, the
     #'   conversation begins from scratch.
+    #' @param seed Optional integer seed that ChatGPT uses to try and make output
+    #'   more reproducible.
     #' @param echo If `TRUE`, the `chat()` method streams the response to stdout
     #'   (while also returning the final response). Note that this has no effect
     #'   on the `stream()`, `chat_async()`, and `stream_async()` methods.
