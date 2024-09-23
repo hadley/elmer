@@ -77,14 +77,6 @@ openai_result_message <- function(result, streaming) {
   }
 }
 
-openai_key <- function() {
-  key <- Sys.getenv("OPENAI_API_KEY")
-  if (identical(key, "")) {
-    cli::cli_abort("Can't find env var {.code OPENAI_API_KEY}.")
-  }
-  key
-}
-
 # https://platform.openai.com/docs/api-reference/chat/create
 openai_chat_req <- function(messages,
                             tools = list(),
@@ -127,17 +119,9 @@ openai_request <- function(base_url = "https://api.openai.com/v1",
 }
 
 openai_key_exists <- function() {
-  !identical(Sys.getenv("OPENAI_API_KEY"), "")
+  key_exists("OPENAI_API_KEY")
 }
 
 openai_key <- function() {
-  if (openai_key_exists()) {
-    Sys.getenv("OPENAI_API_KEY")
-  } else {
-    if (is_testing()) {
-      testthat::skip("OPENAI_API_KEY env var is not configured")
-    } else {
-      cli::cli_abort("Can't find env var {.code OPENAI_API_KEY}.")
-    }
-  }
+  key_get("OPENAI_API_KEY")
 }

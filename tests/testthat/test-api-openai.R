@@ -1,8 +1,3 @@
-test_that("informative error if no key", {
-  withr::local_envvar(OPENAI_API_KEY = NULL, TESTTHAT = "false")
-  expect_snapshot(openai_key(), error = TRUE)
-})
-
 test_that("system prompt is applied correctly", {
   sys_prompt <- "foo"
   sys_msg <- list(role = "system", content = sys_prompt)
