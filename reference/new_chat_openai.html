@@ -52,6 +52,8 @@ server, and the messages that you receive back. If you register a tool
 <span>  base_url <span class="op">=</span> <span class="st">"https://api.openai.com/v1"</span>,</span>
 <span>  api_key <span class="op">=</span> <span class="fu">openai_key</span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  model <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  api_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  echo <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -88,6 +90,16 @@ variable.</p></dd>
 <dd><p>The model to use for the chat; set to <code>NULL</code> (the default) to
 use a reasonable model, currently <code>gpt-4o-mini</code>. We strongly recommend
 explicitly choosing a model for all but the most casual use.</p></dd>
+
+
+<dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
+<dd><p>Optional integer seed that ChatGPT uses to try and make output
+more reproducible.</p></dd>
+
+
+<dt id="arg-api-args">api_args<a class="anchor" aria-label="anchor" href="#arg-api-args"></a></dt>
+<dd><p>Named list of arbitrary extra arguments passed to every
+chat API call.</p></dd>
 
 
 <dt id="arg-echo">echo<a class="anchor" aria-label="anchor" href="#arg-echo"></a></dt>
@@ -128,17 +140,13 @@ and <code>stream_async()</code> methods.)</p></dd>
 
 <div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/new_chat_openai.html">ChatOpenAI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">base_url</span>, <span class="va">model</span>, <span class="va">messages</span>, <span class="va">api_key</span>, echo <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/new_chat_openai.html">ChatOpenAI</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">model</span>, <span class="va">messages</span>, seed <span class="op">=</span> <span class="cn">NULL</span>, echo <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>base_url</code></dt>
-<dd><p>The base URL to the endpoint; the default uses ChatGPT.</p></dd>
-
-
-<dt><code>model</code></dt>
-<dd><p>The model to use for the chat; defaults to GPT-4o mini.</p></dd>
+<p></p><div class="arguments"><dl><dt><code>model</code></dt>
+<dd><p>Model object.</p></dd>
 
 
 <dt><code>messages</code></dt>
@@ -147,10 +155,9 @@ continuing a previous conversation). If <code>NULL</code> or zero-length list, t
 conversation begins from scratch.</p></dd>
 
 
-<dt><code>api_key</code></dt>
-<dd><p>The API key to use for authentication. You generally should
-not supply this directly, but instead set the <code>OPENAI_API_KEY</code> environment
-variable.</p></dd>
+<dt><code>seed</code></dt>
+<dd><p>Optional integer seed that ChatGPT uses to try and make output
+more reproducible.</p></dd>
 
 
 <dt><code>echo</code></dt>
