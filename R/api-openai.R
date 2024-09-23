@@ -172,7 +172,7 @@ openai_model <- new_class(
   properties = list(
     base_url = class_character,
     model = class_character,
-    seed = class_double,
+    seed = class_double | NULL,
     api_key = class_character,
     extra_args = class_list
   )
