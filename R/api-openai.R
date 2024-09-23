@@ -228,7 +228,7 @@ openai_chat_request <- function(model,
   req <- req_retry(req, max_tries = 2)
   req <- req_error(req, body = function(resp) resp_body_json(resp)$error$message)
 
-  extra_args <- modifyList(model$extra_args, extra_args)
+  extra_args <- utils::modifyList(model$extra_args, extra_args)
 
   data <- compact(list2(
     messages = messages,
