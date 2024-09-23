@@ -151,6 +151,13 @@ openai_model <- function(base_url = "https://api.openai.com/v1",
                          seed = NULL,
                          extra_args = list(),
                          api_key = openai_key()) {
+
+  check_string(base_url)
+  check_string(model)
+  check_number_whole(seed, allow_null = TRUE)
+  # check_named_list(extra_args)
+  check_string(api_key)
+
   structure(
     list(
       base_url = base_url,
@@ -176,19 +183,18 @@ openai_key <- function() {
 openai_chat_response <- function(mode = c("value", "stream", "async-stream", "async-value"),
                                  model,
                                  messages,
-                                 tools = list()) {
+                                 tools = list(),
+                                 extra_args = list()) {
 
   mode <- arg_match(mode)
   stream <- mode %in% c("stream", "async-stream")
 
   req <- openai_chat_request(
+    model = model,
     messages = messages,
     tools = tools,
-    model = model$model,
-    seed = model$seed,
     stream = stream,
-    base_url = model$base_url,
-    api_key = model$api_key
+    extra_args = extra_args
   )
 
   switch(mode,
@@ -210,29 +216,24 @@ openai_chat_async_value <- function(req) {
 on_load(openai_chat_async_stream <- chat_stream_async(openai_stream_is_done, openai_stream_parse))
 
 # https://platform.openai.com/docs/api-reference/chat/create
-openai_chat_request <- function(messages,
-                                tools = list(),
-                                model = "gpt-4o-mini",
-                                seed = NULL,
+openai_chat_request <- function(model,
                                 stream = TRUE,
-                                extra_args = list(),
-                                base_url = "https://api.openai.com/v1",
-                                api_key = openai_key()) {
+                                messages = list(),
+                                tools = list(),
+                                extra_args = list()) {
 
-  check_string(model)
-  check_number_whole(seed, allow_null = TRUE)
-  check_bool(stream)
-
-  req <- request(base_url)
+  req <- request(model$base_url)
   req <- req_url_path_append(req, "/chat/completions")
-  req <- req_auth_bearer_token(req, Sys.getenv("OPENAI_API_KEY"))
+  req <- req_auth_bearer_token(req, model$api_key)
   req <- req_retry(req, max_tries = 2)
   req <- req_error(req, body = function(resp) resp_body_json(resp)$error$message)
 
+  extra_args <- modifyList(model$extra_args, extra_args)
+
   data <- compact(list2(
     messages = messages,
-    model = model,
-    seed = seed,
+    model = model$model,
+    seed = model$seed,
     stream = stream,
     tools = tools,
     !!!extra_args
