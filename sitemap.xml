@@ -9,7 +9,11 @@
 <url><loc>https://hadley.github.io/elmer/reference/create_tool_metadata.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/elmer-package.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/index.html</loc></url>
+<url><loc>https://hadley.github.io/elmer/reference/new_chat_github.html</loc></url>
+<url><loc>https://hadley.github.io/elmer/reference/new_chat_groq.html</loc></url>
+<url><loc>https://hadley.github.io/elmer/reference/new_chat_ollama.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/new_chat_openai.html</loc></url>
+<url><loc>https://hadley.github.io/elmer/reference/new_chat_perplexity.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/tool_arg.html</loc></url>
 </urlset>
 
