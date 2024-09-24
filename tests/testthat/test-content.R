@@ -89,3 +89,9 @@ test_that("image resizing", {
   expect_no_error(content_image_file(img_file, resize = "100x100"))
   expect_no_error(content_image_file(img_file, resize = "100x100>!"))
 })
+
+test_that("useful errors if no display", {
+  # file based devices have display list inhibited
+  withr::local_pdf(NULL)
+  expect_snapshot(content_image_plot(), error = TRUE)
+})
