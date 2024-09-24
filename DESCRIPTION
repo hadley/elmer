@@ -33,10 +33,11 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-Collate:
+Collate: 
     'api-github.R'
     'api-groq.R'
     'api-ollama.R'
+    'api.R'
     'api-openai.R'
     'api-perplexity.R'
     'utils-coro.R'
@@ -50,6 +51,5 @@ Collate:
     'tools.R'
     'utils-cat.R'
     'utils-merge.R'
-    'utils-stream.R'
     'utils.R'
     'zzz.R'

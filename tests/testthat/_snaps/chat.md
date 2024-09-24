@@ -3,7 +3,7 @@
     Code
       chat
     Output
-      <ChatOpenAI messages=2>
+      <Chat messages=2>
     Message
       -- system ----------------------------------------------------------------------
       You're a helpful assistant that returns very minimal output

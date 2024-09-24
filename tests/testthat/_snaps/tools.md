@@ -10,7 +10,7 @@
     Code
       chat
     Output
-      <ChatOpenAI messages=12>
+      <Chat messages=12>
     Message
       -- system ----------------------------------------------------------------------
       Be very terse, not even punctuation.
@@ -50,7 +50,7 @@
     Code
       chat_async
     Output
-      <ChatOpenAI messages=12>
+      <Chat messages=12>
     Message
       -- system ----------------------------------------------------------------------
       Be very terse, not even punctuation.
