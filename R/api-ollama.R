@@ -1,9 +1,13 @@
 #' Connect to a local ollama instances
 #'
+#' @description
 #' Download and install [ollama](https://ollama.com) and then you can
 #' chat with it from R with `new_chat_ollama()`. To install additional
 #' models, use the `ollama` command line, e.g. `ollama pull llama3.1`
 #' or `ollama pull gemma2`.
+#'
+#' This function is a lightweight wrapper around [new_chat_openai()] with
+#' the defaults tweaked for ollama.
 #'
 #' @inheritParams new_chat_openai
 #' @export
@@ -14,10 +18,6 @@ new_chat_ollama <- function(system_prompt = NULL,
                             seed = NULL,
                             api_args = list(),
                             echo = FALSE) {
-  check_string(system_prompt, allow_null = TRUE)
-  openai_check_conversation(messages, allow_null = TRUE)
-  check_bool(echo)
-
   if (!has_ollama()) {
     cli::cli_abort("Can't find locally running ollama.")
   }
@@ -30,16 +30,16 @@ new_chat_ollama <- function(system_prompt = NULL,
     ))
   }
 
-  model <- new_openai_model(
+  new_chat_openai(
+    system_prompt = system_prompt,
+    messages = messages,
     base_url = base_url,
+    api_key = "ollama", # ignore
     model = model,
     seed = seed,
-    extra_args = api_args,
-    api_key = "ollama" # ignored
+    api_args = api_args,
+    echo = echo
   )
-
-  messages <- openai_apply_system_prompt(system_prompt, messages)
-  Chat$new(model = model, messages = messages, echo = echo)
 }
 
 ollama_models <- function() {

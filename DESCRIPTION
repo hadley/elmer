@@ -20,6 +20,7 @@ Imports:
     rlang (>= 1.1.0)
 Suggests:
     base64enc,
+    gitcreds,
     later,
     magick,
     promises,
@@ -33,6 +34,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Collate:
+    'api-github.R'
     'api-ollama.R'
     'api-openai.R'
     'utils-coro.R'
