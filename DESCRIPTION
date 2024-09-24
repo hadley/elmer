@@ -38,6 +38,7 @@ Collate:
     'api-groq.R'
     'api-ollama.R'
     'api-openai.R'
+    'api-perplexity.R'
     'utils-coro.R'
     'chat.R'
     'content.R'
