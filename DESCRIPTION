@@ -35,6 +35,7 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Collate:
     'api-github.R'
+    'api-groq.R'
     'api-ollama.R'
     'api-openai.R'
     'utils-coro.R'
