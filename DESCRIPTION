@@ -20,6 +20,7 @@ Imports:
     rlang (>= 1.1.0)
 Suggests:
     base64enc,
+    gitcreds,
     later,
     magick,
     promises,
@@ -32,9 +33,13 @@ Config/testthat/edition: 3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
-Collate:
+Collate: 
+    'api-github.R'
+    'api-groq.R'
+    'api-ollama.R'
     'api.R'
     'api-openai.R'
+    'api-perplexity.R'
     'utils-coro.R'
     'chat.R'
     'content.R'

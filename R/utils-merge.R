@@ -13,6 +13,8 @@ merge_dicts <- function(left, right) {
       next
     } else if (is.character(left_v)) {
       left[[right_k]] <- paste0(left_v, right_v)
+    } else if (is.integer(left_v)) {
+      left[[right_k]] <- right_v
     } else if (is.list(left_v)) {
       if (!is.null(names(right_v))) {
         left[[right_k]] <- merge_dicts(left_v, right_v)
