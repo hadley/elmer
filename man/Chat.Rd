@@ -166,9 +166,17 @@ Enter an interactive chat console. This is a REPL-like
 interface where you can chat with the assistant in real-time. (Only
 available in \code{\link[=interactive]{interactive()}} mode.)
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$console()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Chat$console(quiet = FALSE)}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{quiet}}{If \code{TRUE}, suppresses the initial message that explains how
+to use the console.}
+}
+\if{html}{\out{</div>}}
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Chat-register_tool"></a>}}

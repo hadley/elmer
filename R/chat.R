@@ -109,17 +109,21 @@ Chat <- R6::R6Class("Chat",
     #' @description Enter an interactive chat console. This is a REPL-like
     #'   interface where you can chat with the assistant in real-time. (Only
     #'   available in [interactive()] mode.)
-    console = function() {
+    #' @param quiet If `TRUE`, suppresses the initial message that explains how
+    #'   to use the console.
+    console = function(quiet = FALSE) {
       if (!interactive()) {
         abort("The chat console is only available in interactive mode.")
       }
 
-      cli::cat_boxx(
-        c("Entering chat console. Use \"\"\" for multi-line input.",
-          "Press Ctrl+C to quit."),
-        padding = c(0, 2, 0, 2),
-        border_style = "double"
-      )
+      if (!isTRUE(quiet)) {
+        cli::cat_boxx(
+          c("Entering chat console. Use \"\"\" for multi-line input.",
+            "Press Ctrl+C to quit."),
+          padding = c(0, 2, 0, 2),
+          border_style = "double"
+        )
+      }
 
       while (TRUE) {
         # Prompt for user input
