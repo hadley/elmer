@@ -2,6 +2,7 @@
 
 S3method(print,Chat)
 export(content_image_file)
+export(content_image_plot)
 export(content_image_url)
 export(create_tool_metadata)
 export(new_chat_openai)

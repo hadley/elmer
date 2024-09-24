@@ -3,11 +3,14 @@
 \name{content_image_url}
 \alias{content_image_url}
 \alias{content_image_file}
+\alias{content_image_plot}
 \title{Encode image content for chat input}
 \usage{
 content_image_url(url, detail = c("auto", "low", "high"))
 
 content_image_file(path, content_type = "auto", resize = "low")
+
+content_image_plot(width = 768, height = 768)
 }
 \arguments{
 \item{url}{The URL of the image to include in the chat input. Can be a
@@ -34,6 +37,8 @@ Append \code{>} to resize only if the image is larger than the specified size,
 and \code{!} to ignore aspect ratio (e.g. \code{"300x200>!"}).
 
 All values other than \code{none} require the \code{magick} package.}
+
+\item{width, height}{Width and height in pixels.}
 }
 \value{
 An input object suitable for including in the \code{...} parameter of
@@ -51,6 +56,15 @@ chat$chat(
   "What do you see in these images?",
   content_image_url("https://www.r-project.org/Rlogo.png"),
   content_image_file(system.file("httr2.png", package = "elmer"))
+)
+
+plot(waiting ~ eruptions, data = faithful)
+chat <- new_chat_openai(echo = TRUE)
+chat$chat(
+  "Describe this plot in one paragraph, as suitable for inclusion in
+   alt-text. You should briefly describe the plot type, the axes, and
+   2-5 major visual patterns.",
+   content_image_plot()
 )
 \dontshow{\}) # examplesIf}
 }

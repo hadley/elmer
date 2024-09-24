@@ -18,3 +18,8 @@ key_get <- function(name, error_call = caller_env()) {
 key_exists <- function(name) {
   !identical(Sys.getenv(name), "")
 }
+
+defer <- function(expr, env = caller_env(), after = FALSE) {
+  thunk <- as.call(list(function() expr))
+  do.call(on.exit, list(thunk, TRUE, after), envir = env)
+}
