@@ -24,7 +24,6 @@ merge_dicts <- function(left, right) {
     } else if (!identical(class(left_v), class(right_v))) {
       stop(paste0("additional_kwargs['", right_k, "'] already exists in this message, but with a different type."))
     } else {
-      browser(0)
       stop(paste0(
         "Additional kwargs key ",
         right_k,
