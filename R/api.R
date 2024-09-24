@@ -1,5 +1,6 @@
-chat_request <- new_generic("chat_request", "model")
-
+# Currently performing chat request is not generic as there appears to
+# be sufficiently genericity elsewhere to handle the API variations.
+# We will recconsider this in the future if necessary.
 chat_perform <- function(model,
                          mode = c("value", "stream", "async-stream", "async-value"),
                          messages,
@@ -25,85 +26,66 @@ chat_perform <- function(model,
   )
 }
 
-# Various ways of performing the chat request ----------------------------------
-chat_perform_value <- new_generic("chat_value", "model",
-  function(model, req) {
-    S7_dispatch()
-  }
-)
-method(chat_perform_value, class_any) <- function(model, req) {
+chat_perform_value <- function(model, req) {
   resp_body_json(req_perform(req))
 }
 
-chat_perform_stream <- new_generic("chat_stream", "model",
-  function(model, req) {
-    S7_dispatch()
-  }
-)
-on_load(
-  method(chat_perform_stream, class_any) <- coro::generator(function(model, req) {
-    resp <- httr2::req_perform_connection(req)
-    on.exit(close(resp))
-    reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
+on_load(chat_perform_stream <- coro::generator(function(model, req) {
+  resp <- httr2::req_perform_connection(req)
+  on.exit(close(resp))
+  reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
 
-    while (TRUE) {
-      event <- httr2::resp_stream_sse(resp)
-      if (is.null(event)) {
-        abort("Connection failed")
-      } else if (stream_is_done(model, event)) {
-        break
-      } else {
-        yield(stream_parse(model, event))
-      }
+  while (TRUE) {
+    event <- httr2::resp_stream_sse(resp)
+    if (is.null(event)) {
+      abort("Connection failed")
+    } else if (stream_is_done(model, event)) {
+      break
+    } else {
+      yield(stream_parse(model, event))
     }
-
-    # Work around https://github.com/r-lib/coro/issues/51
-    if (FALSE) {
-      yield(NULL)
-    }
-  })
-)
-
-chat_perform_async_value <- new_generic("chat_async_value", "model",
-  function(model, req) {
-    S7_dispatch()
   }
-)
-method(chat_perform_async_value, class_any) <- function(model, req) {
+
+  # Work around https://github.com/r-lib/coro/issues/51
+  if (FALSE) {
+    yield(NULL)
+  }
+}))
+
+chat_perform_async_value <- function(model, req) {
   promises::then(req_perform_promise(req), resp_body_json)
 }
 
-chat_perform_async_stream <- new_generic("chat_async_stream", "model",
-  function(model, req, ...) {
-    S7_dispatch()
+on_load(chat_perform_async_stream <- coro::async_generator(function(model, req, polling_interval_secs = 0.1) {
+  resp <- req_perform_connection(req, blocking = FALSE)
+  on.exit(close(resp))
+  # TODO: Investigate if this works with async generators
+  # reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
+
+  while (TRUE) {
+    event <- resp_stream_sse(resp)
+    if (is.null(event)) {
+      # TODO: Detect if connection is closed and stop polling
+      await(coro::async_sleep(polling_interval_secs))
+    } else if (stream_is_done(model, event)) {
+      break
+    } else {
+      yield(stream_parse(model, event))
+    }
   }
-)
-on_load(
-  method(chat_perform_async_stream, openai_model) <- coro::async_generator(function(model, req, polling_interval_secs = 0.1) {
-    resp <- req_perform_connection(req, blocking = FALSE)
-    on.exit(close(resp))
-    # TODO: Investigate if this works with async generators
-    # reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
 
-    while (TRUE) {
-      event <- resp_stream_sse(resp)
-      if (is.null(event)) {
-        # TODO: Detect if connection is closed and stop polling
-        await(coro::async_sleep(polling_interval_secs))
-      } else if (stream_is_done(model, event)) {
-        break
-      } else {
-        yield(stream_parse(model, event))
-      }
-    }
+  # Work around https://github.com/r-lib/coro/issues/51
+  if (FALSE) {
+    yield(NULL)
+  }
+}))
 
-    # Work around https://github.com/r-lib/coro/issues/51
-    if (FALSE) {
-      yield(NULL)
-    }
+# Create a request------------------------------------
+
+chat_request <- new_generic("chat_request", "model",
+  function(model, stream = TRUE, messages = list(), tools = list(), extra_args = list()) {
+    S7_dispatch()
   })
-)
-
 
 # Extract data from streaming results ------------------------------------
 
