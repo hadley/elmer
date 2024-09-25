@@ -173,3 +173,15 @@ method(value_message, claude_model) <- function(model, result) {
     content = result$content
   )
 }
+
+method(tools_tweak, claude_model) <- function(model, tools) {
+  lapply(tools, function(tool) {
+    fun <- tool$`function`
+
+    list(
+      name = fun$name,
+      description = fun$description,
+      input_schema = compact(fun$parameters)
+    )
+  })
+}

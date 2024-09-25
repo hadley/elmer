@@ -10,6 +10,8 @@ chat_perform <- function(model,
   mode <- arg_match(mode)
   stream <- mode %in% c("stream", "async-stream")
 
+  tools <- tools_tweak(model, tools)
+
   req <- chat_request(
     model = model,
     messages = messages,
@@ -127,3 +129,14 @@ value_message <- new_generic("value_message", "model",
     S7_dispatch()
   }
 )
+
+# Data structure normalisation -------------------------------------------------
+
+tools_tweak <- new_generic("tools_tweak", "model",
+  function(model, tools) {
+    S7_dispatch()
+  }
+)
+method(tools_tweak, class_any) <- function(model, tools) {
+  tools
+}

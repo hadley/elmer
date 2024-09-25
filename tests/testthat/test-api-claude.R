@@ -21,3 +21,13 @@ test_that("can perform a simple streaming chat", {
   expect_match(paste(chunks, collapse = ""), rainbow_re, ignore.case = TRUE)
   expect_match(last_message(chat)$content[[1]]$text, rainbow_re, ignore.case = TRUE)
 })
+
+test_that("can call tools", {
+  skip("not working")
+  get_date <- function() "2024-01-01"
+  chat <- new_chat_claude(system_prompt = "Be very terse, not even punctuation.")
+  chat$register_tool(get_date, "get_date", "Gets the current date", list(), strict = TRUE)
+
+  result <- chat$chat("What's the current date?")
+  expect_identical(paste(result, collapse = ""), "2024-01-01")
+})
