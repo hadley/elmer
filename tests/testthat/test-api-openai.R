@@ -38,3 +38,7 @@ test_that("system prompt is applied correctly", {
   expect_identical(chat$messages(), list(user_msg))
   expect_identical(chat$messages(include_system_prompt = TRUE), list(sys_msg, user_msg))
 })
+
+test_that("default model is reported", {
+  expect_snapshot(. <- new_chat_openai()$chat("Hi"))
+})

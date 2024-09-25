@@ -21,9 +21,9 @@ NULL
 #' @param api_key The API key to use for authentication. You generally should
 #'   not supply this directly, but instead set the `OPENAI_API_KEY` environment
 #'   variable.
-#' @param model The model to use for the chat; set to `NULL` (the default) to
-#'   use a reasonable model, currently `gpt-4o-mini`. We strongly recommend
-#'   explicitly choosing a model for all but the most casual use.
+#' @param model The model to use for the chat. The default, `NULL`, will pick
+#'   a reasonable default, and tell you about. We strongly recommend explicitly
+#'   choosing a model for all but the most casual use.
 #' @param seed Optional integer seed that ChatGPT uses to try and make output
 #'   more reproducible.
 #' @param api_args Named list of arbitrary extra arguments passed to every
@@ -75,6 +75,8 @@ new_chat_openai <- function(system_prompt = NULL,
   check_string(system_prompt, allow_null = TRUE)
   openai_check_conversation(messages, allow_null = TRUE)
   check_bool(echo)
+
+  model <- set_default(model, "gpt-4o-mini")
 
   model <- new_openai_model(
     base_url = base_url,
@@ -150,12 +152,11 @@ new_openai_model <- function(base_url = "https://api.openai.com/v1",
   # leaking that implementation detail to the user.
 
   check_string(base_url, call = error_call())
-  check_string(model, allow_null = TRUE, call = error_call())
+  check_string(model, call = error_call())
   check_number_whole(seed, allow_null = TRUE, call = error_call())
   # check_named_list(extra_args, call = error_call())
   check_string(api_key, call = error_call())
 
-  model <- model %||% "gpt-4o-mini"
   if (is_testing() && is.null(seed)) {
     seed <- 1014
   }

@@ -16,8 +16,7 @@ new_chat_groq <- function(system_prompt = NULL,
                           seed = NULL,
                           api_args = list(),
                           echo = FALSE) {
-
-  model <- model %||% "llama3-8b-8192"
+  model <- set_default(model, "llama3-8b-8192")
 
   new_chat_openai(
     system_prompt = system_prompt,

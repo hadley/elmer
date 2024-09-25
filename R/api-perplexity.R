@@ -17,7 +17,7 @@ new_chat_perplexity <- function(system_prompt = NULL,
                                 api_args = list(),
                                 echo = FALSE) {
 
-  model <- model %||% "llama-3.1-sonar-small-128k-online"
+  model <- set_default(model, "llama-3.1-sonar-small-128k-online")
 
   new_chat_openai(
     system_prompt = system_prompt,
