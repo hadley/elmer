@@ -8,9 +8,7 @@ new_chat_claude(
   system_prompt = NULL,
   messages = NULL,
   max_tokens = 4096,
-  version = NULL,
   model = NULL,
-  seed = NULL,
   api_args = list(),
   base_url = "https://api.anthropic.com/v1",
   api_key = anthropic_key(),
@@ -31,15 +29,9 @@ Normally there is also a \code{content} field, which is a string.}
 
 \item{max_tokens}{Maximum number of tokens to generate before stopping.}
 
-\item{version}{Optional version specification if you want to opt-in to a
-beta version of a model.}
-
 \item{model}{The model to use for the chat; set to \code{NULL} (the default) to
 use a reasonable model, currently \verb{gpt-4o-mini}. We strongly recommend
 explicitly choosing a model for all but the most casual use.}
-
-\item{seed}{Optional integer seed that ChatGPT uses to try and make output
-more reproducible.}
 
 \item{api_args}{Named list of arbitrary extra arguments passed to every
 chat API call.}

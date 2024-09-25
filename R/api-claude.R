@@ -10,16 +10,12 @@ NULL
 #'
 #' @inheritParams new_chat_openai
 #' @param max_tokens Maximum number of tokens to generate before stopping.
-#' @param version Optional version specification if you want to opt-in to a
-#'   beta version of a model.
 #' @export
 #' @returns A [Chat] object.
 new_chat_claude <- function(system_prompt = NULL,
                             messages = NULL,
                             max_tokens = 4096,
-                            version = NULL,
                             model = NULL,
-                            seed = NULL,
                             api_args = list(),
                             base_url = "https://api.anthropic.com/v1",
                             api_key = anthropic_key(),
@@ -29,14 +25,11 @@ new_chat_claude <- function(system_prompt = NULL,
   check_bool(echo)
 
   model <- model %||% "claude-3-5-sonnet-20240620"
-  version <- version %||% "2023-06-01"
 
   model <- new_claude_model(
     model = model,
-    version = version,
     system = system_prompt,
     max_tokens = max_tokens,
-    seed = seed,
     extra_args = api_args,
     base_url = base_url,
     api_key = api_key
@@ -46,9 +39,7 @@ new_chat_claude <- function(system_prompt = NULL,
 }
 
 new_claude_model <- function(model,
-                             version,
                              system = NULL,
-                             seed = NULL,
                              max_tokens = 4096,
                              extra_args = list(),
                              api_key = anthropic_key(),
@@ -60,23 +51,15 @@ new_claude_model <- function(model,
   # leaking that implementation detail to the user.
 
   check_string(model, call = error_call())
-  check_string(version, call = error_call())
   check_string(system, allow_null = TRUE, call = error_call())
-  check_number_whole(seed, allow_null = TRUE, call = error_call())
   check_number_whole(max_tokens, min = 1, call = error_call())
   # check_named_list(extra_args, call = error_call())
   check_string(base_url, call = error_call())
   check_string(api_key, call = error_call())
 
-  if (is_testing() && is.null(seed)) {
-    seed <- 1014
-  }
-
   claude_model(
     model = model,
-    version = version,
     system = system,
-    seed = seed,
     max_tokens = max_tokens,
     extra_args = extra_args,
     base_url = base_url,
@@ -89,9 +72,7 @@ claude_model <- new_class(
   package = "elmer",
   properties = list(
     model = class_character,
-    version = class_character,
     system = class_character | NULL,
-    seed = class_numeric | NULL,
     max_tokens = class_numeric,
     extra_args = class_list,
     base_url = class_character,
@@ -117,7 +98,7 @@ method(chat_request, claude_model) <- function(model,
 
   req <- httr2::req_headers(req,
     # <https://docs.anthropic.com/en/api/versioning>
-    `anthropic-version` = model@version,
+    `anthropic-version` = "2023-06-01",
     # <https://docs.anthropic.com/en/api/getting-started#authentication>
     `x-api-key` = model@api_key,
     .redact = "x-api-key"
@@ -136,7 +117,6 @@ method(chat_request, claude_model) <- function(model,
   body <- compact(list2(
     model = model@model,
     messages = messages,
-    seed = model@seed,
     stream = stream,
     system = model@system,
     max_tokens = model@max_tokens,
