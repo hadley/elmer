@@ -59,11 +59,8 @@ Chat <- R6::R6Class("Chat",
       last_message <- private$msgs[[length(private$msgs)]]
       stopifnot(identical(last_message[["role"]], "assistant"))
 
-      if (echo) {
-        invisible(last_message$content)
-      } else {
-        last_message$content
-      }
+      text <- value_text(private$model, last_message)
+      if (!echo) text else invisible(text)
     },
 
     #' @description Submit input to the chatbot, and receive a promise that
