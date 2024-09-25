@@ -365,9 +365,9 @@ Chat <- R6::R6Class("Chat",
     invoke_tools = function() {
       if (length(private$tool_infos) > 0) {
         last_message <- private$msgs[[length(private$msgs)]]
-        tool_messages <- call_tools(private$tool_funs, last_message)
+        tool_messages <- openai_tool_call(private$tool_funs, last_message)
 
-        if (!is.null(tool_messages)) {
+        if (length(tool_messages) > 0) {
           private$msgs <- c(private$msgs, tool_messages)
           return(TRUE)
         }
@@ -378,9 +378,9 @@ Chat <- R6::R6Class("Chat",
     invoke_tools_async = async_method(function(self, private) {
       if (length(private$tool_infos) > 0) {
         last_message <- private$msgs[[length(private$msgs)]]
-        tool_messages <- await(call_tools_async(private$tool_funs, last_message))
+        tool_messages <- await(openai_tool_call_async(private$tool_funs, last_message))
 
-        if (!is.null(tool_messages)) {
+        if (length(tool_messages) > 0) {
           private$msgs <- c(private$msgs, tool_messages)
           return(TRUE)
         }

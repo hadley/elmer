@@ -2,6 +2,18 @@ test_that("call tool gives useful error", {
   expect_snapshot(call_tool("foo", c(1, 2, 3)))
 })
 
+test_that("can make a simple tool call", {
+  get_date <- function() "2024-01-01"
+  chat <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.")
+  chat$register_tool(get_date, "get_date", "Gets the current date", list())
+
+  result <- chat$chat("What's the current date?")
+  expect_equal(result, "2024-01-01")
+
+  result <- chat$chat("What day of the week is it?")
+  expect_equal(result, "Tuesday")
+})
+
 test_that("repeated tool calls (sync)", {
   not_actually_random_number <- 1
 

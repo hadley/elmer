@@ -1,61 +1,50 @@
-call_tools <- function(tools, message) {
-  if (!has_name(message, "tool_calls")) {
-    return()
-  }
-
+openai_tool_call <- function(tools, message) {
   lapply(message$tool_calls, function(call) {
-    fun <- call$`function`
-    tool_fun <- tools[[fun$name]]
-    if (is.null(tool_fun)) {
-      result <- paste0("Error calling tool: Unknown tool name '", call$`function`, "'")
-    } else {
-      args <- jsonlite::parse_json(fun$arguments)
-      result <- call_tool(tool_fun, args)
-      if (promises::is.promise(result)) {
-        stop("An async tool was used with `chat()` or `stream()`. Async tools are supported, but you must call `chat_async()` or `stream_async()` instead.")
-      }
+    fun <- tools[[call$`function`$name]]
+    args <- jsonlite::parse_json(call$`function`$arguments)
+    result <- call_tool(fun, args)
+
+    if (promises::is.promise(result)) {
+      cli::cli_abort(c(
+        "Can't use async tools with `$chat()` or `$stream()`.",
+        i = "Async tools are supported, but you must use `$chat_async()` or `$stream_async()`."
+      ))
     }
 
-    list(
-      role = "tool",
-      content = toString(result),
-      tool_call_id = call$id
-    )
+    openai_tool_result(result, call$id)
   })
 }
 
-call_tools_async <- NULL
-rlang::on_load(call_tools_async <- coro::async(function(tools, message) {
-  if (!has_name(message, "tool_calls")) {
-    return()
-  }
-
-  # We call it this way instead of a more natural for/await because we want to
-  # run all the async tool calls in parallel
+rlang::on_load(openai_tool_call_async <- coro::async(function(tools, message) {
+  # We call it this way instead of a more natural for + await_each() because
+  # we want to run all the async tool calls in parallel
   result_promises <- lapply(message$tool_calls, function(call) {
-    fun <- call$`function`
-    tool_fun <- tools[[fun$name]]
-    p <- if (is.null(tool_fun)) {
-      promises::promise_resolve(paste0("Error calling tool: Unknown tool name '", call$`function`, "'"))
-    } else {
-      args <- jsonlite::parse_json(fun$arguments)
-      call_tool_async(tool_fun, args)
-    }
-    promises::then(p, function(result) {
-      list(
-        role = "tool",
-        content = toString(result),
-        tool_call_id = call$id
-      )
-    })
+    fun <- tools[[call$`function`$name]]
+    args <- jsonlite::parse_json(call$`function`$arguments)
+
+    promises::then(
+      call_tool_async(fun, args),
+      function(result) openai_tool_result(result, id = call$id)
+    )
   })
 
   promises::promise_all(.list = result_promises)
 }))
 
-# Should we check `fun` against registered tools?
+openai_tool_result <- function(result, id) {
+  list(
+    role = "tool",
+    content = toString(result),
+    tool_call_id = id
+  )
+}
+
 # Also need to handle edge caess: https://platform.openai.com/docs/guides/function-calling/edge-cases
 call_tool <- function(fun, arguments) {
+  if (is.null(fun)) {
+    return(paste0("Error calling tool: Unknown tool name '", call$`function`, "'"))
+  }
+
   tryCatch(
     do.call(fun, arguments),
     error = function(e) {
@@ -64,11 +53,11 @@ call_tool <- function(fun, arguments) {
     }
   )
 }
-
-# Should we check `fun` against registered tools?
-# Also need to handle edge caess: https://platform.openai.com/docs/guides/function-calling/edge-cases
-call_tool_async <- NULL
 rlang::on_load(call_tool_async <- coro::async(function(fun, arguments) {
+  if (is.null(fun)) {
+    return(paste0("Error calling tool: Unknown tool name '", call$`function`, "'"))
+  }
+
   tryCatch(
     await(do.call(fun, arguments)),
     error = function(e) {
