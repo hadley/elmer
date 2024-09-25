@@ -363,29 +363,37 @@ Chat <- R6::R6Class("Chat",
     }),
 
     invoke_tools = function() {
-      if (length(private$tool_infos) > 0) {
-        last_message <- private$msgs[[length(private$msgs)]]
-        tool_messages <- openai_tool_call(private$tool_funs, last_message)
-
-        if (length(tool_messages) > 0) {
-          private$msgs <- c(private$msgs, tool_messages)
-          return(TRUE)
-        }
+      if (length(private$tool_infos) == 0) {
+        return(FALSE)
       }
-      FALSE
+
+      last_message <- private$msgs[[length(private$msgs)]]
+      tool_calls <- openai_value_tool_calls(last_message, private$tool_funs)
+      tool_messages <- openai_call_tools(tool_calls)
+
+      if (length(tool_messages) > 0) {
+        private$msgs <- c(private$msgs, tool_messages)
+        TRUE
+      } else {
+        FALSE
+      }
     },
 
     invoke_tools_async = async_method(function(self, private) {
-      if (length(private$tool_infos) > 0) {
-        last_message <- private$msgs[[length(private$msgs)]]
-        tool_messages <- await(openai_tool_call_async(private$tool_funs, last_message))
-
-        if (length(tool_messages) > 0) {
-          private$msgs <- c(private$msgs, tool_messages)
-          return(TRUE)
-        }
+      if (length(private$tool_infos) == 0) {
+        return(FALSE)
       }
-      FALSE
+
+      last_message <- private$msgs[[length(private$msgs)]]
+      tool_calls <- openai_value_tool_calls(last_message, private$tool_funs)
+      tool_messages <- await(openai_call_tools_async(tool_calls))
+
+      if (length(tool_messages) > 0) {
+        private$msgs <- c(private$msgs, tool_messages)
+        TRUE
+      } else {
+        FALSE
+      }
     })
   )
 )

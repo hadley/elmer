@@ -1,8 +1,14 @@
-openai_tool_call <- function(tools, message) {
+openai_value_tool_calls <- function(message, tools) {
   lapply(message$tool_calls, function(call) {
     fun <- tools[[call$`function`$name]]
     args <- jsonlite::parse_json(call$`function`$arguments)
-    result <- call_tool(fun, args)
+    list(fun = fun, args = args, id = call$id)
+  })
+}
+
+openai_call_tools <- function(tool_calls) {
+  lapply(tool_calls, function(call) {
+    result <- call_tool(call$fun, call$args)
 
     if (promises::is.promise(result)) {
       cli::cli_abort(c(
@@ -15,15 +21,12 @@ openai_tool_call <- function(tools, message) {
   })
 }
 
-rlang::on_load(openai_tool_call_async <- coro::async(function(tools, message) {
+rlang::on_load(openai_call_tools_async <- coro::async(function(tool_calls) {
   # We call it this way instead of a more natural for + await_each() because
   # we want to run all the async tool calls in parallel
-  result_promises <- lapply(message$tool_calls, function(call) {
-    fun <- tools[[call$`function`$name]]
-    args <- jsonlite::parse_json(call$`function`$arguments)
-
+  result_promises <- lapply(tool_calls, function(call) {
     promises::then(
-      call_tool_async(fun, args),
+      call_tool_async(call$fun, call$args),
       function(result) openai_tool_result(result, id = call$id)
     )
   })
