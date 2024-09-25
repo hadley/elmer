@@ -66,12 +66,12 @@ chat_console <- function(chat, quiet = FALSE) {
 chat_browser <- function(chat, quiet = FALSE) {
   check_installed(c("bslib", "shiny", "shinychat"))
 
-  ui <- bslib::page_fluid(
-    shinychat::chat_ui("chat"),
+  ui <- bslib::page_fillable(
+    shinychat::chat_ui("chat", height = "100%"),
     shiny::actionButton(
       "close_btn", "",
       class = "btn-close",
-      style = "position: fixed; top: 10px; left: 10px;"
+      style = "position: fixed; top: 6px; right: 6px;"
     )
   )
   server <- function(input, output, session) {
