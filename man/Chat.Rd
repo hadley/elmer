@@ -27,7 +27,6 @@ call \code{\link[=new_chat_openai]{new_chat_openai()}} or friends.
 \item \href{#method-Chat-chat_async}{\code{Chat$chat_async()}}
 \item \href{#method-Chat-stream}{\code{Chat$stream()}}
 \item \href{#method-Chat-stream_async}{\code{Chat$stream_async()}}
-\item \href{#method-Chat-console}{\code{Chat$console()}}
 \item \href{#method-Chat-register_tool}{\code{Chat$register_tool()}}
 \item \href{#method-Chat-clone}{\code{Chat$clone()}}
 }
@@ -159,31 +158,11 @@ yields string promises.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Chat-console"></a>}}
-\if{latex}{\out{\hypertarget{method-Chat-console}{}}}
-\subsection{Method \code{console()}}{
-Enter an interactive chat console. This is a REPL-like
-interface where you can chat with the assistant in real-time. (Only
-available in \code{\link[=interactive]{interactive()}} mode.)
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$console(quiet = FALSE)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{quiet}}{If \code{TRUE}, suppresses the initial message that explains how
-to use the console.}
-}
-\if{html}{\out{</div>}}
-}
-}
-\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Chat-register_tool"></a>}}
 \if{latex}{\out{\hypertarget{method-Chat-register_tool}{}}}
 \subsection{Method \code{register_tool()}}{
 Register a tool (an R function) that the chatbot can use.
-If the chatbot decides to use the function, elmer will automatically
+If the chatbot decides to use the function,  elmer will automatically
 call it and submit the results back. (See \code{\link[=create_tool_metadata]{create_tool_metadata()}} for
 an AI-enabled helper function that can write a \code{register_tool} call
 for you in some cases.)
