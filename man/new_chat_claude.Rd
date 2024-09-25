@@ -2,17 +2,18 @@
 % Please edit documentation in R/api-claude.R
 \name{new_chat_claude}
 \alias{new_chat_claude}
-\title{Create a chatbot that speaks to an OpenAI compatible endpoint}
+\title{Create a chatbot that speaks to Anthropic's Claude}
 \usage{
 new_chat_claude(
   system_prompt = NULL,
   messages = NULL,
-  base_url = "https://api.openai.com/v1",
-  api_key = openai_key(),
+  max_tokens = 4096,
   version = NULL,
   model = NULL,
   seed = NULL,
   api_args = list(),
+  base_url = "https://api.anthropic.com/v1",
+  api_key = anthropic_key(),
   echo = FALSE
 )
 }
@@ -28,11 +29,10 @@ Each message in the list should be a named list with at least \code{role}
 (usually \code{system}, \code{user}, or \code{assistant}, but \code{tool} is also possible).
 Normally there is also a \code{content} field, which is a string.}
 
-\item{base_url}{The base URL to the endpoint; the default uses OpenAI.}
+\item{max_tokens}{Maximum number of tokens to generate before stopping.}
 
-\item{api_key}{The API key to use for authentication. You generally should
-not supply this directly, but instead set the \code{OPENAI_API_KEY} environment
-variable.}
+\item{version}{Optional version specification if you want to opt-in to a
+beta version of a model.}
 
 \item{model}{The model to use for the chat; set to \code{NULL} (the default) to
 use a reasonable model, currently \verb{gpt-4o-mini}. We strongly recommend
@@ -43,6 +43,12 @@ more reproducible.}
 
 \item{api_args}{Named list of arbitrary extra arguments passed to every
 chat API call.}
+
+\item{base_url}{The base URL to the endpoint; the default uses OpenAI.}
+
+\item{api_key}{The API key to use for authentication. You generally should
+not supply this directly, but instead set the \code{OPENAI_API_KEY} environment
+variable.}
 
 \item{echo}{If \code{TRUE}, the \code{chat()} method streams the response to stdout by
 default. (Note that this has no effect on the \code{stream()}, \code{chat_async()},

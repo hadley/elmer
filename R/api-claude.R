@@ -9,6 +9,9 @@ NULL
 #' (aka an R function), it also takes care of the tool loop.
 #'
 #' @inheritParams new_chat_openai
+#' @param max_tokens Maximum number of tokens to generate before stopping.
+#' @param version Optional version specification if you want to opt-in to a
+#'   beta version of a model.
 #' @export
 #' @returns A [Chat] object.
 new_chat_claude <- function(system_prompt = NULL,
