@@ -22,6 +22,7 @@
 #'   content_image_file(system.file("httr2.png", package = "elmer"))
 #' )
 #'
+#' \dontshow{dev.control('enable')}
 #' plot(waiting ~ eruptions, data = faithful)
 #' chat <- new_chat_openai(echo = TRUE)
 #' chat$chat(
@@ -119,17 +120,25 @@ content_image_file <- function(path, content_type = "auto", resize = "low") {
 #' @export
 #' @param width,height Width and height in pixels.
 content_image_plot <- function(width = 768, height = 768) {
-  plot <- recordPlot()
-  old <- dev.cur()
+  plot <- grDevices::recordPlot()
+
+  if (is.null(plot[[1]])) {
+    cli::cli_abort(c(
+      "Can't record plot because display list is inhibited.",
+      i = "Turn it on with {.code dev.control('enable')}."
+    ))
+  }
+
+  old <- grDevices::dev.cur()
 
   path <- tempfile("elmer-plot-", fileext = ".png")
   defer(unlink(path))
 
-  png(path, width = width, height = height)
-  replayPlot(plot)
-  dev.off()
+  grDevices::png(path, width = width, height = height)
+  grDevices::replayPlot(plot)
+  grDevices::dev.off()
 
-  dev.set(old)
+  grDevices::dev.set(old)
 
   content_image_file(path, "image/png", resize = "high")
 }

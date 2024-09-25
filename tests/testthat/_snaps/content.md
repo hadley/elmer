@@ -56,3 +56,12 @@
       Error:
       ! Invalid geometry string: blah
 
+# useful errors if no display
+
+    Code
+      content_image_plot()
+    Condition
+      Error in `content_image_plot()`:
+      ! Can't record plot because display list is inhibited.
+      i Turn it on with `dev.control('enable')`.
+

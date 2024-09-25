@@ -58,6 +58,7 @@ chat$chat(
   content_image_file(system.file("httr2.png", package = "elmer"))
 )
 
+\dontshow{dev.control('enable')}
 plot(waiting ~ eruptions, data = faithful)
 chat <- new_chat_openai(echo = TRUE)
 chat$chat(
