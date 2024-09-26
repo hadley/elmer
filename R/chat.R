@@ -322,8 +322,8 @@ Chat <- R6::R6Class("Chat",
       }
 
       last_message <- private$msgs[[length(private$msgs)]]
-      tool_calls <- openai_value_tool_calls(last_message, private$tool_funs)
-      tool_messages <- openai_call_tools(tool_calls)
+      tool_calls <- value_tool_calls(private$model, last_message, private$tool_funs)
+      tool_messages <- call_tools(private$model, tool_calls)
 
       if (length(tool_messages) > 0) {
         private$msgs <- c(private$msgs, tool_messages)
@@ -339,8 +339,8 @@ Chat <- R6::R6Class("Chat",
       }
 
       last_message <- private$msgs[[length(private$msgs)]]
-      tool_calls <- openai_value_tool_calls(last_message, private$tool_funs)
-      tool_messages <- await(openai_call_tools_async(tool_calls))
+      tool_calls <- value_tool_calls(private$model, last_message, private$tool_funs)
+      tool_messages <- await(call_tools_async(private$model, tool_calls))
 
       if (length(tool_messages) > 0) {
         private$msgs <- c(private$msgs, tool_messages)

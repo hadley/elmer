@@ -246,3 +246,49 @@ method(value_text, openai_model) <- function(model, event) {
 method(value_message, openai_model) <- function(model, result) {
   result$choices[[1]]$message
 }
+
+method(value_tool_calls, openai_model) <- function(model, message, tools) {
+  lapply(message$tool_calls, function(call) {
+    fun <- tools[[call$`function`$name]]
+    args <- jsonlite::parse_json(call$`function`$arguments)
+    list(fun = fun, args = args, id = call$id)
+  })
+}
+
+method(call_tools, openai_model) <- function(model, tool_calls) {
+  lapply(tool_calls, function(call) {
+    result <- call_tool(call$fun, call$args)
+
+    if (promises::is.promise(result)) {
+      cli::cli_abort(c(
+        "Can't use async tools with `$chat()` or `$stream()`.",
+        i = "Async tools are supported, but you must use `$chat_async()` or `$stream_async()`."
+      ))
+    }
+
+    openai_tool_result(result, call$id)
+  })
+}
+
+rlang::on_load(
+  method(call_tools_async, openai_model) <- coro::async(function(model, tool_calls) {
+    # We call it this way instead of a more natural for + await_each() because
+    # we want to run all the async tool calls in parallel
+    result_promises <- lapply(tool_calls, function(call) {
+      promises::then(
+        call_tool_async(call$fun, call$args),
+        function(result) openai_tool_result(result, id = call$id)
+      )
+    })
+
+    promises::promise_all(.list = result_promises)
+  })
+)
+
+openai_tool_result <- function(result, id) {
+  list(
+    role = "tool",
+    content = toString(result),
+    tool_call_id = id
+  )
+}
