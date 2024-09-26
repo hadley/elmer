@@ -17,17 +17,21 @@ Imports:
     jsonlite,
     R6,
     S7,
-    rlang (>= 1.1.0)
+    rlang (>= 1.1.0),
+    shinychat (>= 0.0.0.9000)
 Suggests:
     base64enc,
+    bslib,
     gitcreds,
     later,
     magick,
     promises,
+    shiny,
     testthat (>= 3.0.0),
     withr
-Remotes:
-    r-lib/httr2
+Remotes: 
+    r-lib/httr2,
+    jcheng5/shinychat
 Config/Needs/website: tidyverse/tidytemplate
 Config/testthat/edition: 3
 Encoding: UTF-8
@@ -47,6 +51,7 @@ Collate:
     'import-standalone-obj-type.R'
     'import-standalone-purrr.R'
     'import-standalone-types-check.R'
+    'shiny.R'
     'tools-def.R'
     'tools.R'
     'utils-cat.R'

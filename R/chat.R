@@ -106,54 +106,8 @@ Chat <- R6::R6Class("Chat",
       private$chat_impl_async(input, stream = TRUE, echo = FALSE)
     },
 
-    #' @description Enter an interactive chat console. This is a REPL-like
-    #'   interface where you can chat with the assistant in real-time. (Only
-    #'   available in [interactive()] mode.)
-    #' @param quiet If `TRUE`, suppresses the initial message that explains how
-    #'   to use the console.
-    console = function(quiet = FALSE) {
-      if (!interactive()) {
-        abort("The chat console is only available in interactive mode.")
-      }
-
-      if (!isTRUE(quiet)) {
-        cli::cat_boxx(
-          c("Entering chat console. Use \"\"\" for multi-line input.",
-            "Press Ctrl+C to quit."),
-          padding = c(0, 2, 0, 2),
-          border_style = "double"
-        )
-      }
-
-      while (TRUE) {
-        # Prompt for user input
-        user_input <- readline(prompt = ">>> ")
-
-        if (!grepl("\\S", user_input)) {
-          next
-        }
-
-        if (grepl('^\\s*"""', user_input)) {
-          while (TRUE) {
-            next_input <- readline(prompt = '... ')
-            user_input <- paste0(user_input, "\n", next_input)
-            if (grepl('"""\\s*$', next_input)) {
-              break
-            }
-          }
-          # Strip leading and trailing """, using regex
-          user_input <- gsub('^\\s*"""\\s*', '', user_input)
-          user_input <- gsub('\\s*"""\\s*$', '', user_input)
-        }
-
-        # Process the input using the provided LLM function
-        self$chat(user_input, echo = TRUE)
-        cat("\n")
-      }
-    },
-
     #' @description Register a tool (an R function) that the chatbot can use.
-    #'   If the chatbot decides to use the function, elmer will automatically
+    #'   If the chatbot decides to use the function,  elmer will automatically
     #'   call it and submit the results back. (See [create_tool_metadata()] for
     #'   an AI-enabled helper function that can write a `register_tool` call
     #'   for you in some cases.)
