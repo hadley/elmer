@@ -66,7 +66,6 @@ call <code><a href="new_chat_openai.html">new_chat_openai()</a></code> or friend
 <li><p><a href="#method-Chat-chat_async"><code>Chat$chat_async()</code></a></p></li>
 <li><p><a href="#method-Chat-stream"><code>Chat$stream()</code></a></p></li>
 <li><p><a href="#method-Chat-stream_async"><code>Chat$stream_async()</code></a></p></li>
-<li><p><a href="#method-Chat-console"><code>Chat$console()</code></a></p></li>
 <li><p><a href="#method-Chat-register_tool"><code>Chat$register_tool()</code></a></p></li>
 <li><p><a href="#method-Chat-clone"><code>Chat$clone()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-Chat-new"></a><div class="section">
@@ -199,38 +198,19 @@ yields string promises.</p><div class="section">
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-Chat-console"></a><div class="section">
-<h3 id="method-console-">Method <code>console()</code><a class="anchor" aria-label="anchor" href="#method-console-"></a></h3>
-<p>Enter an interactive chat console. This is a REPL-like
-interface where you can chat with the assistant in real-time. (Only
-available in <code><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive()</a></code> mode.)</p><div class="section">
-<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">console</span><span class="op">(</span>quiet <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
-<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>quiet</code></dt>
-<dd><p>If <code>TRUE</code>, suppresses the initial message that explains how
-to use the console.</p></dd>
-
-
-</dl><p></p></div>
-</div>
-
 </div><p></p><hr><a id="method-Chat-register_tool"></a><div class="section">
 <h3 id="method-register-tool-">Method <code>register_tool()</code><a class="anchor" aria-label="anchor" href="#method-register-tool-"></a></h3>
 <p>Register a tool (an R function) that the chatbot can use.
-If the chatbot decides to use the function, elmer will automatically
+If the chatbot decides to use the function,  elmer will automatically
 call it and submit the results back. (See <code><a href="create_tool_metadata.html">create_tool_metadata()</a></code> for
 an AI-enabled helper function that can write a <code>register_tool</code> call
 for you in some cases.)</p><div class="section">
-<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span><span class="va">fun</span>, <span class="va">name</span>, <span class="va">description</span>, <span class="va">arguments</span>, strict <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
+<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>fun</code></dt>
 <dd><p>The function to be invoked when the tool is called.</p></dd>
 
@@ -261,12 +241,12 @@ mode, which comes with a number of <a href="https://platform.openai.com/docs/gui
 </div><p></p><hr><a id="method-Chat-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
+<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 
