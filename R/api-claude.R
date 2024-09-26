@@ -137,26 +137,26 @@ method(stream_parse, claude_model) <- function(model, event) {
 method(stream_text, claude_model) <- function(model, event) {
   if (event$type == "content_block_delta") {
     event$delta$text
-  } else if (event$type == "content_block_stop") {
-    "\n"
   }
 }
 method(stream_merge_chunks, claude_model) <- function(model, result, chunk) {
   if (chunk$type == "ping") {
-    # next
+    # nothing to do
   } else if (chunk$type == "message_start") {
     result$role <- chunk$message$role
   } else if (chunk$type == "content_block_start") {
     result$content[[chunk$index + 1L]] <- chunk$content_block
   } else if (chunk$type == "content_block_delta") {
-    result$content[[chunk$index + 1L]]$text <-
-      paste0(result$content[[chunk$index + 1L]]$text, chunk$delta$text)
+    if (!is.null(chunk$delta$text)) {
+      result$content[[chunk$index + 1L]]$text <-
+        paste0(result$content[[chunk$index + 1L]]$text, chunk$delta$text)
+    }
   } else if (chunk$type == "content_block_stop") {
-    #
+    # nothing to do
   } else if (chunk$type == "message_delta") {
     # TODO: do something with stop reason
   } else {
-    browser()
+    cli::cli_inform(c("!" = "Unknown chunk type {.str {chunk$type}}."))
   }
   result
 }
@@ -184,4 +184,66 @@ method(tools_tweak, claude_model) <- function(model, tools) {
       input_schema = compact(fun$parameters)
     )
   })
+}
+
+method(value_tool_calls, claude_model) <- function(model, message, tools) {
+  compact(lapply(message$content, function(content) {
+    if (identical(content$type, "tool_use")) {
+      list(fun = tools[[content$name]], args = content$input, id = content$id)
+    }
+  }))
+}
+
+method(call_tools, claude_model) <- function(model, tool_calls) {
+  if (length(tool_calls) == 0) {
+    return()
+  }
+
+  results <- lapply(tool_calls, function(call) {
+    result <- call_tool(call$fun, call$args)
+
+    if (promises::is.promise(result)) {
+      cli::cli_abort(c(
+        "Can't use async tools with `$chat()` or `$stream()`.",
+        i = "Async tools are supported, but you must use `$chat_async()` or `$stream_async()`."
+      ))
+    }
+
+    claude_tool_result(result, call$id)
+  })
+
+  # Returns a list of messages
+  list(list(role = "user", content = results))
+}
+
+rlang::on_load(
+  method(call_tools_async, claude_model) <- coro::async(function(model, tool_calls) {
+    if (length(tool_calls) == 0) {
+      return()
+    }
+
+    # We call it this way instead of a more natural for + await_each() because
+    # we want to run all the async tool calls in parallel
+    result_promises <- lapply(tool_calls, function(call) {
+      result <- call_tool(call$fun, call$args)
+      promises::then(
+        call_tool_async(call$fun, call$args),
+        function(result) claude_tool_result(result, id = call$id)
+      )
+    })
+
+    promises::then(
+      promises::promise_all(.list = result_promises),
+      function(results) list(list(role = "user", content = results))
+    )
+  })
+)
+
+# https://docs.anthropic.com/en/api/messages: grep for tools
+claude_tool_result <- function(result, id) {
+  list(
+    type = "tool_result",
+    tool_use_id = id,
+    content = toString(result)
+  )
 }

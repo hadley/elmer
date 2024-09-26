@@ -59,8 +59,11 @@ Chat <- R6::R6Class("Chat",
       last_message <- private$msgs[[length(private$msgs)]]
       stopifnot(identical(last_message[["role"]], "assistant"))
 
-      text <- value_text(private$model, last_message)
-      if (!echo) text else invisible(text)
+      if (echo) {
+        invisible(last_message$content)
+      } else {
+        last_message$content
+      }
     },
 
     #' @description Submit input to the chatbot, and receive a promise that
@@ -240,6 +243,7 @@ Chat <- R6::R6Class("Chat",
           result <- stream_merge_chunks(private$model, result, chunk)
         }
         # Ensure messages always end in a newline
+        # TODO: openai needs this but claude doesn't
         if (any_text) {
           emit("\n")
           yield("\n")

@@ -56,75 +56,57 @@ test_that("can make a simple tool call", {
   expect_equal(result, "Tuesday")
 })
 
-test_that("repeated tool calls (sync)", {
-  not_actually_random_number <- 1
-
+test_that("can make an async tool call", {
+  get_date <- coro::async(function() {
+    await(coro::async_sleep(0.2))
+    "2024-01-01"
+  })
   chat <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.")
-  chat$register_tool(
-    fun = function(tz) format(as.POSIXct(as.POSIXct("2020-08-01 18:00:00", tz="UTC"), tz=tz)),
-    "get_time",
-    "Gets the current time",
-    list("tz" = tool_arg(type = "string", description = "Time zone", required = TRUE)),
-    strict = TRUE
-  )
-  chat$register_tool(
-    fun = function(n, mean, sd) { not_actually_random_number },
-    name = "rnorm",
-    description = "Drawn numbers from a random normal distribution",
-    arguments = list(
-      "n" = tool_arg(type = "integer", description = "The number of observations. Must be a positive integer."),
-      "mean" = tool_arg(type = "number", description = "The mean value of the distribution. Defaults to 0.", required = FALSE),
-      "sd" = tool_arg(type = "number", description = "The standard deviation of the distribution. Must be a non-negative number. Defaults to 1.", required = FALSE)
-    ),
-    strict = FALSE
-  )
+  chat$register_tool(get_date, "get_date", "Gets the current date", list())
 
-  result <- coro::collect(chat$stream("Pick a random number. If it's positive, tell me the current time in New York. If it's negative, tell me the current time in Seattle. Use ISO-8601, e.g. '2006-01-02T15:04:05'."))
-  expect_identical(paste(result, collapse = ""), "2020-08-01T14:00:00\n")
+  result <- sync(chat$chat_async("What's the current date?"))
+  expect_equal(result, "2024-01-01")
 
-  not_actually_random_number <- -1
-  result <- coro::collect(chat$stream("Great. Do it again."))
-  expect_identical(paste(result, collapse = ""), "2020-08-01T11:00:00\n")
-
-  expect_snapshot(chat)
+  expect_snapshot(chat$chat("Great. Do it again."), error = TRUE)
 })
 
-test_that("repeated tool calls (async)", {
-  not_actually_random_number <- 1
-
-  chat_async <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.")
-  chat_async$register_tool(
-    fun = function(tz) format(as.POSIXct(as.POSIXct("2020-08-01 18:00:00", tz="UTC"), tz=tz)),
-    "get_time",
-    "Gets the current time",
-    list("tz" = tool_arg(type = "string", description = "Time zone", required = TRUE)),
+test_that("can call multiple tools", {
+  chat <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.")
+  favourite_color <- function(person) {
+    if (person == "Joe") "blue" else "red"
+  }
+  chat$register_tool(
+    favourite_color,
+    "favourite_color",
+    "Returns a person's favourite colour",
+    list(person = tool_arg("string", "Name of a person")),
     strict = TRUE
   )
-  # An async tool
-  chat_async$register_tool(
-    fun = coro::async(function(n, mean, sd) {
-      await(coro::async_sleep(0.2))
-      not_actually_random_number
-    }),
-    name = "rnorm",
-    description = "Drawn numbers from a random normal distribution",
-    arguments = list(
-      "n" = tool_arg(type = "integer", description = "The number of observations. Must be a positive integer."),
-      "mean" = tool_arg(type = "number", description = "The mean value of the distribution. Defaults to 0.", required = FALSE),
-      "sd" = tool_arg(type = "number", description = "The standard deviation of the distribution. Must be a non-negative number. Defaults to 1.", required = FALSE)
-    ),
-    strict = FALSE
+
+  result <- chat$chat("
+    What are Joe and Hadley's favourite colours?
+    Answer like name1: colour1, name2: colour2
+  ")
+  expect_identical(result, "Joe: blue, Hadley: red")
+  expect_length(chat$messages(include_system_prompt = FALSE), 5)
+})
+
+test_that("can call multiple tools in sequence", {
+  chat <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.")
+  chat$register_tool(
+    function() 2024,
+    "get_year",
+    "Get the current year",
+    list()
+  )
+  chat$register_tool(
+    function(year) if (year == 2024) "Susan" else "I don't know",
+    "popular_name",
+    "Gets the most popular name for a year",
+    list(year = tool_arg("integer", "Year"))
   )
 
-  result <- sync(coro::async_collect(chat_async$stream_async("Pick a random number. If it's positive, tell me the current time in New York. If it's negative, tell me the current time in Seattle. Use ISO-8601.")))
-  expect_identical(paste(result, collapse = ""), "2020-08-01T14:00:00\n")
-
-  not_actually_random_number <- -1
-  result <- sync(coro::async_collect(chat_async$stream_async("Great. Do it again.")))
-  expect_identical(paste(result, collapse = ""), "2020-08-01T11:00:00\n")
-
-  expect_snapshot(chat_async)
-
-  # Can't use async tools with sync methods
-  expect_error(chat_async$chat("Great. Do it again."), "chat_async")
+  result <- chat$chat("What was the most popular name this year?")
+  expect_equal(result, "Susan")
+  expect_length(chat$messages(include_system_prompt = FALSE), 6)
 })
