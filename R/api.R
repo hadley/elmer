@@ -127,3 +127,23 @@ value_message <- new_generic("value_message", "model",
     S7_dispatch()
   }
 )
+
+# Tool calling -----------------------------------------------------------------
+
+value_tool_calls <- new_generic("value_tool_calls", "model",
+  function(model, message, tools) {
+    S7_dispatch()
+  }
+)
+
+call_tools <- new_generic("call_tools", "model",
+  function(model, tool_calls) {
+    S7_dispatch()
+  }
+)
+
+call_tools_async <- new_generic("call_tools_async", "model",
+  function(model, tool_calls) {
+    S7_dispatch()
+  }
+)
