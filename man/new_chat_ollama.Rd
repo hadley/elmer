@@ -28,9 +28,9 @@ Normally there is also a \code{content} field, which is a string.}
 
 \item{base_url}{The base URL to the endpoint; the default uses OpenAI.}
 
-\item{model}{The model to use for the chat; set to \code{NULL} (the default) to
-use a reasonable model, currently \verb{gpt-4o-mini}. We strongly recommend
-explicitly choosing a model for all but the most casual use.}
+\item{model}{The model to use for the chat. The default, \code{NULL}, will pick
+a reasonable default, and tell you about. We strongly recommend explicitly
+choosing a model for all but the most casual use.}
 
 \item{seed}{Optional integer seed that ChatGPT uses to try and make output
 more reproducible.}

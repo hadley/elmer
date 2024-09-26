@@ -20,6 +20,8 @@ new_chat_github <- function(system_prompt = NULL,
 
   check_installed("gitcreds")
 
+  model <- set_default(model, "gpt-4o-mini")
+
   new_chat_openai(
     system_prompt = system_prompt,
     messages = messages,

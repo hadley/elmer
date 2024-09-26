@@ -21,9 +21,9 @@ NULL
 #' @param api_key The API key to use for authentication. You generally should
 #'   not supply this directly, but instead set the `OPENAI_API_KEY` environment
 #'   variable.
-#' @param model The model to use for the chat; set to `NULL` (the default) to
-#'   use a reasonable model, currently `gpt-4o-mini`. We strongly recommend
-#'   explicitly choosing a model for all but the most casual use.
+#' @param model The model to use for the chat. The default, `NULL`, will pick
+#'   a reasonable default, and tell you about. We strongly recommend explicitly
+#'   choosing a model for all but the most casual use.
 #' @param seed Optional integer seed that ChatGPT uses to try and make output
 #'   more reproducible.
 #' @param api_args Named list of arbitrary extra arguments passed to every
@@ -75,6 +75,8 @@ new_chat_openai <- function(system_prompt = NULL,
   check_string(system_prompt, allow_null = TRUE)
   openai_check_conversation(messages, allow_null = TRUE)
   check_bool(echo)
+
+  model <- set_default(model, "gpt-4o-mini")
 
   model <- new_openai_model(
     base_url = base_url,
@@ -150,12 +152,11 @@ new_openai_model <- function(base_url = "https://api.openai.com/v1",
   # leaking that implementation detail to the user.
 
   check_string(base_url, call = error_call())
-  check_string(model, allow_null = TRUE, call = error_call())
+  check_string(model, call = error_call())
   check_number_whole(seed, allow_null = TRUE, call = error_call())
   # check_named_list(extra_args, call = error_call())
   check_string(api_key, call = error_call())
 
-  model <- model %||% "gpt-4o-mini"
   if (is_testing() && is.null(seed)) {
     seed <- 1014
   }
@@ -244,4 +245,50 @@ method(value_text, openai_model) <- function(model, event) {
 }
 method(value_message, openai_model) <- function(model, result) {
   result$choices[[1]]$message
+}
+
+method(value_tool_calls, openai_model) <- function(model, message, tools) {
+  lapply(message$tool_calls, function(call) {
+    fun <- tools[[call$`function`$name]]
+    args <- jsonlite::parse_json(call$`function`$arguments)
+    list(fun = fun, args = args, id = call$id)
+  })
+}
+
+method(call_tools, openai_model) <- function(model, tool_calls) {
+  lapply(tool_calls, function(call) {
+    result <- call_tool(call$fun, call$args)
+
+    if (promises::is.promise(result)) {
+      cli::cli_abort(c(
+        "Can't use async tools with `$chat()` or `$stream()`.",
+        i = "Async tools are supported, but you must use `$chat_async()` or `$stream_async()`."
+      ))
+    }
+
+    openai_tool_result(result, call$id)
+  })
+}
+
+rlang::on_load(
+  method(call_tools_async, openai_model) <- coro::async(function(model, tool_calls) {
+    # We call it this way instead of a more natural for + await_each() because
+    # we want to run all the async tool calls in parallel
+    result_promises <- lapply(tool_calls, function(call) {
+      promises::then(
+        call_tool_async(call$fun, call$args),
+        function(result) openai_tool_result(result, id = call$id)
+      )
+    })
+
+    promises::promise_all(.list = result_promises)
+  })
+)
+
+openai_tool_result <- function(result, id) {
+  list(
+    role = "tool",
+    content = toString(result),
+    tool_call_id = id
+  )
 }

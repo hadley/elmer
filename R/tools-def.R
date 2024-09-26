@@ -5,8 +5,13 @@ tool_def <- function(name, description, arguments, strict = FALSE) {
     arg$required %||% FALSE
   })
 
-  properties <- lapply(arguments, function(x) x[c("type", "description")])
-  names(properties) <- arg_names
+  if (length(arguments) > 0) {
+    properties <- lapply(arguments, function(x) x[c("type", "description")])
+    names(properties) <- arg_names
+  } else {
+    # Create an empty object in json
+    properties <- set_names(list())
+  }
 
   list(
     type = "function",

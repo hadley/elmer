@@ -130,7 +130,7 @@ value_message <- new_generic("value_message", "model",
   }
 )
 
-# Data structure normalisation -------------------------------------------------
+# Tool calling -----------------------------------------------------------------
 
 tools_tweak <- new_generic("tools_tweak", "model",
   function(model, tools) {
@@ -140,3 +140,21 @@ tools_tweak <- new_generic("tools_tweak", "model",
 method(tools_tweak, class_any) <- function(model, tools) {
   tools
 }
+
+value_tool_calls <- new_generic("value_tool_calls", "model",
+  function(model, message, tools) {
+    S7_dispatch()
+  }
+)
+
+call_tools <- new_generic("call_tools", "model",
+  function(model, tool_calls) {
+    S7_dispatch()
+  }
+)
+
+call_tools_async <- new_generic("call_tools_async", "model",
+  function(model, tool_calls) {
+    S7_dispatch()
+  }
+)
