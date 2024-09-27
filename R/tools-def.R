@@ -1,5 +1,8 @@
-
 tool_def <- function(name, description, arguments, strict = FALSE) {
+  check_string(name)
+  check_string(description)
+  check_bool(strict)
+
   arg_names <- names(arguments)
   arg_required <- map_lgl(arguments, function(arg) {
     arg$required %||% FALSE

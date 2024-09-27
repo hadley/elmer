@@ -122,11 +122,17 @@ Chat <- R6::R6Class("Chat",
     #'   Output](https://platform.openai.com/docs/guides/structured-outputs)
     #'   mode, which comes with a number of [additional
     #'   requirements](https://platform.openai.com/docs/guides/structured-outputs/supported-schemas).
-    register_tool = function(fun, name, description, arguments, strict = FALSE) {
+    register_tool = function(fun, name = NULL, description, arguments = list(), strict = FALSE) {
+      if (is.null(name)) {
+        fun_expr <- enexpr(fun)
+        if (is.name(fun_expr)) {
+          name <- as.character(fun_expr)
+        } else {
+          name <- paste0("tool", length(private$tool_infos))
+        }
+      }
+
       check_function(fun)
-      check_string(name)
-      check_string(description)
-      check_bool(strict)
 
       tool <- tool_def(
         name = name,

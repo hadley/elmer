@@ -114,9 +114,9 @@ chat$chat(
 )
 ```
 
-    The logo of R features a stylized letter "R" in blue, enclosed in an oval shape that resembles the letter "O," 
-    signifying the programming language's name. The design conveys a modern and professional look, reflecting its use 
-    in statistical computing and data analysis. The blue color often represents trust and reliability, which aligns 
+    The logo of R features a stylized letter "R" in blue, enclosed in an oval shape that resembles the letter "O,"
+    signifying the programming language's name. The design conveys a modern and professional look, reflecting its use
+    in statistical computing and data analysis. The blue color often represents trust and reliability, which aligns
     with R's role in data science.
 
 The `content_image_url` function takes a URL to an image file and sends
@@ -289,11 +289,11 @@ chat <- new_chat_openai(model = "gpt-4o")
 chat$chat("How long ago exactly was the moment Neil Armstrong touched down on the moon?")
 ```
 
-    Neil Armstrong touched down on the moon on July 20, 1969, at 20:17 UTC. To determine how long ago that 
+    Neil Armstrong touched down on the moon on July 20, 1969, at 20:17 UTC. To determine how long ago that
     was from the current year of 2023, we can calculate the difference in years, months, and days.
 
-    From July 20, 1969, to July 20, 2023, is exactly 54 years. If today's date is after July 20, 2023, you 
-    would add the additional time since then. If it is before, you would consider slightly less than 54 
+    From July 20, 1969, to July 20, 2023, is exactly 54 years. If today's date is after July 20, 2023, you
+    would add the additional time since then. If it is before, you would consider slightly less than 54
     years.
 
     As of right now, can you confirm the current date so we can calculate the precise duration?
@@ -308,7 +308,7 @@ current time. This will be our tool.
 
 ``` r
 #' Gets the current time in the given time zone.
-#' 
+#'
 #' @param tz The time zone to get the current time in.
 #' @return The current time in the given time zone.
 get_current_time <- function(tz = "UTC") {
@@ -338,7 +338,6 @@ chat <- new_chat_openai(model = "gpt-4o")
 
 chat$register_tool(
   fun = get_current_time,
-  name = "get_current_time",
   description = "Gets the current time in the given time zone.",
   arguments = list(
     tz = tool_arg(
@@ -373,7 +372,7 @@ chat$chat("How long ago exactly was the moment Neil Armstrong touched down on th
 
     Neil Armstrong touched down on the moon on July 20, 1969, at 20:17 UTC.
 
-    To calculate the time elapsed from that moment until the current time (September 18, 2024, 17:47:19 
+    To calculate the time elapsed from that moment until the current time (September 18, 2024, 17:47:19
     UTC), we need to break it down.
 
     1. From July 20, 1969, 20:17 UTC to July 20, 2024, 20:17 UTC is exactly 55 years.

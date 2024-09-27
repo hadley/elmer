@@ -103,9 +103,9 @@ chat$chat(
 )
 ```
 ```
-The logo of R features a stylized letter "R" in blue, enclosed in an oval shape that resembles the letter "O," 
-signifying the programming language's name. The design conveys a modern and professional look, reflecting its use 
-in statistical computing and data analysis. The blue color often represents trust and reliability, which aligns 
+The logo of R features a stylized letter "R" in blue, enclosed in an oval shape that resembles the letter "O,"
+signifying the programming language's name. The design conveys a modern and professional look, reflecting its use
+in statistical computing and data analysis. The blue color often represents trust and reliability, which aligns
 with R's role in data science.
 ```
 
@@ -211,7 +211,7 @@ Async generators are very advanced, and require a good understanding of asynchro
 
 ## Tool calling (a.k.a. function calling)
 
-One of the most interesting aspects of modern chat models is their ability to make use of external tools that are defined by the caller. 
+One of the most interesting aspects of modern chat models is their ability to make use of external tools that are defined by the caller.
 
 When making a chat request to the chat model, the caller advertises one or more tools (defined by their function name, description, and a list of expected arguments), and the chat model can choose to respond with one or more "tool calls". These tool calls are requests _from the chat model to the caller_ to execute the function with the given arguments; the caller is expected to execute the functions and "return" the results by submitting another chat request with the conversation so far, plus the results. The chat model can then use those results in formulating its response, or, it may decide to make additional tool calls.
 
@@ -226,11 +226,11 @@ chat <- new_chat_openai(model = "gpt-4o")
 chat$chat("How long ago exactly was the moment Neil Armstrong touched down on the moon?")
 ```
 ```
-Neil Armstrong touched down on the moon on July 20, 1969, at 20:17 UTC. To determine how long ago that 
+Neil Armstrong touched down on the moon on July 20, 1969, at 20:17 UTC. To determine how long ago that
 was from the current year of 2023, we can calculate the difference in years, months, and days.
 
-From July 20, 1969, to July 20, 2023, is exactly 54 years. If today's date is after July 20, 2023, you 
-would add the additional time since then. If it is before, you would consider slightly less than 54 
+From July 20, 1969, to July 20, 2023, is exactly 54 years. If today's date is after July 20, 2023, you
+would add the additional time since then. If it is before, you would consider slightly less than 54
 years.
 
 As of right now, can you confirm the current date so we can calculate the precise duration?
@@ -244,7 +244,7 @@ The first thing we'll do is define an R function that returns the current time. 
 
 ```{r eval=FALSE}
 #' Gets the current time in the given time zone.
-#' 
+#'
 #' @param tz The time zone to get the current time in.
 #' @return The current time in the given time zone.
 get_current_time <- function(tz = "UTC") {
@@ -272,7 +272,6 @@ chat <- new_chat_openai(model = "gpt-4o")
 
 chat$register_tool(
   fun = get_current_time,
-  name = "get_current_time",
   description = "Gets the current time in the given time zone.",
   arguments = list(
     tz = tool_arg(
@@ -298,7 +297,7 @@ chat$chat("How long ago exactly was the moment Neil Armstrong touched down on th
 ```
 Neil Armstrong touched down on the moon on July 20, 1969, at 20:17 UTC.
 
-To calculate the time elapsed from that moment until the current time (September 18, 2024, 17:47:19 
+To calculate the time elapsed from that moment until the current time (September 18, 2024, 17:47:19
 UTC), we need to break it down.
 
 1. From July 20, 1969, 20:17 UTC to July 20, 2024, 20:17 UTC is exactly 55 years.
