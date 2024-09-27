@@ -41,6 +41,11 @@ Chat <- R6::R6Class("Chat",
       }
     },
 
+    #' @description Return the last message sent to the chatbot
+    last_message = function() {
+      private$msgs[[length(private$msgs)]]
+    },
+
     #' @description Submit input to the chatbot, and return the response as a
     #'   simple string (probably Markdown).
     #' @param ... The input to send to the chatbot. Can be strings or images
@@ -56,14 +61,9 @@ Chat <- R6::R6Class("Chat",
       # Returns a single message (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
       coro::collect(private$chat_impl(input, stream = echo, echo = echo))
-      last_message <- private$msgs[[length(private$msgs)]]
-      stopifnot(identical(last_message[["role"]], "assistant"))
+      text <- message_text(private$model, self$last_message())
 
-      if (echo) {
-        invisible(last_message$content)
-      } else {
-        last_message$content
-      }
+      if (echo) invisible(text) else text
     },
 
     #' @description Submit input to the chatbot, and receive a promise that
@@ -79,9 +79,7 @@ Chat <- R6::R6Class("Chat",
         private$chat_impl_async(input, stream = FALSE, echo = FALSE)
       )
       promises::then(done, function(dummy) {
-        last_message <- private$msgs[[length(private$msgs)]]
-        stopifnot(identical(last_message[["role"]], "assistant"))
-        last_message$content
+        message_text(private$model, self$last_message())
       })
     },
 
@@ -251,13 +249,13 @@ Chat <- R6::R6Class("Chat",
 
         message <- stream_message(private$model, result)
       } else {
-        text <- value_text(private$model, response)
+        message <- value_message(private$model, response)
+        text <- message_text(private$model, message)
         if (!is.null(text)) {
           text <- paste0(text, "\n")
           emit(text)
           yield(text)
         }
-        message <- value_message(private$model, response)
       }
       private$add_message(message)
 
@@ -301,13 +299,13 @@ Chat <- R6::R6Class("Chat",
       } else {
         result <- await(response)
 
-        text <- value_text(private$model, result)
+        message <- value_message(private$model, result)
+        text <- message_text(private$model, message)
         if (!is.null(text)) {
           text <- paste0(text, "\n")
           emit(text)
           yield(text)
         }
-        message <- value_message(private$model, result)
       }
       private$add_message(message)
 
@@ -322,7 +320,7 @@ Chat <- R6::R6Class("Chat",
         return(FALSE)
       }
 
-      last_message <- private$msgs[[length(private$msgs)]]
+      last_message <- self$last_message()
       tool_calls <- value_tool_calls(private$model, last_message, private$tool_funs)
       tool_messages <- call_tools(private$model, tool_calls)
 
@@ -339,7 +337,7 @@ Chat <- R6::R6Class("Chat",
         return(FALSE)
       }
 
-      last_message <- private$msgs[[length(private$msgs)]]
+      last_message <- self$last_message()
       tool_calls <- value_tool_calls(private$model, last_message, private$tool_funs)
       tool_messages <- await(call_tools_async(private$model, tool_calls))
 
@@ -404,7 +402,6 @@ format_content <- function(content) {
   }
 }
 
-last_message <- function(chat) {
-  messages <- chat$messages()
-  messages[[length(messages)]]
+last_text <- function(chat) {
+  message_text(chat$.__enclos_env__$private$model, chat$last_message())
 }

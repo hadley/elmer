@@ -240,11 +240,16 @@ method(stream_message, openai_model) <- function(model, result) {
   result$choices[[1]]$delta
 }
 
-method(value_text, openai_model) <- function(model, event) {
-  event$choices[[1]]$message$content
-}
 method(value_message, openai_model) <- function(model, result) {
   result$choices[[1]]$message
+}
+
+method(message_text, openai_model) <- function(model, message) {
+  if (!identical(message$role, "assistant")) {
+    cli::cli_abort("Unexpected role: {.str {message$role}}.")
+  }
+  message$content
+
 }
 
 method(value_tool_calls, openai_model) <- function(model, message, tools) {

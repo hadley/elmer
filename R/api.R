@@ -119,16 +119,20 @@ stream_message <- new_generic("stream_message", "model",
 
 # Extract data from non-streaming results --------------------------------------
 
-value_text <- new_generic("value_text", "model",
-  function(model, event) {
-    S7_dispatch()
-  }
-)
 value_message <- new_generic("value_message", "model",
   function(model, result) {
     S7_dispatch()
   }
 )
+
+# Standardise data from messages -----------------------------------------------
+
+message_text <- new_generic("message_text", "model",
+  function(model, message) {
+    S7_dispatch()
+  }
+)
+
 
 # Tool calling -----------------------------------------------------------------
 

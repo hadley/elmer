@@ -164,15 +164,28 @@ method(stream_message, claude_model) <- function(model, result) {
   result
 }
 
-method(value_text, claude_model) <- function(model, event) {
-  event$content[[1]]$text
-}
 method(value_message, claude_model) <- function(model, result) {
   list(
     role = result$role,
     content = result$content
   )
 }
+
+method(message_text, claude_model) <- function(model, message) {
+  if (!identical(message$role, "assistant")) {
+    cli::cli_abort("Unexpected role: {.str {message$role}}.", .internal = TRUE)
+  }
+  if (length(message$content) != 1) {
+    return()
+  }
+  content <- message$content[[1]]
+  if (!identical(content$type, "text")) {
+    return()
+  }
+
+  content$text
+}
+
 
 method(tools_tweak, claude_model) <- function(model, tools) {
   lapply(tools, function(tool) {

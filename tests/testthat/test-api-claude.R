@@ -4,7 +4,7 @@ test_that("can perform a simple batch chat", {
     If asked a math question, return only the answer.",
   )
   result <- chat$chat("What's 1 + 1")
-  expect_equal(result[[1]]$text, "2")
+  expect_equal(result, "2")
 })
 
 test_that("can perform a simple streaming chat", {
@@ -18,7 +18,7 @@ test_that("can perform a simple streaming chat", {
   chunks <- coro::collect(chat$stream("What are the canonical colors of the ROYGBIV rainbow?"))
   expect_gt(length(chunks), 2)
   expect_match(paste(chunks, collapse = ""), rainbow_re, ignore.case = TRUE)
-  expect_match(last_message(chat)$content[[1]]$text, rainbow_re, ignore.case = TRUE)
+  expect_match(last_text(chat), rainbow_re, ignore.case = TRUE)
 })
 
 test_that("can call tools", {
@@ -27,7 +27,7 @@ test_that("can call tools", {
   chat$register_tool(get_date, "get_date", "Gets the current date", list(), strict = TRUE)
 
   result <- chat$chat("What's the current date?")
-  expect_match(result[[1]]$text, "2024-01-01")
+  expect_match(result, "2024-01-01")
 })
 
 test_that("can make an async tool call", {
@@ -39,7 +39,7 @@ test_that("can make an async tool call", {
   chat$register_tool(get_date, "get_date", "Gets the current date", list())
 
   result <- sync(chat$chat_async("What's the current date?"))
-  expect_match(result[[1]]$text, "2024-01-01")
+  expect_match(result, "2024-01-01")
 
   expect_snapshot(chat$chat("Great. Do it again."), error = TRUE)
 })
@@ -61,7 +61,7 @@ test_that("can call multiple tools at once", {
     What are Joe and Hadley's favourite colours?
     Answer like name1: colour1, name2: colour2
   ")
-  expect_identical(result[[1]]$text, "Joe: sage green, Hadley: red")
+  expect_identical(result, "Joe: sage green, Hadley: red")
 })
 
 test_that("can call multiple tools in sequence", {
@@ -83,5 +83,5 @@ test_that("can call multiple tools in sequence", {
     What was the most popular name this year?
     Just provide the name.
   ")
-  expect_equal(result[[1]]$text, "Susan")
+  expect_equal(result, "Susan")
 })
