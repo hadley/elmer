@@ -47,7 +47,7 @@ test_that("can make an async tool call", {
 test_that("can call multiple tools at once", {
   chat <- new_chat_claude(system_prompt = "Be very terse, not even punctuation.")
   favourite_color <- function(person) {
-    if (person == "Joe") "blue" else "red"
+    if (person == "Joe") "sage green" else "red"
   }
   chat$register_tool(
     favourite_color,
@@ -61,7 +61,7 @@ test_that("can call multiple tools at once", {
     What are Joe and Hadley's favourite colours?
     Answer like name1: colour1, name2: colour2
   ")
-  expect_identical(result[[1]]$text, "Joe: blue, Hadley: red")
+  expect_identical(result[[1]]$text, "Joe: sage green, Hadley: red")
 })
 
 test_that("can call multiple tools in sequence", {

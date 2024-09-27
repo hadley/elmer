@@ -73,7 +73,7 @@ test_that("can make an async tool call", {
 test_that("can call multiple tools", {
   chat <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.")
   favourite_color <- function(person) {
-    if (person == "Joe") "blue" else "red"
+    if (person == "Joe") "sage green" else "red"
   }
   chat$register_tool(
     favourite_color,
@@ -87,7 +87,7 @@ test_that("can call multiple tools", {
     What are Joe and Hadley's favourite colours?
     Answer like name1: colour1, name2: colour2
   ")
-  expect_identical(result, "Joe: blue, Hadley: red")
+  expect_identical(result, "Joe: sage green, Hadley: red")
   expect_length(chat$messages(include_system_prompt = FALSE), 5)
 })
 
