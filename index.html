@@ -127,9 +127,9 @@
 <span>  <span class="fu"><a href="reference/content_image_url.html">content_image_url</a></span><span class="op">(</span><span class="st">"https://www.r-project.org/Rlogo.png"</span><span class="op">)</span>,</span>
 <span>  <span class="st">"Can you explain this logo?"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>The logo of R features a stylized letter <span class="st">"R"</span> <span class="cf">in</span> blue, enclosed <span class="cf">in</span> an oval shape that resembles the letter <span class="st">"O,"</span> </span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>signifying the programming language<span class="st">'s name. The design conveys a modern and professional look, reflecting its use </span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="st">in statistical computing and data analysis. The blue color often represents trust and reliability, which aligns </span></span>
+<div class="sourceCode" id="cb8"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>The logo of R features a stylized letter <span class="st">"R"</span> <span class="cf">in</span> blue, enclosed <span class="cf">in</span> an oval shape that resembles the letter <span class="st">"O,"</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>signifying the programming language<span class="st">'s name. The design conveys a modern and professional look, reflecting its use</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="st">in statistical computing and data analysis. The blue color often represents trust and reliability, which aligns</span></span>
 <span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="st">with R'</span>s role <span class="cf">in</span> data science.</span></code></pre></div>
 <p>The <code>content_image_url</code> function takes a URL to an image file and sends that URL directly to the API. The <code>content_image_file</code> function takes a path to a local image file and encodes it as a base64 string to send to the API. Note that by default, <code>content_image_file</code> automatically resizes the image to fit within 512x512 pixels; set the <code>resize</code> parameter to <code>"high"</code> if higher resolution is needed.</p>
 </div>
@@ -228,11 +228,11 @@
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/new_chat_openai.html">new_chat_openai</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"gpt-4o"</span><span class="op">)</span></span>
 <span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="st">"How long ago exactly was the moment Neil Armstrong touched down on the moon?"</span><span class="op">)</span></span></code></pre></div>
-<div class="sourceCode" id="cb18"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>Neil Armstrong touched down on the moon on July <span class="dv">20</span>, <span class="dv">1969</span>, at <span class="dv">20</span><span class="sc">:</span><span class="dv">17</span> UTC. To determine how long ago that </span>
+<div class="sourceCode" id="cb18"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>Neil Armstrong touched down on the moon on July <span class="dv">20</span>, <span class="dv">1969</span>, at <span class="dv">20</span><span class="sc">:</span><span class="dv">17</span> UTC. To determine how long ago that</span>
 <span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>was from the current year of <span class="dv">2023</span>, we can calculate the difference <span class="cf">in</span> years, months, and days.</span>
 <span id="cb18-3"><a href="#cb18-3" tabindex="-1"></a></span>
-<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>From July <span class="dv">20</span>, <span class="dv">1969</span>, to July <span class="dv">20</span>, <span class="dv">2023</span>, is exactly <span class="dv">54</span> years. If today<span class="st">'s date is after July 20, 2023, you </span></span>
-<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="st">would add the additional time since then. If it is before, you would consider slightly less than 54 </span></span>
+<span id="cb18-4"><a href="#cb18-4" tabindex="-1"></a>From July <span class="dv">20</span>, <span class="dv">1969</span>, to July <span class="dv">20</span>, <span class="dv">2023</span>, is exactly <span class="dv">54</span> years. If today<span class="st">'s date is after July 20, 2023, you</span></span>
+<span id="cb18-5"><a href="#cb18-5" tabindex="-1"></a><span class="st">would add the additional time since then. If it is before, you would consider slightly less than 54</span></span>
 <span id="cb18-6"><a href="#cb18-6" tabindex="-1"></a><span class="st">years.</span></span>
 <span id="cb18-7"><a href="#cb18-7" tabindex="-1"></a></span>
 <span id="cb18-8"><a href="#cb18-8" tabindex="-1"></a><span class="st">As of right now, can you confirm the current date so we can calculate the precise duration?</span></span></code></pre></div>
@@ -244,7 +244,7 @@
 <p>The first thing we’ll do is define an R function that returns the current time. This will be our tool.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co">#' Gets the current time in the given time zone.</span></span>
-<span><span class="co">#' </span></span>
+<span><span class="co">#'</span></span>
 <span><span class="co">#' @param tz The time zone to get the current time in.</span></span>
 <span><span class="co">#' @return The current time in the given time zone.</span></span>
 <span><span class="va">get_current_time</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">tz</span> <span class="op">=</span> <span class="st">"UTC"</span><span class="op">)</span> <span class="op">{</span></span>
@@ -265,7 +265,6 @@
 <span></span>
 <span><span class="va">chat</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span></span>
 <span>  fun <span class="op">=</span> <span class="va">get_current_time</span>,</span>
-<span>  name <span class="op">=</span> <span class="st">"get_current_time"</span>,</span>
 <span>  description <span class="op">=</span> <span class="st">"Gets the current time in the given time zone."</span>,</span>
 <span>  arguments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
 <span>    tz <span class="op">=</span> <span class="fu"><a href="reference/tool_arg.html">tool_arg</a></span><span class="op">(</span></span>
@@ -286,7 +285,7 @@
 <code class="sourceCode R"><span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="st">"How long ago exactly was the moment Neil Armstrong touched down on the moon?"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb24"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" tabindex="-1"></a>Neil Armstrong touched down on the moon on July <span class="dv">20</span>, <span class="dv">1969</span>, at <span class="dv">20</span><span class="sc">:</span><span class="dv">17</span> UTC.</span>
 <span id="cb24-2"><a href="#cb24-2" tabindex="-1"></a></span>
-<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a>To calculate the time elapsed from that moment until the current <span class="fu">time</span> (September <span class="dv">18</span>, <span class="dv">2024</span>, <span class="dv">17</span><span class="sc">:</span><span class="dv">47</span><span class="sc">:</span><span class="dv">19</span> </span>
+<span id="cb24-3"><a href="#cb24-3" tabindex="-1"></a>To calculate the time elapsed from that moment until the current <span class="fu">time</span> (September <span class="dv">18</span>, <span class="dv">2024</span>, <span class="dv">17</span><span class="sc">:</span><span class="dv">47</span><span class="sc">:</span><span class="dv">19</span></span>
 <span id="cb24-4"><a href="#cb24-4" tabindex="-1"></a>UTC), we need to <span class="cf">break</span> it down.</span>
 <span id="cb24-5"><a href="#cb24-5" tabindex="-1"></a></span>
 <span id="cb24-6"><a href="#cb24-6" tabindex="-1"></a><span class="fl">1.</span> From July <span class="dv">20</span>, <span class="dv">1969</span>, <span class="dv">20</span><span class="sc">:</span><span class="dv">17</span> UTC to July <span class="dv">20</span>, <span class="dv">2024</span>, <span class="dv">20</span><span class="sc">:</span><span class="dv">17</span> UTC is exactly <span class="dv">55</span> years.</span>
