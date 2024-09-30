@@ -1,68 +1,3 @@
-# Also need to handle edge caess: https://platform.openai.com/docs/guides/function-calling/edge-cases
-call_tool <- function(fun, arguments) {
-  if (is.null(fun)) {
-    return(paste0("Error calling tool: Unknown tool name '", call$`function`, "'"))
-  }
-
-  tryCatch(
-    do.call(fun, arguments),
-    error = function(e) {
-      # TODO: We need to report this somehow; it's way too hidden from the user
-      paste0("Error calling tool: ", conditionMessage(e))
-    }
-  )
-}
-rlang::on_load(call_tool_async <- coro::async(function(fun, arguments) {
-  if (is.null(fun)) {
-    return(paste0("Error calling tool: Unknown tool name '", call$`function`, "'"))
-  }
-
-  tryCatch(
-    await(do.call(fun, arguments)),
-    error = function(e) {
-      # TODO: We need to report this somehow; it's way too hidden from the user
-      paste0("Error calling tool: ", conditionMessage(e))
-    }
-  )
-}))
-
-help_to_text <- function(help_files) {
-  file_contents <- NULL
-  fake_pager <- function(files, header, title, delete.file) {
-    if (delete.file) {
-      on.exit(unlink(files))
-    }
-
-    for (file in files) {
-      file_contents <<- c(
-        file_contents,
-        readLines(files, warn = FALSE),
-        "\n"
-      )
-    }
-  }
-
-  op <- options(pager = fake_pager)
-  on.exit(options(op), add = TRUE)
-  rd_opts <- tools::Rd2txt_options(underline_titles = FALSE)
-  on.exit(tools::Rd2txt_options(rd_opts), add = TRUE)
-
-  print(help_files)
-
-  paste(file_contents, collapse = "\n")
-}
-
-get_help_text <- function(topic, package = NULL) {
-  # The extra parens around topic and package are to ensure that they're
-  # evaluated; see the last example on ?utils::help.
-  help_files <- utils::help((topic), package = (package), help_type = "text")
-  if (length(help_files) == 0) {
-    return(NULL)
-  } else {
-    help_to_text(help_files)
-  }
-}
-
 #' Create metadata for a tool
 #'
 #' @description In order to use a function as a tool in a chat, you need to
@@ -152,6 +87,44 @@ create_tool_metadata <- function(topic, model = "gpt-4o", echo = interactive(), 
 
   chat <- new_chat_openai(system_prompt = tool_prompt, model = model, echo = echo)
   chat$chat(payload)
+}
+
+
+help_to_text <- function(help_files) {
+  file_contents <- NULL
+  fake_pager <- function(files, header, title, delete.file) {
+    if (delete.file) {
+      on.exit(unlink(files))
+    }
+
+    for (file in files) {
+      file_contents <<- c(
+        file_contents,
+        readLines(files, warn = FALSE),
+        "\n"
+      )
+    }
+  }
+
+  op <- options(pager = fake_pager)
+  on.exit(options(op), add = TRUE)
+  rd_opts <- tools::Rd2txt_options(underline_titles = FALSE)
+  on.exit(tools::Rd2txt_options(rd_opts), add = TRUE)
+
+  print(help_files)
+
+  paste(file_contents, collapse = "\n")
+}
+
+get_help_text <- function(topic, package = NULL) {
+  # The extra parens around topic and package are to ensure that they're
+  # evaluated; see the last example on ?utils::help.
+  help_files <- utils::help((topic), package = (package), help_type = "text")
+  if (length(help_files) == 0) {
+    return(NULL)
+  } else {
+    help_to_text(help_files)
+  }
 }
 
 # If the function source cannot be found, at least provide the function

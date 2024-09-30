@@ -167,7 +167,13 @@ call it and submit the results back. (See \code{\link[=create_tool_metadata]{cre
 an AI-enabled helper function that can write a \code{register_tool} call
 for you in some cases.)
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$register_tool(fun, name, description, arguments, strict = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Chat$register_tool(
+  fun,
+  name = NULL,
+  description,
+  arguments = list(),
+  strict = FALSE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
