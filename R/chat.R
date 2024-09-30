@@ -10,7 +10,7 @@ NULL
 #'
 Chat <- R6::R6Class("Chat",
   public = list(
-    #' @param model Model object.
+    #' @param provider A provider object.
     #' @param messages An unnamed list of messages to start the chat with (i.e.,
     #'   continuing a previous conversation). If `NULL` or zero-length list, the
     #'   conversation begins from scratch.
@@ -19,8 +19,8 @@ Chat <- R6::R6Class("Chat",
     #' @param echo If `TRUE`, the `chat()` method streams the response to stdout
     #'   (while also returning the final response). Note that this has no effect
     #'   on the `stream()`, `chat_async()`, and `stream_async()` methods.
-    initialize = function(model, messages, seed = NULL, echo = FALSE) {
-      private$model <- model
+    initialize = function(provider, messages, seed = NULL, echo = FALSE) {
+      private$provider <- provider
       private$msgs <- messages %||% list()
       private$echo <- echo
     },
@@ -157,7 +157,7 @@ Chat <- R6::R6Class("Chat",
     }
   ),
   private = list(
-    model = NULL,
+    provider = NULL,
 
     msgs = NULL,
     echo = NULL,
@@ -227,7 +227,7 @@ Chat <- R6::R6Class("Chat",
     # complete assistant messages.
     submit_messages = generator_method(function(self, private, stream, echo) {
       response <- chat_perform(
-        model = private$model,
+        provider = private$provider,
         mode = if (stream) "stream" else "value",
         messages = private$msgs,
         tools = private$tool_infos
@@ -239,14 +239,14 @@ Chat <- R6::R6Class("Chat",
         any_text <- FALSE
         result <- NULL
         for (chunk in response) {
-          text <- stream_text(private$model, chunk)
+          text <- stream_text(private$provider, chunk)
           if (!is.null(text)) {
             emit(text)
             yield(text)
             any_text <- TRUE
           }
 
-          result <- stream_merge_chunks(private$model, result, chunk)
+          result <- stream_merge_chunks(private$provider, result, chunk)
         }
         # Ensure messages always end in a newline
         if (any_text) {
@@ -254,15 +254,15 @@ Chat <- R6::R6Class("Chat",
           yield("\n")
         }
 
-        message <- stream_message(private$model, result)
+        message <- stream_message(private$provider, result)
       } else {
-        text <- value_text(private$model, response)
+        text <- value_text(private$provider, response)
         if (!is.null(text)) {
           text <- paste0(text, "\n")
           emit(text)
           yield(text)
         }
-        message <- value_message(private$model, response)
+        message <- value_message(private$provider, response)
       }
       private$add_message(message)
 
@@ -276,7 +276,7 @@ Chat <- R6::R6Class("Chat",
     # complete assistant messages.
     submit_messages_async = async_generator_method(function(self, private, stream, echo) {
       response <- chat_perform(
-        model = private$model,
+        provider = private$provider,
         mode = if (stream) "async-stream" else "async-value",
         messages = private$msgs,
         tools = private$tool_infos
@@ -287,14 +287,14 @@ Chat <- R6::R6Class("Chat",
         any_text <- FALSE
         result <- NULL
         for (chunk in await_each(response)) {
-          text <- stream_text(private$model, chunk)
+          text <- stream_text(private$provider, chunk)
           if (!is.null(text)) {
             emit(text)
             yield(text)
             any_text <- TRUE
           }
 
-          result <- stream_merge_chunks(private$model, result, chunk)
+          result <- stream_merge_chunks(private$provider, result, chunk)
         }
         # Ensure messages always end in a newline
         if (any_text) {
@@ -302,17 +302,17 @@ Chat <- R6::R6Class("Chat",
           yield("\n")
         }
 
-        message <- stream_message(private$model, result)
+        message <- stream_message(private$provider, result)
       } else {
         result <- await(response)
 
-        text <- value_text(private$model, result)
+        text <- value_text(private$provider, result)
         if (!is.null(text)) {
           text <- paste0(text, "\n")
           emit(text)
           yield(text)
         }
-        message <- value_message(private$model, result)
+        message <- value_message(private$provider, result)
       }
       private$add_message(message)
 
@@ -328,8 +328,8 @@ Chat <- R6::R6Class("Chat",
       }
 
       last_message <- private$msgs[[length(private$msgs)]]
-      tool_calls <- value_tool_calls(private$model, last_message, private$tool_funs)
-      tool_messages <- call_tools(private$model, tool_calls)
+      tool_calls <- value_tool_calls(private$provider, last_message, private$tool_funs)
+      tool_messages <- call_tools(private$provider, tool_calls)
 
       if (length(tool_messages) > 0) {
         private$msgs <- c(private$msgs, tool_messages)
@@ -345,8 +345,8 @@ Chat <- R6::R6Class("Chat",
       }
 
       last_message <- private$msgs[[length(private$msgs)]]
-      tool_calls <- value_tool_calls(private$model, last_message, private$tool_funs)
-      tool_messages <- await(call_tools_async(private$model, tool_calls))
+      tool_calls <- value_tool_calls(private$provider, last_message, private$tool_funs)
+      tool_messages <- await(call_tools_async(private$provider, tool_calls))
 
       if (length(tool_messages) > 0) {
         private$msgs <- c(private$msgs, tool_messages)

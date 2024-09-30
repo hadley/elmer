@@ -36,13 +36,13 @@ call \code{\link[=new_chat_openai]{new_chat_openai()}} or friends.
 \if{latex}{\out{\hypertarget{method-Chat-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$new(model, messages, seed = NULL, echo = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Chat$new(provider, messages, seed = NULL, echo = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{model}}{Model object.}
+\item{\code{provider}}{A provider object.}
 
 \item{\code{messages}}{An unnamed list of messages to start the chat with (i.e.,
 continuing a previous conversation). If \code{NULL} or zero-length list, the

@@ -78,7 +78,7 @@ new_chat_openai <- function(system_prompt = NULL,
 
   model <- set_default(model, "gpt-4o-mini")
 
-  model <- new_openai_model(
+  provider <- new_openai_provider(
     base_url = base_url,
     model = model,
     seed = seed,
@@ -87,7 +87,7 @@ new_chat_openai <- function(system_prompt = NULL,
   )
 
   messages <- openai_apply_system_prompt(system_prompt, messages)
-  Chat$new(model = model, messages = messages, echo = echo)
+  Chat$new(provider = provider, messages = messages, echo = echo)
 }
 
 openai_apply_system_prompt <- function(system_prompt, messages) {
@@ -140,12 +140,12 @@ openai_check_conversation <- function(messages, allow_null = FALSE) {
   }
 }
 
-new_openai_model <- function(base_url = "https://api.openai.com/v1",
-                             model = NULL,
-                             seed = NULL,
-                             extra_args = list(),
-                             api_key = openai_key(),
-                             error_call = caller_env()) {
+new_openai_provider <- function(base_url = "https://api.openai.com/v1",
+                                model = NULL,
+                                seed = NULL,
+                                extra_args = list(),
+                                api_key = openai_key(),
+                                error_call = caller_env()) {
 
   # These checks could/should be placed in the validator, but the S7 object is
   # currently an implementation detail. Keeping these errors here avoids
@@ -161,7 +161,7 @@ new_openai_model <- function(base_url = "https://api.openai.com/v1",
     seed <- 1014
   }
 
-  openai_model(
+  openai_provider(
     base_url = base_url,
     model = model,
     seed = seed,
@@ -170,8 +170,8 @@ new_openai_model <- function(base_url = "https://api.openai.com/v1",
   )
 }
 
-openai_model <- new_class(
-  "openai_model",
+openai_provider <- new_class(
+  "openai_provider",
   package = "elmer",
   properties = list(
     base_url = class_character,
@@ -193,24 +193,24 @@ openai_key <- function() {
 # HTTP request and response handling -------------------------------------
 
 # https://platform.openai.com/docs/api-reference/chat/create
-method(chat_request, openai_model) <- function(model,
-                                               stream = TRUE,
-                                               messages = list(),
-                                               tools = list(),
-                                               extra_args = list()) {
+method(chat_request, openai_provider) <- function(provider,
+                                                  stream = TRUE,
+                                                  messages = list(),
+                                                  tools = list(),
+                                                  extra_args = list()) {
 
-  req <- request(model@base_url)
+  req <- request(provider@base_url)
   req <- req_url_path_append(req, "/chat/completions")
-  req <- req_auth_bearer_token(req, model@api_key)
+  req <- req_auth_bearer_token(req, provider@api_key)
   req <- req_retry(req, max_tries = 2)
   req <- req_error(req, body = function(resp) resp_body_json(resp)$error$message)
 
-  extra_args <- utils::modifyList(model@extra_args, extra_args)
+  extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
   data <- compact(list2(
     messages = messages,
-    model = model@model,
-    seed = model@seed,
+    model = provider@model,
+    seed = provider@seed,
     stream = stream,
     tools = tools,
     !!!extra_args
@@ -220,34 +220,34 @@ method(chat_request, openai_model) <- function(model,
   req
 }
 
-method(stream_is_done, openai_model) <- function(model, event) {
+method(stream_is_done, openai_provider) <- function(provider, event) {
   identical(event$data, "[DONE]")
 }
-method(stream_parse, openai_model) <- function(model, event) {
+method(stream_parse, openai_provider) <- function(provider, event) {
   jsonlite::parse_json(event$data)
 }
-method(stream_text, openai_model) <- function(model, event) {
+method(stream_text, openai_provider) <- function(provider, event) {
   event$choices[[1]]$delta$content
 }
-method(stream_merge_chunks, openai_model) <- function(model, result, chunk) {
+method(stream_merge_chunks, openai_provider) <- function(provider, result, chunk) {
   if (is.null(result)) {
     chunk
   } else {
     merge_dicts(result, chunk)
   }
 }
-method(stream_message, openai_model) <- function(model, result) {
+method(stream_message, openai_provider) <- function(provider, result) {
   result$choices[[1]]$delta
 }
 
-method(value_text, openai_model) <- function(model, event) {
+method(value_text, openai_provider) <- function(provider, event) {
   event$choices[[1]]$message$content
 }
-method(value_message, openai_model) <- function(model, result) {
+method(value_message, openai_provider) <- function(provider, result) {
   result$choices[[1]]$message
 }
 
-method(value_tool_calls, openai_model) <- function(model, message, tools) {
+method(value_tool_calls, openai_provider) <- function(provider, message, tools) {
   lapply(message$tool_calls, function(call) {
     fun <- tools[[call$`function`$name]]
     args <- jsonlite::parse_json(call$`function`$arguments)
@@ -255,7 +255,7 @@ method(value_tool_calls, openai_model) <- function(model, message, tools) {
   })
 }
 
-method(call_tools, openai_model) <- function(model, tool_calls) {
+method(call_tools, openai_provider) <- function(provider, tool_calls) {
   lapply(tool_calls, function(call) {
     result <- call_tool(call$fun, call$args)
 
@@ -271,7 +271,7 @@ method(call_tools, openai_model) <- function(model, tool_calls) {
 }
 
 rlang::on_load(
-  method(call_tools_async, openai_model) <- coro::async(function(model, tool_calls) {
+  method(call_tools_async, openai_provider) <- coro::async(function(provider, tool_calls) {
     # We call it this way instead of a more natural for + await_each() because
     # we want to run all the async tool calls in parallel
     result_promises <- lapply(tool_calls, function(call) {
