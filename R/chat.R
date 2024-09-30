@@ -49,7 +49,8 @@ Chat <- R6::R6Class("Chat",
     #'   `NULL`, then the value of `echo` set when the chat object was created
     #'   will be used.
     chat = function(..., echo = NULL) {
-      input <- normalize_chat_input(...)
+      content <- normalize_content(private$provider, ...)
+      input <- list(role = "user", content = content)
 
       echo <- echo %||% private$echo
 
@@ -71,7 +72,8 @@ Chat <- R6::R6Class("Chat",
     #' @param ... The input to send to the chatbot. Can be strings or images.
     #' @returns A promise that resolves to a string (probably Markdown).
     chat_async = function(...) {
-      input <- normalize_chat_input(...)
+      content <- normalize_content(private$provider, ...)
+      input <- list(role = "user", content = content)
 
       # Returns a single message (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
@@ -92,7 +94,8 @@ Chat <- R6::R6Class("Chat",
     #'   waiting for more content from the chatbot.
     #' @param ... The input to send to the chatbot. Can be strings or images.
     stream = function(...) {
-      input <- normalize_chat_input(...)
+      content <- normalize_content(private$provider, ...)
+      input <- list(role = "user", content = content)
       private$chat_impl(input, stream = TRUE, echo = FALSE)
     },
 
@@ -102,7 +105,8 @@ Chat <- R6::R6Class("Chat",
     #'   yields string promises.
     #' @param ... The input to send to the chatbot. Can be strings or images.
     stream_async = function(...) {
-      input <- normalize_chat_input(...)
+      content <- normalize_content(private$provider, ...)
+      input <- list(role = "user", content = content)
       private$chat_impl_async(input, stream = TRUE, echo = FALSE)
     },
 
@@ -369,44 +373,30 @@ print.Chat <- function(x, ...) {
       assistant = cli::col_green,
       identity
     )
-    cli::cli_rule("{color(message$role)}")
+    cli::cat_rule(cli::format_inline("{color(message$role)}"))
     if (!is.null(message$content)) {
-      # Using cli_text for word wrapping. Passing `"{message$content}"` instead of
-      # `message$content` to avoid evaluation of the (potentially malicious)
-      # content.
-      cli::cli_text("{format_content(message$content)}")
+      for (content in message$content) {
+        cat_line(format(content))
+      }
     }
     if (!is.null(message$tool_calls)) {
-      cli::cli_text("Tool calls:")
+      cat_line("Tool calls:")
       for (tool_call in message$tool_calls) {
         funcname <- tool_call$`function`$name
         args <- tool_call$`function`$arguments
         tryCatch({
           args_parsed <- jsonlite::parse_json(tool_call$`function`$arguments)
           args <- call2(funcname, !!!args_parsed)
-          cli::cli_text(format(args))
+          cat_line(cli::format_inline(format(args)))
         }, error = function(e) {
           # In case parsing the JSON fails
-          cli::cli_text("{funcname}({args})")
+          cat_line(cli::format_inline("{funcname}({args})"))
         })
       }
     }
   }
 
   invisible(x)
-}
-
-
-format_content <- function(content) {
-  if (is.character(content)) {
-    content
-  } else if (is.list(content)) {
-    paste0(lapply(content, function(x) {
-      type <- x[["type"]]
-      value <- x[[type]]
-      paste0("[", type, "]: ", value)
-    }), collapse = "\n")
-  }
 }
 
 last_message <- function(chat) {

@@ -152,11 +152,11 @@ new_openai_provider <- function(base_url = "https://api.openai.com/v1",
   # currently an implementation detail. Keeping these errors here avoids
   # leaking that implementation detail to the user.
 
-  check_string(base_url, call = error_call())
-  check_string(model, call = error_call())
-  check_number_whole(seed, allow_null = TRUE, call = error_call())
+  check_string(base_url, call = error_call)
+  check_string(model, call = error_call)
+  check_number_whole(seed, allow_null = TRUE, call = error_call)
   # check_named_list(extra_args, call = error_call())
-  check_string(api_key, call = error_call())
+  check_string(api_key, call = error_call)
 
   if (is_testing() && is.null(seed)) {
     seed <- 1014
@@ -297,9 +297,8 @@ openai_tool_result <- function(result, id) {
 
 # Content normalisation --------------------------------------------------
 
-# to remove, once we normalise messges properly
-method(to_provider, list(openai_provider, class_list | class_character)) <- function(provider, x) {
-  x
+method(to_provider, list(openai_provider, content_text)) <- function(provider, x) {
+  list(type = "text", text = x@text)
 }
 
 method(to_provider, list(openai_provider, content_image_remote)) <- function(provider, x) {
@@ -312,8 +311,43 @@ method(to_provider, list(openai_provider, content_image_remote)) <- function(pro
 method(to_provider, list(openai_provider, content_image_inline)) <- function(provider, x) {
   list(
     type = "image_url",
-     image_url = list(
-       url = paste0("data:", x@type, ";base64,", x@data)
-     )
+    image_url = list(
+      url = paste0("data:", x@type, ";base64,", x@data)
+    )
+  )
+}
+
+method(from_provider, list(openai_provider, class_character)) <- function(provider, x, ..., error_call = caller_env()) {
+  content_text(paste0(x, collapse = "\n"))
+}
+
+method(from_provider, list(openai_provider, class_list)) <- function(provider, x, ..., error_call = caller_env()) {
+  if (identical(x$type, "text")) {
+    if (!has_name(x, "text")) {
+      cli::cli_abort("List item must have a 'text' field.", call = error_call)
+    }
+
+    content_text(x$text)
+  } else if (identical(x$type, "image_url")) {
+    if (!has_name(x, "image_url")) {
+      cli::cli_abort("List item must have a 'image_url' field.", call = error_call)
+    }
+
+    content_image_remote(x$image_url$url)
+  } else {
+    cli::cli_abort("Unknown type {.str {x$type}} in list item.", call = error_call)
+  }
+}
+
+method(from_provider, list(openai_provider, content)) <- function(provider, x, ..., error_call = caller_env()) {
+  x
+}
+
+method(from_provider, list(openai_provider, class_any)) <- function(provider, x, ..., error_call = caller_env()) {
+  stop_input_type(
+    x,
+    "a string or list",
+    arg = I("input content"),
+    call = error_call
   )
 }

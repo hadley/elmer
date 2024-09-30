@@ -1,3 +1,8 @@
+cat_line <- function(...) {
+  lines <- paste0(..., "\n", collapse = "")
+  cat(lines)
+}
+
 # Utility functions for performing word wrapping on streaming text. Our strategy
 # for dealing with streaming is to buffer the most recent word, assuming that
 # it's incomplete, and render it only when the next word break (space or

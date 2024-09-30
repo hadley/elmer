@@ -13,23 +13,19 @@
       Error in `chat$chat()`:
       ! input content must be a string or list, not `TRUE`.
     Code
-      chat$chat(list())
-    Condition
-      Error in `chat$chat()`:
-      ! List item must have a 'type' field.
-    Code
       chat$chat(list(type = "unicorn"))
     Condition
       Error in `chat$chat()`:
-      ! `type` must be one of "text" or "image_url", not "unicorn".
+      ! Unknown type "unicorn" in list item.
     Code
       chat$chat(list(type = "text"))
     Condition
       Error in `chat$chat()`:
-      ! List item of type 'text' must have a 'text' field.
+      ! List item must have a 'text' field.
     Code
       chat$chat(list(type = "text", text = NULL))
     Condition
-      Error in `chat$chat()`:
-      ! 'text' field cannot be NULL.
+      Error:
+      ! <elmer::content_text> object properties are invalid:
+      - @text must be <character>, not <NULL>
 
