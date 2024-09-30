@@ -117,6 +117,9 @@ content_image_file <- function(path, content_type = "auto", resize = "low") {
 #' @export
 #' @param width,height Width and height in pixels.
 content_image_plot <- function(width = 768, height = 768) {
+  check_number_whole(width, min = 1)
+  check_number_whole(height, min = 1)
+
   plot <- grDevices::recordPlot()
 
   if (is.null(plot[[1]])) {
@@ -137,5 +140,5 @@ content_image_plot <- function(width = 768, height = 768) {
 
   grDevices::dev.set(old)
 
-  content_image_inline(path, "image/png", resize = "high")
+  content_image_file(path, "image/png", resize = "none")
 }

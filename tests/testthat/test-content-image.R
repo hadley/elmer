@@ -9,6 +9,16 @@ test_that("can create image from path", {
   expect_s3_class(obj, "elmer::content_image_inline")
 })
 
+test_that("can create image from plot", {
+  withr::local_pdf(NULL)
+  dev.control("enable")
+  plot(1:10)
+
+  obj <- content_image_plot()
+  expect_s3_class(obj, "elmer::content_image_inline")
+  expect_equal(obj@type, "image/png")
+})
+
 test_that("image resizing", {
   img_file <- system.file("httr2.png", package = "elmer")
 
