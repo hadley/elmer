@@ -1,15 +1,3 @@
-test_that("image query", {
-  img_file <- system.file("httr2.png", package = "elmer")
-
-  chat <- new_chat_openai(model = "gpt-4o-mini")
-  response <- chat$chat(
-    "What's in this image? (Be sure to mention the outside shape)",
-    content_image_file(img_file, resize = "150x150")
-  )
-  expect_match(response, "hex")
-  expect_match(response, "baseball")
-})
-
 test_that("invalid inputs give useful errors", {
   chat <- new_chat_openai()
 
@@ -70,6 +58,17 @@ test_that("inputs are validated", {
       )
     )
   )
+})
+
+test_that("can create image from url", {
+  obj <- content_image_url("https://www.r-project.org/Rlogo.png")
+  expect_s3_class(obj, "elmer::content_image_remote")
+})
+
+test_that("can create image from path", {
+  path <- system.file("httr2.png", package = "elmer")
+  obj <- content_image_file(path)
+  expect_s3_class(obj, "elmer::content_image_inline")
 })
 
 test_that("image resizing", {

@@ -112,3 +112,24 @@ test_that("can call multiple tools in sequence", {
   expect_equal(result, "Susan")
   expect_length(chat$messages(include_system_prompt = FALSE), 6)
 })
+
+
+# Images -----------------------------------------------------------------
+
+test_that("can use images (inline and remote)", {
+  chat <- new_chat_openai(model = "gpt-4o-mini")
+  response <- chat$chat(
+    "What's in this image? (Be sure to mention the outside shape)",
+    content_image_file(system.file("httr2.png", package = "elmer"))
+  )
+  expect_match(response, "hex")
+  expect_match(response, "baseball")
+
+  chat <- new_chat_openai(model = "gpt-4o-mini")
+  response <- chat$chat(
+    "What's in this image? (Be sure to mention the outside shape)",
+    content_image_url("https://httr2.r-lib.org/logo.png")
+  )
+  expect_match(response, "hex")
+  expect_match(response, "baseball")
+})

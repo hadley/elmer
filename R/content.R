@@ -32,10 +32,8 @@
 #'    content_image_plot()
 #' )
 content_image_url <- function(url, detail = c("auto", "low", "high")) {
-  # TODO: Allow vector input?
-  check_string(url)
-
-  list(type = "image_url", image_url = list(url = url))
+  detail <- arg_match(detail)
+  content_image_remote(url = url, detail = detail)
 }
 
 #' @rdname content_image_url
@@ -111,9 +109,7 @@ content_image_file <- function(path, content_type = "auto", resize = "low") {
     base64 <- base64enc::base64encode(buf)
   }
 
-  data_uri <- paste0("data:", content_type, ";base64,", base64)
-
-  content_image_url(data_uri)
+  content_image_inline(content_type, base64)
 }
 
 #' @rdname content_image_url
@@ -140,7 +136,7 @@ content_image_plot <- function(width = 768, height = 768) {
 
   grDevices::dev.set(old)
 
-  content_image_file(path, "image/png", resize = "high")
+  content_image_inline(path, "image/png", resize = "high")
 }
 
 # Define allowed types - add new types here in the future
@@ -165,6 +161,8 @@ process_single_input <- function(item, error_call = caller_env()) {
   if (is.character(item)) {
     # If item is a string, convert it to text format
     list(type = "text", text = paste(item, collapse = "\n"))
+  } else if (S7_inherits(item, content_image)) {
+    item
   } else if (is.list(item)) {
     if (!"type" %in% names(item)) {
       cli::cli_abort("List item must have a 'type' field.", call = error_call)
@@ -195,3 +193,41 @@ process_single_input <- function(item, error_call = caller_env()) {
     )
   }
 }
+
+prop_string <- function(allow_null = FALSE, allow_na = FALSE) {
+  force(allow_null)
+  force(allow_na)
+
+  new_property(
+    class = if (allow_null) NULL | class_character else class_character,
+    validator = function(value) {
+      if (length(value) != 1) {
+        "Must be a single string"
+      } else if (!allow_na && is.na(value)) {
+        "Must not be missing"
+      }
+    }
+  )
+}
+
+
+content_image <- new_class("content_image")
+
+content_image_remote <- new_class(
+  "content_image_remote",
+  parent = content_image,
+  properties = list(
+    url = prop_string(),
+    detail = prop_string()
+  ),
+  package = "elmer"
+)
+content_image_inline <- new_class(
+  "content_image_inline",
+  parent = content_image,
+  properties = list(
+    type = prop_string(),
+    data = prop_string(allow_null = TRUE)
+  ),
+  package = "elmer"
+)
