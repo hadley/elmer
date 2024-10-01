@@ -1,4 +1,5 @@
 #' @include api.R
+#' @include content.R
 NULL
 
 #' Create a chatbot that speaks to an OpenAI compatible endpoint
@@ -290,5 +291,29 @@ openai_tool_result <- function(result, id) {
     role = "tool",
     content = toString(result),
     tool_call_id = id
+  )
+}
+
+
+# Content normalisation --------------------------------------------------
+
+# to remove, once we normalise messges properly
+method(to_provider, list(openai_provider, class_list | class_character)) <- function(provider, x) {
+  x
+}
+
+method(to_provider, list(openai_provider, content_image_remote)) <- function(provider, x) {
+  list(
+    type = "image_url",
+    image_url = list(url = x@url)
+  )
+}
+
+method(to_provider, list(openai_provider, content_image_inline)) <- function(provider, x) {
+  list(
+    type = "image_url",
+     image_url = list(
+       url = paste0("data:", x@type, ";base64,", x@data)
+     )
   )
 }

@@ -10,6 +10,14 @@ chat_perform <- function(provider,
   mode <- arg_match(mode)
   stream <- mode %in% c("stream", "async-stream")
 
+  # TODO: extract out message objects
+  messages <- lapply(messages, function(message) {
+    if (is.list(message$content)) {
+      message$content <- lapply(message$content, to_provider, provider = provider)
+    }
+    message
+  })
+
   req <- chat_request(
     provider = provider,
     messages = messages,
@@ -144,6 +152,20 @@ call_tools <- new_generic("call_tools", "provider",
 
 call_tools_async <- new_generic("call_tools_async", "provider",
   function(provider, tool_calls) {
+    S7_dispatch()
+  }
+)
+
+# Content -> Request -----------------------------------------------------
+
+to_provider <- new_generic("to_provider", c("provider", "x"),
+  function(provider, x) {
+    S7_dispatch()
+  }
+)
+
+from_provider <- new_generic("from_provider", c("provider", "x"),
+  function(provider, x) {
     S7_dispatch()
   }
 )
