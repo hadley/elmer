@@ -158,14 +158,5 @@ call_tools_async <- new_generic("call_tools_async", "provider",
 
 # Content -> Request -----------------------------------------------------
 
-to_provider <- new_generic("to_provider", c("provider", "x"),
-  function(provider, x) {
-    S7_dispatch()
-  }
-)
-
-from_provider <- new_generic("from_provider", c("provider", "x"),
-  function(provider, x) {
-    S7_dispatch()
-  }
-)
+to_provider <- new_generic("to_provider", c("provider", "x"))
+from_provider <- new_generic("from_provider", c("provider", "x"))
