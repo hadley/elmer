@@ -55,7 +55,7 @@ Chat objects are stateful: they retain the context of the conversation, so each 
 The most interactive, least programmatic way of using elmer is to chat with it directly in your R console.
 
 ```{r eval=FALSE}
-chat$console()
+chat_console(chat)
 ```
 ```
 ╔════════════════════════════════════════════════════════╗

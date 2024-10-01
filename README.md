@@ -56,7 +56,7 @@ The most interactive, least programmatic way of using elmer is to chat
 with it directly in your R console.
 
 ``` r
-chat$console()
+chat_console(chat)
 ```
 
     ╔════════════════════════════════════════════════════════╗
