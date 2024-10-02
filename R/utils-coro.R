@@ -14,51 +14,35 @@
 # methods
 utils::globalVariables(c("self", "private", "generator_env", "exits"))
 
-generators <- new.env()
+generators <- new_environment()
+generators$cur_id <- 1L
+new_id <- function() {
+  generators$cur_id <- generators$cur_id + 1L
+  as.character(generators$cur_id)
+}
 
 # Decorator for anonymous functions; the return value is intended to be used as
 # an R6 method. Unlike regular R6 methods, the decorated function must have
 # `self` as the first argument (which will be automatically passed in by the
 # decorator). If necessary we can also provide access to `private` in the same
 # way.
-generator_method <- function(func) {
-  fn <- rlang::enexpr(func)
-
-  stopifnot(
-    "generator methods must have `self` parameter" = identical(names(formals(func))[1], "self")
-  )
-  stopifnot(
-    "generator methods must have `private` parameter" = identical(names(formals(func))[2], "private")
-  )
-
-  deferred_method_transform(fn, coro::generator, parent.frame())
+generator_method <- function(fn) {
+  lambda_expr <- enexpr(fn)
+  check_args(fn)
+  deferred_method_transform(lambda_expr, coro::generator, parent.frame())
 }
 
 # Same as generator_method, but for async logic
-async_generator_method <- function(func) {
-  fn <- rlang::enexpr(func)
-
-  stopifnot(
-    "async generator methods must have `self` parameter" = identical(names(formals(func))[1], "self")
-  )
-  stopifnot(
-    "async generator methods must have `private` parameter" = identical(names(formals(func))[2], "private")
-  )
-
-  deferred_method_transform(fn, coro::async_generator, parent.frame())
+async_generator_method <- function(fn) {
+  lambda_expr <- enexpr(fn)
+  check_args(fn)
+  deferred_method_transform(lambda_expr, coro::async_generator, parent.frame())
 }
 
-async_method <- function(func) {
-  fn <- rlang::enexpr(func)
-
-  stopifnot(
-    "async methods must have `self` parameter" = identical(names(formals(func))[1], "self")
-  )
-  stopifnot(
-    "async methods must have `private` parameter" = identical(names(formals(func))[2], "private")
-  )
-
-  deferred_method_transform(fn, coro::async, parent.frame())
+async_method <- function(fn) {
+  lambda_expr <- enexpr(fn)
+  check_args(fn)
+  deferred_method_transform(lambda_expr, coro::async, parent.frame())
 }
 # Takes a quoted function expression and a transformer function, and returns a
 # function that will _lazily_ transform the lambda function using `transformer`
@@ -70,24 +54,32 @@ async_method <- function(func) {
 # because nesting R6 class definitions inside of rlang::on_load causes roxygen2
 # to get confused.
 deferred_method_transform <- function(lambda_expr, transformer, eval_env) {
-  tr <- rlang::enexpr(transformer)
+  transformer <- enexpr(transformer)
   force(eval_env)
 
-  unique_id <- paste0("a", sample.int(99999999, 1))
+  unique_id <- new_id()
+  env_bind_lazy(
+    generators,
+    !!unique_id := inject((!!transformer)(!!lambda_expr)),
+    eval.env = eval_env
+  )
 
-  delayedAssign(unique_id, {
-    expr <- rlang::inject(
-      base::quote((!!tr)(!!lambda_expr))
-    )
-    generator <- eval(expr, eval_env)
-    generator
-  }, assign.env = generators)
-
-  rlang::inject(
+  inject(
     function(...) {
       # Can't simply use `generators` because the lexical environment of this
       # function is about to get wrecked by R6
-      getNamespace("elmer")[["generators"]][[!!unique_id]](self, private, ...)
+      (!!generators)[[!!unique_id]](self, private, ...)
     }
   )
+}
+
+check_args <- function(fn) {
+  arg_names <- names(formals(fn))
+  if (length(arg_names) < 2) {
+    cli::cli_abort("Function must have at least two arguments.", .internal = TRUE)
+  } else if (arg_names[[1]] != "self") {
+    cli::cli_abort("First argument must be {.arg self}.", .internal = TRUE)
+  } else if (arg_names[[2]] != "private") {
+    cli::cli_abort("Second argument must be {.arg private}.", .internal = TRUE)
+  }
 }
