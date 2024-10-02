@@ -62,6 +62,7 @@ call <code><a href="new_chat_openai.html">new_chat_openai()</a></code> or friend
 
 <ul><li><p><a href="#method-Chat-new"><code>Chat$new()</code></a></p></li>
 <li><p><a href="#method-Chat-messages"><code>Chat$messages()</code></a></p></li>
+<li><p><a href="#method-Chat-last_message"><code>Chat$last_message()</code></a></p></li>
 <li><p><a href="#method-Chat-chat"><code>Chat$chat()</code></a></p></li>
 <li><p><a href="#method-Chat-chat_async"><code>Chat$chat_async()</code></a></p></li>
 <li><p><a href="#method-Chat-stream"><code>Chat$stream()</code></a></p></li>
@@ -120,11 +121,19 @@ messages (if any exists).</p></dd>
 </dl><p></p></div>
 </div>
 
+</div><p></p><hr><a id="method-Chat-last_message"></a><div class="section">
+<h3 id="method-last-message-">Method <code>last_message()</code><a class="anchor" aria-label="anchor" href="#method-last-message-"></a></h3>
+<p>The last message returned by the assistant.</p><div class="section">
+<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">last_message</span><span class="op">(</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+
 </div><p></p><hr><a id="method-Chat-chat"></a><div class="section">
 <h3 id="method-chat-">Method <code>chat()</code><a class="anchor" aria-label="anchor" href="#method-chat-"></a></h3>
 <p>Submit input to the chatbot, and return the response as a
 simple string (probably Markdown).</p><div class="section">
-<h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
+<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="va">...</span>, echo <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -148,7 +157,7 @@ will be used.</p></dd>
 <h3 id="method-chat-async-">Method <code>chat_async()</code><a class="anchor" aria-label="anchor" href="#method-chat-async-"></a></h3>
 <p>Submit input to the chatbot, and receive a promise that
 resolves with the response all at once.</p><div class="section">
-<h4 id="usage-3">Usage<a class="anchor" aria-label="anchor" href="#usage-3"></a></h4>
+<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">chat_async</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -167,7 +176,7 @@ resolves with the response all at once.</p><div class="section">
 Returns A <a href="https://coro.r-lib.org/articles/generator.html#iterating" class="external-link">coro generator</a>
 that yields strings. While iterating, the generator will block while
 waiting for more content from the chatbot.</p><div class="section">
-<h4 id="usage-4">Usage<a class="anchor" aria-label="anchor" href="#usage-4"></a></h4>
+<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">stream</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -185,7 +194,7 @@ waiting for more content from the chatbot.</p><div class="section">
 <p>Submit input to the chatbot, returning asynchronously
 streaming results. Returns a <a href="https://coro.r-lib.org/reference/async_generator.html" class="external-link">coro async generator</a> that
 yields string promises.</p><div class="section">
-<h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">stream_async</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
@@ -205,7 +214,7 @@ If the chatbot decides to use the function,  elmer will automatically
 call it and submit the results back. (See <code><a href="create_tool_metadata.html">create_tool_metadata()</a></code> for
 an AI-enabled helper function that can write a <code>register_tool</code> call
 for you in some cases.)</p><div class="section">
-<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span></span>
 <span>  <span class="va">fun</span>,</span>
 <span>  name <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -247,7 +256,7 @@ mode, which comes with a number of <a href="https://platform.openai.com/docs/gui
 </div><p></p><hr><a id="method-Chat-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
