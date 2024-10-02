@@ -23,6 +23,7 @@ call \code{\link[=new_chat_openai]{new_chat_openai()}} or friends.
 \itemize{
 \item \href{#method-Chat-new}{\code{Chat$new()}}
 \item \href{#method-Chat-messages}{\code{Chat$messages()}}
+\item \href{#method-Chat-last_message}{\code{Chat$last_message()}}
 \item \href{#method-Chat-chat}{\code{Chat$chat()}}
 \item \href{#method-Chat-chat_async}{\code{Chat$chat_async()}}
 \item \href{#method-Chat-stream}{\code{Chat$stream()}}
@@ -76,6 +77,16 @@ messages (if any exists).}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Chat-last_message"></a>}}
+\if{latex}{\out{\hypertarget{method-Chat-last_message}{}}}
+\subsection{Method \code{last_message()}}{
+The last message returned by the assistant.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Chat$last_message()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Chat-chat"></a>}}

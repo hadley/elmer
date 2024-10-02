@@ -5,13 +5,13 @@ test_that("can perform a simple batch chat", {
   )
   result <- chat$chat("What's 1 + 1")
   expect_equal(result, "2")
-  expect_equal(last_message(chat)$content, "2")
+  expect_equal(chat$last_message()$content, "2")
 
   result <- chat$chat_async("What's 1 + 1")
   expect_s3_class(result, "promise")
   result <- sync(result)
   expect_equal(result, "2")
-  expect_equal(last_message(chat)$content, "2")
+  expect_equal(chat$last_message()$content, "2")
 })
 
 test_that("can perform a simple streaming chat", {
@@ -25,14 +25,14 @@ test_that("can perform a simple streaming chat", {
   chunks <- coro::collect(chat$stream("What are the canonical colors of the ROYGBIV rainbow?"))
   expect_gt(length(chunks), 2)
   expect_match(paste(chunks, collapse = ""), rainbow_re, ignore.case = TRUE)
-  expect_match(last_message(chat)$content, rainbow_re, ignore.case = TRUE)
+  expect_match(chat$last_message()$content, rainbow_re, ignore.case = TRUE)
 
   chunks <- coro::async_collect(chat$stream_async("What are the canonical colors of the ROYGBIV rainbow?"))
   expect_s3_class(chunks, "promise")
   chunks <- sync(chunks)
   expect_gt(length(chunks), 2)
   expect_match(paste(chunks, collapse = ""), rainbow_re, ignore.case = TRUE)
-  expect_match(last_message(chat)$content, rainbow_re, ignore.case = TRUE)
+  expect_match(chat$last_message()$content, rainbow_re, ignore.case = TRUE)
 })
 
 test_that("has a basic print method", {
