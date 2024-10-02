@@ -5,10 +5,14 @@ prop_string <- function(allow_null = FALSE, allow_na = FALSE) {
   new_property(
     class = if (allow_null) NULL | class_character else class_character,
     validator = function(value) {
+      if (allow_null && is.null(value)) {
+        return()
+      }
+
       if (length(value) != 1) {
-        "Must be a single string"
+        paste0("must be a single string, not ", obj_type_friendly(value))
       } else if (!allow_na && is.na(value)) {
-        "Must not be missing"
+        "must not be missing"
       }
     }
   )

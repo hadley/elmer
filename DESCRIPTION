@@ -41,6 +41,7 @@ Collate:
     'api-groq.R'
     'api-ollama.R'
     'utils-S7.R'
+    'tools.R'
     'content.R'
     'api.R'
     'api-openai.R'

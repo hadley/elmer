@@ -1,5 +1,6 @@
 #' @include api.R
 #' @include content.R
+#' @include tools.R
 NULL
 
 #' Create a chatbot that speaks to an OpenAI compatible endpoint
@@ -248,52 +249,28 @@ method(value_message, openai_provider) <- function(provider, result) {
   result$choices[[1]]$message
 }
 
-method(value_tool_calls, openai_provider) <- function(provider, message, tools) {
+method(value_tool_calls, openai_provider) <- function(provider, message) {
   lapply(message$tool_calls, function(call) {
-    fun <- tools[[call$`function`$name]]
+    name <- call$`function`$name
+    # TODO: record parsing error
     args <- jsonlite::parse_json(call$`function`$arguments)
-    list(fun = fun, args = args, id = call$id)
+    tool_call(name = name, arguments = args, id = call$id)
   })
 }
 
-method(call_tools, openai_provider) <- function(provider, tool_calls) {
-  lapply(tool_calls, function(call) {
-    result <- call_tool(call$fun, call$args)
+method(to_provider, list(openai_provider, tool_result)) <- function(provider, x) {
+  if (is.null(x@result)) {
+    result <- paste0("Tool calling failed with error ", x@error)
+  } else {
+    result <- toString(x@result)
+  }
 
-    if (promises::is.promise(result)) {
-      cli::cli_abort(c(
-        "Can't use async tools with `$chat()` or `$stream()`.",
-        i = "Async tools are supported, but you must use `$chat_async()` or `$stream_async()`."
-      ))
-    }
-
-    openai_tool_result(result, call$id)
-  })
-}
-
-rlang::on_load(
-  method(call_tools_async, openai_provider) <- coro::async(function(provider, tool_calls) {
-    # We call it this way instead of a more natural for + await_each() because
-    # we want to run all the async tool calls in parallel
-    result_promises <- lapply(tool_calls, function(call) {
-      promises::then(
-        call_tool_async(call$fun, call$args),
-        function(result) openai_tool_result(result, id = call$id)
-      )
-    })
-
-    promises::promise_all(.list = result_promises)
-  })
-)
-
-openai_tool_result <- function(result, id) {
   list(
     role = "tool",
-    content = toString(result),
-    tool_call_id = id
+    content = result,
+    tool_call_id = x@id
   )
 }
-
 
 # Content normalisation --------------------------------------------------
 
