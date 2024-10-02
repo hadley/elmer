@@ -39,7 +39,7 @@ chat_console <- function(chat, quiet = FALSE) {
       }
 
       if (grepl('^\\s*"""', user_input)) {
-        while (TRUE) {
+        repeat {
           next_input <- readline(prompt = '... ')
           user_input <- paste0(user_input, "\n", next_input)
           if (grepl('"""\\s*$', next_input)) {

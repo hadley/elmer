@@ -33,7 +33,7 @@ rlang::on_load(cat_word_wrap_impl <- coro::generator(function(con = stdout()) {
   pos_cursor <- 1
   buffer <- ""
 
-  while (TRUE) {
+  repeat {
     input <- coro::yield()
 
     input <- paste0(buffer, input)
