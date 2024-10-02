@@ -43,7 +43,7 @@ on_load(chat_perform_stream <- coro::generator(function(provider, req) {
   on.exit(close(resp))
   reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
 
-  while (TRUE) {
+  repeat {
     event <- httr2::resp_stream_sse(resp)
     if (is.null(event)) {
       abort("Connection failed")
@@ -70,7 +70,7 @@ on_load(chat_perform_async_stream <- coro::async_generator(function(provider, re
   # TODO: Investigate if this works with async generators
   # reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
 
-  while (TRUE) {
+  repeat {
     event <- resp_stream_sse(resp)
     if (is.null(event)) {
       # TODO: Detect if connection is closed and stop polling

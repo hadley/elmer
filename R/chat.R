@@ -197,7 +197,7 @@ Chat <- R6::R6Class("Chat",
     # complete assistant messages.
     chat_impl = generator_method(function(self, private, user_message, stream, echo) {
       private$add_message(user_message)
-      while (TRUE) {
+      repeat {
         for (chunk in private$submit_messages(stream = stream, echo = echo)) {
           yield(chunk)
         }
@@ -216,7 +216,7 @@ Chat <- R6::R6Class("Chat",
     # complete assistant messages.
     chat_impl_async = async_generator_method(function(self, private, user_message, stream, echo) {
       private$add_message(user_message)
-      while (TRUE) {
+      repeat {
         for (chunk in await_each(private$submit_messages_async(stream = stream, echo = echo))) {
           yield(chunk)
         }
