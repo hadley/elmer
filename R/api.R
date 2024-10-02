@@ -139,22 +139,11 @@ value_message <- new_generic("value_message", "provider",
 # Tool calling -----------------------------------------------------------------
 
 value_tool_calls <- new_generic("value_tool_calls", "provider",
-  function(provider, message, tools) {
+  function(provider, message) {
     S7_dispatch()
   }
 )
 
-call_tools <- new_generic("call_tools", "provider",
-  function(provider, tool_calls) {
-    S7_dispatch()
-  }
-)
-
-call_tools_async <- new_generic("call_tools_async", "provider",
-  function(provider, tool_calls) {
-    S7_dispatch()
-  }
-)
 
 # Content -> Request -----------------------------------------------------
 

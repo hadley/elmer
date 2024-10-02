@@ -332,8 +332,10 @@ Chat <- R6::R6Class("Chat",
       }
 
       last_message <- private$msgs[[length(private$msgs)]]
-      tool_calls <- value_tool_calls(private$provider, last_message, private$tool_funs)
-      tool_messages <- call_tools(private$provider, tool_calls)
+      tool_calls <- value_tool_calls(private$provider, last_message)
+      tool_results <- invoke_tools(tool_calls, private$tool_funs)
+      # TODO: move to whatever normalises just prior to sending
+      tool_messages <- lapply(tool_results, to_provider, provider = private$provider)
 
       if (length(tool_messages) > 0) {
         private$msgs <- c(private$msgs, tool_messages)
@@ -349,8 +351,9 @@ Chat <- R6::R6Class("Chat",
       }
 
       last_message <- private$msgs[[length(private$msgs)]]
-      tool_calls <- value_tool_calls(private$provider, last_message, private$tool_funs)
-      tool_messages <- await(call_tools_async(private$provider, tool_calls))
+      tool_calls <- value_tool_calls(private$provider, last_message)
+      tool_results <- await(invoke_tools_async(tool_calls, private$tool_funs))
+      tool_messages <- lapply(tool_results, to_provider, provider = private$provider)
 
       if (length(tool_messages) > 0) {
         private$msgs <- c(private$msgs, tool_messages)
