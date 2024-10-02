@@ -51,7 +51,7 @@ method(format, content_image_inline) <- function(x, ...) {
 
 normalize_content <- function(provider, ..., error_call = caller_env()) {
   check_dots_unnamed(call = error_call)
-  input <- rlang::list2(...)
+  input <- list2(...)
 
   if (length(input) == 1 && is.character(input[[1]])) {
     list(from_provider(provider, input[[1]], error_call = error_call))

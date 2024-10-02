@@ -14,7 +14,7 @@ invoke_tools <- function(tool_calls, tools) {
   })
 }
 
-rlang::on_load(
+on_load(
   invoke_tools_async <- coro::async(function(tool_calls, tools) {
     # We call it this way instead of a more natural for + await_each() because
     # we want to run all the async tool calls in parallel
@@ -42,7 +42,7 @@ invoke_tool <- function(fun, arguments, id) {
   )
 }
 
-rlang::on_load(invoke_tool_async <- coro::async(function(fun, arguments, id) {
+on_load(invoke_tool_async <- coro::async(function(fun, arguments, id) {
   if (is.null(fun)) {
     return(tool_result(id = id, error = "Unknown tool"))
   }
