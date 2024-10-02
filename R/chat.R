@@ -41,6 +41,11 @@ Chat <- R6::R6Class("Chat",
       }
     },
 
+    #' @description The last message returned by the assistant.
+    last_message = function() {
+      private$msgs[[length(private$msgs)]]
+    },
+
     #' @description Submit input to the chatbot, and return the response as a
     #'   simple string (probably Markdown).
     #' @param ... The input to send to the chatbot. Can be strings or images
@@ -57,7 +62,7 @@ Chat <- R6::R6Class("Chat",
       # Returns a single message (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
       coro::collect(private$chat_impl(input, stream = echo, echo = echo))
-      last_message <- private$msgs[[length(private$msgs)]]
+      last_message <- self$last_message()
       stopifnot(identical(last_message[["role"]], "assistant"))
 
       if (echo) {
@@ -81,7 +86,7 @@ Chat <- R6::R6Class("Chat",
         private$chat_impl_async(input, stream = FALSE, echo = FALSE)
       )
       promises::then(done, function(dummy) {
-        last_message <- private$msgs[[length(private$msgs)]]
+        last_message <- self$last_message()
         stopifnot(identical(last_message[["role"]], "assistant"))
         last_message$content
       })
@@ -331,8 +336,7 @@ Chat <- R6::R6Class("Chat",
         return(FALSE)
       }
 
-      last_message <- private$msgs[[length(private$msgs)]]
-      tool_calls <- value_tool_calls(private$provider, last_message)
+      tool_calls <- value_tool_calls(private$provider, self$last_message())
       tool_results <- invoke_tools(tool_calls, private$tool_funs)
       # TODO: move to whatever normalises just prior to sending
       tool_messages <- lapply(tool_results, to_provider, provider = private$provider)
@@ -350,8 +354,7 @@ Chat <- R6::R6Class("Chat",
         return(FALSE)
       }
 
-      last_message <- private$msgs[[length(private$msgs)]]
-      tool_calls <- value_tool_calls(private$provider, last_message)
+      tool_calls <- value_tool_calls(private$provider, self$last_message())
       tool_results <- await(invoke_tools_async(tool_calls, private$tool_funs))
       tool_messages <- lapply(tool_results, to_provider, provider = private$provider)
 
@@ -400,9 +403,4 @@ print.Chat <- function(x, ...) {
   }
 
   invisible(x)
-}
-
-last_message <- function(chat) {
-  messages <- chat$messages()
-  messages[[length(messages)]]
 }
