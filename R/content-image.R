@@ -56,7 +56,7 @@ content_image_url <- function(url, detail = c("auto", "low", "high")) {
 #'   All values other than `none` require the `magick` package.
 #' @export
 content_image_file <- function(path, content_type = "auto", resize = "low") {
-  rlang::check_installed("base64enc", "to encode images")
+  check_installed("base64enc", "to encode images")
 
   # TODO: Allow vector input?
   check_string(path, allow_empty = FALSE)
@@ -86,7 +86,7 @@ content_image_file <- function(path, content_type = "auto", resize = "low") {
   if (resize == "none") {
     base64 <- base64enc::base64encode(path)
   } else {
-    rlang::check_installed("magick", "to resize images")
+    check_installed("magick", "to resize images")
 
     img <- magick::image_read(path)
 
