@@ -30,10 +30,7 @@ rlang::on_load(
 # Also need to handle edge caess: https://platform.openai.com/docs/guides/function-calling/edge-cases
 invoke_tool <- function(fun, arguments, id) {
   if (is.null(fun)) {
-    return(tool_result(
-      id = id,
-      error = paste0("Unknown tool name '", call$`function`, "'")
-    ))
+    return(tool_result(id = id, error = "Unknown tool"))
   }
 
   tryCatch(
@@ -47,10 +44,7 @@ invoke_tool <- function(fun, arguments, id) {
 
 rlang::on_load(invoke_tool_async <- coro::async(function(fun, arguments, id) {
   if (is.null(fun)) {
-    return(tool_result(
-      id = id,
-      error = paste0("Unknown tool name '", call$`function`, "'")
-    ))
+    return(tool_result(id = id, error = "Unknown tool"))
   }
 
   tryCatch(

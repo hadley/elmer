@@ -8,7 +8,8 @@ tool_call <- new_class(
     name = prop_string(),
     arguments = class_list,
     parse_error = prop_string(allow_null = TRUE)
-  )
+  ),
+  package = "elmer"
 )
 
 tool_result <- new_class(
@@ -17,5 +18,6 @@ tool_result <- new_class(
     id = prop_string(),
     result = class_any,
     error = prop_string(allow_null = TRUE)
-  )
+  ),
+  package = "elmer"
 )
