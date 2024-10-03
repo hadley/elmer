@@ -210,7 +210,7 @@ openai_assistant_turn <- function(message) {
   )
 }
 
-# Convert elmer turns + content to chatGPT messages
+# Convert elmer turns + content to chatGPT messages ----------------------------
 openai_messages <- function(turns) {
   messages <- list()
   add_message <- function(role, ...) {

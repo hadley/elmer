@@ -10,7 +10,7 @@ on:
   pull_request:
     branches: main
 
-name: live-api
+name: live-api.yaml
 
 jobs:
   live-api:
@@ -19,6 +19,7 @@ jobs:
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
       R_KEEP_PKG_SOURCE: yes
 
     steps:
