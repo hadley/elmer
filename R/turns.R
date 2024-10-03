@@ -46,7 +46,7 @@ normalize_turns <- function(turns = NULL,
         call = error_call
       )
     }
-    correct_class <- map_lgl(turns, inherits, turn)
+    correct_class <- map_lgl(turns, S7_inherits, turn)
     if (!all(correct_class)) {
       cli::cli_abort("Every element of {.arg turns} must be a `turn`.")
     }

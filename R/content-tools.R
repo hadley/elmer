@@ -33,7 +33,7 @@ on_load(
 )
 
 extract_tool_requests <- function(contents) {
-  is_tool_request <- map_lgl(contents, inherits, content_tool_request)
+  is_tool_request <- map_lgl(contents, S7_inherits, content_tool_request)
   contents[is_tool_request]
 }
 

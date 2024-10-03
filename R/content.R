@@ -92,7 +92,7 @@ as_content <- function(x, error_call = caller_env()) {
     list()
   } else if (is.character(x)) {
     content_text(x)
-  } else if (inherits(x, content)) {
+  } else if (S7_inherits(x, content)) {
     x
   } else {
     stop_input_type(

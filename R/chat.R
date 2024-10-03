@@ -158,7 +158,7 @@ Chat <- R6::R6Class("Chat",
     tool_funs = NULL,
 
     add_turn = function(x) {
-      if (!inherits(x, turn)) {
+      if (!S7_inherits(x, turn)) {
         cli::cli_abort("Invalid input", .internal = TRUE)
       }
 
