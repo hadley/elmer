@@ -75,8 +75,6 @@ Chat <- R6::R6Class("Chat",
     #' @returns A promise that resolves to a string (probably Markdown).
     chat_async = function(...) {
       private$add_message(user_message(...))
-      # content <- normalize_content(private$provider, ...)
-      # input <- list(role = "user", content = content)
 
       # Returns a single message (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
@@ -97,7 +95,7 @@ Chat <- R6::R6Class("Chat",
     #' @param ... The input to send to the chatbot. Can be strings or images.
     stream = function(...) {
       private$add_message(user_message(...))
-      private$chat_impl(input, stream = TRUE, echo = FALSE)
+      private$chat_impl(stream = TRUE, echo = FALSE)
     },
 
     #' @description Submit input to the chatbot, returning asynchronously
@@ -107,7 +105,7 @@ Chat <- R6::R6Class("Chat",
     #' @param ... The input to send to the chatbot. Can be strings or images.
     stream_async = function(...) {
       private$add_message(user_message(...))
-      private$chat_impl_async(input, stream = TRUE, echo = FALSE)
+      private$chat_impl_async(stream = TRUE, echo = FALSE)
     },
 
     #' @description Register a tool (an R function) that the chatbot can use.

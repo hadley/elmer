@@ -21,15 +21,15 @@ method(format, chat_message) <- function(x, ...) {
   paste0(contents, "\n", collapse = "")
 }
 
-user_message <- function(...) {
-  check_dots_unnamed(call = error_call)
+user_message <- function(..., .error_call = caller_env()) {
+  check_dots_unnamed(call = .error_call)
   input <- list2(...)
-  content <- lapply(input, as_content)
+  content <- lapply(input, as_content, error_call = .error_call)
 
   chat_message(role = "user", content = content)
 }
 
-as_content <- function(x) {
+as_content <- function(x, error_call = caller_env()) {
   if (is.null(x)) {
     list()
   } else if (is.character(x)) {
@@ -37,7 +37,12 @@ as_content <- function(x) {
   } else if (inherits(x, content)) {
     x
   } else {
-    cli::cli_abort("Unknown input", .internal = TRUE)
+    stop_input_type(
+      x,
+      what = "made up strings or <content> objects",
+      arg = "...",
+      error_call = error_call
+    )
   }
 }
 
