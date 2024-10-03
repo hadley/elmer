@@ -1,26 +1,24 @@
-
-
 test_that("default model is reported", {
   expect_snapshot(. <- new_chat_openai()$chat("Hi"))
 })
 
-test_that("system prompt can be passed explicitly or as message", {
+test_that("system prompt can be passed explicitly or as a turn", {
   system_prompt <- "Return very minimal output, AND ONLY USE UPPERCASE."
 
   chat <- new_chat_openai(system_prompt = system_prompt)
   resp <- chat$chat("What is the name of Winnie the Pooh's human friend?")
   expect_equal(resp, "CHRISTOPHER ROBIN.\n")
 
-  chat <- new_chat_openai(messages = list(chat_message("system", system_prompt)))
+  chat <- new_chat_openai(turns = list(turn("system", system_prompt)))
   resp <- chat$chat("What is the name of Winnie the Pooh's human friend?")
   expect_equal(resp, "CHRISTOPHER ROBIN.\n")
 })
 
 test_that("existing conversation history is used", {
-  chat <- new_chat_openai(messages = list(
-    chat_message("system", "Return very minimal output; no punctuation."),
-    chat_message("user", "List the names of any 8 of Santa's 9 reindeer."),
-    chat_message("assistant", "Dasher, Dancer, Vixen, Comet, Cupid, Donner, Blitzen, and Rudolph.")
+  chat <- new_chat_openai(turns = list(
+    turn("system", "Return very minimal output; no punctuation."),
+    turn("user", "List the names of any 8 of Santa's 9 reindeer."),
+    turn("assistant", "Dasher, Dancer, Vixen, Comet, Cupid, Donner, Blitzen, and Rudolph.")
   ))
 
   resp <- chat$chat("Who is the remaining one? Just give the name")
@@ -73,7 +71,7 @@ test_that("can call multiple tools in parallel", {
     Answer like name1: colour1, name2: colour2
   ")
   expect_identical(result, "Joe: sage green, Hadley: red\n")
-  expect_length(chat$messages(), 4)
+  expect_length(chat$turns(), 4)
 })
 
 test_that("can call multiple tools in sequence", {
@@ -93,7 +91,7 @@ test_that("can call multiple tools in sequence", {
 
   result <- chat$chat("What was the most popular name this year?")
   expect_equal(result, "Susan\n")
-  expect_length(chat$messages(), 6)
+  expect_length(chat$turns(), 6)
 })
 
 # Images -----------------------------------------------------------------

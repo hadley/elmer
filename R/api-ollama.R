@@ -12,7 +12,7 @@
 #' @inheritParams new_chat_openai
 #' @export
 new_chat_ollama <- function(system_prompt = NULL,
-                            messages = NULL,
+                            turns = NULL,
                             base_url = "http://localhost:11434/v1",
                             model,
                             seed = NULL,
@@ -32,7 +32,7 @@ new_chat_ollama <- function(system_prompt = NULL,
 
   new_chat_openai(
     system_prompt = system_prompt,
-    messages = messages,
+    turns = turns,
     base_url = base_url,
     api_key = "ollama", # ignore
     model = model,

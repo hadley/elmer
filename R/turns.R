@@ -1,6 +1,6 @@
 # Abstract class
-chat_message <- new_class(
-  "chat_message",
+turn <- new_class(
+  "turn",
   properties = list(
     role = prop_string(),
     # list_of<content
@@ -16,17 +16,17 @@ chat_message <- new_class(
   }
 )
 
-method(format, chat_message) <- function(x, ...) {
+method(format, turn) <- function(x, ...) {
   contents <- map_chr(x@content, format, ...)
   paste0(contents, "\n", collapse = "")
 }
 
-user_message <- function(..., .error_call = caller_env()) {
+user_turn <- function(..., .error_call = caller_env()) {
   check_dots_unnamed(call = .error_call)
   input <- list2(...)
   content <- lapply(input, as_content, error_call = .error_call)
 
-  chat_message(role = "user", content = content)
+  turn(role = "user", content = content)
 }
 
 as_content <- function(x, error_call = caller_env()) {
@@ -50,46 +50,46 @@ is_system_prompt <- function(x) {
   x@role == "system"
 }
 
-normalize_messages <- function(messages = NULL,
+normalize_turns <- function(turns = NULL,
                                system_prompt = NULL,
                                error_call = caller_env()) {
 
   check_string(system_prompt, allow_null = TRUE, call = error_call)
 
-  if (!is.null(messages)) {
-    if (!is.list(messages) || is_named(messages)) {
+  if (!is.null(turns)) {
+    if (!is.list(turns) || is_named(turns)) {
       stop_input_type(
-        messages,
+        turns,
         "an unnamed list",
         allow_null = TRUE,
         call = error_call
       )
     }
-    correct_class <- map_lgl(messages, inherits, chat_message)
+    correct_class <- map_lgl(turns, inherits, turn)
     if (!all(correct_class)) {
-      cli::cli_abort("Every element of {.arg messages} must be a `chat_message`.")
+      cli::cli_abort("Every element of {.arg turns} must be a `turn`.")
     }
   } else {
-    messages <- list()
+    turns <- list()
   }
 
   if (!is.null(system_prompt)) {
-    system_message <- chat_message("system", system_prompt)
+    system_turn <- turn("system", system_prompt)
 
-    # No messages; start with just the system prompt
-    if (length(messages) == 0) {
-      messages <- list(system_message)
-    } else if (messages[[1]]@role != "system") {
-      messages <- c(list(system_message), messages)
-    } else if (identical(messages[[1]], system_message)) {
+    # No turns; start with just the system prompt
+    if (length(turns) == 0) {
+      turns <- list(system_turn)
+    } else if (turns[[1]]@role != "system") {
+      turns <- c(list(system_turn), turns)
+    } else if (identical(turns[[1]], system_turn)) {
       # Duplicate system prompt; don't need to do anything
     } else {
       cli::cli_abort(
-        "`system_prompt` and `messages[[1]]` can't contain conflicting system prompts.",
+        "`system_prompt` and `turns[[1]]` can't contain conflicting system prompts.",
         call = error_call
       )
     }
   }
 
-  messages
+  turns
 }

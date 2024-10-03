@@ -37,5 +37,3 @@ content_tool_result <- new_class(
 method(format, content_tool_result) <- function(x, ...) {
   cli::format_inline("[{.strong tool result}  ({x@id})]: {x@result}")
 }
-
-    #   for (tool_call in message$tool_calls) {

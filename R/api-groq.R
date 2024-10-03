@@ -9,7 +9,7 @@
 #' @export
 #' @inheritParams new_chat_openai
 new_chat_groq <- function(system_prompt = NULL,
-                          messages = NULL,
+                          turns = NULL,
                           base_url = "https://api.groq.com/openai/v1",
                           api_key = groq_key(),
                           model = NULL,
@@ -20,7 +20,7 @@ new_chat_groq <- function(system_prompt = NULL,
 
   new_chat_openai(
     system_prompt = system_prompt,
-    messages = messages,
+    turns = turns,
     base_url = base_url,
     api_key = api_key,
     model = model,

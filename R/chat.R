@@ -4,14 +4,14 @@ NULL
 #' Chat object
 #'
 #' @description
-#' The Chat object represents a sequence of messages between the user and
+#' The Chat object represents a sequence of turns between the user and
 #' chat API. You should generally not create this object yourself, but instead
 #' call [new_chat_openai()] or friends.
 #'
 Chat <- R6::R6Class("Chat",
   public = list(
     #' @param provider A provider object.
-    #' @param messages An unnamed list of messages to start the chat with (i.e.,
+    #' @param turns An unnamed list of turns to start the chat with (i.e.,
     #'   continuing a previous conversation). If `NULL` or zero-length list, the
     #'   conversation begins from scratch.
     #' @param seed Optional integer seed that ChatGPT uses to try and make output
@@ -19,31 +19,31 @@ Chat <- R6::R6Class("Chat",
     #' @param echo If `TRUE`, the `chat()` method streams the response to stdout
     #'   (while also returning the final response). Note that this has no effect
     #'   on the `stream()`, `chat_async()`, and `stream_async()` methods.
-    initialize = function(provider, messages, seed = NULL, echo = FALSE) {
+    initialize = function(provider, turns, seed = NULL, echo = FALSE) {
       private$provider <- provider
-      private$msgs <- messages %||% list()
+      private$.turns <- turns %||% list()
       private$echo <- echo
     },
 
-    #' @description The messages that have been sent and received so far
+    #' @description The turns that have been sent and received so far
     #'   (optionally starting with the system prompt, if any).
     #' @param include_system_prompt Whether to include the system prompt in the
-    #'   messages (if any exists).
-    messages = function(include_system_prompt = FALSE) {
-      if (length(private$msgs) == 0) {
-        return(private$msgs)
+    #'   turns (if any exists).
+    turns = function(include_system_prompt = FALSE) {
+      if (length(private$.turns) == 0) {
+        return(private$.turns)
       }
 
-      if (!include_system_prompt && is_system_prompt(private$msgs[[1]])) {
-        private$msgs[-1]
+      if (!include_system_prompt && is_system_prompt(private$.turns[[1]])) {
+        private$.turns[-1]
       } else {
-        private$msgs
+        private$.turns
       }
     },
 
-    #' @description The last message returned by the assistant.
-    last_message = function() {
-      private$msgs[[length(private$msgs)]]
+    #' @description The last turn returned by the assistant.
+    last_turn = function() {
+      private$.turns[[length(private$.turns)]]
     },
 
     #' @description Submit input to the chatbot, and return the response as a
@@ -54,13 +54,13 @@ Chat <- R6::R6Class("Chat",
     #'   `NULL`, then the value of `echo` set when the chat object was created
     #'   will be used.
     chat = function(..., echo = NULL) {
-      private$add_message(user_message(...))
+      private$add_turn(user_turn(...))
       echo <- echo %||% private$echo
 
-      # Returns a single message (the final response from the assistant), even if
+      # Returns a single turn (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
       coro::collect(private$chat_impl(stream = echo, echo = echo))
-      text <- format(self$last_message())
+      text <- format(self$last_turn())
 
       if (echo) {
         invisible(text)
@@ -74,15 +74,15 @@ Chat <- R6::R6Class("Chat",
     #' @param ... The input to send to the chatbot. Can be strings or images.
     #' @returns A promise that resolves to a string (probably Markdown).
     chat_async = function(...) {
-      private$add_message(user_message(...))
+      private$add_turn(user_turn(...))
 
-      # Returns a single message (the final response from the assistant), even if
+      # Returns a single turn (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
       done <- coro::async_collect(
         private$chat_impl_async(stream = FALSE, echo = FALSE)
       )
       promises::then(done, function(dummy) {
-        text <- format(self$last_message())
+        text <- format(self$last_turn())
         text
       })
     },
@@ -94,7 +94,7 @@ Chat <- R6::R6Class("Chat",
     #'   waiting for more content from the chatbot.
     #' @param ... The input to send to the chatbot. Can be strings or images.
     stream = function(...) {
-      private$add_message(user_message(...))
+      private$add_turn(user_turn(...))
       private$chat_impl(stream = TRUE, echo = FALSE)
     },
 
@@ -104,7 +104,7 @@ Chat <- R6::R6Class("Chat",
     #'   yields string promises.
     #' @param ... The input to send to the chatbot. Can be strings or images.
     stream_async = function(...) {
-      private$add_message(user_message(...))
+      private$add_turn(user_turn(...))
       private$chat_impl_async(stream = TRUE, echo = FALSE)
     },
 
@@ -146,22 +146,10 @@ Chat <- R6::R6Class("Chat",
       invisible(self)
     }
   ),
-  active = list(
-    #' @field system_prompt The system prompt, if any, as a string.
-    system_prompt = function() {
-      if (length(private$msgs) == 0) {
-        return(NULL)
-      }
-      if (private$msgs[[1]]@role != "system") {
-        return(NULL)
-      }
-      private$msgs[[1]][["content"]]
-    }
-  ),
   private = list(
     provider = NULL,
 
-    msgs = NULL,
+    .turns = NULL,
     echo = NULL,
 
     # OpenAI-compliant tool metadata
@@ -169,12 +157,12 @@ Chat <- R6::R6Class("Chat",
     # Named list of R functions that implement tools
     tool_funs = NULL,
 
-    add_message = function(message) {
-      if (!inherits(message, chat_message)) {
+    add_turn = function(x) {
+      if (!inherits(x, turn)) {
         cli::cli_abort("Invalid input", .internal = TRUE)
       }
 
-      private$msgs[[length(private$msgs) + 1]] <- message
+      private$.turns[[length(private$.turns) + 1]] <- x
       invisible(self)
     },
 
@@ -184,12 +172,12 @@ Chat <- R6::R6Class("Chat",
         return(invisible(self))
       }
 
-      i <- length(private$msgs)
+      i <- length(private$.turns)
 
-      if (private$msgs[[i]]@role != "user") {
-        private$msgs[[i + 1]] <- chat_message("user", content = contents)
+      if (private$.turns[[i]]@role != "user") {
+        private$.turns[[i + 1]] <- turn("user", content = contents)
       } else {
-        private$msgs[[i]]@content <- c(private$msgs[[i]]@content, contents)
+        private$.turns[[i]]@content <- c(private$.turns[[i]]@content, contents)
       }
       invisible(self)
     },
@@ -207,10 +195,10 @@ Chat <- R6::R6Class("Chat",
     },
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
-    # complete assistant messages.
+    # complete assistant turns.
     chat_impl = generator_method(function(self, private, stream, echo) {
       repeat {
-        for (chunk in private$submit_messages(stream = stream, echo = echo)) {
+        for (chunk in private$submit_turns(stream = stream, echo = echo)) {
           yield(chunk)
         }
         if (!private$invoke_tools()) {
@@ -225,10 +213,10 @@ Chat <- R6::R6Class("Chat",
     }),
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
-    # complete assistant messages.
+    # complete assistant turns.
     chat_impl_async = async_generator_method(function(self, private, stream, echo) {
       repeat {
-        for (chunk in await_each(private$submit_messages_async(stream = stream, echo = echo))) {
+        for (chunk in await_each(private$submit_turns_async(stream = stream, echo = echo))) {
           yield(chunk)
         }
         tools_called <- await(private$invoke_tools_async())
@@ -244,12 +232,12 @@ Chat <- R6::R6Class("Chat",
     }),
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
-    # complete assistant messages.
-    submit_messages = generator_method(function(self, private, stream, echo) {
+    # complete assistant turns.
+    submit_turns = generator_method(function(self, private, stream, echo) {
       response <- chat_perform(
         provider = private$provider,
         mode = if (stream) "stream" else "value",
-        messages = private$msgs,
+        turns = private$.turns,
         tools = private$tool_infos
       )
       emit <- emitter(echo)
@@ -268,13 +256,13 @@ Chat <- R6::R6Class("Chat",
 
           result <- stream_merge_chunks(private$provider, result, chunk)
         }
-        # Ensure messages always end in a newline
+        # Ensure turns always end in a newline
         if (any_text) {
           emit("\n")
           yield("\n")
         }
 
-        message <- stream_message(private$provider, result)
+        turn <- stream_turn(private$provider, result)
       } else {
         text <- value_text(private$provider, response)
         if (!is.null(text)) {
@@ -282,9 +270,9 @@ Chat <- R6::R6Class("Chat",
           emit(text)
           yield(text)
         }
-        message <- value_message(private$provider, response)
+        turn <- value_turn(private$provider, response)
       }
-      private$add_message(message)
+      private$add_turn(turn)
 
       # Work around https://github.com/r-lib/coro/issues/51
       if (FALSE) {
@@ -293,12 +281,12 @@ Chat <- R6::R6Class("Chat",
     }),
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
-    # complete assistant messages.
-    submit_messages_async = async_generator_method(function(self, private, stream, echo) {
+    # complete assistant turns.
+    submit_turns_async = async_generator_method(function(self, private, stream, echo) {
       response <- chat_perform(
         provider = private$provider,
         mode = if (stream) "async-stream" else "async-value",
-        messages = private$msgs,
+        turns = private$.turns,
         tools = private$tool_infos
       )
       emit <- emitter(echo)
@@ -316,13 +304,13 @@ Chat <- R6::R6Class("Chat",
 
           result <- stream_merge_chunks(private$provider, result, chunk)
         }
-        # Ensure messages always end in a newline
+        # Ensure turns always end in a newline
         if (any_text) {
           emit("\n")
           yield("\n")
         }
 
-        message <- stream_message(private$provider, result)
+        turn <- stream_turn(private$provider, result)
       } else {
         result <- await(response)
 
@@ -332,9 +320,9 @@ Chat <- R6::R6Class("Chat",
           emit(text)
           yield(text)
         }
-        message <- value_message(private$provider, result)
+        turn <- value_turn(private$provider, result)
       }
-      private$add_message(message)
+      private$add_turn(turn)
 
       # Work around https://github.com/r-lib/coro/issues/51
       if (FALSE) {
@@ -347,7 +335,7 @@ Chat <- R6::R6Class("Chat",
         return(FALSE)
       }
 
-      tool_results <- invoke_tools(self$last_message(), private$tool_funs)
+      tool_results <- invoke_tools(self$last_turn(), private$tool_funs)
       private$add_user_contents(tool_results)
 
       length(tool_results) > 0
@@ -358,7 +346,7 @@ Chat <- R6::R6Class("Chat",
         return(FALSE)
       }
 
-      tool_results <- await(invoke_tools_async(self$last_message(), private$tool_funs))
+      tool_results <- await(invoke_tools_async(self$last_turn(), private$tool_funs))
       private$add_user_contents(tool_results)
 
       length(tool_results) > 0
@@ -368,17 +356,17 @@ Chat <- R6::R6Class("Chat",
 
 #' @export
 print.Chat <- function(x, ...) {
-  msgs <- x$messages(include_system_prompt = TRUE)
-  cat(paste0("<Chat messages=", length(msgs), ">\n"))
-  for (message in msgs) {
-    color <- switch(message@role,
+  turns <- x$turns(include_system_prompt = TRUE)
+  cat(paste0("<Chat turns=", length(turns), ">\n"))
+  for (turn in turns) {
+    color <- switch(turn@role,
       user = cli::col_blue,
       assistant = cli::col_green,
       system = cli::col_br_white,
       identity
     )
-    cli::cat_rule(cli::format_inline("{color(message@role)}"))
-    for (content in message@content) {
+    cli::cat_rule(cli::format_inline("{color(turn@role)}"))
+    for (content in turn@content) {
       cat_line(format(content))
     }
   }

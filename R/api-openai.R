@@ -6,14 +6,14 @@ NULL
 #' Create a chatbot that speaks to an OpenAI compatible endpoint
 #'
 #' This function returns a [Chat] object that takes care of managing the state
-#' associated with the chat; i.e. it records the messages that you send to the
-#' server, and the messages that you receive back. If you register a tool
+#' associated with the chat; i.e. it records the turns that you send to the
+#' server, and the turns that you receive back. If you register a tool
 #' (aka an R function), it also takes care of the tool loop.
 #'
 #' @param system_prompt A system prompt to set the behavior of the assistant.
-#' @param messages A list of messages to start the chat with (i.e., continuing a
+#' @param turns A list of turns to start the chat with (i.e., continuing a
 #'   previous conversation). If not provided, the conversation begins from
-#'   scratch. Do not provide non-`NULL` values for both `messages` and
+#'   scratch. Do not provide non-`NULL` values for both `turns` and
 #'   `system_prompt`.
 #'
 #'   Each message in the list should be a named list with at least `role`
@@ -67,7 +67,7 @@ NULL
 #'   Briefly explain your work.
 #' ")
 new_chat_openai <- function(system_prompt = NULL,
-                            messages = NULL,
+                            turns = NULL,
                             base_url = "https://api.openai.com/v1",
                             api_key = openai_key(),
                             model = NULL,
@@ -77,7 +77,7 @@ new_chat_openai <- function(system_prompt = NULL,
   check_string(system_prompt, allow_null = TRUE)
   check_bool(echo)
 
-  messages <- normalize_messages(messages, system_prompt)
+  turns <- normalize_turns(turns, system_prompt)
 
   model <- set_default(model, "gpt-4o-mini")
 
@@ -89,7 +89,7 @@ new_chat_openai <- function(system_prompt = NULL,
     api_key = api_key
   )
 
-  Chat$new(provider = provider, messages = messages, echo = echo)
+  Chat$new(provider = provider, turns = turns, echo = echo)
 }
 
 new_openai_provider <- function(base_url = "https://api.openai.com/v1",
@@ -147,7 +147,7 @@ openai_key <- function() {
 # https://platform.openai.com/docs/api-reference/chat/create
 method(chat_request, openai_provider) <- function(provider,
                                                   stream = TRUE,
-                                                  messages = list(),
+                                                  turns = list(),
                                                   tools = list(),
                                                   extra_args = list()) {
 
@@ -159,7 +159,7 @@ method(chat_request, openai_provider) <- function(provider,
 
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
-  messages <- openai_messages(provider, messages)
+  messages <- openai_messages(provider, turns)
 
   data <- compact(list2(
     messages = messages,
@@ -190,13 +190,13 @@ method(stream_merge_chunks, openai_provider) <- function(provider, result, chunk
     merge_dicts(result, chunk)
   }
 }
-method(stream_message, openai_provider) <- function(provider, result) {
-  openai_message(result$choices[[1]]$delta)
+method(stream_turn, openai_provider) <- function(provider, result) {
+  openai_assistant_turn(result$choices[[1]]$delta)
 }
-method(value_message, openai_provider) <- function(provider, result) {
-  openai_message(result$choices[[1]]$message)
+method(value_turn, openai_provider) <- function(provider, result) {
+  openai_assistant_turn(result$choices[[1]]$message)
 }
-openai_message <- function(message) {
+openai_assistant_turn <- function(message) {
   content <- lapply(message$content, as_content)
 
   if (has_name(message, "tool_calls")) {
@@ -208,7 +208,7 @@ openai_message <- function(message) {
     })
     content <- c(content, calls)
   }
-  chat_message(
+  turn(
     role = message$role,
     content = content,
     extra = message["refusal"]
@@ -262,42 +262,36 @@ method(to_provider, list(openai_provider, content_image_inline)) <- function(pro
   )
 }
 
-openai_messages <- function(provider, messages) {
-
-
-  output <- list()
-  add_output <- function(role, ...) {
-    output[[length(output) + 1]] <<- compact(list(role = role, ...))
+openai_messages <- function(provider, turns) {
+  messages <- list()
+  add_message <- function(role, ...) {
+    messages[[length(messages) + 1]] <<- compact(list(role = role, ...))
   }
 
-  for (message in messages) {
-    if (message@role == "system") {
-      add_output("system", content = message@content[[1]]@text)
-    } else if (message@role == "user") {
-      # Each tool result needs to go in its own message (with role "tool")
-      is_tool <- map_lgl(message@content, inherits, content_tool_result)
+  for (turn in turns) {
+    if (turn@role == "system") {
+      add_message("system", content = turn@content[[1]]@text)
+    } else if (turn@role == "user") {
+      # Each tool result needs to go in its own turn (with role "tool")
+      is_tool <- map_lgl(turn@content, inherits, content_tool_result)
 
-      content <- lapply(message@content[!is_tool], to_provider, provider = provider)
+      content <- lapply(turn@content[!is_tool], to_provider, provider = provider)
       if (length(content) > 0) {
-        add_output("user", content = content)
+        add_message("user", content = content)
       }
-      for (tool in message@content[is_tool]) {
-        add_output("tool", content = to_provider(provider, tool), tool_call_id = tool@id)
+      for (tool in turn@content[is_tool]) {
+        add_message("tool", content = to_provider(provider, tool), tool_call_id = tool@id)
       }
-    } else if (message@role == "assistant") {
+    } else if (turn@role == "assistant") {
       # Tool calls come out of content and go into own argument
-      is_tool <- map_lgl(message@content, inherits, content_tool_call)
-      content <- lapply(message@content[!is_tool], to_provider, provider = provider)
-      tool_calls <- lapply(message@content[is_tool], to_provider, provider = provider)
+      is_tool <- map_lgl(turn@content, inherits, content_tool_call)
+      content <- lapply(turn@content[!is_tool], to_provider, provider = provider)
+      tool_calls <- lapply(turn@content[is_tool], to_provider, provider = provider)
 
-      add_output("assistant", content = content, tool_calls = tool_calls)
+      add_message("assistant", content = content, tool_calls = tool_calls)
     } else {
-      cli::cli_abort("Unknown role {message@role}", .internal = TRUE)
+      cli::cli_abort("Unknown role {turn@role}", .internal = TRUE)
     }
   }
-  # browser()
-  output
+  messages
 }
-
-# to_provider -> to_message + to_content
-# from_provider -> from_message + from_content

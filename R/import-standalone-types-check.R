@@ -18,7 +18,7 @@
 # - `check_character()` gains an `allow_na` argument (@martaalcalde, #1724)
 #
 # 2023-03-13:
-# - Improved error messages of number checkers (@teunbrand)
+# - Improved error turns of number checkers (@teunbrand)
 # - Added `allow_infinite` argument to `check_number_whole()` (@mgirlich).
 # - Added `check_data_frame()` (@mgirlich).
 #
