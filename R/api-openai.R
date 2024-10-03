@@ -1,6 +1,5 @@
 #' @include api.R
 #' @include content.R
-#' @include tools.R
 NULL
 
 #' Create a chatbot that speaks to an OpenAI compatible endpoint
