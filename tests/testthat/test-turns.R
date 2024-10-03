@@ -30,3 +30,15 @@ test_that("normalize_turns throws useful errors", {
     normalize_turns(list(sys_msg, user_msg), "foo2")
   })
 })
+
+
+test_that("can extract text easily", {
+
+  turn <- turn("assistant", list(
+    content_text("ABC"),
+    content_image(),
+    content_text("DEF")
+  ))
+  expect_equal(turn@text, "ABCDEF")
+
+})

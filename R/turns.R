@@ -5,7 +5,14 @@ turn <- new_class(
     # list_of<content
     content = class_list,
     # random extra metadata a provider stuffs in
-    extra = class_list
+    extra = class_list,
+    text = new_property(
+      class = class_character,
+      getter = function(self) {
+        is_text <- map_lgl(self@content, S7_inherits, content_text)
+        paste0(unlist(lapply(self@content[is_text], function(x) x@text)), collapse = "")
+      }
+    )
   ),
   constructor = function(role, content = list(), extra = list()) {
     if (is.character(content)) {
@@ -18,6 +25,8 @@ method(format, turn) <- function(x, ...) {
   contents <- map_chr(x@content, format, ...)
   paste0(contents, "\n", collapse = "")
 }
+
+
 
 user_turn <- function(..., .error_call = caller_env()) {
   check_dots_unnamed(call = .error_call)

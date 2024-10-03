@@ -4,13 +4,13 @@ test_that("can perform a simple batch chat", {
     If asked a math question, return only the answer.",
   )
   result <- chat$chat("What's 1 + 1")
-  expect_equal(result, "2\n")
+  expect_equal(result, "2")
   expect_equal(chat$last_turn()@content[[1]]@text, "2")
 
   result <- chat$chat_async("What's 1 + 1")
   expect_s3_class(result, "promise")
   result <- sync(result)
-  expect_equal(result, "2\n")
+  expect_equal(result, "2")
   expect_equal(chat$last_turn()@content[[1]]@text, "2")
 })
 

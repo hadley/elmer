@@ -60,7 +60,7 @@ Chat <- R6::R6Class("Chat",
       # Returns a single turn (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
       coro::collect(private$chat_impl(stream = echo, echo = echo))
-      text <- format(self$last_turn())
+      text <- self$last_turn()@text
 
       if (echo) {
         invisible(text)
@@ -82,8 +82,7 @@ Chat <- R6::R6Class("Chat",
         private$chat_impl_async(stream = FALSE, echo = FALSE)
       )
       promises::then(done, function(dummy) {
-        text <- format(self$last_turn())
-        text
+        self$last_turn()@text
       })
     },
 

@@ -7,11 +7,11 @@ test_that("system prompt can be passed explicitly or as a turn", {
 
   chat <- new_chat_openai(system_prompt = system_prompt)
   resp <- chat$chat("What is the name of Winnie the Pooh's human friend?")
-  expect_equal(resp, "CHRISTOPHER ROBIN.\n")
+  expect_equal(resp, "CHRISTOPHER ROBIN.")
 
   chat <- new_chat_openai(turns = list(turn("system", system_prompt)))
   resp <- chat$chat("What is the name of Winnie the Pooh's human friend?")
-  expect_equal(resp, "CHRISTOPHER ROBIN.\n")
+  expect_equal(resp, "CHRISTOPHER ROBIN.")
 })
 
 test_that("existing conversation history is used", {
@@ -22,7 +22,7 @@ test_that("existing conversation history is used", {
   ))
 
   resp <- chat$chat("Who is the remaining one? Just give the name")
-  expect_equal(resp, "Prancer\n")
+  expect_equal(resp, "Prancer")
 })
 
 # Tool calls -------------------------------------------------------------------
@@ -33,10 +33,10 @@ test_that("can make a simple tool call", {
   chat$register_tool(get_date, "get_date", "Gets the current date", list())
 
   result <- chat$chat("What's the current date?")
-  expect_equal(result, "2024-01-01\n")
+  expect_equal(result, "2024-01-01")
 
   result <- chat$chat("What day of the week is it?")
-  expect_equal(result, "Tuesday\n")
+  expect_equal(result, "Tuesday")
 })
 
 test_that("can make an async tool call", {
@@ -48,7 +48,7 @@ test_that("can make an async tool call", {
   chat$register_tool(get_date, "get_date", "Gets the current date", list())
 
   result <- sync(chat$chat_async("What's the current date?"))
-  expect_equal(result, "2024-01-01\n")
+  expect_equal(result, "2024-01-01")
 
   expect_snapshot(chat$chat("Great. Do it again."), error = TRUE)
 })
@@ -70,7 +70,7 @@ test_that("can call multiple tools in parallel", {
     What are Joe and Hadley's favourite colours?
     Answer like name1: colour1, name2: colour2
   ")
-  expect_identical(result, "Joe: sage green, Hadley: red\n")
+  expect_identical(result, "Joe: sage green, Hadley: red")
   expect_length(chat$turns(), 4)
 })
 
@@ -90,7 +90,7 @@ test_that("can call multiple tools in sequence", {
   )
 
   result <- chat$chat("What was the most popular name this year?")
-  expect_equal(result, "Susan\n")
+  expect_equal(result, "Susan")
   expect_length(chat$turns(), 6)
 })
 
