@@ -73,11 +73,8 @@ new_chat_openai <- function(system_prompt = NULL,
                             seed = NULL,
                             api_args = list(),
                             echo = FALSE) {
-  check_string(system_prompt, allow_null = TRUE)
-  check_bool(echo)
-
   turns <- normalize_turns(turns, system_prompt)
-
+  check_bool(echo)
   model <- set_default(model, "gpt-4o-mini")
 
   provider <- new_openai_provider(
@@ -87,7 +84,6 @@ new_chat_openai <- function(system_prompt = NULL,
     extra_args = api_args,
     api_key = api_key
   )
-
   Chat$new(provider = provider, turns = turns, echo = echo)
 }
 
@@ -117,7 +113,7 @@ new_openai_provider <- function(base_url = "https://api.openai.com/v1",
     model = model,
     seed = seed,
     api_key = api_key,
-    extra_args = list()
+    extra_args = extra_args
   )
 }
 
@@ -156,9 +152,8 @@ method(chat_request, openai_provider) <- function(provider,
   req <- req_retry(req, max_tries = 2)
   req <- req_error(req, body = function(resp) resp_body_json(resp)$error$message)
 
+  messages <- openai_messages(turns)
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
-
-  messages <- openai_messages(provider, turns)
 
   data <- compact(list2(
     messages = messages,
@@ -214,9 +209,8 @@ openai_assistant_turn <- function(message) {
   )
 }
 
-# Content normalisation --------------------------------------------------
-
-openai_messages <- function(provider, turns) {
+# Convert elmer turns + content to chatGPT messages
+openai_messages <- function(turns) {
   messages <- list()
   add_message <- function(role, ...) {
     messages[[length(messages) + 1]] <<- compact(list(role = role, ...))
@@ -250,7 +244,6 @@ openai_messages <- function(provider, turns) {
   messages
 }
 
-
 openai_content <- new_generic("openai_content", "content")
 
 method(openai_content, content_text) <- function(content) {
@@ -258,10 +251,7 @@ method(openai_content, content_text) <- function(content) {
 }
 
 method(openai_content, content_image_remote) <- function(content) {
-  list(
-    type = "image_url",
-    image_url = list(url = content@url)
-  )
+  list(type = "image_url", image_url = list(url = content@url))
 }
 
 method(openai_content, content_image_inline) <- function(content) {
@@ -284,12 +274,10 @@ method(openai_content, content_tool_result) <- function(content) {
 }
 
 method(openai_content, content_tool_request) <- function(content) {
+  json_args <- jsonlite::toJSON(content@arguments)
   list(
     id = content@id,
-    `function` = list(
-      name = content@name,
-      arguments = jsonlite::toJSON(content@arguments)
-    ),
+    `function` = list(name = content@name, arguments = json_args),
     type = "function"
   )
 }
