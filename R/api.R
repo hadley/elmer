@@ -117,11 +117,6 @@ stream_turn <- new_generic("stream_turn", "provider",
 
 # Extract data from non-streaming results --------------------------------------
 
-value_text <- new_generic("value_text", "provider",
-  function(provider, event) {
-    S7_dispatch()
-  }
-)
 value_turn <- new_generic("value_turn", "provider",
   function(provider, result) {
     S7_dispatch()

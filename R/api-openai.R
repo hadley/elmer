@@ -214,10 +214,6 @@ openai_assistant_turn <- function(message) {
   )
 }
 
-method(value_text, openai_provider) <- function(provider, event) {
-  event$choices[[1]]$message$content
-}
-
 # Content normalisation --------------------------------------------------
 
 method(to_provider, list(openai_provider, content_tool_result)) <- function(provider, x) {

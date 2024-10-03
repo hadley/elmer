@@ -263,13 +263,13 @@ Chat <- R6::R6Class("Chat",
 
         turn <- stream_turn(private$provider, result)
       } else {
-        text <- value_text(private$provider, response)
+        turn <- value_turn(private$provider, response)
+        text <- turn@text
         if (!is.null(text)) {
           text <- paste0(text, "\n")
           emit(text)
           yield(text)
         }
-        turn <- value_turn(private$provider, response)
       }
       private$add_turn(turn)
 
@@ -313,13 +313,13 @@ Chat <- R6::R6Class("Chat",
       } else {
         result <- await(response)
 
-        text <- value_text(private$provider, result)
+        turn <- value_turn(private$provider, result)
+        text <- turn@text
         if (!is.null(text)) {
           text <- paste0(text, "\n")
           emit(text)
           yield(text)
         }
-        turn <- value_turn(private$provider, result)
       }
       private$add_turn(turn)
 
