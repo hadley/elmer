@@ -58,3 +58,11 @@ test_that("can optionally echo", {
   expect_output(chat$chat("Echo this."), NA)
   expect_output(chat$chat("Echo this.", echo = TRUE), "Echo this.")
 })
+
+test_that("can retrieve system prompt with helper", {
+  chat1 <- new_chat_openai()
+  expect_equal(chat1$system_prompt, NULL)
+
+  chat2 <- new_chat_openai(system_prompt = "You are from New Zealand")
+  expect_equal(chat2$system_prompt, "You are from New Zealand")
+})

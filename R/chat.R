@@ -145,6 +145,18 @@ Chat <- R6::R6Class("Chat",
       invisible(self)
     }
   ),
+  active = list(
+    #' @field system_prompt The system prompt, if any, as a string.
+    system_prompt = function() {
+      if (length(private$.turns) == 0) {
+        return(NULL)
+      }
+      if (private$.turns[[1]]@role != "system") {
+        return(NULL)
+      }
+      private$.turns[[1]]@text
+    }
+  ),
   private = list(
     provider = NULL,
 
