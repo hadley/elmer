@@ -7,7 +7,13 @@ chat_message <- new_class(
     content = class_list,
     # random extra metadata a provider stuffs in
     extra = class_list
-  )
+  ),
+  constructor = function(role, content = list(), extra = list()) {
+    if (is.character(content)) {
+      content <- list(content_text(paste0(content, collapse = "\n")))
+    }
+    new_object(S7_object(), role = role, content = content, extra = extra)
+  }
 )
 
 method(format, chat_message) <- function(x, ...) {
@@ -37,4 +43,48 @@ as_content <- function(x) {
 
 is_system_prompt <- function(x) {
   x@role == "system"
+}
+
+normalize_messages <- function(messages = NULL,
+                               system_prompt = NULL,
+                               error_call = caller_env()) {
+
+  check_string(system_prompt, allow_null = TRUE, call = error_call)
+
+  if (!is.null(messages)) {
+    if (!is.list(messages) || is_named(messages)) {
+      stop_input_type(
+        messages,
+        "an unnamed list",
+        allow_null = TRUE,
+        call = error_call
+      )
+    }
+    correct_class <- map_lgl(messages, inherits, chat_message)
+    if (!all(correct_class)) {
+      cli::cli_abort("Every element of {.arg messages} must be a `chat_message`.")
+    }
+  } else {
+    messages <- list()
+  }
+
+  if (!is.null(system_prompt)) {
+    system_message <- chat_message("system", system_prompt)
+
+    # No messages; start with just the system prompt
+    if (length(messages) == 0) {
+      messages <- list(system_message)
+    } else if (messages[[1]]@role != "system") {
+      messages <- c(list(system_message), messages)
+    } else if (identical(messages[[1]], system_message)) {
+      # Duplicate system prompt; don't need to do anything
+    } else {
+      cli::cli_abort(
+        "`system_prompt` and `messages[[1]]` can't contain conflicting system prompts.",
+        call = error_call
+      )
+    }
+  }
+
+  messages
 }

@@ -75,8 +75,9 @@ new_chat_openai <- function(system_prompt = NULL,
                             api_args = list(),
                             echo = FALSE) {
   check_string(system_prompt, allow_null = TRUE)
-  openai_check_conversation(messages, allow_null = TRUE)
   check_bool(echo)
+
+  messages <- normalize_messages(messages, system_prompt)
 
   model <- set_default(model, "gpt-4o-mini")
 
@@ -88,60 +89,7 @@ new_chat_openai <- function(system_prompt = NULL,
     api_key = api_key
   )
 
-  messages <- openai_apply_system_prompt(system_prompt, messages)
   Chat$new(provider = provider, messages = messages, echo = echo)
-}
-
-openai_apply_system_prompt <- function(system_prompt = NULL, messages = list()) {
-  if (is.null(system_prompt)) {
-    return(messages)
-  }
-
-  system_prompt <- list(content_text(system_prompt))
-
-  system_prompt_message <- chat_message(
-    role = "system",
-    content = system_prompt
-  )
-
-  # No messages; start with just the system prompt
-  if (length(messages) == 0) {
-    return(list(system_prompt_message))
-  }
-
-  # No existing system prompt message; prepend the new one
-  if (messages[[1]]@role != "system") {
-    return(c(list(system_prompt_message), messages))
-  }
-
-  # Duplicate system prompt; return as-is
-  if (identical(messages[[1]], system_prompt_message)) {
-    return(messages)
-  }
-
-  cli::cli_abort("`system_prompt` and `messages[[1]]` contained conflicting system prompts")
-}
-
-openai_check_conversation <- function(messages, allow_null = FALSE) {
-  if (is.null(messages) && isTRUE(allow_null)) {
-    return()
-  }
-
-  if (!is.list(messages) ||
-      !(is.null(names(messages)) || all(names(messages) == ""))) {
-    stop_input_type(
-      messages,
-      "an unnamed list of messages",
-      allow_null = FALSE
-    )
-  }
-
-  for (message in messages) {
-    if (!is.list(message) ||
-        !is.character(message$role)) {
-      cli::cli_abort("Each message must be a named list with at least a `role` field.")
-    }
-  }
 }
 
 new_openai_provider <- function(base_url = "https://api.openai.com/v1",
