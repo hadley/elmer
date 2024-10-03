@@ -6,7 +6,7 @@
 \usage{
 new_chat_ollama(
   system_prompt = NULL,
-  messages = NULL,
+  turns = NULL,
   base_url = "http://localhost:11434/v1",
   model,
   seed = NULL,
@@ -17,9 +17,9 @@ new_chat_ollama(
 \arguments{
 \item{system_prompt}{A system prompt to set the behavior of the assistant.}
 
-\item{messages}{A list of messages to start the chat with (i.e., continuing a
+\item{turns}{A list of turns to start the chat with (i.e., continuing a
 previous conversation). If not provided, the conversation begins from
-scratch. Do not provide non-\code{NULL} values for both \code{messages} and
+scratch. Do not provide non-\code{NULL} values for both \code{turns} and
 \code{system_prompt}.
 
 Each message in the list should be a named list with at least \code{role}

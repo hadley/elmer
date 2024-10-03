@@ -3,24 +3,16 @@
 # We will recconsider this in the future if necessary.
 chat_perform <- function(provider,
                          mode = c("value", "stream", "async-stream", "async-value"),
-                         messages,
+                         turns,
                          tools = list(),
                          extra_args = list()) {
 
   mode <- arg_match(mode)
   stream <- mode %in% c("stream", "async-stream")
 
-  # TODO: extract out message objects
-  messages <- lapply(messages, function(message) {
-    if (is.list(message$content)) {
-      message$content <- lapply(message$content, to_provider, provider = provider)
-    }
-    message
-  })
-
   req <- chat_request(
     provider = provider,
-    messages = messages,
+    turns = turns,
     tools = tools,
     stream = stream,
     extra_args = extra_args
@@ -91,7 +83,7 @@ on_load(chat_perform_async_stream <- coro::async_generator(function(provider, re
 # Create a request------------------------------------
 
 chat_request <- new_generic("chat_request", "provider",
-  function(provider, stream = TRUE, messages = list(), tools = list(), extra_args = list()) {
+  function(provider, stream = TRUE, turns = list(), tools = list(), extra_args = list()) {
     S7_dispatch()
   })
 
@@ -117,7 +109,7 @@ stream_merge_chunks <- new_generic("stream_merge_chunks", "provider",
     S7_dispatch()
   }
 )
-stream_message <- new_generic("stream_message", "provider",
+stream_turn <- new_generic("stream_turn", "provider",
   function(provider, result) {
     S7_dispatch()
   }
@@ -125,27 +117,8 @@ stream_message <- new_generic("stream_message", "provider",
 
 # Extract data from non-streaming results --------------------------------------
 
-value_text <- new_generic("value_text", "provider",
-  function(provider, event) {
-    S7_dispatch()
-  }
-)
-value_message <- new_generic("value_message", "provider",
+value_turn <- new_generic("value_turn", "provider",
   function(provider, result) {
     S7_dispatch()
   }
 )
-
-# Tool calling -----------------------------------------------------------------
-
-value_tool_calls <- new_generic("value_tool_calls", "provider",
-  function(provider, message) {
-    S7_dispatch()
-  }
-)
-
-
-# Content -> Request -----------------------------------------------------
-
-to_provider <- new_generic("to_provider", c("provider", "x"))
-from_provider <- new_generic("from_provider", c("provider", "x"))

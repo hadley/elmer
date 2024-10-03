@@ -10,7 +10,7 @@
 #' @export
 #' @inheritParams new_chat_openai
 new_chat_github <- function(system_prompt = NULL,
-                            messages = NULL,
+                            turns = NULL,
                             base_url = "https://models.inference.ai.azure.com/",
                             api_key = github_key(),
                             model = NULL,
@@ -24,7 +24,7 @@ new_chat_github <- function(system_prompt = NULL,
 
   new_chat_openai(
     system_prompt = system_prompt,
-    messages = messages,
+    turns = turns,
     base_url = base_url,
     api_key = api_key,
     model = model,

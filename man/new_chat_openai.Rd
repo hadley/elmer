@@ -6,7 +6,7 @@
 \usage{
 new_chat_openai(
   system_prompt = NULL,
-  messages = NULL,
+  turns = NULL,
   base_url = "https://api.openai.com/v1",
   api_key = openai_key(),
   model = NULL,
@@ -18,9 +18,9 @@ new_chat_openai(
 \arguments{
 \item{system_prompt}{A system prompt to set the behavior of the assistant.}
 
-\item{messages}{A list of messages to start the chat with (i.e., continuing a
+\item{turns}{A list of turns to start the chat with (i.e., continuing a
 previous conversation). If not provided, the conversation begins from
-scratch. Do not provide non-\code{NULL} values for both \code{messages} and
+scratch. Do not provide non-\code{NULL} values for both \code{turns} and
 \code{system_prompt}.
 
 Each message in the list should be a named list with at least \code{role}
@@ -54,7 +54,8 @@ A \link{Chat} object.
 This function returns a \link{Chat} object that takes care of managing the state
 associated with the chat; i.e. it records the messages that you send to the
 server, and the messages that you receive back. If you register a tool
-(aka an R function), it also takes care of the tool loop.
+(i.e. an R function that the assistant can call on your behalf), it also
+takes care of the tool loop.
 }
 \examples{
 \dontshow{if (elmer:::openai_key_exists()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}

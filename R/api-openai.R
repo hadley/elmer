@@ -1,6 +1,5 @@
 #' @include api.R
 #' @include content.R
-#' @include tools.R
 NULL
 
 #' Create a chatbot that speaks to an OpenAI compatible endpoint
@@ -8,12 +7,13 @@ NULL
 #' This function returns a [Chat] object that takes care of managing the state
 #' associated with the chat; i.e. it records the messages that you send to the
 #' server, and the messages that you receive back. If you register a tool
-#' (aka an R function), it also takes care of the tool loop.
+#' (i.e. an R function that the assistant can call on your behalf), it also
+#' takes care of the tool loop.
 #'
 #' @param system_prompt A system prompt to set the behavior of the assistant.
-#' @param messages A list of messages to start the chat with (i.e., continuing a
+#' @param turns A list of turns to start the chat with (i.e., continuing a
 #'   previous conversation). If not provided, the conversation begins from
-#'   scratch. Do not provide non-`NULL` values for both `messages` and
+#'   scratch. Do not provide non-`NULL` values for both `turns` and
 #'   `system_prompt`.
 #'
 #'   Each message in the list should be a named list with at least `role`
@@ -67,17 +67,15 @@ NULL
 #'   Briefly explain your work.
 #' ")
 new_chat_openai <- function(system_prompt = NULL,
-                            messages = NULL,
+                            turns = NULL,
                             base_url = "https://api.openai.com/v1",
                             api_key = openai_key(),
                             model = NULL,
                             seed = NULL,
                             api_args = list(),
                             echo = FALSE) {
-  check_string(system_prompt, allow_null = TRUE)
-  openai_check_conversation(messages, allow_null = TRUE)
+  turns <- normalize_turns(turns, system_prompt)
   check_bool(echo)
-
   model <- set_default(model, "gpt-4o-mini")
 
   provider <- new_openai_provider(
@@ -87,59 +85,7 @@ new_chat_openai <- function(system_prompt = NULL,
     extra_args = api_args,
     api_key = api_key
   )
-
-  messages <- openai_apply_system_prompt(system_prompt, messages)
-  Chat$new(provider = provider, messages = messages, echo = echo)
-}
-
-openai_apply_system_prompt <- function(system_prompt, messages) {
-  if (is.null(system_prompt)) {
-    return(messages)
-  }
-
-  system_prompt_message <- list(
-    role = "system",
-    content = system_prompt
-  )
-
-  # No messages; start with just the system prompt
-  if (length(messages) == 0) {
-    return(list(system_prompt_message))
-  }
-
-  # No existing system prompt message; prepend the new one
-  if (messages[[1]][["role"]] != "system") {
-    return(c(list(system_prompt_message), messages))
-  }
-
-  # Duplicate system prompt; return as-is
-  if (messages[[1]][["content"]] == system_prompt) {
-    return(messages)
-  }
-
-  cli::cli_abort("`system_prompt` and `messages[[1]]` contained conflicting system prompts")
-}
-
-openai_check_conversation <- function(messages, allow_null = FALSE) {
-  if (is.null(messages) && isTRUE(allow_null)) {
-    return()
-  }
-
-  if (!is.list(messages) ||
-      !(is.null(names(messages)) || all(names(messages) == ""))) {
-    stop_input_type(
-      messages,
-      "an unnamed list of messages",
-      allow_null = FALSE
-    )
-  }
-
-  for (message in messages) {
-    if (!is.list(message) ||
-        !is.character(message$role)) {
-      cli::cli_abort("Each message must be a named list with at least a `role` field.")
-    }
-  }
+  Chat$new(provider = provider, turns = turns, echo = echo)
 }
 
 new_openai_provider <- function(base_url = "https://api.openai.com/v1",
@@ -168,7 +114,7 @@ new_openai_provider <- function(base_url = "https://api.openai.com/v1",
     model = model,
     seed = seed,
     api_key = api_key,
-    extra_args = list()
+    extra_args = extra_args
   )
 }
 
@@ -197,7 +143,7 @@ openai_key <- function() {
 # https://platform.openai.com/docs/api-reference/chat/create
 method(chat_request, openai_provider) <- function(provider,
                                                   stream = TRUE,
-                                                  messages = list(),
+                                                  turns = list(),
                                                   tools = list(),
                                                   extra_args = list()) {
 
@@ -207,6 +153,7 @@ method(chat_request, openai_provider) <- function(provider,
   req <- req_retry(req, max_tries = 2)
   req <- req_error(req, body = function(resp) resp_body_json(resp)$error$message)
 
+  messages <- openai_messages(turns)
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
   data <- compact(list2(
@@ -238,93 +185,100 @@ method(stream_merge_chunks, openai_provider) <- function(provider, result, chunk
     merge_dicts(result, chunk)
   }
 }
-method(stream_message, openai_provider) <- function(provider, result) {
-  result$choices[[1]]$delta
+method(stream_turn, openai_provider) <- function(provider, result) {
+  openai_assistant_turn(result$choices[[1]]$delta)
+}
+method(value_turn, openai_provider) <- function(provider, result) {
+  openai_assistant_turn(result$choices[[1]]$message)
+}
+openai_assistant_turn <- function(message) {
+  content <- lapply(message$content, as_content)
+
+  if (has_name(message, "tool_calls")) {
+    calls <- lapply(message$tool_calls, function(call) {
+      name <- call$`function`$name
+      # TODO: record parsing error
+      args <- jsonlite::parse_json(call$`function`$arguments)
+      content_tool_request(name = name, arguments = args, id = call$id)
+    })
+    content <- c(content, calls)
+  }
+  turn(
+    role = message$role,
+    content = content,
+    extra = message["refusal"]
+  )
 }
 
-method(value_text, openai_provider) <- function(provider, event) {
-  event$choices[[1]]$message$content
-}
-method(value_message, openai_provider) <- function(provider, result) {
-  result$choices[[1]]$message
-}
-
-method(value_tool_calls, openai_provider) <- function(provider, message) {
-  lapply(message$tool_calls, function(call) {
-    name <- call$`function`$name
-    # TODO: record parsing error
-    args <- jsonlite::parse_json(call$`function`$arguments)
-    tool_call(name = name, arguments = args, id = call$id)
-  })
-}
-
-method(to_provider, list(openai_provider, tool_result)) <- function(provider, x) {
-  if (is.null(x@result)) {
-    result <- paste0("Tool calling failed with error ", x@error)
-  } else {
-    result <- toString(x@result)
+# Convert elmer turns + content to chatGPT messages
+openai_messages <- function(turns) {
+  messages <- list()
+  add_message <- function(role, ...) {
+    messages[[length(messages) + 1]] <<- compact(list(role = role, ...))
   }
 
-  list(
-    role = "tool",
-    content = result,
-    tool_call_id = x@id
-  )
+  for (turn in turns) {
+    if (turn@role == "system") {
+      add_message("system", content = turn@content[[1]]@text)
+    } else if (turn@role == "user") {
+      # Each tool result needs to go in its own message with role "tool"
+      is_tool <- map_lgl(turn@content, S7_inherits, content_tool_result)
+
+      content <- lapply(turn@content[!is_tool], openai_content)
+      if (length(content) > 0) {
+        add_message("user", content = content)
+      }
+      for (tool in turn@content[is_tool]) {
+        add_message("tool", content = openai_content(tool), tool_call_id = tool@id)
+      }
+    } else if (turn@role == "assistant") {
+      # Tool requests come out of content and go into own argument
+      is_tool <- map_lgl(turn@content, S7_inherits, content_tool_request)
+      content <- lapply(turn@content[!is_tool], openai_content)
+      tool_calls <- lapply(turn@content[is_tool], openai_content)
+
+      add_message("assistant", content = content, tool_calls = tool_calls)
+    } else {
+      cli::cli_abort("Unknown role {turn@role}", .internal = TRUE)
+    }
+  }
+  messages
 }
 
-# Content normalisation --------------------------------------------------
+openai_content <- new_generic("openai_content", "content")
 
-method(to_provider, list(openai_provider, content_text)) <- function(provider, x) {
-  list(type = "text", text = x@text)
+method(openai_content, content_text) <- function(content) {
+  list(type = "text", text = content@text)
 }
 
-method(to_provider, list(openai_provider, content_image_remote)) <- function(provider, x) {
-  list(
-    type = "image_url",
-    image_url = list(url = x@url)
-  )
+method(openai_content, content_image_remote) <- function(content) {
+  list(type = "image_url", image_url = list(url = content@url))
 }
 
-method(to_provider, list(openai_provider, content_image_inline)) <- function(provider, x) {
+method(openai_content, content_image_inline) <- function(content) {
   list(
     type = "image_url",
     image_url = list(
-      url = paste0("data:", x@type, ";base64,", x@data)
+      url = paste0("data:", content@type, ";base64,", content@data)
     )
   )
 }
 
-method(from_provider, list(openai_provider, class_character)) <- function(provider, x, ..., error_call = caller_env()) {
-  content_text(paste0(x, collapse = "\n"))
-}
-
-method(from_provider, list(openai_provider, class_list)) <- function(provider, x, ..., error_call = caller_env()) {
-  if (identical(x$type, "text")) {
-    if (!has_name(x, "text")) {
-      cli::cli_abort("List item must have a 'text' field.", call = error_call)
-    }
-
-    content_text(x$text)
-  } else if (identical(x$type, "image_url")) {
-    if (!has_name(x, "image_url")) {
-      cli::cli_abort("List item must have a 'image_url' field.", call = error_call)
-    }
-
-    content_image_remote(x$image_url$url)
+method(openai_content, content_tool_result) <- function(content) {
+  if (is.null(content@result)) {
+    result <- paste0("Tool calling failed with error ", content@error)
   } else {
-    cli::cli_abort("Unknown type {.str {x$type}} in list item.", call = error_call)
+    result <- toString(content@result)
   }
+
+  result
 }
 
-method(from_provider, list(openai_provider, content)) <- function(provider, x, ..., error_call = caller_env()) {
-  x
-}
-
-method(from_provider, list(openai_provider, class_any)) <- function(provider, x, ..., error_call = caller_env()) {
-  stop_input_type(
-    x,
-    "a string or list",
-    arg = I("input content"),
-    call = error_call
+method(openai_content, content_tool_request) <- function(content) {
+  json_args <- jsonlite::toJSON(content@arguments)
+  list(
+    id = content@id,
+    `function` = list(name = content@name, arguments = json_args),
+    type = "function"
   )
 }

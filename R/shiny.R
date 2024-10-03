@@ -6,7 +6,7 @@
 #' * `chat_browser()` lets you chat interactively in a browser.
 #'
 #' Note that these functions will mutate the input `chat` object as
-#' you chat because your messages will be appended to the history.
+#' you chat because your turns will be appended to the history.
 #'
 #' @param chat A chat object created by [new_chat_openai()] or friends.
 #' @param quiet If `TRUE`, suppresses the initial message that explains how
@@ -75,8 +75,8 @@ chat_browser <- function(chat, quiet = FALSE) {
     )
   )
   server <- function(input, output, session) {
-    for (message in chat$messages()) {
-      shinychat::chat_append_message("chat", message)
+    for (turn in chat$turns()) {
+      shinychat::chat_append_message("chat", turn)
     }
 
     shiny::observeEvent(input$chat_user_input, {

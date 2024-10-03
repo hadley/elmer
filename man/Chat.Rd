@@ -7,23 +7,16 @@
 A promise that resolves to a string (probably Markdown).
 }
 \description{
-The Chat object represents a sequence of messages between the user and
-chat API. You should generally not create this object yourself, but instead
-call \code{\link[=new_chat_openai]{new_chat_openai()}} or friends.
-}
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{system_prompt}}{The system prompt, if any, as a string.}
-}
-\if{html}{\out{</div>}}
+The Chat object represents a sequence of turns between the user and
+assistant (chat API). You should generally not create this object yourself,
+but instead call \code{\link[=new_chat_openai]{new_chat_openai()}} or friends.
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-Chat-new}{\code{Chat$new()}}
-\item \href{#method-Chat-messages}{\code{Chat$messages()}}
-\item \href{#method-Chat-last_message}{\code{Chat$last_message()}}
+\item \href{#method-Chat-turns}{\code{Chat$turns()}}
+\item \href{#method-Chat-last_turn}{\code{Chat$last_turn()}}
 \item \href{#method-Chat-chat}{\code{Chat$chat()}}
 \item \href{#method-Chat-chat_async}{\code{Chat$chat_async()}}
 \item \href{#method-Chat-stream}{\code{Chat$stream()}}
@@ -37,7 +30,7 @@ call \code{\link[=new_chat_openai]{new_chat_openai()}} or friends.
 \if{latex}{\out{\hypertarget{method-Chat-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$new(provider, messages, seed = NULL, echo = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Chat$new(provider, turns, seed = NULL, echo = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -45,7 +38,7 @@ call \code{\link[=new_chat_openai]{new_chat_openai()}} or friends.
 \describe{
 \item{\code{provider}}{A provider object.}
 
-\item{\code{messages}}{An unnamed list of messages to start the chat with (i.e.,
+\item{\code{turns}}{An unnamed list of turns to start the chat with (i.e.,
 continuing a previous conversation). If \code{NULL} or zero-length list, the
 conversation begins from scratch.}
 
@@ -60,31 +53,31 @@ on the \code{stream()}, \code{chat_async()}, and \code{stream_async()} methods.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Chat-messages"></a>}}
-\if{latex}{\out{\hypertarget{method-Chat-messages}{}}}
-\subsection{Method \code{messages()}}{
-The messages that have been sent and received so far
+\if{html}{\out{<a id="method-Chat-turns"></a>}}
+\if{latex}{\out{\hypertarget{method-Chat-turns}{}}}
+\subsection{Method \code{turns()}}{
+The turns that have been sent and received so far
 (optionally starting with the system prompt, if any).
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$messages(include_system_prompt = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Chat$turns(include_system_prompt = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
 \item{\code{include_system_prompt}}{Whether to include the system prompt in the
-messages (if any exists).}
+turns (if any exists).}
 }
 \if{html}{\out{</div>}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Chat-last_message"></a>}}
-\if{latex}{\out{\hypertarget{method-Chat-last_message}{}}}
-\subsection{Method \code{last_message()}}{
-The last message returned by the assistant.
+\if{html}{\out{<a id="method-Chat-last_turn"></a>}}
+\if{latex}{\out{\hypertarget{method-Chat-last_turn}{}}}
+\subsection{Method \code{last_turn()}}{
+The last turn returned by the assistant.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$last_message()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Chat$last_turn()}\if{html}{\out{</div>}}
 }
 
 }

@@ -5,13 +5,13 @@ test_that("can perform a simple batch chat", {
   )
   result <- chat$chat("What's 1 + 1")
   expect_equal(result, "2")
-  expect_equal(chat$last_message()$content, "2")
+  expect_equal(chat$last_turn()@content[[1]]@text, "2")
 
   result <- chat$chat_async("What's 1 + 1")
   expect_s3_class(result, "promise")
   result <- sync(result)
   expect_equal(result, "2")
-  expect_equal(chat$last_message()$content, "2")
+  expect_equal(chat$last_turn()@content[[1]]@text, "2")
 })
 
 test_that("can perform a simple streaming chat", {
@@ -25,14 +25,14 @@ test_that("can perform a simple streaming chat", {
   chunks <- coro::collect(chat$stream("What are the canonical colors of the ROYGBIV rainbow?"))
   expect_gt(length(chunks), 2)
   expect_match(paste(chunks, collapse = ""), rainbow_re, ignore.case = TRUE)
-  expect_match(chat$last_message()$content, rainbow_re, ignore.case = TRUE)
+  expect_match(chat$last_turn()@content[[1]]@text, rainbow_re, ignore.case = TRUE)
 
   chunks <- coro::async_collect(chat$stream_async("What are the canonical colors of the ROYGBIV rainbow?"))
   expect_s3_class(chunks, "promise")
   chunks <- sync(chunks)
   expect_gt(length(chunks), 2)
   expect_match(paste(chunks, collapse = ""), rainbow_re, ignore.case = TRUE)
-  expect_match(chat$last_message()$content, rainbow_re, ignore.case = TRUE)
+  expect_match(chat$last_turn()@content[[1]]@text, rainbow_re, ignore.case = TRUE)
 })
 
 test_that("has a basic print method", {
@@ -57,4 +57,12 @@ test_that("can optionally echo", {
   )
   expect_output(chat$chat("Echo this."), NA)
   expect_output(chat$chat("Echo this.", echo = TRUE), "Echo this.")
+})
+
+test_that("can retrieve system prompt with helper", {
+  chat1 <- new_chat_openai()
+  expect_equal(chat1$system_prompt, NULL)
+
+  chat2 <- new_chat_openai(system_prompt = "You are from New Zealand")
+  expect_equal(chat2$system_prompt, "You are from New Zealand")
 })

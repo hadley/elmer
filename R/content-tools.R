@@ -1,5 +1,8 @@
-invoke_tools <- function(tool_calls, tools) {
-  lapply(tool_calls, function(call) {
+# Results a content list
+invoke_tools <- function(turn, tools) {
+  tool_requests <- extract_tool_requests(turn@content)
+
+  lapply(tool_requests, function(call) {
     fun <- tools[[call@name]]
     result <- invoke_tool(fun, call@arguments, call@id)
 
@@ -15,10 +18,12 @@ invoke_tools <- function(tool_calls, tools) {
 }
 
 on_load(
-  invoke_tools_async <- coro::async(function(tool_calls, tools) {
+  invoke_tools_async <- coro::async(function(turn, tools) {
+    tool_requests <- extract_tool_requests(turn@content)
+
     # We call it this way instead of a more natural for + await_each() because
     # we want to run all the async tool calls in parallel
-    result_promises <- lapply(tool_calls, function(call) {
+    result_promises <- lapply(tool_requests, function(call) {
       fun <- tools[[call@name]]
       invoke_tool_async(fun, call@arguments, call@id)
     })
@@ -27,34 +32,39 @@ on_load(
   })
 )
 
+extract_tool_requests <- function(contents) {
+  is_tool_request <- map_lgl(contents, S7_inherits, content_tool_request)
+  contents[is_tool_request]
+}
+
 # Also need to handle edge caess: https://platform.openai.com/docs/guides/function-calling/edge-cases
 invoke_tool <- function(fun, arguments, id) {
   if (is.null(fun)) {
-    return(tool_result(id = id, error = "Unknown tool"))
+    return(content_tool_result(id = id, error = "Unknown tool"))
   }
 
   tryCatch(
-    tool_result(id, do.call(fun, arguments)),
+    content_tool_result(id, do.call(fun, arguments)),
     error = function(e) {
       # TODO: We need to report this somehow; it's way too hidden from the user
-      tool_result(id, error = conditionMessage(e))
+      content_tool_result(id, error = conditionMessage(e))
     }
   )
 }
 
 on_load(invoke_tool_async <- coro::async(function(fun, arguments, id) {
   if (is.null(fun)) {
-    return(tool_result(id = id, error = "Unknown tool"))
+    return(content_tool_result(id = id, error = "Unknown tool"))
   }
 
   tryCatch(
     {
       result <- await(do.call(fun, arguments))
-      tool_result(id, result)
+      content_tool_result(id, result)
     },
     error = function(e) {
       # TODO: We need to report this somehow; it's way too hidden from the user
-      tool_result(id, error = conditionMessage(e))
+      content_tool_result(id, error = conditionMessage(e))
     }
   )
 }))

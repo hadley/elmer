@@ -1,48 +1,29 @@
-test_that("system prompt is applied correctly", {
-  sys_prompt <- "foo"
-  sys_msg <- list(role = "system", content = sys_prompt)
-  user_msg <- list(role = "user", content = "bar")
-
-  expect_equal(
-    openai_apply_system_prompt(NULL, list()),
-    list()
-  )
-  expect_equal(
-    openai_apply_system_prompt(NULL, list(user_msg)),
-    list(user_msg)
-  )
-  expect_equal(
-    openai_apply_system_prompt(sys_prompt, NULL),
-    list(sys_msg)
-  )
-  expect_equal(
-    openai_apply_system_prompt(sys_prompt, list()),
-    list(sys_msg)
-  )
-  expect_equal(
-    openai_apply_system_prompt(sys_prompt, list(user_msg)),
-    list(sys_msg, user_msg)
-  )
-  expect_equal(
-    openai_apply_system_prompt(sys_prompt, list(sys_msg, user_msg)),
-    list(sys_msg, user_msg)
-  )
-
-  sys_msg2 <- list(role = "system", content = "baz")
-  expect_error(
-    openai_apply_system_prompt(sys_prompt, list(sys_msg2, user_msg))
-  )
-
-  chat <- new_chat_openai(system_prompt = sys_prompt, messages = list(user_msg))
-  expect_identical(chat$system_prompt, sys_prompt)
-  expect_identical(chat$messages(), list(user_msg))
-  expect_identical(chat$messages(include_system_prompt = TRUE), list(sys_msg, user_msg))
-})
-
 test_that("default model is reported", {
   expect_snapshot(. <- new_chat_openai()$chat("Hi"))
 })
 
+test_that("system prompt can be passed explicitly or as a turn", {
+  system_prompt <- "Return very minimal output, AND ONLY USE UPPERCASE."
+
+  chat <- new_chat_openai(system_prompt = system_prompt)
+  resp <- chat$chat("What is the name of Winnie the Pooh's human friend?")
+  expect_equal(resp, "CHRISTOPHER ROBIN.")
+
+  chat <- new_chat_openai(turns = list(turn("system", system_prompt)))
+  resp <- chat$chat("What is the name of Winnie the Pooh's human friend?")
+  expect_equal(resp, "CHRISTOPHER ROBIN.")
+})
+
+test_that("existing conversation history is used", {
+  chat <- new_chat_openai(turns = list(
+    turn("system", "Return very minimal output; no punctuation."),
+    turn("user", "List the names of any 8 of Santa's 9 reindeer."),
+    turn("assistant", "Dasher, Dancer, Vixen, Comet, Cupid, Donner, Blitzen, and Rudolph.")
+  ))
+
+  resp <- chat$chat("Who is the remaining one? Just give the name")
+  expect_equal(resp, "Prancer")
+})
 
 # Tool calls -------------------------------------------------------------------
 
@@ -90,7 +71,7 @@ test_that("can call multiple tools in parallel", {
     Answer like name1: colour1, name2: colour2
   ")
   expect_identical(result, "Joe: sage green, Hadley: red")
-  expect_length(chat$messages(include_system_prompt = FALSE), 5)
+  expect_length(chat$turns(), 4)
 })
 
 test_that("can call multiple tools in sequence", {
@@ -110,9 +91,8 @@ test_that("can call multiple tools in sequence", {
 
   result <- chat$chat("What was the most popular name this year?")
   expect_equal(result, "Susan")
-  expect_length(chat$messages(include_system_prompt = FALSE), 6)
+  expect_length(chat$turns(), 6)
 })
-
 
 # Images -----------------------------------------------------------------
 
