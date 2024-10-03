@@ -84,3 +84,22 @@ content_tool_result <- new_class(
 method(format, content_tool_result) <- function(x, ...) {
   cli::format_inline("[{.strong tool result}  ({x@id})]: {x@result}")
 }
+
+# Helpers ----------------------------------------------------------------------
+
+as_content <- function(x, error_call = caller_env()) {
+  if (is.null(x)) {
+    list()
+  } else if (is.character(x)) {
+    content_text(x)
+  } else if (inherits(x, content)) {
+    x
+  } else {
+    stop_input_type(
+      x,
+      what = "made up strings or <content> objects",
+      arg = "...",
+      error_call = error_call
+    )
+  }
+}

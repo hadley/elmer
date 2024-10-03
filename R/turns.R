@@ -1,4 +1,3 @@
-# Abstract class
 turn <- new_class(
   "turn",
   properties = list(
@@ -15,7 +14,6 @@ turn <- new_class(
     new_object(S7_object(), role = role, content = content, extra = extra)
   }
 )
-
 method(format, turn) <- function(x, ...) {
   contents <- map_chr(x@content, format, ...)
   paste0(contents, "\n", collapse = "")
@@ -27,23 +25,6 @@ user_turn <- function(..., .error_call = caller_env()) {
   content <- lapply(input, as_content, error_call = .error_call)
 
   turn(role = "user", content = content)
-}
-
-as_content <- function(x, error_call = caller_env()) {
-  if (is.null(x)) {
-    list()
-  } else if (is.character(x)) {
-    content_text(x)
-  } else if (inherits(x, content)) {
-    x
-  } else {
-    stop_input_type(
-      x,
-      what = "made up strings or <content> objects",
-      arg = "...",
-      error_call = error_call
-    )
-  }
 }
 
 is_system_prompt <- function(x) {
