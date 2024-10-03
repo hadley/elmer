@@ -204,7 +204,7 @@ openai_assistant_turn <- function(message) {
       name <- call$`function`$name
       # TODO: record parsing error
       args <- jsonlite::parse_json(call$`function`$arguments)
-      content_tool_call(name = name, arguments = args, id = call$id)
+      content_tool_request(name = name, arguments = args, id = call$id)
     })
     content <- c(content, calls)
   }
@@ -231,7 +231,7 @@ method(to_provider, list(openai_provider, content_tool_result)) <- function(prov
   result
 }
 
-method(to_provider, list(openai_provider, content_tool_call)) <- function(provider, x) {
+method(to_provider, list(openai_provider, content_tool_request)) <- function(provider, x) {
   list(
     id = x@id,
     `function` = list(
@@ -284,7 +284,7 @@ openai_messages <- function(provider, turns) {
       }
     } else if (turn@role == "assistant") {
       # Tool calls come out of content and go into own argument
-      is_tool <- map_lgl(turn@content, inherits, content_tool_call)
+      is_tool <- map_lgl(turn@content, inherits, content_tool_request)
       content <- lapply(turn@content[!is_tool], to_provider, provider = provider)
       tool_calls <- lapply(turn@content[is_tool], to_provider, provider = provider)
 

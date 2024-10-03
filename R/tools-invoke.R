@@ -1,8 +1,8 @@
 # Results a content list
 invoke_tools <- function(turn, tools) {
-  tool_calls <- extract_tool_calls(turn@content)
+  tool_requests <- extract_tool_requests(turn@content)
 
-  lapply(tool_calls, function(call) {
+  lapply(tool_requests, function(call) {
     fun <- tools[[call@name]]
     result <- invoke_tool(fun, call@arguments, call@id)
 
@@ -19,11 +19,11 @@ invoke_tools <- function(turn, tools) {
 
 on_load(
   invoke_tools_async <- coro::async(function(turn, tools) {
-    tool_calls <- extract_tool_calls(turn@content)
+    tool_requests <- extract_tool_requests(turn@content)
 
     # We call it this way instead of a more natural for + await_each() because
     # we want to run all the async tool calls in parallel
-    result_promises <- lapply(tool_calls, function(call) {
+    result_promises <- lapply(tool_requests, function(call) {
       fun <- tools[[call@name]]
       invoke_tool_async(fun, call@arguments, call@id)
     })
@@ -32,9 +32,9 @@ on_load(
   })
 )
 
-extract_tool_calls <- function(contents) {
-  is_tool_call <- map_lgl(contents, inherits, content_tool_call)
-  contents[is_tool_call]
+extract_tool_requests <- function(contents) {
+  is_tool_request <- map_lgl(contents, inherits, content_tool_request)
+  contents[is_tool_request]
 }
 
 # Also need to handle edge caess: https://platform.openai.com/docs/guides/function-calling/edge-cases

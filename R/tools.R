@@ -2,8 +2,8 @@
 #' @include content.R
 NULL
 
-content_tool_call <- new_class(
-  "content_tool_call",
+content_tool_request <- new_class(
+  "content_tool_request",
   parent = content,
   properties = list(
     id = prop_string(),
@@ -14,7 +14,7 @@ content_tool_call <- new_class(
   package = "elmer"
 )
 
-method(format, content_tool_call) <- function(x, ...) {
+method(format, content_tool_request) <- function(x, ...) {
   if (length(x@arguments) == 0) {
     call <- call2(x@name)
   } else {
