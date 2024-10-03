@@ -216,47 +216,6 @@ openai_assistant_turn <- function(message) {
 
 # Content normalisation --------------------------------------------------
 
-method(to_provider, list(openai_provider, content_tool_result)) <- function(provider, x) {
-  if (is.null(x@result)) {
-    result <- paste0("Tool calling failed with error ", x@error)
-  } else {
-    result <- toString(x@result)
-  }
-
-  result
-}
-
-method(to_provider, list(openai_provider, content_tool_request)) <- function(provider, x) {
-  list(
-    id = x@id,
-    `function` = list(
-      name = x@name,
-      arguments = jsonlite::toJSON(x@arguments)
-    ),
-    type = "function"
-  )
-}
-
-method(to_provider, list(openai_provider, content_text)) <- function(provider, x) {
-  list(type = "text", text = x@text)
-}
-
-method(to_provider, list(openai_provider, content_image_remote)) <- function(provider, x) {
-  list(
-    type = "image_url",
-    image_url = list(url = x@url)
-  )
-}
-
-method(to_provider, list(openai_provider, content_image_inline)) <- function(provider, x) {
-  list(
-    type = "image_url",
-    image_url = list(
-      url = paste0("data:", x@type, ";base64,", x@data)
-    )
-  )
-}
-
 openai_messages <- function(provider, turns) {
   messages <- list()
   add_message <- function(role, ...) {
@@ -270,18 +229,18 @@ openai_messages <- function(provider, turns) {
       # Each tool result needs to go in its own turn (with role "tool")
       is_tool <- map_lgl(turn@content, S7_inherits, content_tool_result)
 
-      content <- lapply(turn@content[!is_tool], to_provider, provider = provider)
+      content <- lapply(turn@content[!is_tool], openai_content)
       if (length(content) > 0) {
         add_message("user", content = content)
       }
       for (tool in turn@content[is_tool]) {
-        add_message("tool", content = to_provider(provider, tool), tool_call_id = tool@id)
+        add_message("tool", content = openai_content(tool), tool_call_id = tool@id)
       }
     } else if (turn@role == "assistant") {
       # Tool calls come out of content and go into own argument
       is_tool <- map_lgl(turn@content, S7_inherits, content_tool_request)
-      content <- lapply(turn@content[!is_tool], to_provider, provider = provider)
-      tool_calls <- lapply(turn@content[is_tool], to_provider, provider = provider)
+      content <- lapply(turn@content[!is_tool], openai_content)
+      tool_calls <- lapply(turn@content[is_tool], openai_content)
 
       add_message("assistant", content = content, tool_calls = tool_calls)
     } else {
@@ -289,4 +248,48 @@ openai_messages <- function(provider, turns) {
     }
   }
   messages
+}
+
+
+openai_content <- new_generic("openai_content", "content")
+
+method(openai_content, content_text) <- function(content) {
+  list(type = "text", text = content@text)
+}
+
+method(openai_content, content_image_remote) <- function(content) {
+  list(
+    type = "image_url",
+    image_url = list(url = content@url)
+  )
+}
+
+method(openai_content, content_image_inline) <- function(content) {
+  list(
+    type = "image_url",
+    image_url = list(
+      url = paste0("data:", content@type, ";base64,", content@data)
+    )
+  )
+}
+
+method(openai_content, content_tool_result) <- function(content) {
+  if (is.null(content@result)) {
+    result <- paste0("Tool calling failed with error ", content@error)
+  } else {
+    result <- toString(content@result)
+  }
+
+  result
+}
+
+method(openai_content, content_tool_request) <- function(content) {
+  list(
+    id = content@id,
+    `function` = list(
+      name = content@name,
+      arguments = jsonlite::toJSON(content@arguments)
+    ),
+    type = "function"
+  )
 }

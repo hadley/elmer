@@ -122,8 +122,3 @@ value_turn <- new_generic("value_turn", "provider",
     S7_dispatch()
   }
 )
-
-# Content -> Request -----------------------------------------------------
-
-to_provider <- new_generic("to_provider", c("provider", "x"))
-from_provider <- new_generic("from_provider", c("provider", "x"))
