@@ -5,8 +5,8 @@ NULL
 #'
 #' @description
 #' The Chat object represents a sequence of turns between the user and
-#' chat API. You should generally not create this object yourself, but instead
-#' call [new_chat_openai()] or friends.
+#' assistant (chat API). You should generally not create this object yourself,
+#' but instead call [new_chat_openai()] or friends.
 #'
 Chat <- R6::R6Class("Chat",
   public = list(

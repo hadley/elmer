@@ -8,8 +8,8 @@ A promise that resolves to a string (probably Markdown).
 }
 \description{
 The Chat object represents a sequence of turns between the user and
-chat API. You should generally not create this object yourself, but instead
-call \code{\link[=new_chat_openai]{new_chat_openai()}} or friends.
+assistant (chat API). You should generally not create this object yourself,
+but instead call \code{\link[=new_chat_openai]{new_chat_openai()}} or friends.
 }
 \section{Methods}{
 \subsection{Public methods}{
