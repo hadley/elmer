@@ -15,6 +15,7 @@ content_image <- new_class(
   parent = content,
   package = "elmer"
 )
+
 content_image_remote <- new_class(
   "content_image_remote",
   parent = content_image,
@@ -36,26 +37,15 @@ content_image_inline <- new_class(
 
 
 method(format, content_text) <- function(x, ...) {
- # Using format_inline for word wrapping. Passing `"{x}"` instead of
- # `x` to avoid evaluation of the (potentially malicious) content.
+  # Using format_inline for word wrapping. Passing `"{x}"` instead of
+  # `x` to avoid evaluation of the (potentially malicious) content.
   cli::format_inline("{x@text}")
 }
 
 method(format, content_image_inline) <- function(x, ...) {
-  "[inline image]"
+  cli::format_inline("[{.strong inline image}]")
 }
 
-method(format, content_image_inline) <- function(x, ...) {
-  cli::format_inline("[remote image]: {.url {x@url}}")
-}
-
-normalize_content <- function(provider, ..., error_call = caller_env()) {
-  check_dots_unnamed(call = error_call)
-  input <- list2(...)
-
-  if (length(input) == 1 && is.character(input[[1]])) {
-    list(from_provider(provider, input[[1]], error_call = error_call))
-  } else {
-    lapply(input, from_provider, provider = provider, error_call = error_call)
-  }
+method(format, content_image_remote) <- function(x, ...) {
+  cli::format_inline("[{.strong remote image}]: {.url {x@url}}")
 }

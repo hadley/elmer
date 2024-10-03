@@ -92,12 +92,14 @@ new_chat_openai <- function(system_prompt = NULL,
   Chat$new(provider = provider, messages = messages, echo = echo)
 }
 
-openai_apply_system_prompt <- function(system_prompt, messages) {
+openai_apply_system_prompt <- function(system_prompt = NULL, messages = list()) {
   if (is.null(system_prompt)) {
     return(messages)
   }
 
-  system_prompt_message <- list(
+  system_prompt <- list(content_text(system_prompt))
+
+  system_prompt_message <- chat_message(
     role = "system",
     content = system_prompt
   )
@@ -108,12 +110,12 @@ openai_apply_system_prompt <- function(system_prompt, messages) {
   }
 
   # No existing system prompt message; prepend the new one
-  if (messages[[1]][["role"]] != "system") {
+  if (messages[[1]]@role != "system") {
     return(c(list(system_prompt_message), messages))
   }
 
   # Duplicate system prompt; return as-is
-  if (messages[[1]][["content"]] == system_prompt) {
+  if (identical(messages[[1]], system_prompt_message)) {
     return(messages)
   }
 
@@ -209,6 +211,8 @@ method(chat_request, openai_provider) <- function(provider,
 
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
+  messages <- openai_messages(provider, messages)
+
   data <- compact(list2(
     messages = messages,
     model = provider@model,
@@ -239,40 +243,56 @@ method(stream_merge_chunks, openai_provider) <- function(provider, result, chunk
   }
 }
 method(stream_message, openai_provider) <- function(provider, result) {
-  result$choices[[1]]$delta
+  openai_message(result$choices[[1]]$delta)
+}
+method(value_message, openai_provider) <- function(provider, result) {
+  openai_message(result$choices[[1]]$message)
+}
+openai_message <- function(message) {
+  content <- lapply(message$content, as_content)
+
+  if (has_name(message, "tool_calls")) {
+    calls <- lapply(message$tool_calls, function(call) {
+      name <- call$`function`$name
+      # TODO: record parsing error
+      args <- jsonlite::parse_json(call$`function`$arguments)
+      content_tool_call(name = name, arguments = args, id = call$id)
+    })
+    content <- c(content, calls)
+  }
+  chat_message(
+    role = message$role,
+    content = content,
+    extra = message["refusal"]
+  )
 }
 
 method(value_text, openai_provider) <- function(provider, event) {
   event$choices[[1]]$message$content
 }
-method(value_message, openai_provider) <- function(provider, result) {
-  result$choices[[1]]$message
-}
 
-method(value_tool_calls, openai_provider) <- function(provider, message) {
-  lapply(message$tool_calls, function(call) {
-    name <- call$`function`$name
-    # TODO: record parsing error
-    args <- jsonlite::parse_json(call$`function`$arguments)
-    tool_call(name = name, arguments = args, id = call$id)
-  })
-}
+# Content normalisation --------------------------------------------------
 
-method(to_provider, list(openai_provider, tool_result)) <- function(provider, x) {
+method(to_provider, list(openai_provider, content_tool_result)) <- function(provider, x) {
   if (is.null(x@result)) {
     result <- paste0("Tool calling failed with error ", x@error)
   } else {
     result <- toString(x@result)
   }
 
-  list(
-    role = "tool",
-    content = result,
-    tool_call_id = x@id
-  )
+  result
 }
 
-# Content normalisation --------------------------------------------------
+method(to_provider, list(openai_provider, content_tool_call)) <- function(provider, x) {
+  list(
+    id = x@id,
+    `function` = list(
+      name = x@name,
+      arguments = jsonlite::toJSON(x@arguments)
+    ),
+    type = "function"
+  )
+}
 
 method(to_provider, list(openai_provider, content_text)) <- function(provider, x) {
   list(type = "text", text = x@text)
@@ -294,37 +314,42 @@ method(to_provider, list(openai_provider, content_image_inline)) <- function(pro
   )
 }
 
-method(from_provider, list(openai_provider, class_character)) <- function(provider, x, ..., error_call = caller_env()) {
-  content_text(paste0(x, collapse = "\n"))
-}
+openai_messages <- function(provider, messages) {
 
-method(from_provider, list(openai_provider, class_list)) <- function(provider, x, ..., error_call = caller_env()) {
-  if (identical(x$type, "text")) {
-    if (!has_name(x, "text")) {
-      cli::cli_abort("List item must have a 'text' field.", call = error_call)
-    }
 
-    content_text(x$text)
-  } else if (identical(x$type, "image_url")) {
-    if (!has_name(x, "image_url")) {
-      cli::cli_abort("List item must have a 'image_url' field.", call = error_call)
-    }
-
-    content_image_remote(x$image_url$url)
-  } else {
-    cli::cli_abort("Unknown type {.str {x$type}} in list item.", call = error_call)
+  output <- list()
+  add_output <- function(role, ...) {
+    output[[length(output) + 1]] <<- compact(list(role = role, ...))
   }
+
+  for (message in messages) {
+    if (message@role == "system") {
+      add_output("system", content = message@content[[1]]@text)
+    } else if (message@role == "user") {
+      # Each tool result needs to go in its own message (with role "tool")
+      is_tool <- map_lgl(message@content, inherits, content_tool_result)
+
+      content <- lapply(message@content[!is_tool], to_provider, provider = provider)
+      if (length(content) > 0) {
+        add_output("user", content = content)
+      }
+      for (tool in message@content[is_tool]) {
+        add_output("tool", content = to_provider(provider, tool), tool_call_id = tool@id)
+      }
+    } else if (message@role == "assistant") {
+      # Tool calls come out of content and go into own argument
+      is_tool <- map_lgl(message@content, inherits, content_tool_call)
+      content <- lapply(message@content[!is_tool], to_provider, provider = provider)
+      tool_calls <- lapply(message@content[is_tool], to_provider, provider = provider)
+
+      add_output("assistant", content = content, tool_calls = tool_calls)
+    } else {
+      cli::cli_abort("Unknown role {message@role}", .internal = TRUE)
+    }
+  }
+  # browser()
+  output
 }
 
-method(from_provider, list(openai_provider, content)) <- function(provider, x, ..., error_call = caller_env()) {
-  x
-}
-
-method(from_provider, list(openai_provider, class_any)) <- function(provider, x, ..., error_call = caller_env()) {
-  stop_input_type(
-    x,
-    "a string or list",
-    arg = I("input content"),
-    call = error_call
-  )
-}
+# to_provider -> to_message + to_content
+# from_provider -> from_message + from_content

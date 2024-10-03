@@ -1,4 +1,7 @@
-invoke_tools <- function(tool_calls, tools) {
+# Results a content list
+invoke_tools <- function(message, tools) {
+  tool_calls <- extract_tool_calls(message@content)
+
   lapply(tool_calls, function(call) {
     fun <- tools[[call@name]]
     result <- invoke_tool(fun, call@arguments, call@id)
@@ -15,7 +18,9 @@ invoke_tools <- function(tool_calls, tools) {
 }
 
 on_load(
-  invoke_tools_async <- coro::async(function(tool_calls, tools) {
+  invoke_tools_async <- coro::async(function(message, tools) {
+    tool_calls <- extract_tool_calls(message@content)
+
     # We call it this way instead of a more natural for + await_each() because
     # we want to run all the async tool calls in parallel
     result_promises <- lapply(tool_calls, function(call) {
@@ -27,34 +32,39 @@ on_load(
   })
 )
 
+extract_tool_calls <- function(contents) {
+  is_tool_call <- map_lgl(contents, inherits, content_tool_call)
+  contents[is_tool_call]
+}
+
 # Also need to handle edge caess: https://platform.openai.com/docs/guides/function-calling/edge-cases
 invoke_tool <- function(fun, arguments, id) {
   if (is.null(fun)) {
-    return(tool_result(id = id, error = "Unknown tool"))
+    return(content_tool_result(id = id, error = "Unknown tool"))
   }
 
   tryCatch(
-    tool_result(id, do.call(fun, arguments)),
+    content_tool_result(id, do.call(fun, arguments)),
     error = function(e) {
       # TODO: We need to report this somehow; it's way too hidden from the user
-      tool_result(id, error = conditionMessage(e))
+      content_tool_result(id, error = conditionMessage(e))
     }
   )
 }
 
 on_load(invoke_tool_async <- coro::async(function(fun, arguments, id) {
   if (is.null(fun)) {
-    return(tool_result(id = id, error = "Unknown tool"))
+    return(content_tool_result(id = id, error = "Unknown tool"))
   }
 
   tryCatch(
     {
       result <- await(do.call(fun, arguments))
-      tool_result(id, result)
+      content_tool_result(id, result)
     },
     error = function(e) {
       # TODO: We need to report this somehow; it's way too hidden from the user
-      tool_result(id, error = conditionMessage(e))
+      content_tool_result(id, error = conditionMessage(e))
     }
   )
 }))

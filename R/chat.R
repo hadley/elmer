@@ -34,7 +34,7 @@ Chat <- R6::R6Class("Chat",
         return(private$msgs)
       }
 
-      if (!include_system_prompt && private$msgs[[1]][["role"]] == "system") {
+      if (!include_system_prompt && is_system_prompt(private$msgs[[1]])) {
         private$msgs[-1]
       } else {
         private$msgs
@@ -54,21 +54,18 @@ Chat <- R6::R6Class("Chat",
     #'   `NULL`, then the value of `echo` set when the chat object was created
     #'   will be used.
     chat = function(..., echo = NULL) {
-      content <- normalize_content(private$provider, ...)
-      input <- list(role = "user", content = content)
-
+      private$add_message(user_message(...))
       echo <- echo %||% private$echo
 
       # Returns a single message (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
-      coro::collect(private$chat_impl(input, stream = echo, echo = echo))
-      last_message <- self$last_message()
-      stopifnot(identical(last_message[["role"]], "assistant"))
+      coro::collect(private$chat_impl(stream = echo, echo = echo))
+      text <- format(self$last_message())
 
       if (echo) {
-        invisible(last_message$content)
+        invisible(text)
       } else {
-        last_message$content
+        text
       }
     },
 
@@ -77,18 +74,18 @@ Chat <- R6::R6Class("Chat",
     #' @param ... The input to send to the chatbot. Can be strings or images.
     #' @returns A promise that resolves to a string (probably Markdown).
     chat_async = function(...) {
-      content <- normalize_content(private$provider, ...)
-      input <- list(role = "user", content = content)
+      private$add_message(user_message(...))
+      # content <- normalize_content(private$provider, ...)
+      # input <- list(role = "user", content = content)
 
       # Returns a single message (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
       done <- coro::async_collect(
-        private$chat_impl_async(input, stream = FALSE, echo = FALSE)
+        private$chat_impl_async(stream = FALSE, echo = FALSE)
       )
       promises::then(done, function(dummy) {
-        last_message <- self$last_message()
-        stopifnot(identical(last_message[["role"]], "assistant"))
-        last_message$content
+        text <- format(self$last_message())
+        text
       })
     },
 
@@ -99,8 +96,7 @@ Chat <- R6::R6Class("Chat",
     #'   waiting for more content from the chatbot.
     #' @param ... The input to send to the chatbot. Can be strings or images.
     stream = function(...) {
-      content <- normalize_content(private$provider, ...)
-      input <- list(role = "user", content = content)
+      private$add_message(user_message(...))
       private$chat_impl(input, stream = TRUE, echo = FALSE)
     },
 
@@ -110,8 +106,7 @@ Chat <- R6::R6Class("Chat",
     #'   yields string promises.
     #' @param ... The input to send to the chatbot. Can be strings or images.
     stream_async = function(...) {
-      content <- normalize_content(private$provider, ...)
-      input <- list(role = "user", content = content)
+      private$add_message(user_message(...))
       private$chat_impl_async(input, stream = TRUE, echo = FALSE)
     },
 
@@ -159,7 +154,7 @@ Chat <- R6::R6Class("Chat",
       if (length(private$msgs) == 0) {
         return(NULL)
       }
-      if (private$msgs[[1]][["role"]] != "system") {
+      if (private$msgs[[1]]@role != "system") {
         return(NULL)
       }
       private$msgs[[1]][["content"]]
@@ -177,7 +172,27 @@ Chat <- R6::R6Class("Chat",
     tool_funs = NULL,
 
     add_message = function(message) {
-      private$msgs <- c(private$msgs, list(message))
+      if (!inherits(message, chat_message)) {
+        cli::cli_abort("Invalid input", .internal = TRUE)
+      }
+
+      private$msgs[[length(private$msgs) + 1]] <- message
+      invisible(self)
+    },
+
+    add_user_contents = function(contents) {
+      stopifnot(is.list(contents))
+      if (length(contents) == 0) {
+        return(invisible(self))
+      }
+
+      i <- length(private$msgs)
+
+      if (private$msgs[[i]]@role != "user") {
+        private$msgs[[i + 1]] <- chat_message("user", content = contents)
+      } else {
+        private$msgs[[i]]@content <- c(private$msgs[[i]]@content, contents)
+      }
       invisible(self)
     },
 
@@ -195,8 +210,7 @@ Chat <- R6::R6Class("Chat",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant messages.
-    chat_impl = generator_method(function(self, private, user_message, stream, echo) {
-      private$add_message(user_message)
+    chat_impl = generator_method(function(self, private, stream, echo) {
       repeat {
         for (chunk in private$submit_messages(stream = stream, echo = echo)) {
           yield(chunk)
@@ -214,8 +228,7 @@ Chat <- R6::R6Class("Chat",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant messages.
-    chat_impl_async = async_generator_method(function(self, private, user_message, stream, echo) {
-      private$add_message(user_message)
+    chat_impl_async = async_generator_method(function(self, private, stream, echo) {
       repeat {
         for (chunk in await_each(private$submit_messages_async(stream = stream, echo = echo))) {
           yield(chunk)
@@ -336,17 +349,10 @@ Chat <- R6::R6Class("Chat",
         return(FALSE)
       }
 
-      tool_calls <- value_tool_calls(private$provider, self$last_message())
-      tool_results <- invoke_tools(tool_calls, private$tool_funs)
-      # TODO: move to whatever normalises just prior to sending
-      tool_messages <- lapply(tool_results, to_provider, provider = private$provider)
+      tool_results <- invoke_tools(self$last_message(), private$tool_funs)
+      private$add_user_contents(tool_results)
 
-      if (length(tool_messages) > 0) {
-        private$msgs <- c(private$msgs, tool_messages)
-        TRUE
-      } else {
-        FALSE
-      }
+      length(tool_results) > 0
     },
 
     invoke_tools_async = async_method(function(self, private) {
@@ -354,16 +360,10 @@ Chat <- R6::R6Class("Chat",
         return(FALSE)
       }
 
-      tool_calls <- value_tool_calls(private$provider, self$last_message())
-      tool_results <- await(invoke_tools_async(tool_calls, private$tool_funs))
-      tool_messages <- lapply(tool_results, to_provider, provider = private$provider)
+      tool_results <- await(invoke_tools_async(self$last_message(), private$tool_funs))
+      private$add_user_contents(tool_results)
 
-      if (length(tool_messages) > 0) {
-        private$msgs <- c(private$msgs, tool_messages)
-        TRUE
-      } else {
-        FALSE
-      }
+      length(tool_results) > 0
     })
   )
 )
@@ -371,34 +371,17 @@ Chat <- R6::R6Class("Chat",
 #' @export
 print.Chat <- function(x, ...) {
   msgs <- x$messages(include_system_prompt = TRUE)
-  msgs_without_system_prompt <- x$messages(include_system_prompt = FALSE)
-  cat(paste0("<Chat messages=", length(msgs_without_system_prompt), ">\n"))
+  cat(paste0("<Chat messages=", length(msgs), ">\n"))
   for (message in msgs) {
-    color <- switch(message$role,
+    color <- switch(message@role,
       user = cli::col_blue,
       assistant = cli::col_green,
+      system = cli::col_br_white,
       identity
     )
-    cli::cat_rule(cli::format_inline("{color(message$role)}"))
-    if (!is.null(message$content)) {
-      for (content in message$content) {
-        cat_line(format(content))
-      }
-    }
-    if (!is.null(message$tool_calls)) {
-      cat_line("Tool calls:")
-      for (tool_call in message$tool_calls) {
-        funcname <- tool_call$`function`$name
-        args <- tool_call$`function`$arguments
-        tryCatch({
-          args_parsed <- jsonlite::parse_json(tool_call$`function`$arguments)
-          args <- call2(funcname, !!!args_parsed)
-          cat_line(cli::format_inline(format(args)))
-        }, error = function(e) {
-          # In case parsing the JSON fails
-          cat_line(cli::format_inline("{funcname}({args})"))
-        })
-      }
+    cli::cat_rule(cli::format_inline("{color(message@role)}"))
+    for (content in message@content) {
+      cat_line(format(content))
     }
   }
 

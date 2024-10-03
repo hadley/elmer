@@ -52,10 +52,10 @@ test_that("can make a simple tool call", {
   chat$register_tool(get_date, "get_date", "Gets the current date", list())
 
   result <- chat$chat("What's the current date?")
-  expect_equal(result, "2024-01-01")
+  expect_equal(result, "2024-01-01\n")
 
   result <- chat$chat("What day of the week is it?")
-  expect_equal(result, "Tuesday")
+  expect_equal(result, "Tuesday\n")
 })
 
 test_that("can make an async tool call", {
@@ -67,7 +67,7 @@ test_that("can make an async tool call", {
   chat$register_tool(get_date, "get_date", "Gets the current date", list())
 
   result <- sync(chat$chat_async("What's the current date?"))
-  expect_equal(result, "2024-01-01")
+  expect_equal(result, "2024-01-01\n")
 
   expect_snapshot(chat$chat("Great. Do it again."), error = TRUE)
 })
@@ -89,8 +89,8 @@ test_that("can call multiple tools in parallel", {
     What are Joe and Hadley's favourite colours?
     Answer like name1: colour1, name2: colour2
   ")
-  expect_identical(result, "Joe: sage green, Hadley: red")
-  expect_length(chat$messages(include_system_prompt = FALSE), 5)
+  expect_identical(result, "Joe: sage green, Hadley: red\n")
+  expect_length(chat$messages(), 4)
 })
 
 test_that("can call multiple tools in sequence", {
@@ -109,10 +109,9 @@ test_that("can call multiple tools in sequence", {
   )
 
   result <- chat$chat("What was the most popular name this year?")
-  expect_equal(result, "Susan")
-  expect_length(chat$messages(include_system_prompt = FALSE), 6)
+  expect_equal(result, "Susan\n")
+  expect_length(chat$messages(), 6)
 })
-
 
 # Images -----------------------------------------------------------------
 

@@ -10,14 +10,6 @@ chat_perform <- function(provider,
   mode <- arg_match(mode)
   stream <- mode %in% c("stream", "async-stream")
 
-  # TODO: extract out message objects
-  messages <- lapply(messages, function(message) {
-    if (is.list(message$content)) {
-      message$content <- lapply(message$content, to_provider, provider = provider)
-    }
-    message
-  })
-
   req <- chat_request(
     provider = provider,
     messages = messages,
@@ -135,15 +127,6 @@ value_message <- new_generic("value_message", "provider",
     S7_dispatch()
   }
 )
-
-# Tool calling -----------------------------------------------------------------
-
-value_tool_calls <- new_generic("value_tool_calls", "provider",
-  function(provider, message) {
-    S7_dispatch()
-  }
-)
-
 
 # Content -> Request -----------------------------------------------------
 

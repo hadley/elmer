@@ -1,8 +1,10 @@
 #' @include utils-S7.R
+#' @include content.R
 NULL
 
-tool_call <- new_class(
-  "tool_call",
+content_tool_call <- new_class(
+  "content_tool_call",
+  parent = content,
   properties = list(
     id = prop_string(),
     name = prop_string(),
@@ -12,8 +14,18 @@ tool_call <- new_class(
   package = "elmer"
 )
 
-tool_result <- new_class(
-  "tool_result",
+method(format, content_tool_call) <- function(x, ...) {
+  if (length(x@arguments) == 0) {
+    call <- call2(x@name)
+  } else {
+    call <- call2(x@name, x@arguments)
+  }
+  cli::format_inline("[{.strong tool request} ({x@id})]: {format(call)}")
+}
+
+content_tool_result <- new_class(
+  "content_tool_result",
+  parent = content,
   properties = list(
     id = prop_string(),
     result = class_any,
@@ -21,3 +33,9 @@ tool_result <- new_class(
   ),
   package = "elmer"
 )
+
+method(format, content_tool_result) <- function(x, ...) {
+  cli::format_inline("[{.strong tool result}  ({x@id})]: {x@result}")
+}
+
+    #   for (tool_call in message$tool_calls) {
