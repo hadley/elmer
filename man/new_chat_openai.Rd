@@ -52,9 +52,10 @@ A \link{Chat} object.
 }
 \description{
 This function returns a \link{Chat} object that takes care of managing the state
-associated with the chat; i.e. it records the turns that you send to the
-server, and the turns that you receive back. If you register a tool
-(aka an R function), it also takes care of the tool loop.
+associated with the chat; i.e. it records the messages that you send to the
+server, and the messages that you receive back. If you register a tool
+(i.e. an R function that the assistant can call on your behalf), it also
+takes care of the tool loop.
 }
 \examples{
 \dontshow{if (elmer:::openai_key_exists()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}

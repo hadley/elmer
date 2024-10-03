@@ -5,9 +5,10 @@ NULL
 #' Create a chatbot that speaks to an OpenAI compatible endpoint
 #'
 #' This function returns a [Chat] object that takes care of managing the state
-#' associated with the chat; i.e. it records the turns that you send to the
-#' server, and the turns that you receive back. If you register a tool
-#' (aka an R function), it also takes care of the tool loop.
+#' associated with the chat; i.e. it records the messages that you send to the
+#' server, and the messages that you receive back. If you register a tool
+#' (i.e. an R function that the assistant can call on your behalf), it also
+#' takes care of the tool loop.
 #'
 #' @param system_prompt A system prompt to set the behavior of the assistant.
 #' @param turns A list of turns to start the chat with (i.e., continuing a
