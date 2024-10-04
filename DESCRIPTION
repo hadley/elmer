@@ -37,12 +37,13 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Collate:
-    'api-github.R'
-    'api-groq.R'
-    'api-ollama.R'
     'utils-S7.R'
     'content.R'
     'api.R'
+    'api-gemini.R'
+    'api-github.R'
+    'api-groq.R'
+    'api-ollama.R'
     'api-openai.R'
     'api-perplexity.R'
     'utils-coro.R'

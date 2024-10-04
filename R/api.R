@@ -37,10 +37,10 @@ on_load(chat_perform_stream <- coro::generator(function(provider, req) {
 
   repeat {
     event <- httr2::resp_stream_sse(resp)
-    if (is.null(event)) {
-      abort("Connection failed")
-    } else if (stream_is_done(provider, event)) {
+    if (stream_is_done(provider, event)) {
       break
+    } else if (is.null(event)) {
+      abort("Connection failed")
     } else {
       yield(stream_parse(provider, event))
     }
