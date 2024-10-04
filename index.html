@@ -212,7 +212,7 @@
 <span id="cb16-10"><a href="#cb16-10" tabindex="-1"></a><span class="fl">6.</span> <span class="sc">**</span>TIME SERIES ANALYSIS<span class="sc">**</span><span class="er">:</span> ANALYZING TEMPORAL DATA FOR TRENDS AND FORECASTS.</span>
 <span id="cb16-11"><a href="#cb16-11" tabindex="-1"></a><span class="fl">7.</span> <span class="sc">**</span>REPORT GENERATION<span class="sc">**</span><span class="er">:</span> CREATING DYNAMIC REPORTS WITH R MARKDOWN.</span>
 <span id="cb16-12"><a href="#cb16-12" tabindex="-1"></a><span class="fl">8.</span> <span class="sc">**</span>GEOSPATIAL ANALYSIS<span class="sc">**</span><span class="er">:</span> MAPPING AND ANALYZING GEOGRAPHIC DATA.</span></code></pre></div>
-<p>Async generators are very advanced, and require a good understanding of asynchronous programming in R. They are also the only way to present streaming results in Shiny without blocking other users. Fortunately, Shiny will soon have chat components that will make this easier, where you can simply hand the result of <code>stream_async()</code> to a chat output.</p>
+<p>Async generators are very advanced, and require a good understanding of asynchronous programming in R. They are also the only way to present streaming results in Shiny without blocking other users. Fortunately, the <a href="https://github.com/jcheng5/shinychat" class="external-link">shinychat</a> package makes it extremely easy to use the result of <code>stream_async()</code> with a chat output; it’s our recommended way of building web-based chatbots using elmer.</p>
 </div>
 </div>
 <div class="section level2">
