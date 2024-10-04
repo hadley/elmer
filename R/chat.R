@@ -54,12 +54,13 @@ Chat <- R6::R6Class("Chat",
     #'   `NULL`, then the value of `echo` set when the chat object was created
     #'   will be used.
     chat = function(..., echo = NULL) {
-      private$add_turn(user_turn(...))
+      turn <- user_turn(...)
       echo <- echo %||% private$echo
 
       # Returns a single turn (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
-      coro::collect(private$chat_impl(stream = echo, echo = echo))
+      coro::collect(private$chat_impl(turn, stream = echo, echo = echo))
+
       text <- self$last_turn()@text
 
       if (echo) {
@@ -74,12 +75,12 @@ Chat <- R6::R6Class("Chat",
     #' @param ... The input to send to the chatbot. Can be strings or images.
     #' @returns A promise that resolves to a string (probably Markdown).
     chat_async = function(...) {
-      private$add_turn(user_turn(...))
+      turn <- user_turn(...)
 
       # Returns a single turn (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
       done <- coro::async_collect(
-        private$chat_impl_async(stream = FALSE, echo = FALSE)
+        private$chat_impl_async(turn, stream = FALSE, echo = FALSE)
       )
       promises::then(done, function(dummy) {
         self$last_turn()@text
@@ -93,8 +94,8 @@ Chat <- R6::R6Class("Chat",
     #'   waiting for more content from the chatbot.
     #' @param ... The input to send to the chatbot. Can be strings or images.
     stream = function(...) {
-      private$add_turn(user_turn(...))
-      private$chat_impl(stream = TRUE, echo = FALSE)
+      turn <- user_turn(...)
+      private$chat_impl(turn, stream = TRUE, echo = FALSE)
     },
 
     #' @description Submit input to the chatbot, returning asynchronously
@@ -103,8 +104,8 @@ Chat <- R6::R6Class("Chat",
     #'   yields string promises.
     #' @param ... The input to send to the chatbot. Can be strings or images.
     stream_async = function(...) {
-      private$add_turn(user_turn(...))
-      private$chat_impl_async(stream = TRUE, echo = FALSE)
+      turn <- user_turn(...)
+      private$chat_impl_async(turn, stream = TRUE, echo = FALSE)
     },
 
     #' @description Register a tool (an R function) that the chatbot can use.
@@ -207,9 +208,9 @@ Chat <- R6::R6Class("Chat",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant turns.
-    chat_impl = generator_method(function(self, private, stream, echo) {
+    chat_impl = generator_method(function(self, private, user_turn, stream, echo) {
       repeat {
-        for (chunk in private$submit_turns(stream = stream, echo = echo)) {
+        for (chunk in private$submit_turns(user_turn, stream = stream, echo = echo)) {
           yield(chunk)
         }
         if (!private$invoke_tools()) {
@@ -225,9 +226,9 @@ Chat <- R6::R6Class("Chat",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant turns.
-    chat_impl_async = async_generator_method(function(self, private, stream, echo) {
+    chat_impl_async = async_generator_method(function(self, private, user_turn, stream, echo) {
       repeat {
-        for (chunk in await_each(private$submit_turns_async(stream = stream, echo = echo))) {
+        for (chunk in await_each(private$submit_turns_async(user_turn, stream = stream, echo = echo))) {
           yield(chunk)
         }
         tools_called <- await(private$invoke_tools_async())
@@ -244,11 +245,11 @@ Chat <- R6::R6Class("Chat",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant turns.
-    submit_turns = generator_method(function(self, private, stream, echo) {
+    submit_turns = generator_method(function(self, private, user_turn, stream, echo) {
       response <- chat_perform(
         provider = private$provider,
         mode = if (stream) "stream" else "value",
-        turns = private$.turns,
+        turns = c(list(user_turn), private$.turns),
         tools = private$tool_infos
       )
       emit <- emitter(echo)
@@ -283,6 +284,7 @@ Chat <- R6::R6Class("Chat",
           yield(text)
         }
       }
+      private$add_turn(user_turn)
       private$add_turn(turn)
 
       # Work around https://github.com/r-lib/coro/issues/51
@@ -293,11 +295,11 @@ Chat <- R6::R6Class("Chat",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant turns.
-    submit_turns_async = async_generator_method(function(self, private, stream, echo) {
+    submit_turns_async = async_generator_method(function(self, private, user_turn, stream, echo) {
       response <- chat_perform(
         provider = private$provider,
         mode = if (stream) "async-stream" else "async-value",
-        turns = private$.turns,
+        turns = c(list(user_turn), private$.turns),
         tools = private$tool_infos
       )
       emit <- emitter(echo)
@@ -333,6 +335,7 @@ Chat <- R6::R6Class("Chat",
           yield(text)
         }
       }
+      private$add_turn(user_turn)
       private$add_turn(turn)
 
       # Work around https://github.com/r-lib/coro/issues/51
