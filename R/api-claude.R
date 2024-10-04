@@ -133,7 +133,11 @@ method(chat_request, claude_provider) <- function(provider,
 }
 
 method(stream_is_done, claude_provider) <- function(provider, event) {
-  identical(event$type, "message_stop")
+  if (is.null(event)) {
+    cli::cli_abort("Connection closed unexpectedly")
+  } else {
+    identical(event$type, "message_stop")
+  }
 }
 method(stream_parse, claude_provider) <- function(provider, event) {
   jsonlite::parse_json(event$data)

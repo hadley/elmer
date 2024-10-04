@@ -41,6 +41,7 @@ Collate:
     'content.R'
     'api.R'
     'api-claude.R'
+    'api-gemini.R'
     'api-github.R'
     'api-groq.R'
     'api-ollama.R'

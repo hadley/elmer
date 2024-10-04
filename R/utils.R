@@ -38,3 +38,11 @@ set_default <- function(value, default, arg = caller_arg(value)) {
     value
   }
 }
+
+print_json <- function(x) {
+  cat(jsonlite::toJSON(x, pretty = TRUE, auto_unbox = TRUE))
+}
+
+last_request_json <- function(req = last_request()) {
+  print_json(req$body$data)
+}
