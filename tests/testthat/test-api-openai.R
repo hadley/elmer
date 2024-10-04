@@ -2,16 +2,26 @@ test_that("default model is reported", {
   expect_snapshot(. <- new_chat_openai()$chat("Hi"))
 })
 
+
+test_that("can make a simple request", {
+  chat <- new_chat_openai("Be as terse as possible; no punctuation")
+  resp <- chat$chat("What is 1 + 1?")
+  expect_equal(resp, "2")
+  expect_length(chat$turns(), 2)
+})
+
 test_that("system prompt can be passed explicitly or as a turn", {
   system_prompt <- "Return very minimal output, AND ONLY USE UPPERCASE."
 
   chat <- new_chat_openai(system_prompt = system_prompt)
   resp <- chat$chat("What is the name of Winnie the Pooh's human friend?")
-  expect_equal(resp, "CHRISTOPHER ROBIN.")
+  expect_match(resp, "CHRISTOPHER ROBIN")
+  expect_length(chat$turns(), 2)
 
   chat <- new_chat_openai(turns = list(turn("system", system_prompt)))
   resp <- chat$chat("What is the name of Winnie the Pooh's human friend?")
-  expect_equal(resp, "CHRISTOPHER ROBIN.")
+  expect_match(resp, "CHRISTOPHER ROBIN")
+  expect_length(chat$turns(), 2)
 })
 
 test_that("existing conversation history is used", {
@@ -20,9 +30,11 @@ test_that("existing conversation history is used", {
     turn("user", "List the names of any 8 of Santa's 9 reindeer."),
     turn("assistant", "Dasher, Dancer, Vixen, Comet, Cupid, Donner, Blitzen, and Rudolph.")
   ))
+  expect_length(chat$turns(), 2)
 
   resp <- chat$chat("Who is the remaining one? Just give the name")
   expect_equal(resp, "Prancer")
+  expect_length(chat$turns(), 4)
 })
 
 # Tool calls -------------------------------------------------------------------

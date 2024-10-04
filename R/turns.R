@@ -26,9 +26,11 @@ method(format, turn) <- function(x, ...) {
   paste0(contents, "\n", collapse = "")
 }
 
-
-
 user_turn <- function(..., .error_call = caller_env()) {
+  if (...length() == 0) {
+    cli::cli_abort("Must supply at least one input.", error_call = .error_call)
+  }
+
   check_dots_unnamed(call = .error_call)
   input <- list2(...)
   content <- lapply(input, as_content, error_call = .error_call)
