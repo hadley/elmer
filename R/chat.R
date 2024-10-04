@@ -42,8 +42,19 @@ Chat <- R6::R6Class("Chat",
     },
 
     #' @description The last turn returned by the assistant.
-    last_turn = function() {
-      private$.turns[[length(private$.turns)]]
+    #' @param role Optionally, specify a role to find the last turn with
+    #'   for the role.
+    #' @return Either a `Turn` or `NULL`, if no turns with the specified
+    #'   role have occurred.
+    last_turn = function(role = c("assistant", "user", "system")) {
+      role <- arg_match(role)
+
+      n <- length(private$.turns)
+      switch(role,
+        system = if (private$has_system_prompt()) private$.turns[[1]],
+        assistant = if (n > 1) private$.turns[[n]],
+        user = if (n > 1) private$.turns[[n - 1]]
+      )
     },
 
     #' @description Submit input to the chatbot, and return the response as a
@@ -149,13 +160,11 @@ Chat <- R6::R6Class("Chat",
   active = list(
     #' @field system_prompt The system prompt, if any, as a string.
     system_prompt = function() {
-      if (length(private$.turns) == 0) {
-        return(NULL)
+      if (private$has_system_prompt()) {
+        private$.turns[[1]]@text
+      } else {
+        NULL
       }
-      if (private$.turns[[1]]@role != "system") {
-        return(NULL)
-      }
-      private$.turns[[1]]@text
     }
   ),
   private = list(
@@ -361,7 +370,11 @@ Chat <- R6::R6Class("Chat",
         return()
       }
       turn("user", tool_results)
-    })
+    }),
+
+    has_system_prompt = function() {
+      length(private$.turns) > 0 && private$.turns[[1]]@role == "system"
+    }
   )
 )
 
