@@ -213,7 +213,8 @@ Chat <- R6::R6Class("Chat",
         for (chunk in private$submit_turns(user_turn, stream = stream, echo = echo)) {
           yield(chunk)
         }
-        if (!private$invoke_tools()) {
+        user_turn <- private$invoke_tools()
+        if (is.null(user_turn)) {
           break
         }
       }
@@ -231,8 +232,8 @@ Chat <- R6::R6Class("Chat",
         for (chunk in await_each(private$submit_turns_async(user_turn, stream = stream, echo = echo))) {
           yield(chunk)
         }
-        tools_called <- await(private$invoke_tools_async())
-        if (!tools_called) {
+        user_turn <- await(private$invoke_tools_async())
+        if (is.null(user_turn)) {
           break
         }
       }
@@ -249,7 +250,7 @@ Chat <- R6::R6Class("Chat",
       response <- chat_perform(
         provider = private$provider,
         mode = if (stream) "stream" else "value",
-        turns = c(list(user_turn), private$.turns),
+        turns = c(private$.turns, list(user_turn)),
         tools = private$tool_infos
       )
       emit <- emitter(echo)
@@ -299,7 +300,7 @@ Chat <- R6::R6Class("Chat",
       response <- chat_perform(
         provider = private$provider,
         mode = if (stream) "async-stream" else "async-value",
-        turns = c(list(user_turn), private$.turns),
+        turns = c(private$.turns, list(user_turn)),
         tools = private$tool_infos
       )
       emit <- emitter(echo)
@@ -346,24 +347,26 @@ Chat <- R6::R6Class("Chat",
 
     invoke_tools = function() {
       if (length(private$tool_infos) == 0) {
-        return(FALSE)
+        return()
       }
 
       tool_results <- invoke_tools(self$last_turn(), private$tool_funs)
-      private$add_user_contents(tool_results)
-
-      length(tool_results) > 0
+      if (length(tool_results) == 0) {
+        return()
+      }
+      turn("user", tool_results)
     },
 
     invoke_tools_async = async_method(function(self, private) {
       if (length(private$tool_infos) == 0) {
-        return(FALSE)
+        return()
       }
 
       tool_results <- await(invoke_tools_async(self$last_turn(), private$tool_funs))
-      private$add_user_contents(tool_results)
-
-      length(tool_results) > 0
+      if (length(tool_results) == 0) {
+        return()
+      }
+      turn("user", tool_results)
     })
   )
 )
