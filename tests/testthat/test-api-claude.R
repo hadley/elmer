@@ -1,3 +1,10 @@
+test_that("can make a simple request", {
+  chat <- new_chat_claude("Be as terse as possible; no punctuation")
+  resp <- chat$chat("What is 1 + 1?")
+  expect_equal(resp, "2")
+  expect_length(chat$turns(), 2)
+})
+
 test_that("system prompt can be passed explicitly or as a turn", {
   system_prompt <- "Return very minimal output, AND ONLY USE UPPERCASE."
 
@@ -16,9 +23,11 @@ test_that("existing conversation history is used", {
     turn("user", "List the names of any 8 of Santa's 9 reindeer."),
     turn("assistant", "Dasher, Dancer, Vixen, Comet, Cupid, Donner, Blitzen, and Rudolph.")
   ))
+  expect_length(chat$turns(), 2)
 
   resp <- chat$chat("Who is the remaining one? Just give the name")
   expect_equal(resp, "Prancer")
+  expect_length(chat$turns(), 4)
 })
 
 # Tool calls -------------------------------------------------------------------
@@ -43,7 +52,7 @@ test_that("can make an async tool call", {
   chat <- new_chat_claude(system_prompt = "Be very terse, not even punctuation.")
   chat$register_tool(get_date, "get_date", "Gets the current date", list())
 
-  result <- sync(chat$chat_async("What's the current date?"))
+  result <- sync(chat$chat_async("What's the current date in YMD format?"))
   expect_match(result, "2024-01-01")
 
   expect_snapshot(chat$chat("Great. Do it again."), error = TRUE)

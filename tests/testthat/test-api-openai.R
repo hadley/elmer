@@ -43,7 +43,7 @@ test_that("can make a simple tool call", {
   chat <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.")
   chat$register_tool(get_date, "get_date", "Gets the current date", list())
 
-  result <- chat$chat("What's the current date?")
+  result <- chat$chat("What's the current date in YMD format?")
   expect_match(result, "2024-01-01")
 
   result <- chat$chat("What month is it?")
@@ -58,7 +58,7 @@ test_that("can make an async tool call", {
   chat <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.")
   chat$register_tool(get_date, "get_date", "Gets the current date", list())
 
-  result <- sync(chat$chat_async("What's the current date?"))
+  result <- sync(chat$chat_async("What's the current date in YMD format?"))
   expect_match(result, "2024-01-01")
 
   expect_snapshot(chat$chat("Great. Do it again."), error = TRUE)
