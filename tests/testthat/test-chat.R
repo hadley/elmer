@@ -59,10 +59,22 @@ test_that("can optionally echo", {
   expect_output(chat$chat("Echo this.", echo = TRUE), "Echo this.")
 })
 
-test_that("can retrieve system prompt with helper", {
+test_that("can retrieve last_turn for user and assistant", {
+  chat <- new_chat_openai()
+  expect_equal(chat$last_turn("user"), NULL)
+  expect_equal(chat$last_turn("assistant"), NULL)
+
+  chat$chat("Hi")
+  expect_equal(chat$last_turn("user")@role, "user")
+  expect_equal(chat$last_turn("assistant")@role, "assistant")
+})
+
+test_that("can retrieve system prompt with helper or last_turn()", {
   chat1 <- new_chat_openai()
   expect_equal(chat1$system_prompt, NULL)
+  expect_equal(chat1$last_turn("system"), NULL)
 
   chat2 <- new_chat_openai(system_prompt = "You are from New Zealand")
   expect_equal(chat2$system_prompt, "You are from New Zealand")
+  expect_equal(chat2$last_turn("system"), turn("system", "You are from New Zealand"))
 })

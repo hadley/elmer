@@ -84,9 +84,21 @@ turns (if any exists).}
 \subsection{Method \code{last_turn()}}{
 The last turn returned by the assistant.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$last_turn()}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Chat$last_turn(role = c("assistant", "user", "system"))}\if{html}{\out{</div>}}
 }
 
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{role}}{Optionally, specify a role to find the last turn with
+for the role.}
+}
+\if{html}{\out{</div>}}
+}
+\subsection{Returns}{
+Either a \code{Turn} or \code{NULL}, if no turns with the specified
+role have occurred.
+}
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Chat-chat"></a>}}
