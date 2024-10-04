@@ -254,8 +254,9 @@ coro::async(function() {
 Async generators are very advanced, and require a good understanding of
 asynchronous programming in R. They are also the only way to present
 streaming results in Shiny without blocking other users. Fortunately,
-Shiny will soon have chat components that will make this easier, where
-you can simply hand the result of `stream_async()` to a chat output.
+the [shinychat](https://github.com/jcheng5/shinychat) package makes it
+extremely easy to use the result of `stream_async()` with a chat output;
+it's our recommended way of building web-based chatbots using elmer.
 
 ## Tool calling (a.k.a. function calling)
 
