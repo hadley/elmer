@@ -171,7 +171,10 @@ method(stream_turn, claude_provider) <- function(provider, result) {
     } else if (content$type == "tool_use") {
       content_tool_request(content$id, content$name, content$input)
     } else {
-      browser()
+      cli::cli_abort(
+        "Unknown content type {.str {content$type}}.",
+        .internal = TRUE
+      )
     }
   })
 
@@ -208,7 +211,7 @@ method(claude_content, content_text) <- function(content) {
 }
 
 method(claude_content, content_image_remote) <- function(content) {
-  cli::cli_abort("Claude doesn't support inline images")
+  cli::cli_abort("Claude doesn't support remote images")
 }
 
 method(claude_content, content_image_inline) <- function(content) {

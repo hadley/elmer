@@ -109,4 +109,12 @@ test_that("can use inline images", {
   )
   expect_match(response, "hex")
   expect_match(response, "baseball")
+  expect_length(chat$turns(), 2)
+
+  remote_image <- content_image_url("https://httr2.r-lib.org/logo.png")
+  expect_snapshot(
+    . <- chat$chat("What's in this image?", remote_image),
+    error = TRUE
+  )
+  expect_length(chat$turns(), 2)
 })
