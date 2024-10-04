@@ -209,14 +209,11 @@ Chat <- R6::R6Class("Chat",
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant turns.
     chat_impl = generator_method(function(self, private, user_turn, stream, echo) {
-      repeat {
+      while(!is.null(user_turn)) {
         for (chunk in private$submit_turns(user_turn, stream = stream, echo = echo)) {
           yield(chunk)
         }
         user_turn <- private$invoke_tools()
-        if (is.null(user_turn)) {
-          break
-        }
       }
 
       # Work around https://github.com/r-lib/coro/issues/51
@@ -228,14 +225,11 @@ Chat <- R6::R6Class("Chat",
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant turns.
     chat_impl_async = async_generator_method(function(self, private, user_turn, stream, echo) {
-      repeat {
+      while(!is.null(user_turn)) {
         for (chunk in await_each(private$submit_turns_async(user_turn, stream = stream, echo = echo))) {
           yield(chunk)
         }
         user_turn <- await(private$invoke_tools_async())
-        if (is.null(user_turn)) {
-          break
-        }
       }
 
       # Work around https://github.com/r-lib/coro/issues/51
