@@ -142,9 +142,9 @@ method(value_turn, gemini_provider) <- function(provider, result) {
 }
 gemini_assistant_turn <- function(message) {
   content <- lapply(message$parts, function(content) {
-    if (hasName(content, "text")) {
+    if (has_name(content, "text")) {
       content_text(content$text)
-    } else if (hasName(content, "functionCall")) {
+    } else if (has_name(content, "functionCall")) {
       content_tool_request(
         content$functionCall$name,
         content$functionCall$name,
