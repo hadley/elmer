@@ -1,9 +1,5 @@
-test_that("default model is reported", {
-  expect_snapshot(. <- new_chat_openai()$chat("Hi"))
-})
-
 test_that("can make a simple request", {
-  chat <- new_chat_openai("Be as terse as possible; no punctuation")
+  chat <- new_chat_claude("Be as terse as possible; no punctuation")
   resp <- chat$chat("What is 1 + 1?")
   expect_equal(resp, "2")
   expect_length(chat$turns(), 2)
@@ -12,19 +8,17 @@ test_that("can make a simple request", {
 test_that("system prompt can be passed explicitly or as a turn", {
   system_prompt <- "Return very minimal output, AND ONLY USE UPPERCASE."
 
-  chat <- new_chat_openai(system_prompt = system_prompt)
+  chat <- new_chat_claude(system_prompt = system_prompt)
   resp <- chat$chat("What is the name of Winnie the Pooh's human friend?")
   expect_match(resp, "CHRISTOPHER ROBIN")
-  expect_length(chat$turns(), 2)
 
-  chat <- new_chat_openai(turns = list(turn("system", system_prompt)))
+  chat <- new_chat_claude(turns = list(turn("system", system_prompt)))
   resp <- chat$chat("What is the name of Winnie the Pooh's human friend?")
   expect_match(resp, "CHRISTOPHER ROBIN")
-  expect_length(chat$turns(), 2)
 })
 
 test_that("existing conversation history is used", {
-  chat <- new_chat_openai(turns = list(
+  chat <- new_chat_claude(turns = list(
     turn("system", "Return very minimal output; no punctuation."),
     turn("user", "List the names of any 8 of Santa's 9 reindeer."),
     turn("assistant", "Dasher, Dancer, Vixen, Comet, Cupid, Donner, Blitzen, and Rudolph.")
@@ -40,7 +34,7 @@ test_that("existing conversation history is used", {
 
 test_that("can make a simple tool call", {
   get_date <- function() "2024-01-01"
-  chat <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.")
+  chat <- new_chat_claude(system_prompt = "Be very terse, not even punctuation.")
   chat$register_tool(get_date, "get_date", "Gets the current date", list())
 
   result <- chat$chat("What's the current date in YMD format?")
@@ -55,7 +49,7 @@ test_that("can make an async tool call", {
     await(coro::async_sleep(0.2))
     "2024-01-01"
   })
-  chat <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.")
+  chat <- new_chat_claude(system_prompt = "Be very terse, not even punctuation.")
   chat$register_tool(get_date, "get_date", "Gets the current date", list())
 
   result <- sync(chat$chat_async("What's the current date in YMD format?"))
@@ -65,7 +59,7 @@ test_that("can make an async tool call", {
 })
 
 test_that("can call multiple tools in parallel", {
-  chat <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.")
+  chat <- new_chat_claude(system_prompt = "Be very terse, not even punctuation.")
   favourite_color <- function(person) {
     if (person == "Joe") "sage green" else "red"
   }
@@ -86,7 +80,7 @@ test_that("can call multiple tools in parallel", {
 })
 
 test_that("can call multiple tools in sequence", {
-  chat <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.")
+  chat <- new_chat_claude(system_prompt = "Be very terse, not even punctuation.")
   chat$register_tool(
     function() 2024,
     "get_year",
@@ -101,26 +95,26 @@ test_that("can call multiple tools in sequence", {
   )
 
   result <- chat$chat("What was the most popular name this year?")
-  expect_equal(result, "Susan")
+  expect_match(result, "Susan")
   expect_length(chat$turns(), 6)
 })
 
 # Images -----------------------------------------------------------------
 
-test_that("can use images (inline and remote)", {
-  chat <- new_chat_openai(model = "gpt-4o-mini")
+test_that("can use inline images", {
+  chat <- new_chat_claude(model = "claude-3-5-sonnet-20240620")
   response <- chat$chat(
     "What's in this image? (Be sure to mention the outside shape)",
     content_image_file(system.file("httr2.png", package = "elmer"))
   )
   expect_match(response, "hex")
   expect_match(response, "baseball")
+  expect_length(chat$turns(), 2)
 
-  chat <- new_chat_openai(model = "gpt-4o-mini")
-  response <- chat$chat(
-    "What's in this image? (Be sure to mention the outside shape)",
-    content_image_url("https://httr2.r-lib.org/logo.png")
+  remote_image <- content_image_url("https://httr2.r-lib.org/logo.png")
+  expect_snapshot(
+    . <- chat$chat("What's in this image?", remote_image),
+    error = TRUE
   )
-  expect_match(response, "hex")
-  expect_match(response, "baseball")
+  expect_length(chat$turns(), 2)
 })

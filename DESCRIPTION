@@ -40,6 +40,7 @@ Collate:
     'utils-S7.R'
     'content.R'
     'api.R'
+    'api-claude.R'
     'api-gemini.R'
     'api-github.R'
     'api-groq.R'
