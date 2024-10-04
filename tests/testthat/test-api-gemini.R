@@ -87,14 +87,13 @@ test_that("can call multiple tools in sequence", {
   chat$register_tool(
     function(year) if (year == 2024) "Susan" else "I don't know",
     "popular_name",
-    "Gets the most popular name for a year",
+    "Get the most popular name for a year",
     list(year = tool_arg("integer", "Year"))
   )
 
-  result <- chat$chat("What was the most popular name this year?")
+  result <- chat$chat("Determine the current year then figure out the most popular name.")
   expect_match(result, "Susan")
-  # Doesn't have parallel tool calls
-  expect_length(chat$turns(), 8)
+  expect_length(chat$turns(), 6)
 })
 
 # Images -----------------------------------------------------------------
