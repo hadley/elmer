@@ -39,8 +39,6 @@ on_load(chat_perform_stream <- coro::generator(function(provider, req) {
     event <- httr2::resp_stream_sse(resp)
     if (stream_is_done(provider, event)) {
       break
-    } else if (is.null(event)) {
-      abort("Connection failed")
     } else {
       yield(stream_parse(provider, event))
     }
@@ -64,10 +62,12 @@ on_load(chat_perform_async_stream <- coro::async_generator(function(provider, re
 
   repeat {
     event <- resp_stream_sse(resp)
-    if (is.null(event)) {
-      # TODO: Detect if connection is closed and stop polling
+    if (is.null(event) && isIncomplete(resp$body)) {
       await(coro::async_sleep(polling_interval_secs))
-    } else if (stream_is_done(provider, event)) {
+      next
+    }
+
+    if (stream_is_done(provider, event)) {
       break
     } else {
       yield(stream_parse(provider, event))

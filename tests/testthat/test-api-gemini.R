@@ -1,7 +1,19 @@
-test_that("can make a simple request", {
-  chat <- new_chat_gemini()
+test_that("can make simple request", {
+  chat <- new_chat_gemini("Be as terse as possible; no punctuation")
   resp <- chat$chat("What is 1 + 1?")
   expect_match(resp, "2")
+
+  resp <- sync(chat$chat_async("What is 1 + 1?"))
+  expect_match(resp, "2")
+})
+
+test_that("can make simple streaming request", {
+  chat <- new_chat_gemini("Be as terse as possible; no punctuation")
+  resp <- coro::collect(chat$stream("What is 1 + 1?"))
+  expect_match(paste0(unlist(resp), collapse = ""), "2")
+
+  resp <- sync(coro::async_collect(chat$stream_async("1 + 1")))
+  expect_match(paste0(unlist(resp), collapse = ""), "2")
 })
 
 test_that("system prompt can be passed explicitly or as a turn", {

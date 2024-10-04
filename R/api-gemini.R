@@ -95,7 +95,7 @@ method(chat_request, gemini_provider) <- function(provider,
     req <- req_url_path_append(req, paste0(provider@model, ":", "streamGenerateContent"))
     req <- req_url_query(req, alt = "sse")
   } else {
-    # https://ai.google.dev/api/generate-content
+    # https://ai.google.dev/api/generate-content#method:-models.streamgeneratecontent
     req <- req_url_path_append(req, paste0(provider@model, ":", "generateContent"))
   }
 

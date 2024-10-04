@@ -170,7 +170,11 @@ method(chat_request, openai_provider) <- function(provider,
 }
 
 method(stream_is_done, openai_provider) <- function(provider, event) {
-  identical(event$data, "[DONE]")
+  if (is.null(event)) {
+    cli::cli_abort("Connection closed unexpectedly")
+  } else {
+    identical(event$data, "[DONE]")
+  }
 }
 method(stream_parse, openai_provider) <- function(provider, event) {
   jsonlite::parse_json(event$data)
