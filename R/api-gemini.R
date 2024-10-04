@@ -185,29 +185,37 @@ gemini_tools <- function(tools) {
 
   funs <- lapply(tools, function(tool) {
     compact(list(
-      name = tool$`function`$name,
-      description = tool$`function`$description,
-      parameters = openapi_schema_parameters(tool$`function`$parameters)
+      name = tool@name,
+      description = tool@description,
+      parameters = openapi_schema_parameters(tool@arguments)
     ))
   })
   list(functionDeclarations = funs)
 }
 
 # https://ai.google.dev/api/caching#Schema
-openapi_schema_parameters <- function(parameters) {
-  # TODO: Add required
-  if (length(parameters$properties) == 0) {
+openapi_schema_parameters <- function(arguments) {
+  if (length(arguments) == 0) {
     return(list())
   }
-  properties <- lapply(parameters$properties, function(prop) {
+
+  arg_names <- names2(arguments)
+  arg_required <- map_lgl(arguments, function(arg) {
+    arg@required %||% FALSE
+  })
+
+  properties <- lapply(arguments, function(arg) {
     list(
-      type = prop$type,
-      description = prop$description
+      type = arg@type,
+      description = arg@description
     )
   })
+  names(properties) <- arg_names
+
   list(
     type = "object",
-    properties = properties
+    properties = properties,
+    required = arg_names[arg_required]
   )
 }
 

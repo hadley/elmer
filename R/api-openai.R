@@ -154,6 +154,7 @@ method(chat_request, openai_provider) <- function(provider,
   req <- req_error(req, body = function(resp) resp_body_json(resp)$error$message)
 
   messages <- openai_messages(turns)
+  tools <- lapply(tools, openai_tool)
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
   data <- compact(list2(
@@ -284,5 +285,17 @@ method(openai_content, content_tool_request) <- function(content) {
     id = content@id,
     `function` = list(name = content@name, arguments = json_args),
     type = "function"
+  )
+}
+
+openai_tool <- function(tool) {
+  list(
+    type = "function",
+    "function" = compact(list(
+      name = tool@name,
+      description = tool@description,
+      strict = tool@extra$strict,
+      parameters = json_schema_parameters(tool@arguments)
+    ))
   )
 }

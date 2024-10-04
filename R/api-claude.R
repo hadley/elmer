@@ -115,7 +115,7 @@ method(chat_request, claude_provider) <- function(provider,
   }
 
   messages <- claude_messages(turns)
-  tools <- claude_tools(tools)
+  tools <- lapply(tools, claude_tool)
 
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
   body <- compact(list2(
@@ -257,14 +257,10 @@ method(claude_content, content_tool_result) <- function(content) {
   )
 }
 
-claude_tools <- function(tools) {
-  lapply(tools, function(tool) {
-    fun <- tool$`function`
-
-    list(
-      name = fun$name,
-      description = fun$description,
-      input_schema = compact(fun$parameters)
-    )
-  })
+claude_tool <- function(tool) {
+  list(
+    name = tool@name,
+    description = tool@description,
+    input_schema = compact(json_schema_parameters(tool@arguments))
+  )
 }
