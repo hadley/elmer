@@ -90,7 +90,7 @@ method(chat_request, ProviderClaude) <- function(provider,
   }
 
   messages <- claude_messages(turns)
-  tools <- lapply(tools, claude_tool)
+  tools <- unname(lapply(tools, claude_tool))
 
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
   body <- compact(list2(

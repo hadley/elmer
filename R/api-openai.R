@@ -42,31 +42,6 @@ NULL
 #'   What is the difference between a tibble and a data frame?
 #'   Answer with a bulleted list
 #' ")
-#'
-#' chat <- chat_openai()
-#' chat$register_tool(
-#'   fun = rnorm,
-#'   name = "rnorm",
-#'   description = "Drawn numbers from a random normal distribution",
-#'   arguments = list(
-#'     n = ToolArg(
-#'       type = "integer",
-#'       description = "The number of observations. Must be a positive integer."
-#'     ),
-#'     mean = ToolArg(
-#'       type = "number",
-#'       description = "The mean value of the distribution."
-#'     ),
-#'     sd = ToolArg(
-#'       type = "number",
-#'       description = "The standard deviation of the distribution. Must be a non-negative number."
-#'     )
-#'   )
-#' )
-#' chat$chat("
-#'   Give me five numbers from a random normal distribution.
-#'   Briefly explain your work.
-#' ")
 chat_openai <- function(system_prompt = NULL,
                             turns = NULL,
                             base_url = "https://api.openai.com/v1",
@@ -129,7 +104,7 @@ method(chat_request, ProviderOpenAI) <- function(provider,
   req <- req_error(req, body = function(resp) resp_body_json(resp)$error$message)
 
   messages <- openai_messages(turns)
-  tools <- lapply(tools, openai_tool)
+  tools <- unname(lapply(tools, openai_tool))
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
   data <- compact(list2(

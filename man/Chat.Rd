@@ -187,35 +187,15 @@ yields string promises.
 \subsection{Method \code{register_tool()}}{
 Register a tool (an R function) that the chatbot can use.
 If the chatbot decides to use the function,  elmer will automatically
-call it and submit the results back. (See \code{\link[=create_tool_metadata]{create_tool_metadata()}} for
-an AI-enabled helper function that can write a \code{register_tool} call
-for you in some cases.)
+call it and submit the results back.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$register_tool(
-  fun,
-  name = NULL,
-  description,
-  arguments = list(),
-  strict = FALSE
-)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Chat$register_tool(tool_def)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{fun}}{The function to be invoked when the tool is called.}
-
-\item{\code{name}}{The name of the function.}
-
-\item{\code{description}}{A detailed description of what the function does.
-Generally, the more information that you can provide here, the better.}
-
-\item{\code{arguments}}{A named list of arguments that the function accepts.
-Should be a named list of objects created by \code{\link[=ToolArg]{ToolArg()}}.}
-
-\item{\code{strict}}{Should the argument definition be strictly enforced? If
-\code{TRUE}, enables \href{https://platform.openai.com/docs/guides/structured-outputs}{Structured Output}
-mode, which comes with a number of \href{https://platform.openai.com/docs/guides/structured-outputs/supported-schemas}{additional requirements}.}
+\item{\code{tool_def}}{Tool definition created by \link{ToolDef}.}
 }
 \if{html}{\out{</div>}}
 }

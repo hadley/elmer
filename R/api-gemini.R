@@ -169,7 +169,7 @@ gemini_tools <- function(tools) {
       parameters = openapi_schema_parameters(tool@arguments)
     ))
   })
-  list(functionDeclarations = funs)
+  list(functionDeclarations = unname(funs))
 }
 
 # https://ai.google.dev/api/caching#Schema

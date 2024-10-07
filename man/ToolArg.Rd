@@ -5,15 +5,26 @@
 \alias{ToolArg}
 \title{Define a tool}
 \usage{
-ToolDef(name, description, arguments = list(), ...)
+ToolDef(fun, name, description, arguments = list(), ...)
 
 ToolArg(type, description, required = TRUE, ...)
 }
 \arguments{
+\item{fun}{The function to be invoked when the tool is called.}
+
+\item{name}{The name of the function.}
+
 \item{description}{Description of argument as free text.}
 
-\item{...}{Additional JSON Schema properties (e.g. \code{properties}, \code{enum},
-\code{pattern}).}
+\item{arguments}{A named list of arguments that the function accepts.
+Should be a named list of objects created by \code{\link[=ToolArg]{ToolArg()}}.}
+
+\item{...}{Additional provider specific JSON Schema properties
+(e.g. \code{properties}, \code{enum}, \code{pattern}).
+
+For example, OpenAI supports a \code{strict} parameter that when \code{TRUE}
+enables \href{https://platform.openai.com/docs/guides/structured-outputs}{Structured Output}
+mode, which comes with a number of \href{https://platform.openai.com/docs/guides/structured-outputs/supported-schemas}{additional requirements}.}
 
 \item{type}{Argument type (\code{"null"}, \code{"boolean"}, \code{"object"}, \code{"array"},
 \code{"number"}, or \code{"string"}).}
@@ -21,6 +32,46 @@ ToolArg(type, description, required = TRUE, ...)
 \item{required}{Is the argument required?}
 }
 \description{
-Define a tool
+Define an R function for use by a chatbot. The function will always be
+run in the current R instance.
+
+Learn more in \code{vignette("tool-calling")}.
 }
-\keyword{internal}
+\examples{
+\dontshow{if (elmer:::openai_key_exists()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+
+# First define the metadata that the model uses to figure out when to
+# call the tool
+tool_rnorm <- ToolDef(
+  rnorm,
+  description = "Drawn numbers from a random normal distribution",
+  arguments = list(
+    n = ToolArg(
+      type = "integer",
+      description = "The number of observations. Must be a positive integer."
+    ),
+    mean = ToolArg(
+      type = "number",
+      description = "The mean value of the distribution."
+    ),
+    sd = ToolArg(
+      type = "number",
+      description = "The standard deviation of the distribution. Must be a non-negative number."
+    )
+  )
+)
+chat <- chat_openai()
+# Then register it
+chat$register_tool(tool_rnorm)
+
+# Then ask a question that needs it.
+chat$chat("
+  Give me five numbers from a random normal distribution.
+")
+
+# Look at the chat history to see how tool calling works:
+# Assistant sends a tool request which is evaluated locally and
+# results are send back in a tool result.
+chat
+\dontshow{\}) # examplesIf}
+}

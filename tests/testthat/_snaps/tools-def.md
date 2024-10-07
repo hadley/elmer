@@ -1,3 +1,11 @@
+# ToolDef can get name
+
+    Code
+      ToolDef(function() { }, description = "")
+    Condition
+      Error in `ToolDef()`:
+      ! `name` is required when `fun` is defined inline.
+
 # ToolArg checks its inputs
 
     Code
@@ -9,21 +17,22 @@
       - @description must be a single string, not a character vector.
       - @required must be a TRUE or FALSE, not NA.
     Code
-      ToolDef(1, letters[1:3], 1)
+      ToolDef("", 1, letters[1:3], 1)
     Condition
       Error:
       ! <elmer::ToolDef> object properties are invalid:
       - @name must be <character>, not <double>
+      - @fun must be <function>, not <character>
       - @description must be a single string, not a character vector.
       - @arguments must be <list>, not <double>
     Code
-      ToolDef("", "", list(1))
+      ToolDef(identity, "", "", list(1))
     Condition
       Error:
       ! <elmer::ToolDef> object properties are invalid:
       - @arguments must be a list of <ToolArg>s. Element 1 is the number 1.
     Code
-      ToolDef("", "", list(ToolArg("", "")))
+      ToolDef(identity, "", "", list(ToolArg("", "")))
     Condition
       Error:
       ! <elmer::ToolDef> object properties are invalid:

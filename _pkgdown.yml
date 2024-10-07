@@ -9,7 +9,8 @@ reference:
 
 - title: Tool use
   contents:
-  - create_tool_metadata
+  - ToolDef
+  - create_tool_def
 
 - title: Images
   contents:
