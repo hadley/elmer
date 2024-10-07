@@ -224,23 +224,23 @@ openai_messages <- function(turns) {
 
   for (turn in turns) {
     if (turn@role == "system") {
-      add_message("system", content = turn@content[[1]]@text)
+      add_message("system", content = turn@contents[[1]]@text)
     } else if (turn@role == "user") {
       # Each tool result needs to go in its own message with role "tool"
-      is_tool <- map_lgl(turn@content, S7_inherits, content_tool_result)
+      is_tool <- map_lgl(turn@contents, S7_inherits, content_tool_result)
 
-      content <- lapply(turn@content[!is_tool], openai_content)
+      content <- lapply(turn@contents[!is_tool], openai_content)
       if (length(content) > 0) {
         add_message("user", content = content)
       }
-      for (tool in turn@content[is_tool]) {
+      for (tool in turn@contents[is_tool]) {
         add_message("tool", content = openai_content(tool), tool_call_id = tool@id)
       }
     } else if (turn@role == "assistant") {
       # Tool requests come out of content and go into own argument
-      is_tool <- map_lgl(turn@content, S7_inherits, content_tool_request)
-      content <- lapply(turn@content[!is_tool], openai_content)
-      tool_calls <- lapply(turn@content[is_tool], openai_content)
+      is_tool <- map_lgl(turn@contents, S7_inherits, content_tool_request)
+      content <- lapply(turn@contents[!is_tool], openai_content)
+      tool_calls <- lapply(turn@contents[is_tool], openai_content)
 
       add_message("assistant", content = content, tool_calls = tool_calls)
     } else {

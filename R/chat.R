@@ -198,7 +198,7 @@ Chat <- R6::R6Class("Chat",
       if (private$.turns[[i]]@role != "user") {
         private$.turns[[i + 1]] <- turn("user", content = contents)
       } else {
-        private$.turns[[i]]@content <- c(private$.turns[[i]]@content, contents)
+        private$.turns[[i]]@contents <- c(private$.turns[[i]]@contents, contents)
       }
       invisible(self)
     },
@@ -390,7 +390,7 @@ print.Chat <- function(x, ...) {
       identity
     )
     cli::cat_rule(cli::format_inline("{color(turn@role)}"))
-    for (content in turn@content) {
+    for (content in turn@contents) {
       cat_line(format(content))
     }
   }
