@@ -98,7 +98,7 @@ test_that("can call multiple tools in parallel", {
 })
 
 test_that("can call multiple tools in sequence", {
-  chat <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.")
+  chat <- new_chat_openai(system_prompt = "Be very terse, not even punctuation.", echo = "all")
   chat$register_tool(
     function() 2024,
     "get_year",
@@ -112,7 +112,7 @@ test_that("can call multiple tools in sequence", {
     list(year = tool_arg("integer", "Year"))
   )
 
-  result <- chat$chat("What was the most popular name this year?")
+  result <- chat$chat("What was the most popular name this year.")
   expect_equal(result, "Susan")
   expect_length(chat$turns(), 6)
 })

@@ -46,3 +46,19 @@ print_json <- function(x) {
 last_request_json <- function(req = last_request()) {
   print_json(req$body$data)
 }
+
+check_echo <- function(echo = NULL) {
+  if (is.null(echo)) {
+    if (env_is_user_facing(parent.frame(2)) && !is_testing()) {
+      "text"
+    } else {
+      "none"
+    }
+  } else if (isTRUE(echo)) {
+    "text"
+  } else if (isFALSE(echo)) {
+    "none"
+  } else {
+    arg_match(echo, c("none", "text", "all"))
+  }
+}

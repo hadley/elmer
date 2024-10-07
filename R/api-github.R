@@ -16,7 +16,7 @@ new_chat_github <- function(system_prompt = NULL,
                             model = NULL,
                             seed = NULL,
                             api_args = list(),
-                            echo = FALSE) {
+                            echo = NULL) {
 
   check_installed("gitcreds")
 

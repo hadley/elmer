@@ -17,7 +17,7 @@ new_chat_ollama <- function(system_prompt = NULL,
                             model,
                             seed = NULL,
                             api_args = list(),
-                            echo = FALSE) {
+                            echo = NULL) {
   if (!has_ollama()) {
     cli::cli_abort("Can't find locally running ollama.")
   }

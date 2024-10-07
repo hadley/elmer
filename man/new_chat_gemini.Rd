@@ -11,7 +11,7 @@ new_chat_gemini(
   api_key = gemini_key(),
   model = NULL,
   api_args = list(),
-  echo = FALSE
+  echo = NULL
 )
 }
 \arguments{
@@ -39,9 +39,14 @@ choosing a model for all but the most casual use.}
 \item{api_args}{Named list of arbitrary extra arguments passed to every
 chat API call.}
 
-\item{echo}{If \code{TRUE}, the \code{chat()} method streams the response to stdout by
-default. (Note that this has no effect on the \code{stream()}, \code{chat_async()},
-and \code{stream_async()} methods.)}
+\item{echo}{One of the following options:
+\itemize{
+\item \code{none}: don't emit any output.
+\item \code{text}: echo text output as it streams in.
+\item \code{all}: echo all input and output.
+}
+
+Note this only affects the \code{chat()} method.}
 }
 \value{
 A \link{Chat} object.

@@ -12,7 +12,7 @@ new_chat_claude(
   api_args = list(),
   base_url = "https://api.anthropic.com/v1",
   api_key = anthropic_key(),
-  echo = FALSE
+  echo = NULL
 )
 }
 \arguments{
@@ -42,9 +42,14 @@ chat API call.}
 not supply this directly, but instead set the \code{OPENAI_API_KEY} environment
 variable.}
 
-\item{echo}{If \code{TRUE}, the \code{chat()} method streams the response to stdout by
-default. (Note that this has no effect on the \code{stream()}, \code{chat_async()},
-and \code{stream_async()} methods.)}
+\item{echo}{One of the following options:
+\itemize{
+\item \code{none}: don't emit any output.
+\item \code{text}: echo text output as it streams in.
+\item \code{all}: echo all input and output.
+}
+
+Note this only affects the \code{chat()} method.}
 }
 \value{
 A \link{Chat} object.

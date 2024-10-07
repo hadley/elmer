@@ -20,9 +20,9 @@ new_chat_claude <- function(system_prompt = NULL,
                             api_args = list(),
                             base_url = "https://api.anthropic.com/v1",
                             api_key = anthropic_key(),
-                            echo = FALSE) {
+                            echo = NULL) {
   turns <- normalize_turns(turns, system_prompt)
-  check_bool(echo)
+  echo <- check_echo(echo)
 
   model <- model %||% "claude-3-5-sonnet-20240620"
 
@@ -163,6 +163,8 @@ method(stream_merge_chunks, claude_provider) <- function(provider, result, chunk
     # nothing to do
   } else if (chunk$type == "message_delta") {
     # TODO: do something with stop reason
+  } else if (chunk$type == "error") {
+    cli::cli_abort("{chunk$error$message}")
   } else {
     cli::cli_inform(c("!" = "Unknown chunk type {.str {chunk$type}}."))
   }

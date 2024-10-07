@@ -1,5 +1,6 @@
-cat_line <- function(...) {
-  lines <- paste0(..., "\n", collapse = "")
+cat_line <- function(..., prefix = "") {
+  lines <- paste0(..., collapse = "\n")
+  lines <- paste0(prefix, gsub("\n", paste0("\n", prefix), lines, fixed = TRUE), "\n")
   cat(lines)
 }
 
@@ -23,7 +24,7 @@ split_spaces <- function(text) {
 }
 
 cat_word_wrap_impl <- NULL
-on_load(cat_word_wrap_impl <- coro::generator(function(con = stdout()) {
+on_load(cat_word_wrap_impl <- coro::generator(function(con = stdout(), prefix = "") {
   CAT <- function(...) {
     cat(..., file = con, sep = "")
   }
@@ -56,20 +57,25 @@ on_load(cat_word_wrap_impl <- coro::generator(function(con = stdout()) {
 
       if (token == "\n") {
         # Always flush newlines immediately
-        CAT("\n")
-        pos_cursor <- 1
+        CAT("\n", prefix)
+        pos_cursor <- 1 + nchar(prefix)
       } else if (is_last_token) {
         # A trailing non-newline might not be complete; buffer it until we have
         # more text to process
         buffer <- token
       } else {
+        if (pos_cursor == 1) {
+          CAT(prefix)
+          pos_cursor <- 1 + nchar(prefix)
+        }
+
         # A regular token. See if it fits on the current line.
         soft_wrap <- pos_cursor + width > console_width
 
         if (soft_wrap) {
           # It doesn't fit; wrap to the next line
-          CAT("\n")
-          pos_cursor <- 1
+          CAT("\n", prefix)
+          pos_cursor <- 1 + nchar(prefix)
 
           if (is_space) {
             # soft-wrapping due to spaces; skip rendering the spaces
@@ -97,8 +103,8 @@ on_load(cat_word_wrap_impl <- coro::generator(function(con = stdout()) {
 #
 # The catter buffers the last word of a line, assuming that it's incomplete. To
 # ensure that the buffer gets flushed, cat a "\n" character.
-cat_word_wrap <- function(con = stdout()) {
-  cat_impl <- cat_word_wrap_impl(con)
+cat_word_wrap <- function(con = stdout(), prefix = "") {
+  cat_impl <- cat_word_wrap_impl(con, prefix)
   cat_impl("")
 
   function(str) {
@@ -107,9 +113,11 @@ cat_word_wrap <- function(con = stdout()) {
   }
 }
 
-emitter <- function(echo) {
-  if (echo) {
+emitter <- function(echo, prefix) {
+  if (echo == "text") {
     cat_word_wrap()
+  } else if (echo == "all") {
+    cat_word_wrap(prefix = "< ")
   } else {
     function(...) invisible()
   }

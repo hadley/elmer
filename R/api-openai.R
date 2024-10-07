@@ -30,9 +30,12 @@ NULL
 #'   more reproducible.
 #' @param api_args Named list of arbitrary extra arguments passed to every
 #'   chat API call.
-#' @param echo If `TRUE`, the `chat()` method streams the response to stdout by
-#'   default. (Note that this has no effect on the `stream()`, `chat_async()`,
-#'   and `stream_async()` methods.)
+#' @param echo One of the following options:
+#'   * `none`: don't emit any output.
+#'   * `text`: echo text output as it streams in.
+#'   * `all`: echo all input and output.
+#'
+#'  Note this only affects the `chat()` method.
 #' @export
 #' @returns A [Chat] object.
 #' @examplesIf elmer:::openai_key_exists()
@@ -73,10 +76,10 @@ new_chat_openai <- function(system_prompt = NULL,
                             model = NULL,
                             seed = NULL,
                             api_args = list(),
-                            echo = FALSE) {
+                            echo = c("none", "text", "all")) {
   turns <- normalize_turns(turns, system_prompt)
-  check_bool(echo)
   model <- set_default(model, "gpt-4o-mini")
+  echo <- check_echo(echo)
 
   provider <- new_openai_provider(
     base_url = base_url,
