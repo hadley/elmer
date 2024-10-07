@@ -53,6 +53,7 @@ Collate:
     'content-image.R'
     'content-tools.R'
     'elmer-package.R'
+    'httr2.R'
     'import-standalone-obj-type.R'
     'import-standalone-purrr.R'
     'import-standalone-types-check.R'
