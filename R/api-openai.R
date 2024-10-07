@@ -78,7 +78,11 @@ chat_openai <- function(system_prompt = NULL,
   check_bool(echo)
   model <- set_default(model, "gpt-4o-mini")
 
-  provider <- new_openai_provider(
+  if (is_testing() && is.null(seed)) {
+    seed <- seed %||% 1014
+  }
+
+  provider <- openai_provider(
     base_url = base_url,
     model = model,
     seed = seed,
@@ -88,44 +92,14 @@ chat_openai <- function(system_prompt = NULL,
   Chat$new(provider = provider, turns = turns, echo = echo)
 }
 
-new_openai_provider <- function(base_url = "https://api.openai.com/v1",
-                                model = NULL,
-                                seed = NULL,
-                                extra_args = list(),
-                                api_key = openai_key(),
-                                error_call = caller_env()) {
-
-  # These checks could/should be placed in the validator, but the S7 object is
-  # currently an implementation detail. Keeping these errors here avoids
-  # leaking that implementation detail to the user.
-
-  check_string(base_url, call = error_call)
-  check_string(model, call = error_call)
-  check_number_whole(seed, allow_null = TRUE, call = error_call)
-  # check_named_list(extra_args, call = error_call())
-  check_string(api_key, call = error_call)
-
-  if (is_testing() && is.null(seed)) {
-    seed <- 1014
-  }
-
-  openai_provider(
-    base_url = base_url,
-    model = model,
-    seed = seed,
-    api_key = api_key,
-    extra_args = extra_args
-  )
-}
-
 openai_provider <- new_class(
   "openai_provider",
   package = "elmer",
   properties = list(
-    base_url = class_character,
-    model = class_character,
-    seed = class_double | NULL,
-    api_key = class_character,
+    base_url = prop_string(),
+    model = prop_string(),
+    seed = prop_number_whole(allow_null = TRUE),
+    api_key = prop_string(),
     extra_args = class_list
   )
 )

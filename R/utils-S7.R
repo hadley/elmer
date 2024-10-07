@@ -1,9 +1,10 @@
-prop_string <- function(allow_null = FALSE, allow_na = FALSE) {
+prop_string <- function(default = NULL, allow_null = FALSE, allow_na = FALSE) {
   force(allow_null)
   force(allow_na)
 
   new_property(
     class = if (allow_null) NULL | class_character else class_character,
+    default = default,
     validator = function(value) {
       if (allow_null && is.null(value)) {
         return()
@@ -62,6 +63,33 @@ prop_list_of <- function(class, names = c("any", "all", "none")) {
         "must be a named list."
       } else if (names == "none" && any(names2(value) != "")) {
         "must be an unnamed list."
+      }
+    }
+  )
+}
+
+prop_number_whole <- function(default = NULL, min = NULL, max = NULL, allow_null = FALSE, allow_na = FALSE) {
+  force(allow_null)
+  force(allow_na)
+
+  new_property(
+    class = if (allow_null) NULL | class_double else class_double,
+    default = default,
+    validator = function(value) {
+      if (allow_null && is.null(value)) {
+        return()
+      }
+
+      if (length(value) != 1) {
+        paste0("must be a whole number, not ", obj_type_friendly(value), ".")
+      } else if (value != trunc(value)) {
+        paste0("must be a whole number, not ", obj_type_friendly(value), ".")
+      } else if (!is.null(min) && value < min) {
+        paste0("must be at least ", min, ", not ", value, ".")
+      } else if (!is.null(max) && value > max) {
+        paste0("must be at most ", max, ", not ", value, ".")
+      } else if (!allow_na && is.na(value)) {
+        "must not be missing."
       }
     }
   )

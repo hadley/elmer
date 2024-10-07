@@ -24,7 +24,7 @@ chat_gemini <- function(system_prompt = NULL,
   check_bool(echo)
   model <- set_default(model, "gemini-1.5-flash")
 
-  provider <- new_gemini_provider(
+  provider <- gemini_provider(
     base_url = base_url,
     model = model,
     extra_args = api_args,
@@ -33,36 +33,13 @@ chat_gemini <- function(system_prompt = NULL,
   Chat$new(provider = provider, turns = turns, echo = echo)
 }
 
-new_gemini_provider <- function(base_url = "https://generativelanguage.googleapis.com/v1beta/",
-                                model = NULL,
-                                extra_args = list(),
-                                api_key = gemini_key(),
-                                error_call = caller_env()) {
-
-  # These checks could/should be placed in the validator, but the S7 object is
-  # currently an implementation detail. Keeping these errors here avoids
-  # leaking that implementation detail to the user.
-
-  check_string(base_url, call = error_call)
-  check_string(model, call = error_call)
-  # check_named_list(extra_args, call = error_call())
-  check_string(api_key, call = error_call)
-
-  gemini_provider(
-    base_url = base_url,
-    model = model,
-    api_key = api_key,
-    extra_args = extra_args
-  )
-}
-
 gemini_provider <- new_class(
   "gemini_provider",
   package = "elmer",
   properties = list(
-    base_url = class_character,
-    model = class_character,
-    api_key = class_character,
+    base_url = prop_string(),
+    model = prop_string(),
+    api_key = prop_string(),
     extra_args = class_list
   )
 )
