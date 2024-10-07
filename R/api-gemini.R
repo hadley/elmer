@@ -96,7 +96,7 @@ method(chat_request, ProviderGemini) <- function(provider,
   req
 }
 
-method(stream_parse, gemini_provider) <- function(provider, event) {
+method(stream_parse, ProviderGemini) <- function(provider, event) {
   if (is.null(event)) {
     NULL
   } else {

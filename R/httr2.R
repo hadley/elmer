@@ -37,10 +37,11 @@ on_load(chat_perform_stream <- coro::generator(function(provider, req) {
 
   repeat {
     event <- resp_stream_sse(resp)
-    if (stream_is_done(provider, event)) {
+    data <- stream_parse(provider, event)
+    if (is.null(data)) {
       break
     } else {
-      yield(stream_parse(provider, event))
+      yield(data)
     }
   }
 
@@ -67,10 +68,10 @@ on_load(chat_perform_async_stream <- coro::async_generator(function(provider, re
       next
     }
 
-    if (stream_is_done(provider, event)) {
+    if (is.null(data)) {
       break
     } else {
-      yield(stream_parse(provider, event))
+      yield(data)
     }
   }
 
