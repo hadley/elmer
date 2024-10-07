@@ -7,6 +7,7 @@
 #' This function is a lightweight wrapper around [chat_openai()] with
 #' the defaults tweaked for the GitHub model marketplace.
 #'
+#' @family chatbots
 #' @export
 #' @inheritParams chat_openai
 chat_github <- function(system_prompt = NULL,

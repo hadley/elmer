@@ -11,6 +11,7 @@ NULL
 #'
 #' @inheritParams chat_openai
 #' @param max_tokens Maximum number of tokens to generate before stopping.
+#' @family chatbots
 #' @export
 #' @returns A [Chat] object.
 chat_claude <- function(system_prompt = NULL,
