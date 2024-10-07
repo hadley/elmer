@@ -11,6 +11,7 @@ The Chat object represents a sequence of turns between the user and
 assistant (chat API). You should generally not create this object yourself,
 but instead call \code{\link[=chat_openai]{chat_openai()}} or friends.
 }
+\keyword{internal}
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
