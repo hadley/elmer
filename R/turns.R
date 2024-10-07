@@ -34,7 +34,7 @@ user_turn <- function(..., .error_call = caller_env()) {
   input <- list2(...)
   contents <- lapply(input, as_content, error_call = .error_call)
 
-  Turn(role = "user", contents = contents)
+  Turn("user", contents)
 }
 
 is_system_prompt <- function(x) {

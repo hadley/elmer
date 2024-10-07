@@ -198,7 +198,7 @@ Chat <- R6::R6Class("Chat",
       i <- length(private$.turns)
 
       if (private$.turns[[i]]@role != "user") {
-        private$.turns[[i + 1]] <- Turn("user", content = contents)
+        private$.turns[[i + 1]] <- Turn("user", contents)
       } else {
         private$.turns[[i]]@contents <- c(private$.turns[[i]]@contents, contents)
       }
