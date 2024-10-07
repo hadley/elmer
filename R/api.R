@@ -37,10 +37,11 @@ on_load(chat_perform_stream <- coro::generator(function(provider, req) {
 
   repeat {
     event <- resp_stream_sse(resp)
-    if (stream_is_done(provider, event)) {
+    data <- stream_parse(provider, event)
+    if (is.null(data)) {
       break
     } else {
-      yield(stream_parse(provider, event))
+      yield(data)
     }
   }
 
@@ -67,10 +68,11 @@ on_load(chat_perform_async_stream <- coro::async_generator(function(provider, re
       next
     }
 
-    if (stream_is_done(provider, event)) {
+    data <- stream_parse(provider, event)
+    if (is.null(data)) {
       break
     } else {
-      yield(stream_parse(provider, event))
+      yield(data)
     }
   }
 
@@ -89,11 +91,6 @@ chat_request <- new_generic("chat_request", "provider",
 
 # Extract data from streaming results ------------------------------------
 
-stream_is_done <- new_generic("stream_is_done", "provider",
-  function(provider, event) {
-    S7_dispatch()
-  }
-)
 stream_parse <- new_generic("stream_parse", "provider",
   function(provider, event) {
     S7_dispatch()

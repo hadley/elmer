@@ -107,15 +107,17 @@ method(chat_request, claude_provider) <- function(provider,
   req
 }
 
-method(stream_is_done, claude_provider) <- function(provider, event) {
+method(stream_parse, claude_provider) <- function(provider, event) {
   if (is.null(event)) {
     cli::cli_abort("Connection closed unexpectedly")
-  } else {
-    identical(event$type, "message_stop")
   }
-}
-method(stream_parse, claude_provider) <- function(provider, event) {
-  jsonlite::parse_json(event$data)
+
+  data <- jsonlite::parse_json(event$data)
+  if (identical(data$type, "message_stop")) {
+    return(NULL)
+  }
+
+  data
 }
 method(stream_text, claude_provider) <- function(provider, event) {
   if (event$type == "content_block_delta") {
