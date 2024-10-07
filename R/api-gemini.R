@@ -96,11 +96,12 @@ method(chat_request, ProviderGemini) <- function(provider,
   req
 }
 
-method(stream_is_done, ProviderGemini) <- function(provider, event) {
-  is.null(event)
-}
 method(stream_parse, ProviderGemini) <- function(provider, event) {
-  jsonlite::parse_json(event$data)
+  if (is.null(event)) {
+    NULL
+  } else {
+    jsonlite::parse_json(event$data)
+  }
 }
 method(stream_text, ProviderGemini) <- function(provider, event) {
   event$candidates[[1]]$content$parts[[1]]$text

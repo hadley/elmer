@@ -145,14 +145,15 @@ method(chat_request, ProviderOpenAI) <- function(provider,
   req
 }
 
-method(stream_is_done, ProviderOpenAI) <- function(provider, event) {
+method(stream_parse, ProviderOpenAI) <- function(provider, event) {
   if (is.null(event)) {
     cli::cli_abort("Connection closed unexpectedly")
-  } else {
-    identical(event$data, "[DONE]")
   }
-}
-method(stream_parse, ProviderOpenAI) <- function(provider, event) {
+
+  if (identical(event$data, "[DONE]")) {
+    return(NULL)
+  }
+
   jsonlite::parse_json(event$data)
 }
 method(stream_text, ProviderOpenAI) <- function(provider, event) {
@@ -183,11 +184,7 @@ openai_assistant_turn <- function(message) {
     })
     content <- c(content, calls)
   }
-  Turn(
-    role = message$role,
-    content = content,
-    extra = message["refusal"]
-  )
+  Turn(message$role, content, extra = message["refusal"])
 }
 
 # Convert elmer turns + content to chatGPT messages ----------------------------

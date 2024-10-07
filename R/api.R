@@ -7,11 +7,6 @@ chat_request <- new_generic("chat_request", "provider",
 
 # Extract data from streaming results ------------------------------------
 
-stream_is_done <- new_generic("stream_is_done", "provider",
-  function(provider, event) {
-    S7_dispatch()
-  }
-)
 stream_parse <- new_generic("stream_parse", "provider",
   function(provider, event) {
     S7_dispatch()
