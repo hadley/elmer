@@ -1,6 +1,6 @@
 # Results a content list
 invoke_tools <- function(turn, tools) {
-  tool_requests <- extract_tool_requests(turn@content)
+  tool_requests <- extract_tool_requests(turn@contents)
 
   lapply(tool_requests, function(call) {
     fun <- tools[[call@name]]
@@ -19,7 +19,7 @@ invoke_tools <- function(turn, tools) {
 
 on_load(
   invoke_tools_async <- coro::async(function(turn, tools) {
-    tool_requests <- extract_tool_requests(turn@content)
+    tool_requests <- extract_tool_requests(turn@contents)
 
     # We call it this way instead of a more natural for + await_each() because
     # we want to run all the async tool calls in parallel

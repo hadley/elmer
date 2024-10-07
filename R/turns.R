@@ -2,27 +2,26 @@ turn <- new_class(
   "turn",
   properties = list(
     role = prop_string(),
-    # list_of<content
-    content = class_list,
+    contents = prop_list_of(content),
     # random extra metadata a provider stuffs in
     extra = class_list,
     text = new_property(
       class = class_character,
       getter = function(self) {
-        is_text <- map_lgl(self@content, S7_inherits, content_text)
-        paste0(unlist(lapply(self@content[is_text], function(x) x@text)), collapse = "")
+        is_text <- map_lgl(self@contents, S7_inherits, content_text)
+        paste0(unlist(lapply(self@contents[is_text], function(x) x@text)), collapse = "")
       }
     )
   ),
-  constructor = function(role, content = list(), extra = list()) {
-    if (is.character(content)) {
-      content <- list(content_text(paste0(content, collapse = "\n")))
+  constructor = function(role, contents = list(), extra = list()) {
+    if (is.character(contents)) {
+      contents <- list(content_text(paste0(contents, collapse = "\n")))
     }
-    new_object(S7_object(), role = role, content = content, extra = extra)
+    new_object(S7_object(), role = role, contents = contents, extra = extra)
   }
 )
 method(format, turn) <- function(x, ...) {
-  contents <- map_chr(x@content, format, ...)
+  contents <- map_chr(x@contents, format, ...)
   paste0(contents, "\n", collapse = "")
 }
 
@@ -33,9 +32,9 @@ user_turn <- function(..., .error_call = caller_env()) {
 
   check_dots_unnamed(call = .error_call)
   input <- list2(...)
-  content <- lapply(input, as_content, error_call = .error_call)
+  contents <- lapply(input, as_content, error_call = .error_call)
 
-  turn(role = "user", content = content)
+  turn(role = "user", contents = contents)
 }
 
 is_system_prompt <- function(x) {

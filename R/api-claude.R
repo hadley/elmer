@@ -169,7 +169,7 @@ method(stream_merge_chunks, claude_provider) <- function(provider, result, chunk
   result
 }
 method(stream_turn, claude_provider) <- function(provider, result) {
-  content <- lapply(result$content, function(content) {
+  contents <- lapply(result$content, function(content) {
     if (content$type == "text") {
       content_text(content$text)
     } else if (content$type == "tool_use") {
@@ -182,7 +182,7 @@ method(stream_turn, claude_provider) <- function(provider, result) {
     }
   })
 
-  turn(result$role, content)
+  turn(result$role, contents)
 }
 method(value_turn, claude_provider) <- method(stream_turn, claude_provider)
 
@@ -198,7 +198,7 @@ claude_messages <- function(turns) {
     if (turn@role == "system") {
       # claude passes system prompt as separate arg
     } else if (turn@role %in% c("user", "assistant")) {
-      content <- lapply(turn@content, claude_content)
+      content <- lapply(turn@contents, claude_content)
       add_message(turn@role, content = content)
     } else {
       cli::cli_abort("Unknown role {turn@role}", .internal = TRUE)
