@@ -53,3 +53,13 @@ server, and the messages that you receive back. If you register a tool
 (i.e. an R function that the assistant can call on your behalf), it also
 takes care of the tool loop.
 }
+\seealso{
+Other chatbots: 
+\code{\link{chat_claude}()},
+\code{\link{chat_github}()},
+\code{\link{chat_groq}()},
+\code{\link{chat_ollama}()},
+\code{\link{chat_openai}()},
+\code{\link{chat_perplexity}()}
+}
+\concept{chatbots}

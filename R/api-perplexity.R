@@ -7,6 +7,7 @@
 #' the defaults tweaked for the groq.
 #'
 #' @export
+#' @family chatbots
 #' @inheritParams chat_openai
 chat_perplexity <- function(system_prompt = NULL,
                                 turns = NULL,

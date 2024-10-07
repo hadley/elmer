@@ -53,3 +53,13 @@ Sign up at \url{https://www.perplexity.ai}.
 This function is a lightweight wrapper around \code{\link[=chat_openai]{chat_openai()}} with
 the defaults tweaked for the groq.
 }
+\seealso{
+Other chatbots: 
+\code{\link{chat_claude}()},
+\code{\link{chat_gemini}()},
+\code{\link{chat_github}()},
+\code{\link{chat_groq}()},
+\code{\link{chat_ollama}()},
+\code{\link{chat_openai}()}
+}
+\concept{chatbots}

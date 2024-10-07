@@ -51,3 +51,13 @@ or \verb{ollama pull gemma2}.
 This function is a lightweight wrapper around \code{\link[=chat_openai]{chat_openai()}} with
 the defaults tweaked for ollama.
 }
+\seealso{
+Other chatbots: 
+\code{\link{chat_claude}()},
+\code{\link{chat_gemini}()},
+\code{\link{chat_github}()},
+\code{\link{chat_groq}()},
+\code{\link{chat_openai}()},
+\code{\link{chat_perplexity}()}
+}
+\concept{chatbots}

@@ -55,3 +55,13 @@ associated with the chat; i.e. it records the messages that you send to the
 server, and the messages that you receive back. If you register a tool
 (aka an R function), it also takes care of the tool loop.
 }
+\seealso{
+Other chatbots: 
+\code{\link{chat_gemini}()},
+\code{\link{chat_github}()},
+\code{\link{chat_groq}()},
+\code{\link{chat_ollama}()},
+\code{\link{chat_openai}()},
+\code{\link{chat_perplexity}()}
+}
+\concept{chatbots}

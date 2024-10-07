@@ -11,6 +11,7 @@ NULL
 #' takes care of the tool loop.
 #'
 #' @inheritParams chat_openai
+#' @family chatbots
 #' @export
 #' @returns A [Chat] object.
 chat_gemini <- function(system_prompt = NULL,

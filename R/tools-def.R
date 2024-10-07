@@ -13,7 +13,6 @@ NULL
 #' @keywords internal
 #' @order 2
 #' @export
-#' @examples
 tool_arg <- new_class(
   "tool_arg",
   properties = list(
