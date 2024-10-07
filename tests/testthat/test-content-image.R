@@ -1,6 +1,6 @@
 test_that("can create image from url", {
   obj <- content_image_url("https://www.r-project.org/Rlogo.png")
-  expect_s3_class(obj, "elmer::content_image_remote")
+  expect_s3_class(obj, "elmer::ContentImageRemote")
 })
 
 test_that("can create image from path", {
@@ -8,7 +8,7 @@ test_that("can create image from path", {
 
   path <- system.file("httr2.png", package = "elmer")
   obj <- content_image_file(path)
-  expect_s3_class(obj, "elmer::content_image_inline")
+  expect_s3_class(obj, "elmer::ContentImageInline")
 })
 
 test_that("can create image from plot", {
@@ -17,7 +17,7 @@ test_that("can create image from plot", {
   plot(1:10)
 
   obj <- content_image_plot()
-  expect_s3_class(obj, "elmer::content_image_inline")
+  expect_s3_class(obj, "elmer::ContentImageInline")
   expect_equal(obj@type, "image/png")
 })
 
