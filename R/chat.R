@@ -129,7 +129,7 @@ Chat <- R6::R6Class("Chat",
     #' @param description A detailed description of what the function does.
     #'   Generally, the more information that you can provide here, the better.
     #' @param arguments A named list of arguments that the function accepts.
-    #'   Should be a named list of objects created by [tool_arg()].
+    #'   Should be a named list of objects created by [ToolArg()].
     #' @param strict Should the argument definition be strictly enforced? If
     #'   `TRUE`, enables [Structured
     #'   Output](https://platform.openai.com/docs/guides/structured-outputs)
@@ -147,7 +147,7 @@ Chat <- R6::R6Class("Chat",
 
       check_function(fun)
 
-      tool <- tool_def(
+      tool <- ToolDef(
         name = name,
         description = description,
         arguments = arguments,
@@ -179,7 +179,7 @@ Chat <- R6::R6Class("Chat",
     tool_funs = NULL,
 
     add_turn = function(x) {
-      if (!S7_inherits(x, turn)) {
+      if (!S7_inherits(x, Turn)) {
         cli::cli_abort("Invalid input", .internal = TRUE)
       }
 
@@ -196,7 +196,7 @@ Chat <- R6::R6Class("Chat",
       i <- length(private$.turns)
 
       if (private$.turns[[i]]@role != "user") {
-        private$.turns[[i + 1]] <- turn("user", content = contents)
+        private$.turns[[i + 1]] <- Turn("user", content = contents)
       } else {
         private$.turns[[i]]@contents <- c(private$.turns[[i]]@contents, contents)
       }
@@ -357,7 +357,7 @@ Chat <- R6::R6Class("Chat",
       if (length(tool_results) == 0) {
         return()
       }
-      turn("user", tool_results)
+      Turn("user", tool_results)
     },
 
     invoke_tools_async = async_method(function(self, private) {
@@ -369,7 +369,7 @@ Chat <- R6::R6Class("Chat",
       if (length(tool_results) == 0) {
         return()
       }
-      turn("user", tool_results)
+      Turn("user", tool_results)
     }),
 
     has_system_prompt = function() {

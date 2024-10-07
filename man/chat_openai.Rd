@@ -71,15 +71,15 @@ chat$register_tool(
   name = "rnorm",
   description = "Drawn numbers from a random normal distribution",
   arguments = list(
-    n = tool_arg(
+    n = ToolArg(
       type = "integer",
       description = "The number of observations. Must be a positive integer."
     ),
-    mean = tool_arg(
+    mean = ToolArg(
       type = "number",
       description = "The mean value of the distribution."
     ),
-    sd = tool_arg(
+    sd = ToolArg(
       type = "number",
       description = "The standard deviation of the distribution. Must be a non-negative number."
     )

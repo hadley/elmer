@@ -48,15 +48,15 @@ NULL
 #'   name = "rnorm",
 #'   description = "Drawn numbers from a random normal distribution",
 #'   arguments = list(
-#'     n = tool_arg(
+#'     n = ToolArg(
 #'       type = "integer",
 #'       description = "The number of observations. Must be a positive integer."
 #'     ),
-#'     mean = tool_arg(
+#'     mean = ToolArg(
 #'       type = "number",
 #'       description = "The mean value of the distribution."
 #'     ),
-#'     sd = tool_arg(
+#'     sd = ToolArg(
 #'       type = "number",
 #'       description = "The standard deviation of the distribution. Must be a non-negative number."
 #'     )
@@ -82,7 +82,7 @@ chat_openai <- function(system_prompt = NULL,
     seed <- seed %||% 1014
   }
 
-  provider <- openai_provider(
+  provider <- ProviderOpenAI(
     base_url = base_url,
     model = model,
     seed = seed,
@@ -92,8 +92,8 @@ chat_openai <- function(system_prompt = NULL,
   Chat$new(provider = provider, turns = turns, echo = echo)
 }
 
-openai_provider <- new_class(
-  "openai_provider",
+ProviderOpenAI <- new_class(
+  "ProviderOpenAI",
   package = "elmer",
   properties = list(
     base_url = prop_string(),
@@ -115,7 +115,7 @@ openai_key <- function() {
 # HTTP request and response handling -------------------------------------
 
 # https://platform.openai.com/docs/api-reference/chat/create
-method(chat_request, openai_provider) <- function(provider,
+method(chat_request, ProviderOpenAI) <- function(provider,
                                                   stream = TRUE,
                                                   turns = list(),
                                                   tools = list(),
@@ -144,30 +144,30 @@ method(chat_request, openai_provider) <- function(provider,
   req
 }
 
-method(stream_is_done, openai_provider) <- function(provider, event) {
+method(stream_is_done, ProviderOpenAI) <- function(provider, event) {
   if (is.null(event)) {
     cli::cli_abort("Connection closed unexpectedly")
   } else {
     identical(event$data, "[DONE]")
   }
 }
-method(stream_parse, openai_provider) <- function(provider, event) {
+method(stream_parse, ProviderOpenAI) <- function(provider, event) {
   jsonlite::parse_json(event$data)
 }
-method(stream_text, openai_provider) <- function(provider, event) {
+method(stream_text, ProviderOpenAI) <- function(provider, event) {
   event$choices[[1]]$delta$content
 }
-method(stream_merge_chunks, openai_provider) <- function(provider, result, chunk) {
+method(stream_merge_chunks, ProviderOpenAI) <- function(provider, result, chunk) {
   if (is.null(result)) {
     chunk
   } else {
     merge_dicts(result, chunk)
   }
 }
-method(stream_turn, openai_provider) <- function(provider, result) {
+method(stream_turn, ProviderOpenAI) <- function(provider, result) {
   openai_assistant_turn(result$choices[[1]]$delta)
 }
-method(value_turn, openai_provider) <- function(provider, result) {
+method(value_turn, ProviderOpenAI) <- function(provider, result) {
   openai_assistant_turn(result$choices[[1]]$message)
 }
 openai_assistant_turn <- function(message) {
@@ -178,11 +178,11 @@ openai_assistant_turn <- function(message) {
       name <- call$`function`$name
       # TODO: record parsing error
       args <- jsonlite::parse_json(call$`function`$arguments)
-      content_tool_request(name = name, arguments = args, id = call$id)
+      ContentToolRequest(name = name, arguments = args, id = call$id)
     })
     content <- c(content, calls)
   }
-  turn(
+  Turn(
     role = message$role,
     content = content,
     extra = message["refusal"]
@@ -201,7 +201,7 @@ openai_messages <- function(turns) {
       add_message("system", content = turn@contents[[1]]@text)
     } else if (turn@role == "user") {
       # Each tool result needs to go in its own message with role "tool"
-      is_tool <- map_lgl(turn@contents, S7_inherits, content_tool_result)
+      is_tool <- map_lgl(turn@contents, S7_inherits, ContentToolResult)
 
       content <- lapply(turn@contents[!is_tool], openai_content)
       if (length(content) > 0) {
@@ -212,7 +212,7 @@ openai_messages <- function(turns) {
       }
     } else if (turn@role == "assistant") {
       # Tool requests come out of content and go into own argument
-      is_tool <- map_lgl(turn@contents, S7_inherits, content_tool_request)
+      is_tool <- map_lgl(turn@contents, S7_inherits, ContentToolRequest)
       content <- lapply(turn@contents[!is_tool], openai_content)
       tool_calls <- lapply(turn@contents[is_tool], openai_content)
 
@@ -226,15 +226,15 @@ openai_messages <- function(turns) {
 
 openai_content <- new_generic("openai_content", "content")
 
-method(openai_content, content_text) <- function(content) {
+method(openai_content, ContentText) <- function(content) {
   list(type = "text", text = content@text)
 }
 
-method(openai_content, content_image_remote) <- function(content) {
+method(openai_content, ContentImageRemote) <- function(content) {
   list(type = "image_url", image_url = list(url = content@url))
 }
 
-method(openai_content, content_image_inline) <- function(content) {
+method(openai_content, ContentImageInline) <- function(content) {
   list(
     type = "image_url",
     image_url = list(
@@ -243,7 +243,7 @@ method(openai_content, content_image_inline) <- function(content) {
   )
 }
 
-method(openai_content, content_tool_result) <- function(content) {
+method(openai_content, ContentToolResult) <- function(content) {
   if (is.null(content@result)) {
     result <- paste0("Tool calling failed with error ", content@error)
   } else {
@@ -253,7 +253,7 @@ method(openai_content, content_tool_result) <- function(content) {
   result
 }
 
-method(openai_content, content_tool_request) <- function(content) {
+method(openai_content, ContentToolRequest) <- function(content) {
   json_args <- jsonlite::toJSON(content@arguments)
   list(
     id = content@id,

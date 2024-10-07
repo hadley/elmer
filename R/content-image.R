@@ -34,7 +34,7 @@
 #' )
 content_image_url <- function(url, detail = c("auto", "low", "high")) {
   detail <- arg_match(detail)
-  content_image_remote(url = url, detail = detail)
+  ContentImageRemote(url = url, detail = detail)
 }
 
 #' @rdname content_image_url
@@ -110,7 +110,7 @@ content_image_file <- function(path, content_type = "auto", resize = "low") {
     base64 <- base64enc::base64encode(buf)
   }
 
-  content_image_inline(content_type, base64)
+  ContentImageInline(content_type, base64)
 }
 
 #' @rdname content_image_url

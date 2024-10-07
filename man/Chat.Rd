@@ -210,7 +210,7 @@ for you in some cases.)
 Generally, the more information that you can provide here, the better.}
 
 \item{\code{arguments}}{A named list of arguments that the function accepts.
-Should be a named list of objects created by \code{\link[=tool_arg]{tool_arg()}}.}
+Should be a named list of objects created by \code{\link[=ToolArg]{ToolArg()}}.}
 
 \item{\code{strict}}{Should the argument definition be strictly enforced? If
 \code{TRUE}, enables \href{https://platform.openai.com/docs/guides/structured-outputs}{Structured Output}
