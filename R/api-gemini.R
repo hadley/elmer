@@ -10,10 +10,10 @@ NULL
 #' (i.e. an R function that the assistant can call on your behalf), it also
 #' takes care of the tool loop.
 #'
-#' @inheritParams new_chat_openai
+#' @inheritParams chat_openai
 #' @export
 #' @returns A [Chat] object.
-new_chat_gemini <- function(system_prompt = NULL,
+chat_gemini <- function(system_prompt = NULL,
                             turns = NULL,
                             base_url = "https://generativelanguage.googleapis.com/v1beta/",
                             api_key = gemini_key(),

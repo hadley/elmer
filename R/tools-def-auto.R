@@ -85,7 +85,7 @@ create_tool_metadata <- function(topic, model = "gpt-4o", echo = interactive(), 
     cli::cli_rule(cli::style_bold("Response"))
   }
 
-  chat <- new_chat_openai(system_prompt = tool_prompt, model = model, echo = echo)
+  chat <- chat_openai(system_prompt = tool_prompt, model = model, echo = echo)
   chat$chat(payload)
 }
 

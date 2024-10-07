@@ -1,5 +1,5 @@
 test_that("can perform a simple batch chat", {
-  chat <- new_chat_openai(
+  chat <- chat_openai(
     "You're a helpful assistant that returns very minimal output.
     If asked a math question, return only the answer.",
   )
@@ -16,7 +16,7 @@ test_that("can perform a simple batch chat", {
 
 test_that("can perform a simple streaming chat", {
   rainbow_re <- "^red *\norange *\nyellow *\ngreen *\nblue *\nindigo *\nviolet *\n?$"
-  chat <- new_chat_openai("
+  chat <- chat_openai("
     You're a helpful assistant that returns very minimal output.
     When answering a question with multiple answers, put each answer on its own
     line with no punctuation."
@@ -36,7 +36,7 @@ test_that("can perform a simple streaming chat", {
 })
 
 test_that("has a basic print method", {
-  chat <- new_chat_openai(
+  chat <- chat_openai(
     "You're a helpful assistant that returns very minimal output"
   )
 
@@ -45,14 +45,14 @@ test_that("has a basic print method", {
 })
 
 test_that("can optionally echo", {
-  chat <- new_chat_openai(
+  chat <- chat_openai(
     "You're a helpful assistant that returns very minimal output",
     echo = TRUE
   )
   expect_output(chat$chat("Echo this."), "Echo this.")
   expect_output(chat$chat("Echo this.", echo = FALSE), NA)
 
-  chat <- new_chat_openai(
+  chat <- chat_openai(
     "You're a helpful assistant that returns very minimal output"
   )
   expect_output(chat$chat("Echo this."), NA)
@@ -60,7 +60,7 @@ test_that("can optionally echo", {
 })
 
 test_that("can retrieve last_turn for user and assistant", {
-  chat <- new_chat_openai()
+  chat <- chat_openai()
   expect_equal(chat$last_turn("user"), NULL)
   expect_equal(chat$last_turn("assistant"), NULL)
 
@@ -70,11 +70,11 @@ test_that("can retrieve last_turn for user and assistant", {
 })
 
 test_that("can retrieve system prompt with helper or last_turn()", {
-  chat1 <- new_chat_openai()
+  chat1 <- chat_openai()
   expect_equal(chat1$system_prompt, NULL)
   expect_equal(chat1$last_turn("system"), NULL)
 
-  chat2 <- new_chat_openai(system_prompt = "You are from New Zealand")
+  chat2 <- chat_openai(system_prompt = "You are from New Zealand")
   expect_equal(chat2$system_prompt, "You are from New Zealand")
   expect_equal(chat2$last_turn("system"), turn("system", "You are from New Zealand"))
 })

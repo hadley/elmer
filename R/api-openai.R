@@ -36,13 +36,13 @@ NULL
 #' @export
 #' @returns A [Chat] object.
 #' @examplesIf elmer:::openai_key_exists()
-#' chat <- new_chat_openai()
+#' chat <- chat_openai()
 #' chat$chat("
 #'   What is the difference between a tibble and a data frame?
 #'   Answer with a bulleted list
 #' ")
 #'
-#' chat <- new_chat_openai()
+#' chat <- chat_openai()
 #' chat$register_tool(
 #'   fun = rnorm,
 #'   name = "rnorm",
@@ -66,7 +66,7 @@ NULL
 #'   Give me five numbers from a random normal distribution.
 #'   Briefly explain your work.
 #' ")
-new_chat_openai <- function(system_prompt = NULL,
+chat_openai <- function(system_prompt = NULL,
                             turns = NULL,
                             base_url = "https://api.openai.com/v1",
                             api_key = openai_key(),

@@ -9,11 +9,11 @@ NULL
 #' server, and the messages that you receive back. If you register a tool
 #' (aka an R function), it also takes care of the tool loop.
 #'
-#' @inheritParams new_chat_openai
+#' @inheritParams chat_openai
 #' @param max_tokens Maximum number of tokens to generate before stopping.
 #' @export
 #' @returns A [Chat] object.
-new_chat_claude <- function(system_prompt = NULL,
+chat_claude <- function(system_prompt = NULL,
                             turns = NULL,
                             max_tokens = 4096,
                             model = NULL,

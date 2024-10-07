@@ -2,16 +2,16 @@
 #'
 #' @description
 #' Download and install [ollama](https://ollama.com) and then you can
-#' chat with it from R with `new_chat_ollama()`. To install additional
+#' chat with it from R with `chat_ollama()`. To install additional
 #' models, use the `ollama` command line, e.g. `ollama pull llama3.1`
 #' or `ollama pull gemma2`.
 #'
-#' This function is a lightweight wrapper around [new_chat_openai()] with
+#' This function is a lightweight wrapper around [chat_openai()] with
 #' the defaults tweaked for ollama.
 #'
-#' @inheritParams new_chat_openai
+#' @inheritParams chat_openai
 #' @export
-new_chat_ollama <- function(system_prompt = NULL,
+chat_ollama <- function(system_prompt = NULL,
                             turns = NULL,
                             base_url = "http://localhost:11434/v1",
                             model,
@@ -30,7 +30,7 @@ new_chat_ollama <- function(system_prompt = NULL,
     ))
   }
 
-  new_chat_openai(
+  chat_openai(
     system_prompt = system_prompt,
     turns = turns,
     base_url = base_url,

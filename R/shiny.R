@@ -8,7 +8,7 @@
 #' Note that these functions will mutate the input `chat` object as
 #' you chat because your turns will be appended to the history.
 #'
-#' @param chat A chat object created by [new_chat_openai()] or friends.
+#' @param chat A chat object created by [chat_openai()] or friends.
 #' @param quiet If `TRUE`, suppresses the initial message that explains how
 #'   to use the console.
 #' @export
