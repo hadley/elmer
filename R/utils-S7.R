@@ -54,7 +54,7 @@ prop_list_of <- function(class, names = c("any", "all", "none")) {
         val <- value[[i]]
         if (!S7_inherits(val, class)) {
           return(paste0(
-            "must be a list of <", turn@name, ">s. ",
+            "must be a list of <", class@name, ">s. ",
             "Element ", i, " is ", obj_type_friendly(val), "."
           ))
         }

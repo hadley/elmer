@@ -19,8 +19,9 @@
     Code
       ToolDef("", "", list(1))
     Condition
-      Error in `prop$validator()`:
-      ! object 'turn' not found
+      Error:
+      ! <elmer::ToolDef> object properties are invalid:
+      - @arguments must be a list of <ToolArg>s. Element 1 is the number 1.
     Code
       ToolDef("", "", list(ToolArg("", "")))
     Condition
