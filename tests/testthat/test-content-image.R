@@ -4,6 +4,8 @@ test_that("can create image from url", {
 })
 
 test_that("can create image from path", {
+  skip_if_not_installed("magick")
+
   path <- system.file("httr2.png", package = "elmer")
   obj <- content_image_file(path)
   expect_s3_class(obj, "elmer::content_image_inline")
@@ -20,6 +22,8 @@ test_that("can create image from plot", {
 })
 
 test_that("image resizing", {
+  skip_if_not_installed("magick")
+
   img_file <- system.file("httr2.png", package = "elmer")
 
   expect_snapshot(error = TRUE, {
