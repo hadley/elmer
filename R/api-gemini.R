@@ -10,10 +10,10 @@ NULL
 #' (i.e. an R function that the assistant can call on your behalf), it also
 #' takes care of the tool loop.
 #'
-#' @inheritParams new_chat_openai
+#' @inheritParams chat_openai
 #' @export
 #' @returns A [Chat] object.
-new_chat_gemini <- function(system_prompt = NULL,
+chat_gemini <- function(system_prompt = NULL,
                             turns = NULL,
                             base_url = "https://generativelanguage.googleapis.com/v1beta/",
                             api_key = gemini_key(),
@@ -118,7 +118,7 @@ method(value_turn, gemini_provider) <- function(provider, result) {
   gemini_assistant_turn(result$candidates[[1]]$content)
 }
 gemini_assistant_turn <- function(message) {
-  content <- lapply(message$parts, function(content) {
+  contents <- lapply(message$parts, function(content) {
     if (has_name(content, "text")) {
       content_text(content$text)
     } else if (has_name(content, "functionCall")) {
@@ -132,7 +132,7 @@ gemini_assistant_turn <- function(message) {
     }
   })
 
-  turn("assistant", content)
+  turn("assistant", contents)
 }
 
 # Convert elmer turns + content to chatGPT messages
@@ -143,10 +143,10 @@ gemini_contents <- function(turns) {
     if (turn@role == "system") {
       # System messages go in the top-level API parameter
     } else if (turn@role == "user") {
-      parts <- lapply(turn@content, gemini_content)
+      parts <- lapply(turn@contents, gemini_content)
       list(role = turn@role, parts = parts)
     } else if (turn@role == "assistant") {
-      parts <- lapply(turn@content, gemini_content)
+      parts <- lapply(turn@contents, gemini_content)
       list(role = "model", parts = parts)
     } else {
       cli::cli_abort("Unknown role {turn@role}", .internal = TRUE)

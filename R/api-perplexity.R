@@ -3,12 +3,12 @@
 #' @description
 #' Sign up at <https://www.perplexity.ai>.
 #'
-#' This function is a lightweight wrapper around [new_chat_openai()] with
+#' This function is a lightweight wrapper around [chat_openai()] with
 #' the defaults tweaked for the groq.
 #'
 #' @export
-#' @inheritParams new_chat_openai
-new_chat_perplexity <- function(system_prompt = NULL,
+#' @inheritParams chat_openai
+chat_perplexity <- function(system_prompt = NULL,
                                 turns = NULL,
                                 base_url = "https://api.perplexity.ai/",
                                 api_key = perplexity_key(),
@@ -19,7 +19,7 @@ new_chat_perplexity <- function(system_prompt = NULL,
 
   model <- set_default(model, "llama-3.1-sonar-small-128k-online")
 
-  new_chat_openai(
+  chat_openai(
     system_prompt = system_prompt,
     turns = turns,
     base_url = base_url,

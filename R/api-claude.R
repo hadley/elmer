@@ -9,11 +9,11 @@ NULL
 #' server, and the messages that you receive back. If you register a tool
 #' (aka an R function), it also takes care of the tool loop.
 #'
-#' @inheritParams new_chat_openai
+#' @inheritParams chat_openai
 #' @param max_tokens Maximum number of tokens to generate before stopping.
 #' @export
 #' @returns A [Chat] object.
-new_chat_claude <- function(system_prompt = NULL,
+chat_claude <- function(system_prompt = NULL,
                             turns = NULL,
                             max_tokens = 4096,
                             model = NULL,
@@ -143,7 +143,7 @@ method(stream_merge_chunks, claude_provider) <- function(provider, result, chunk
   result
 }
 method(stream_turn, claude_provider) <- function(provider, result) {
-  content <- lapply(result$content, function(content) {
+  contents <- lapply(result$content, function(content) {
     if (content$type == "text") {
       content_text(content$text)
     } else if (content$type == "tool_use") {
@@ -156,7 +156,7 @@ method(stream_turn, claude_provider) <- function(provider, result) {
     }
   })
 
-  turn(result$role, content)
+  turn(result$role, contents)
 }
 method(value_turn, claude_provider) <- method(stream_turn, claude_provider)
 
@@ -172,7 +172,7 @@ claude_messages <- function(turns) {
     if (turn@role == "system") {
       # claude passes system prompt as separate arg
     } else if (turn@role %in% c("user", "assistant")) {
-      content <- lapply(turn@content, claude_content)
+      content <- lapply(turn@contents, claude_content)
       add_message(turn@role, content = content)
     } else {
       cli::cli_abort("Unknown role {turn@role}", .internal = TRUE)

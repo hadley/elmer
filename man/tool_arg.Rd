@@ -5,7 +5,7 @@
 \alias{tool_arg}
 \title{Define a tool}
 \usage{
-tool_def(name, description, arguments, ...)
+tool_def(name, description, arguments = list(), ...)
 
 tool_arg(type, description, required = TRUE, ...)
 }

@@ -16,7 +16,7 @@
 #'
 #' @export
 #' @examplesIf elmer:::openai_key_exists()
-#' chat <- new_chat_openai(echo = TRUE)
+#' chat <- chat_openai(echo = TRUE)
 #' chat$chat(
 #'   "What do you see in these images?",
 #'   content_image_url("https://www.r-project.org/Rlogo.png"),
@@ -25,7 +25,7 @@
 #'
 #' \dontshow{dev.control('enable')}
 #' plot(waiting ~ eruptions, data = faithful)
-#' chat <- new_chat_openai(echo = TRUE)
+#' chat <- chat_openai(echo = TRUE)
 #' chat$chat(
 #'   "Describe this plot in one paragraph, as suitable for inclusion in
 #'    alt-text. You should briefly describe the plot type, the axes, and

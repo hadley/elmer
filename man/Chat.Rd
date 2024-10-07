@@ -9,7 +9,7 @@ A promise that resolves to a string (probably Markdown).
 \description{
 The Chat object represents a sequence of turns between the user and
 assistant (chat API). You should generally not create this object yourself,
-but instead call \code{\link[=new_chat_openai]{new_chat_openai()}} or friends.
+but instead call \code{\link[=chat_openai]{chat_openai()}} or friends.
 }
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
