@@ -68,6 +68,7 @@ on_load(chat_perform_async_stream <- coro::async_generator(function(provider, re
       next
     }
 
+    data <- stream_parse(provider, event)
     if (is.null(data)) {
       break
     } else {
