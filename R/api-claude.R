@@ -26,7 +26,7 @@ new_chat_claude <- function(system_prompt = NULL,
 
   model <- model %||% "claude-3-5-sonnet-20240620"
 
-  provider <- new_claude_provider(
+  provider <- claude_provider(
     model = model,
     max_tokens = max_tokens,
     extra_args = api_args,
@@ -37,41 +37,15 @@ new_chat_claude <- function(system_prompt = NULL,
   Chat$new(provider = provider, turns = turns, echo = echo)
 }
 
-new_claude_provider <- function(model,
-                                max_tokens = 4096,
-                                extra_args = list(),
-                                api_key = anthropic_key(),
-                                base_url = "https://api.anthropic.com/v1",
-                                error_call = caller_env()) {
-
-  # These checks could/should be placed in the validator, but the S7 object is
-  # currently an implementation detail. Keeping these errors here avoids
-  # leaking that implementation detail to the user.
-
-  check_string(model, call = error_call)
-  check_number_whole(max_tokens, min = 1, call = error_call)
-  # check_named_list(extra_args, call = error_call())
-  check_string(base_url, call = error_call)
-  check_string(api_key, call = error_call)
-
-  claude_provider(
-    model = model,
-    max_tokens = max_tokens,
-    extra_args = extra_args,
-    base_url = base_url,
-    api_key = api_key
-  )
-}
-
 claude_provider <- new_class(
   "claude_provider",
   package = "elmer",
   properties = list(
-    model = class_character,
-    max_tokens = class_numeric,
+    model = prop_string(),
+    max_tokens = prop_number_whole(min = 1),
     extra_args = class_list,
-    base_url = class_character,
-    api_key = class_character
+    base_url = prop_string(),
+    api_key = prop_string()
   )
 )
 
