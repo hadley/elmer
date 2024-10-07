@@ -19,17 +19,17 @@ ToolArg(type, description, required = TRUE, ...)
 \item{arguments}{A named list of arguments that the function accepts.
 Should be a named list of objects created by \code{\link[=ToolArg]{ToolArg()}}.}
 
-\item{...}{Additional JSON Schema properties (e.g. \code{properties}, \code{enum},
-\code{pattern}).}
+\item{...}{Additional provider specific JSON Schema properties
+(e.g. \code{properties}, \code{enum}, \code{pattern}).
+
+For example, OpenAI supports a \code{strict} parameter that when \code{TRUE}
+enables \href{https://platform.openai.com/docs/guides/structured-outputs}{Structured Output}
+mode, which comes with a number of \href{https://platform.openai.com/docs/guides/structured-outputs/supported-schemas}{additional requirements}.}
 
 \item{type}{Argument type (\code{"null"}, \code{"boolean"}, \code{"object"}, \code{"array"},
 \code{"number"}, or \code{"string"}).}
 
 \item{required}{Is the argument required?}
-
-\item{strict}{Should the argument definition be strictly enforced? If
-\code{TRUE}, enables \href{https://platform.openai.com/docs/guides/structured-outputs}{Structured Output}
-mode, which comes with a number of \href{https://platform.openai.com/docs/guides/structured-outputs/supported-schemas}{additional requirements}.}
 }
 \description{
 Define an R function for use by a chatbot. The function will always be

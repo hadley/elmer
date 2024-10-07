@@ -14,8 +14,14 @@ NULL
 #'   `"number"`, or `"string"`).
 #' @param description Description of argument as free text.
 #' @param required Is the argument required?
-#' @param ... Additional JSON Schema properties (e.g. `properties`, `enum`,
-#'   `pattern`).
+#' @param ... Additional provider specific JSON Schema properties
+#'   (e.g. `properties`, `enum`, `pattern`).
+#'
+#'   For example, OpenAI supports a `strict` parameter that when `TRUE`
+#'   enables [Structured Output](https://platform.openai.com/docs/guides/structured-outputs)
+#'   mode, which comes with a number of [additional
+#'   requirements](https://platform.openai.com/docs/guides/structured-outputs/supported-schemas).
+#'
 #' @order 2
 #' @export
 #' @examplesIf elmer:::openai_key_exists()
@@ -80,11 +86,6 @@ ToolArg <- new_class(
 #'   Generally, the more information that you can provide here, the better.
 #' @param arguments A named list of arguments that the function accepts.
 #'   Should be a named list of objects created by [ToolArg()].
-#' @param strict Should the argument definition be strictly enforced? If
-#'   `TRUE`, enables [Structured
-#'   Output](https://platform.openai.com/docs/guides/structured-outputs)
-#'   mode, which comes with a number of [additional
-#'   requirements](https://platform.openai.com/docs/guides/structured-outputs/supported-schemas).
 #' @rdname ToolArg
 #' @export
 ToolDef <- new_class(

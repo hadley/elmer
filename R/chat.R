@@ -123,9 +123,7 @@ Chat <- R6::R6Class("Chat",
 
     #' @description Register a tool (an R function) that the chatbot can use.
     #'   If the chatbot decides to use the function,  elmer will automatically
-    #'   call it and submit the results back. (See [create_tool_metadata()] for
-    #'   an AI-enabled helper function that can write a `register_tool` call
-    #'   for you in some cases.)
+    #'   call it and submit the results back.
     #' @param tool_def Tool definition created by [ToolDef].
     register_tool = function(tool_def) {
       if (!S7_inherits(tool_def, ToolDef)) {

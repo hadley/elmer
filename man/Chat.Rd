@@ -187,9 +187,7 @@ yields string promises.
 \subsection{Method \code{register_tool()}}{
 Register a tool (an R function) that the chatbot can use.
 If the chatbot decides to use the function,  elmer will automatically
-call it and submit the results back. (See \code{\link[=create_tool_metadata]{create_tool_metadata()}} for
-an AI-enabled helper function that can write a \code{register_tool} call
-for you in some cases.)
+call it and submit the results back.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Chat$register_tool(tool_def)}\if{html}{\out{</div>}}
 }

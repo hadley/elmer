@@ -69,22 +69,22 @@ get_current_time()
 
 ### Registering tools
 
-Now we need to tell our chat object about our `get_current_time` function. This is done using the `register_tool()` method.
+Now we need to tell our chat object about our `get_current_time` function. This by creating a tool definition and then registering it:
 
 ```{r eval=FALSE}
 chat <- chat_openai(model = "gpt-4o")
 
-chat$register_tool(
+chat$register_tool(ToolDef(
   fun = get_current_time,
   description = "Gets the current time in the given time zone.",
   arguments = list(
-    tz = tool_arg(
+    tz = ToolArg(
       type = "string",
       description = "The time zone to get the current time in. Defaults to `\"UTC\"`.",
       required = FALSE
     )
   )
-)
+))
 ```
 
 This is a fair amount of code to write, even for such a simple function as `get_current_time`. Fortunately, you don't have to write this by hand! I generated the above `register_tool` call by calling `create_tool_metadata(get_current_time)`, which printed that code at the console. `create_tool_metadata()` works by passing the function's signature and documentation to GPT-4o, and asking it to generate the `register_tool` call for you.
