@@ -25,7 +25,7 @@ chat_gemini <- function(system_prompt = NULL,
   check_bool(echo)
   model <- set_default(model, "gemini-1.5-flash")
 
-  provider <- gemini_provider(
+  provider <- ProviderGemini(
     base_url = base_url,
     model = model,
     extra_args = api_args,
@@ -34,8 +34,8 @@ chat_gemini <- function(system_prompt = NULL,
   Chat$new(provider = provider, turns = turns, echo = echo)
 }
 
-gemini_provider <- new_class(
-  "gemini_provider",
+ProviderGemini <- new_class(
+  "ProviderGemini",
   package = "elmer",
   properties = list(
     base_url = prop_string(),
@@ -52,7 +52,7 @@ gemini_key <- function() {
 # HTTP request and response handling -------------------------------------
 
 # https://platform.openai.com/docs/api-reference/chat/create
-method(chat_request, gemini_provider) <- function(provider,
+method(chat_request, ProviderGemini) <- function(provider,
                                                   stream = TRUE,
                                                   turns = list(),
                                                   tools = list(),
@@ -96,34 +96,34 @@ method(chat_request, gemini_provider) <- function(provider,
   req
 }
 
-method(stream_is_done, gemini_provider) <- function(provider, event) {
+method(stream_is_done, ProviderGemini) <- function(provider, event) {
   is.null(event)
 }
-method(stream_parse, gemini_provider) <- function(provider, event) {
+method(stream_parse, ProviderGemini) <- function(provider, event) {
   jsonlite::parse_json(event$data)
 }
-method(stream_text, gemini_provider) <- function(provider, event) {
+method(stream_text, ProviderGemini) <- function(provider, event) {
   event$candidates[[1]]$content$parts[[1]]$text
 }
-method(stream_merge_chunks, gemini_provider) <- function(provider, result, chunk) {
+method(stream_merge_chunks, ProviderGemini) <- function(provider, result, chunk) {
   if (is.null(result)) {
     chunk
   } else {
     merge_dicts(result, chunk)
   }
 }
-method(stream_turn, gemini_provider) <- function(provider, result) {
+method(stream_turn, ProviderGemini) <- function(provider, result) {
   gemini_assistant_turn(result$candidates[[1]]$content)
 }
-method(value_turn, gemini_provider) <- function(provider, result) {
+method(value_turn, ProviderGemini) <- function(provider, result) {
   gemini_assistant_turn(result$candidates[[1]]$content)
 }
 gemini_assistant_turn <- function(message) {
   contents <- lapply(message$parts, function(content) {
     if (has_name(content, "text")) {
-      content_text(content$text)
+      ContentText(content$text)
     } else if (has_name(content, "functionCall")) {
-      content_tool_request(
+      ContentToolRequest(
         content$functionCall$name,
         content$functionCall$name,
         content$functionCall$args
@@ -133,7 +133,7 @@ gemini_assistant_turn <- function(message) {
     }
   })
 
-  turn("assistant", contents)
+  Turn("assistant", contents)
 }
 
 # Convert elmer turns + content to chatGPT messages
@@ -199,17 +199,17 @@ openapi_schema_parameters <- function(arguments) {
 
 gemini_content <- new_generic("gemini_content", "content")
 
-method(gemini_content, content_text) <- function(content) {
+method(gemini_content, ContentText) <- function(content) {
   list(text = content@text)
 }
 
 # https://ai.google.dev/api/caching#FileData
-method(gemini_content, content_image_remote) <- function(content) {
+method(gemini_content, ContentImageRemote) <- function(content) {
   cli::cli_abort("Gemini doesn't support remote images")
 }
 
 # https://ai.google.dev/api/caching#Blob
-method(gemini_content, content_image_inline) <- function(content) {
+method(gemini_content, ContentImageInline) <- function(content) {
   list(
     inlineData = list(
       mimeType = content@type,
@@ -219,7 +219,7 @@ method(gemini_content, content_image_inline) <- function(content) {
 }
 
 # https://ai.google.dev/api/caching#FunctionCall
-method(gemini_content, content_tool_request) <- function(content) {
+method(gemini_content, ContentToolRequest) <- function(content) {
   list(
     functionCall = list(
       name = content@id,
@@ -229,7 +229,7 @@ method(gemini_content, content_tool_request) <- function(content) {
 }
 
 # https://ai.google.dev/api/caching#FunctionResponse
-method(gemini_content, content_tool_result) <- function(content) {
+method(gemini_content, ContentToolResult) <- function(content) {
   if (is.null(content@result)) {
     result <- paste0("Tool calling failed with error ", content@error)
   } else {

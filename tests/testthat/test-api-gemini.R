@@ -23,16 +23,16 @@ test_that("system prompt can be passed explicitly or as a turn", {
   resp <- chat$chat("What is the name of Winnie the Pooh's human friend?")
   expect_match(resp, "CHRISTOPHER ROBIN")
 
-  chat <- chat_gemini(turns = list(turn("system", system_prompt)))
+  chat <- chat_gemini(turns = list(Turn("system", system_prompt)))
   resp <- chat$chat("What is the name of Winnie the Pooh's human friend?")
   expect_match(resp, "CHRISTOPHER ROBIN")
 })
 
 test_that("existing conversation history is used", {
   chat <- chat_gemini(turns = list(
-    turn("system", "Return very minimal output; no punctuation."),
-    turn("user", "List the names of any 8 of Santa's 9 reindeer."),
-    turn("assistant", "Dasher, Dancer, Vixen, Comet, Cupid, Donner, Blitzen, and Rudolph.")
+    Turn("system", "Return very minimal output; no punctuation."),
+    Turn("user", "List the names of any 8 of Santa's 9 reindeer."),
+    Turn("assistant", "Dasher, Dancer, Vixen, Comet, Cupid, Donner, Blitzen, and Rudolph.")
   ))
 
   resp <- chat$chat("Who is the remaining one? Just give the name")
@@ -76,7 +76,7 @@ test_that("can call multiple tools in parallel", {
     favourite_color,
     "favourite_color",
     "Returns a person's favourite colour",
-    list(person = tool_arg("string", "Name of a person")),
+    list(person = ToolArg("string", "Name of a person")),
     strict = TRUE
   )
 
@@ -100,7 +100,7 @@ test_that("can call multiple tools in sequence", {
     function(year) if (year == 2024) "Susan" else "I don't know",
     "popular_name",
     "Get the most popular name for a year",
-    list(year = tool_arg("integer", "Year"))
+    list(year = ToolArg("integer", "Year"))
   )
 
   result <- chat$chat("Determine the current year then figure out the most popular name.")
