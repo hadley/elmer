@@ -10,9 +10,7 @@ ContentText <- new_class(
   package = "elmer"
 )
 method(format, ContentText) <- function(x, ...) {
-  # Using format_inline for word wrapping. Passing `"{x}"` instead of
-  # `x` to avoid evaluation of the (potentially malicious) content.
-  cli::format_inline("{x@text}")
+  paste0(unlist(strwrap(x@text, width = getOption("width"))), collapse = "\n")
 }
 
 # Images -----------------------------------------------------------------
