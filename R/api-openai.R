@@ -150,12 +150,11 @@ method(stream_parse, openai_provider) <- function(provider, event) {
     cli::cli_abort("Connection closed unexpectedly")
   }
 
-  data <- jsonlite::parse_json(event$data)
-  if (identical(data$data, "[DONE]")) {
+  if (identical(event, "[DONE]")) {
     return(NULL)
   }
 
-  data
+  jsonlite::parse_json(event$data)
 }
 method(stream_text, openai_provider) <- function(provider, event) {
   event$choices[[1]]$delta$content
