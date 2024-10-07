@@ -81,7 +81,7 @@
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/hadley/elmer" class="external-link">elmer</a></span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/new_chat_openai.html">new_chat_openai</a></span><span class="op">(</span></span>
+<span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu">new_chat_openai</span><span class="op">(</span></span>
 <span>  model <span class="op">=</span> <span class="st">"gpt-4o-mini"</span>,</span>
 <span>  system_prompt <span class="op">=</span> <span class="st">"You are a friendly but terse assistant."</span>,</span>
 <span>  echo <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -137,9 +137,9 @@
 <div class="section level3">
 <h3 id="programmatic-chat">Programmatic chat<a class="anchor" aria-label="anchor" href="#programmatic-chat"></a>
 </h3>
-<p>If you don’t want to see the response as it arrives, you can turn off echoing by leaving off the <code>echo = TRUE</code> argument to <code><a href="reference/new_chat_openai.html">new_chat_openai()</a></code>.</p>
+<p>If you don’t want to see the response as it arrives, you can turn off echoing by leaving off the <code>echo = TRUE</code> argument to <code>new_chat_openai()</code>.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/new_chat_openai.html">new_chat_openai</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu">new_chat_openai</span><span class="op">(</span></span>
 <span>  model <span class="op">=</span> <span class="st">"gpt-4o-mini"</span>,</span>
 <span>  system_prompt <span class="op">=</span> <span class="st">"You are a friendly but terse assistant."</span></span>
 <span><span class="op">)</span></span>
@@ -226,7 +226,7 @@
 </h3>
 <p>Let’s take a look at an example where we really need an external tool. Chat models generally do not know the current time, which makes questions like these impossible.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/new_chat_openai.html">new_chat_openai</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"gpt-4o"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu">new_chat_openai</span><span class="op">(</span>model <span class="op">=</span> <span class="st">"gpt-4o"</span><span class="op">)</span></span>
 <span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="st">"How long ago exactly was the moment Neil Armstrong touched down on the moon?"</span><span class="op">)</span></span></code></pre></div>
 <div class="sourceCode" id="cb18"><pre class="sourceCode R"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" tabindex="-1"></a>Neil Armstrong touched down on the moon on July <span class="dv">20</span>, <span class="dv">1969</span>, at <span class="dv">20</span><span class="sc">:</span><span class="dv">17</span> UTC. To determine how long ago that</span>
 <span id="cb18-2"><a href="#cb18-2" tabindex="-1"></a>was from the current year of <span class="dv">2023</span>, we can calculate the difference <span class="cf">in</span> years, months, and days.</span>
@@ -261,7 +261,7 @@
 </h3>
 <p>Now we need to tell our chat object about our <code>get_current_time</code> function. This is done using the <code>register_tool()</code> method.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/new_chat_openai.html">new_chat_openai</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"gpt-4o"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu">new_chat_openai</span><span class="op">(</span>model <span class="op">=</span> <span class="st">"gpt-4o"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">chat</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span></span>
 <span>  fun <span class="op">=</span> <span class="va">get_current_time</span>,</span>
