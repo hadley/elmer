@@ -334,7 +334,8 @@ Chat <- R6::R6Class("Chat",
 #' @export
 print.Chat <- function(x, ...) {
   turns <- x$turns(include_system_prompt = TRUE)
-  cat(paste0("<Chat turns=", length(turns), ">\n"))
+  tokens <- sum(map_dbl(turns, function(x) sum(x@tokens)), na.rm = TRUE)
+  cat(paste0("<Chat turns=", length(turns), " tokens=", tokens, ">\n"))
   for (turn in turns) {
     color <- switch(turn@role,
       user = cli::col_blue,

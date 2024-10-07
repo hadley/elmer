@@ -128,7 +128,7 @@ method(stream_merge_chunks, ProviderClaude) <- function(provider, result, chunk)
   if (chunk$type == "ping") {
     # nothing to do
   } else if (chunk$type == "message_start") {
-    result$role <- chunk$message$role
+    result <- chunk$message
   } else if (chunk$type == "content_block_start") {
     result$content[[chunk$index + 1L]] <- chunk$content_block
   } else if (chunk$type == "content_block_delta") {
@@ -139,7 +139,9 @@ method(stream_merge_chunks, ProviderClaude) <- function(provider, result, chunk)
   } else if (chunk$type == "content_block_stop") {
     # nothing to do
   } else if (chunk$type == "message_delta") {
-    # TODO: do something with stop reason
+    result$stop_reason <- chunk$delta$stop_reason
+    result$stop_sequence <- chunk$delta$stop_sequence
+    result$usage$output_tokens <- chunk$usage$output_tokens
   } else {
     cli::cli_inform(c("!" = "Unknown chunk type {.str {chunk$type}}."))
   }
@@ -159,7 +161,7 @@ method(stream_turn, ProviderClaude) <- function(provider, result) {
     }
   })
 
-  Turn(result$role, contents)
+  Turn(result$role, contents, json = result, tokens = unlist(result$usage))
 }
 method(value_turn, ProviderClaude) <- method(stream_turn, ProviderClaude)
 

@@ -3,8 +3,16 @@ Turn <- new_class(
   properties = list(
     role = prop_string(),
     contents = prop_list_of(Content),
-    # random extra metadata a provider stuffs in
-    extra = class_list,
+    json = class_list,
+    tokens = new_property(
+      class_numeric,
+      default = c(NA_real_, NA_real_),
+      validator = function(value) {
+        if (length(value) != 2) {
+          "must be length two"
+        }
+      }
+    ),
     text = new_property(
       class = class_character,
       getter = function(self) {
@@ -13,11 +21,21 @@ Turn <- new_class(
       }
     )
   ),
-  constructor = function(role, contents = list(), extra = list()) {
-    if (is.character(contents)) {
+  constructor = function(role,
+                         contents = list(),
+                         json = list(),
+                         tokens = c(NA_real_, NA_real_)) {
+
+   if (is.character(contents)) {
       contents <- list(ContentText(paste0(contents, collapse = "\n")))
     }
-    new_object(S7_object(), role = role, contents = contents, extra = extra)
+    new_object(
+      S7_object(),
+      role = role,
+      contents = contents,
+      json = json,
+      tokens = tokens
+    )
   }
 )
 method(format, Turn) <- function(x, ...) {
