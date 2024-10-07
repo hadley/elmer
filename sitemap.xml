@@ -7,6 +7,7 @@
 <url><loc>https://hadley.github.io/elmer/articles/tool-calling.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/authors.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/index.html</loc></url>
+<url><loc>https://hadley.github.io/elmer/news/index.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/Chat.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/ToolArg.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/chat_claude.html</loc></url>
@@ -18,7 +19,7 @@
 <url><loc>https://hadley.github.io/elmer/reference/chat_openai.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/chat_perplexity.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/content_image_url.html</loc></url>
-<url><loc>https://hadley.github.io/elmer/reference/create_tool_metadata.html</loc></url>
+<url><loc>https://hadley.github.io/elmer/reference/create_tool_def.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/elmer-package.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/index.html</loc></url>
 </urlset>

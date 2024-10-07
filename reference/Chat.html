@@ -25,6 +25,7 @@ but instead call chat_openai() or friends."><meta property="og:image" content="h
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/streaming-async.html">Streaming and async APIs</a></li>
     <li><a class="dropdown-item" href="../articles/tool-calling.html">Tool calling (a.k.a. function calling)</a></li>
   </ul></li>
+<li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/hadley/elmer/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -230,43 +231,15 @@ yields string promises.</p><div class="section">
 <h3 id="method-register-tool-">Method <code>register_tool()</code><a class="anchor" aria-label="anchor" href="#method-register-tool-"></a></h3>
 <p>Register a tool (an R function) that the chatbot can use.
 If the chatbot decides to use the function,  elmer will automatically
-call it and submit the results back. (See <code><a href="create_tool_metadata.html">create_tool_metadata()</a></code> for
-an AI-enabled helper function that can write a <code>register_tool</code> call
-for you in some cases.)</p><div class="section">
+call it and submit the results back.</p><div class="section">
 <h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span></span>
-<span>  <span class="va">fun</span>,</span>
-<span>  name <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  <span class="va">description</span>,</span>
-<span>  arguments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  strict <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span><span class="va">tool_def</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
-<p></p><div class="arguments"><dl><dt><code>fun</code></dt>
-<dd><p>The function to be invoked when the tool is called.</p></dd>
-
-
-<dt><code>name</code></dt>
-<dd><p>The name of the function.</p></dd>
-
-
-<dt><code>description</code></dt>
-<dd><p>A detailed description of what the function does.
-Generally, the more information that you can provide here, the better.</p></dd>
-
-
-<dt><code>arguments</code></dt>
-<dd><p>A named list of arguments that the function accepts.
-Should be a named list of objects created by <code><a href="ToolArg.html">ToolArg()</a></code>.</p></dd>
-
-
-<dt><code>strict</code></dt>
-<dd><p>Should the argument definition be strictly enforced? If
-<code>TRUE</code>, enables <a href="https://platform.openai.com/docs/guides/structured-outputs" class="external-link">Structured Output</a>
-mode, which comes with a number of <a href="https://platform.openai.com/docs/guides/structured-outputs/supported-schemas" class="external-link">additional requirements</a>.</p></dd>
+<p></p><div class="arguments"><dl><dt><code>tool_def</code></dt>
+<dd><p>Tool definition created by <a href="ToolArg.html">ToolDef</a>.</p></dd>
 
 
 </dl><p></p></div>
