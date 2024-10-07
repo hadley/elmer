@@ -27,7 +27,7 @@ chat_claude <- function(system_prompt = NULL,
 
   model <- model %||% "claude-3-5-sonnet-20240620"
 
-  provider <- claude_provider(
+  provider <- ProviderClaude(
     model = model,
     max_tokens = max_tokens,
     extra_args = api_args,
@@ -38,8 +38,8 @@ chat_claude <- function(system_prompt = NULL,
   Chat$new(provider = provider, turns = turns, echo = echo)
 }
 
-claude_provider <- new_class(
-  "claude_provider",
+ProviderClaude <- new_class(
+  "ProviderClaude",
   package = "elmer",
   properties = list(
     model = prop_string(),
@@ -56,7 +56,7 @@ anthropic_key <- function() {
 
 # HTTP request and response handling -------------------------------------
 
-method(chat_request, claude_provider) <- function(provider,
+method(chat_request, ProviderClaude) <- function(provider,
                                                   stream = TRUE,
                                                   turns = list(),
                                                   tools = list(),
@@ -107,7 +107,7 @@ method(chat_request, claude_provider) <- function(provider,
   req
 }
 
-method(stream_parse, claude_provider) <- function(provider, event) {
+method(stream_parse, ProviderClaude) <- function(provider, event) {
   if (is.null(event)) {
     cli::cli_abort("Connection closed unexpectedly")
   }
@@ -119,12 +119,12 @@ method(stream_parse, claude_provider) <- function(provider, event) {
 
   data
 }
-method(stream_text, claude_provider) <- function(provider, event) {
+method(stream_text, ProviderClaude) <- function(provider, event) {
   if (event$type == "content_block_delta") {
     event$delta$text
   }
 }
-method(stream_merge_chunks, claude_provider) <- function(provider, result, chunk) {
+method(stream_merge_chunks, ProviderClaude) <- function(provider, result, chunk) {
   if (chunk$type == "ping") {
     # nothing to do
   } else if (chunk$type == "message_start") {
@@ -145,12 +145,12 @@ method(stream_merge_chunks, claude_provider) <- function(provider, result, chunk
   }
   result
 }
-method(stream_turn, claude_provider) <- function(provider, result) {
+method(stream_turn, ProviderClaude) <- function(provider, result) {
   contents <- lapply(result$content, function(content) {
     if (content$type == "text") {
-      content_text(content$text)
+      ContentText(content$text)
     } else if (content$type == "tool_use") {
-      content_tool_request(content$id, content$name, content$input)
+      ContentToolRequest(content$id, content$name, content$input)
     } else {
       cli::cli_abort(
         "Unknown content type {.str {content$type}}.",
@@ -159,9 +159,9 @@ method(stream_turn, claude_provider) <- function(provider, result) {
     }
   })
 
-  turn(result$role, contents)
+  Turn(result$role, contents)
 }
-method(value_turn, claude_provider) <- method(stream_turn, claude_provider)
+method(value_turn, ProviderClaude) <- method(stream_turn, ProviderClaude)
 
 
 # Convert elmer turns + content to claude messages ----------------------------
@@ -187,15 +187,15 @@ claude_messages <- function(turns) {
 
 claude_content <- new_generic("claude_content", "content")
 
-method(claude_content, content_text) <- function(content) {
+method(claude_content, ContentText) <- function(content) {
   list(type = "text", text = content@text)
 }
 
-method(claude_content, content_image_remote) <- function(content) {
+method(claude_content, ContentImageRemote) <- function(content) {
   cli::cli_abort("Claude doesn't support remote images")
 }
 
-method(claude_content, content_image_inline) <- function(content) {
+method(claude_content, ContentImageInline) <- function(content) {
   list(
     type = "image",
     source = list(
@@ -207,7 +207,7 @@ method(claude_content, content_image_inline) <- function(content) {
 }
 
 # https://docs.anthropic.com/en/docs/build-with-claude/tool-use#handling-tool-use-and-tool-result-content-blocks
-method(claude_content, content_tool_request) <- function(content) {
+method(claude_content, ContentToolRequest) <- function(content) {
   list(
     type = "tool_use",
     id = content@id,
@@ -217,7 +217,7 @@ method(claude_content, content_tool_request) <- function(content) {
 }
 
 # https://docs.anthropic.com/en/docs/build-with-claude/tool-use#handling-tool-use-and-tool-result-content-blocks
-method(claude_content, content_tool_result) <- function(content) {
+method(claude_content, ContentToolResult) <- function(content) {
   if (is.null(content@result)) {
     result <- paste0("Tool calling failed with error ", content@error)
     is_error <- TRUE

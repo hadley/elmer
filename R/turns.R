@@ -1,26 +1,26 @@
-turn <- new_class(
-  "turn",
+Turn <- new_class(
+  "Turn",
   properties = list(
     role = prop_string(),
-    contents = prop_list_of(content),
+    contents = prop_list_of(Content),
     # random extra metadata a provider stuffs in
     extra = class_list,
     text = new_property(
       class = class_character,
       getter = function(self) {
-        is_text <- map_lgl(self@contents, S7_inherits, content_text)
+        is_text <- map_lgl(self@contents, S7_inherits, ContentText)
         paste0(unlist(lapply(self@contents[is_text], function(x) x@text)), collapse = "")
       }
     )
   ),
   constructor = function(role, contents = list(), extra = list()) {
     if (is.character(contents)) {
-      contents <- list(content_text(paste0(contents, collapse = "\n")))
+      contents <- list(ContentText(paste0(contents, collapse = "\n")))
     }
     new_object(S7_object(), role = role, contents = contents, extra = extra)
   }
 )
-method(format, turn) <- function(x, ...) {
+method(format, Turn) <- function(x, ...) {
   contents <- map_chr(x@contents, format, ...)
   paste0(contents, "\n", collapse = "")
 }
@@ -34,7 +34,7 @@ user_turn <- function(..., .error_call = caller_env()) {
   input <- list2(...)
   contents <- lapply(input, as_content, error_call = .error_call)
 
-  turn(role = "user", contents = contents)
+  Turn("user", contents)
 }
 
 is_system_prompt <- function(x) {
@@ -56,7 +56,7 @@ normalize_turns <- function(turns = NULL,
         call = error_call
       )
     }
-    correct_class <- map_lgl(turns, S7_inherits, turn)
+    correct_class <- map_lgl(turns, S7_inherits, Turn)
     if (!all(correct_class)) {
       cli::cli_abort("Every element of {.arg turns} must be a `turn`.")
     }
@@ -65,7 +65,7 @@ normalize_turns <- function(turns = NULL,
   }
 
   if (!is.null(system_prompt)) {
-    system_turn <- turn("system", system_prompt)
+    system_turn <- Turn("system", system_prompt)
 
     # No turns; start with just the system prompt
     if (length(turns) == 0) {

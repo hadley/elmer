@@ -13,8 +13,8 @@ NULL
 #' @keywords internal
 #' @order 2
 #' @export
-tool_arg <- new_class(
-  "tool_arg",
+ToolArg <- new_class(
+  "ToolArg",
   properties = list(
     type = prop_string(),
     description = prop_string(),
@@ -34,14 +34,14 @@ tool_arg <- new_class(
 )
 
 #' @order 1
-#' @rdname tool_arg
+#' @rdname ToolArg
 #' @export
-tool_def <- new_class(
-  "tool_def",
+ToolDef <- new_class(
+  "ToolDef",
   properties = list(
     name = prop_string(),
     description = prop_string(),
-    arguments = prop_list_of(tool_arg, names = "all"),
+    arguments = prop_list_of(ToolArg, names = "all"),
     extra = class_list
   ),
   constructor = function(name, description, arguments = list(), ...) {
