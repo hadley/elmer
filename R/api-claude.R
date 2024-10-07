@@ -87,11 +87,11 @@ method(chat_request, claude_provider) <- function(provider,
                                                   tools = list(),
                                                   extra_args = list()) {
 
-  req <- httr2::request(provider@base_url)
+  req <- request(provider@base_url)
   # https://docs.anthropic.com/en/api/messages
-  req <- httr2::req_url_path_append(req, "/messages")
+  req <- req_url_path_append(req, "/messages")
 
-  req <- httr2::req_headers(req,
+  req <- req_headers(req,
     # <https://docs.anthropic.com/en/api/versioning>
     `anthropic-version` = "2023-06-01",
     # <https://docs.anthropic.com/en/api/getting-started#authentication>
@@ -100,11 +100,11 @@ method(chat_request, claude_provider) <- function(provider,
   )
 
   # <https://docs.anthropic.com/en/api/rate-limits>
-  req <- httr2::req_retry(req, max_tries = 2)
+  req <- req_retry(req, max_tries = 2)
 
   # <https://docs.anthropic.com/en/api/errors>
-  req <- httr2::req_error(req, body = function(resp) {
-    json <- httr2::resp_body_json(resp)
+  req <- req_error(req, body = function(resp) {
+    json <- resp_body_json(resp)
     paste0(json$error$message, " [", json$error$type, "]")
   })
 
@@ -127,7 +127,7 @@ method(chat_request, claude_provider) <- function(provider,
     tools = tools,
     !!!extra_args
   ))
-  req <- httr2::req_body_json(req, body)
+  req <- req_body_json(req, body)
 
   req
 }
