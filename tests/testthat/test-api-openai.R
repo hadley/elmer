@@ -51,9 +51,12 @@ test_that("existing conversation history is used", {
 # Tool calls -------------------------------------------------------------------
 
 test_that("can make a simple tool call", {
-  get_date <- function() "2024-01-01"
   chat <- chat_openai(system_prompt = "Be very terse, not even punctuation.")
-  chat$register_tool(get_date, "get_date", "Gets the current date", list())
+  chat$register_tool(ToolDef(
+    function() "2024-01-01",
+    name = "get_date",
+    description = "Gets the current date"
+  ))
 
   result <- chat$chat("What's the current date in YMD format?")
   expect_match(result, "2024-01-01")
@@ -63,12 +66,12 @@ test_that("can make a simple tool call", {
 })
 
 test_that("can make an async tool call", {
-  get_date <- coro::async(function() {
-    await(coro::async_sleep(0.2))
-    "2024-01-01"
-  })
   chat <- chat_openai(system_prompt = "Be very terse, not even punctuation.")
-  chat$register_tool(get_date, "get_date", "Gets the current date", list())
+  chat$register_tool(ToolDef(
+    coro::async(function() "2024-01-01"),
+    name = "get_date",
+    description = "Gets the current date"
+  ))
 
   result <- sync(chat$chat_async("What's the current date in YMD format?"))
   expect_match(result, "2024-01-01")
@@ -81,13 +84,13 @@ test_that("can call multiple tools in parallel", {
   favourite_color <- function(person) {
     if (person == "Joe") "sage green" else "red"
   }
-  chat$register_tool(
-    favourite_color,
-    "favourite_color",
-    "Returns a person's favourite colour",
-    list(person = ToolArg("string", "Name of a person")),
+  chat$register_tool(ToolDef(
+    function(person) if (person == "Joe") "sage green" else "red",
+    name = "favourite_color",
+    description = "Returns a person's favourite colour",
+    arguments = list(person = ToolArg("string", "Name of a person")),
     strict = TRUE
-  )
+  ))
 
   result <- chat$chat("
     What are Joe and Hadley's favourite colours?
@@ -99,18 +102,17 @@ test_that("can call multiple tools in parallel", {
 
 test_that("can call multiple tools in sequence", {
   chat <- chat_openai(system_prompt = "Be very terse, not even punctuation.")
-  chat$register_tool(
+  chat$register_tool(ToolDef(
     function() 2024,
-    "get_year",
-    "Get the current year",
-    list()
-  )
-  chat$register_tool(
+    name = "get_year",
+    description = "Get the current year"
+  ))
+  chat$register_tool(ToolDef(
     function(year) if (year == 2024) "Susan" else "I don't know",
-    "popular_name",
-    "Gets the most popular name for a year",
-    list(year = ToolArg("integer", "Year"))
-  )
+    name = "popular_name",
+    description = "Gets the most popular name for a year",
+    arguments = list(year = ToolArg("integer", "Year"))
+  ))
 
   result <- chat$chat("What was the most popular name this year?")
   expect_equal(result, "Susan")

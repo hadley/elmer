@@ -1,9 +1,17 @@
+test_that("ToolDef can get name", {
+  f <- function() {}
+  td <- ToolDef(f, description = "")
+  expect_equal(td@name, "f")
+
+  expect_snapshot(ToolDef(function() {}, description = ""), error = TRUE)
+})
+
 test_that("ToolArg checks its inputs", {
   expect_snapshot(error = TRUE, {
     ToolArg(1, letters[1:3], NA)
-    ToolDef(1, letters[1:3], 1)
-    ToolDef("", "", list(1))
-    ToolDef("", "", list(ToolArg("", "")))
+    ToolDef("", 1, letters[1:3], 1)
+    ToolDef(identity, "", "", list(1))
+    ToolDef(identity, "", "", list(ToolArg("", "")))
   })
 })
 

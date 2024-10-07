@@ -35,19 +35,19 @@ Usage:
                 allowEscapes = FALSE, flush = FALSE,
                 stringsAsFactors = FALSE,
                 fileEncoding = "", encoding = "unknown", text, skipNul = FALSE)
-     
+
      read.csv(file, header = TRUE, sep = ",", quote = "\"",
               dec = ".", fill = TRUE, comment.char = "", ...)
-     
+
      read.csv2(file, header = TRUE, sep = ";", quote = "\"",
                dec = ",", fill = TRUE, comment.char = "", ...)
-     
+
      read.delim(file, header = TRUE, sep = "\t", quote = "\"",
                 dec = ".", fill = TRUE, comment.char = "", ...)
-     
+
      read.delim2(file, header = TRUE, sep = "\t", quote = "\"",
                  dec = ",", fill = TRUE, comment.char = "", ...)
-     
+
 Arguments:
 
     file: the name of the file which the data are to be read from.
@@ -346,16 +346,16 @@ Examples:
      test1 <- c(1:5, "6,7", "8,9,10")
      tf <- tempfile()
      writeLines(test1, tf)
-     
+
      read.csv(tf, fill = TRUE) # 1 column
      ncol <- max(count.fields(tf, sep = ","))
      read.csv(tf, fill = TRUE, header = FALSE,
               col.names = paste0("V", seq_len(ncol)))
      unlink(tf)
-     
+
      ## "Inline" data set, using text=
      ## Notice that leading and trailing empty lines are auto-trimmed
-     
+
      read.table(header = TRUE, text = "
      a b
      1 2
@@ -363,7 +363,7 @@ Examples:
      ")
 </User>
 <Assistant>
-register_tool(
+ToolDef(
   fun = utils::read.csv,
   name = "read.csv",
   description = "Reads a file in table format and creates a data frame from it, with cases corresponding to lines and variables to fields in the file. Intended for reading ‘comma separated value’ files (‘.csv’).",

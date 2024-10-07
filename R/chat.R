@@ -126,36 +126,13 @@ Chat <- R6::R6Class("Chat",
     #'   call it and submit the results back. (See [create_tool_metadata()] for
     #'   an AI-enabled helper function that can write a `register_tool` call
     #'   for you in some cases.)
-    #' @param fun The function to be invoked when the tool is called.
-    #' @param name The name of the function.
-    #' @param description A detailed description of what the function does.
-    #'   Generally, the more information that you can provide here, the better.
-    #' @param arguments A named list of arguments that the function accepts.
-    #'   Should be a named list of objects created by [ToolArg()].
-    #' @param strict Should the argument definition be strictly enforced? If
-    #'   `TRUE`, enables [Structured
-    #'   Output](https://platform.openai.com/docs/guides/structured-outputs)
-    #'   mode, which comes with a number of [additional
-    #'   requirements](https://platform.openai.com/docs/guides/structured-outputs/supported-schemas).
-    register_tool = function(fun, name = NULL, description, arguments = list(), strict = FALSE) {
-      if (is.null(name)) {
-        fun_expr <- enexpr(fun)
-        if (is.name(fun_expr)) {
-          name <- as.character(fun_expr)
-        } else {
-          name <- paste0("tool", length(private$tool_infos))
-        }
+    #' @param tool_def Tool definition created by [ToolDef].
+    register_tool = function(tool_def) {
+      if (!S7_inherits(tool_def, ToolDef)) {
+        cli::cli_abort("{.arg tool} must be a <ToolDef>.")
       }
 
-      check_function(fun)
-
-      tool <- ToolDef(
-        name = name,
-        description = description,
-        arguments = arguments,
-        strict = strict
-      )
-      private$add_tool(name, fun, tool)
+      private$tools[[tool_def@name]] <- tool_def
       invisible(self)
     }
   ),
@@ -174,11 +151,7 @@ Chat <- R6::R6Class("Chat",
 
     .turns = NULL,
     echo = NULL,
-
-    # OpenAI-compliant tool metadata
-    tool_infos = NULL,
-    # Named list of R functions that implement tools
-    tool_funs = NULL,
+    tools = NULL,
 
     add_turn = function(x) {
       if (!S7_inherits(x, Turn)) {
@@ -202,18 +175,6 @@ Chat <- R6::R6Class("Chat",
       } else {
         private$.turns[[i]]@contents <- c(private$.turns[[i]]@contents, contents)
       }
-      invisible(self)
-    },
-
-    add_tool = function(name, fun, tool) {
-      # Remove existing, if any
-      if (!is.null(private$tool_funs[[name]])) {
-        private$tool_infos <- Filter(function(info) info$name != name, private$tool_infos)
-      }
-
-      private$tool_infos <- c(private$tool_infos, list(tool))
-      private$tool_funs[[name]] <- fun
-
       invisible(self)
     },
 
@@ -256,7 +217,7 @@ Chat <- R6::R6Class("Chat",
         provider = private$provider,
         mode = if (stream) "stream" else "value",
         turns = c(private$.turns, list(user_turn)),
-        tools = private$tool_infos
+        tools = private$tools
       )
       emit <- emitter(echo)
 
@@ -306,7 +267,7 @@ Chat <- R6::R6Class("Chat",
         provider = private$provider,
         mode = if (stream) "async-stream" else "async-value",
         turns = c(private$.turns, list(user_turn)),
-        tools = private$tool_infos
+        tools = private$tools
       )
       emit <- emitter(echo)
 
@@ -351,11 +312,7 @@ Chat <- R6::R6Class("Chat",
     }),
 
     invoke_tools = function() {
-      if (length(private$tool_infos) == 0) {
-        return()
-      }
-
-      tool_results <- invoke_tools(self$last_turn(), private$tool_funs)
+      tool_results <- invoke_tools(self$last_turn(), private$tools)
       if (length(tool_results) == 0) {
         return()
       }
@@ -363,11 +320,7 @@ Chat <- R6::R6Class("Chat",
     },
 
     invoke_tools_async = async_method(function(self, private) {
-      if (length(private$tool_infos) == 0) {
-        return()
-      }
-
-      tool_results <- await(invoke_tools_async(self$last_turn(), private$tool_funs))
+      tool_results <- await(invoke_tools_async(self$last_turn(), private$tools))
       if (length(tool_results) == 0) {
         return()
       }

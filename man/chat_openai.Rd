@@ -64,31 +64,6 @@ chat$chat("
   What is the difference between a tibble and a data frame?
   Answer with a bulleted list
 ")
-
-chat <- chat_openai()
-chat$register_tool(
-  fun = rnorm,
-  name = "rnorm",
-  description = "Drawn numbers from a random normal distribution",
-  arguments = list(
-    n = ToolArg(
-      type = "integer",
-      description = "The number of observations. Must be a positive integer."
-    ),
-    mean = ToolArg(
-      type = "number",
-      description = "The mean value of the distribution."
-    ),
-    sd = ToolArg(
-      type = "number",
-      description = "The standard deviation of the distribution. Must be a non-negative number."
-    )
-  )
-)
-chat$chat("
-  Give me five numbers from a random normal distribution.
-  Briefly explain your work.
-")
 \dontshow{\}) # examplesIf}
 }
 \seealso{
