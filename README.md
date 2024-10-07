@@ -9,8 +9,8 @@
 <!-- badges: end -->
 
 The goal of elmer is to provide a user friendly wrapper over the most
-common APIs for calling llm’s. Major design goals include support for
-streaming and making it easy to register and call R functions.
+common llm providers. Major design goals include support for streaming
+and making it easy to register and call R functions.
 
 ## Installation
 
@@ -24,11 +24,16 @@ pak::pak("hadley/elmer")
 
 ## Prerequisites
 
-To use elmer, you need an OpenAI API key. You can get one from [your
-developer console](https://platform.openai.com/account/api-keys). Then
-you should save that value as the `OPENAI_API_KEY` environment variable
-in your `~/.Renviron` (an easy way to open that file is to call
-`usethis::edit_r_environ()`).
+Depending on which backend you use, you’ll need to set the appropriate
+environment variable in your `~/.Renviron` (an easy way to open that
+file is to call `usethis::use_renviron()`):
+
+- For `chat_claude()`, set `ANTHROPIC_API_KEY` using the key from
+  <https://console.anthropic.com/account/keys>.
+- For `chat_gemini()`, set `GOOGLE_API_KEY` using the key from
+  <https://aistudio.google.com/app/apikey>.
+- For `chat_openai()` set `OPENAI_API_KEY` using the key from
+  <https://platform.openai.com/account/api-keys>.
 
 ## Using elmer
 
@@ -39,7 +44,7 @@ creating a new chat object:
 ``` r
 library(elmer)
 
-chat <- new_chat_openai(
+chat <- chat_openai(
   model = "gpt-4o-mini",
   system_prompt = "You are a friendly but terse assistant.",
   echo = TRUE
@@ -129,11 +134,10 @@ parameter to `"high"` if higher resolution is needed.
 ### Programmatic chat
 
 If you don’t want to see the response as it arrives, you can turn off
-echoing by leaving off the `echo = TRUE` argument to
-`new_chat_openai()`.
+echoing by leaving off the `echo = TRUE` argument to `chat_openai()`.
 
 ``` r
-chat <- new_chat_openai(
+chat <- chat_openai(
   model = "gpt-4o-mini",
   system_prompt = "You are a friendly but terse assistant."
 )
@@ -254,9 +258,8 @@ coro::async(function() {
 Async generators are very advanced, and require a good understanding of
 asynchronous programming in R. They are also the only way to present
 streaming results in Shiny without blocking other users. Fortunately,
-the [shinychat](https://github.com/jcheng5/shinychat) package makes it
-extremely easy to use the result of `stream_async()` with a chat output;
-it's our recommended way of building web-based chatbots using elmer.
+Shiny will soon have chat components that will make this easier, where
+you can simply hand the result of `stream_async()` to a chat output.
 
 ## Tool calling (a.k.a. function calling)
 
@@ -286,7 +289,7 @@ Chat models generally do not know the current time, which makes
 questions like these impossible.
 
 ``` r
-chat <- new_chat_openai(model = "gpt-4o")
+chat <- chat_openai(model = "gpt-4o")
 chat$chat("How long ago exactly was the moment Neil Armstrong touched down on the moon?")
 ```
 
@@ -335,7 +338,7 @@ Now we need to tell our chat object about our `get_current_time`
 function. This is done using the `register_tool()` method.
 
 ``` r
-chat <- new_chat_openai(model = "gpt-4o")
+chat <- chat_openai(model = "gpt-4o")
 
 chat$register_tool(
   fun = get_current_time,

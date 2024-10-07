@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/hadley/elmer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/hadley/elmer/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of elmer is to provide a user friendly wrapper over the most common APIs for calling llm's. Major design goals include support for streaming and making it easy to register and call R functions.
+The goal of elmer is to provide a user friendly wrapper over the most common llm providers. Major design goals include support for streaming and making it easy to register and call R functions.
 
 ## Installation
 
@@ -32,7 +32,11 @@ pak::pak("hadley/elmer")
 
 ## Prerequisites
 
-To use elmer, you need an OpenAI API key. You can get one from [your developer console](https://platform.openai.com/account/api-keys). Then you should save that value as the `OPENAI_API_KEY` environment variable in your `~/.Renviron` (an easy way to open that file is to call `usethis::use_renviron()`).
+Depending on which backend you use, you'll need to set the appropriate environment variable in your `~/.Renviron` (an easy way to open that file is to call `usethis::use_renviron()`):
+
+* For `chat_claude()`, set `ANTHROPIC_API_KEY` using the key from <https://console.anthropic.com/account/keys>.
+* For `chat_gemini()`, set `GOOGLE_API_KEY` using the key from <https://aistudio.google.com/app/apikey>.
+* For `chat_openai()` set `OPENAI_API_KEY` using the key from <https://platform.openai.com/account/api-keys>.
 
 ## Using elmer
 
@@ -41,7 +45,7 @@ You chat with elmer in several different ways, depending on whether you are work
 ```r
 library(elmer)
 
-chat <- new_chat_openai(
+chat <- chat_openai(
   model = "gpt-4o-mini",
   system_prompt = "You are a friendly but terse assistant.",
   echo = TRUE
@@ -113,10 +117,10 @@ The `content_image_url` function takes a URL to an image file and sends that URL
 
 ### Programmatic chat
 
-If you don't want to see the response as it arrives, you can turn off echoing by leaving off the `echo = TRUE` argument to `new_chat_openai()`.
+If you don't want to see the response as it arrives, you can turn off echoing by leaving off the `echo = TRUE` argument to `chat_openai()`.
 
 ```{r eval=FALSE}
-chat <- new_chat_openai(
+chat <- chat_openai(
   model = "gpt-4o-mini",
   system_prompt = "You are a friendly but terse assistant."
 )
@@ -222,7 +226,7 @@ When making a chat request to the chat model, the caller advertises one or more 
 Let's take a look at an example where we really need an external tool. Chat models generally do not know the current time, which makes questions like these impossible.
 
 ```{r eval=FALSE}
-chat <- new_chat_openai(model = "gpt-4o")
+chat <- chat_openai(model = "gpt-4o")
 chat$chat("How long ago exactly was the moment Neil Armstrong touched down on the moon?")
 ```
 ```
@@ -268,7 +272,7 @@ get_current_time()
 Now we need to tell our chat object about our `get_current_time` function. This is done using the `register_tool()` method.
 
 ```{r eval=FALSE}
-chat <- new_chat_openai(model = "gpt-4o")
+chat <- chat_openai(model = "gpt-4o")
 
 chat$register_tool(
   fun = get_current_time,
