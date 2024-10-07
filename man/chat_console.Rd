@@ -10,7 +10,7 @@ chat_console(chat, quiet = FALSE)
 chat_browser(chat, quiet = FALSE)
 }
 \arguments{
-\item{chat}{A chat object created by \code{\link[=new_chat_openai]{new_chat_openai()}} or friends.}
+\item{chat}{A chat object created by \code{\link[=chat_openai]{chat_openai()}} or friends.}
 
 \item{quiet}{If \code{TRUE}, suppresses the initial message that explains how
 to use the console.}
