@@ -33,6 +33,7 @@ NULL
 #' @param echo If `TRUE`, the `chat()` method streams the response to stdout by
 #'   default. (Note that this has no effect on the `stream()`, `chat_async()`,
 #'   and `stream_async()` methods.)
+#' @family chatbots
 #' @export
 #' @returns A [Chat] object.
 #' @examplesIf elmer:::openai_key_exists()

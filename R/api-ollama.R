@@ -10,6 +10,7 @@
 #' the defaults tweaked for ollama.
 #'
 #' @inheritParams chat_openai
+#' @family chatbots
 #' @export
 chat_ollama <- function(system_prompt = NULL,
                             turns = NULL,

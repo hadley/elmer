@@ -31,12 +31,12 @@ chat_perform_value <- function(provider, req) {
 }
 
 on_load(chat_perform_stream <- coro::generator(function(provider, req) {
-  resp <- httr2::req_perform_connection(req)
+  resp <- req_perform_connection(req)
   on.exit(close(resp))
   reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
 
   repeat {
-    event <- httr2::resp_stream_sse(resp)
+    event <- resp_stream_sse(resp)
     if (stream_is_done(provider, event)) {
       break
     } else {
