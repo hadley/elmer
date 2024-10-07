@@ -89,7 +89,7 @@ test_that("can call multiple tools in parallel", {
 })
 
 test_that("can call multiple tools in sequence", {
-  chat <- chat_gemini(system_prompt = "Be very terse, not even punctuation.")
+  chat <- chat_gemini()
   chat$register_tool(ToolDef(
     function() 2024,
     name = "get_year",
@@ -102,7 +102,7 @@ test_that("can call multiple tools in sequence", {
     arguments = list(year = ToolArg("integer", "Year"))
   ))
 
-  result <- chat$chat("Determine the current year then figure out the most popular name.")
+  result <- chat$chat("What's the most popular name this year?")
   expect_match(result, "Susan")
   expect_length(chat$turns(), 6)
 })
