@@ -38,8 +38,8 @@ Normally there is also a \code{content} field, which is a string.}
 not supply this directly, but instead set the \code{OPENAI_API_KEY} environment
 variable.}
 
-\item{api_args}{Named list of arbitrary extra arguments passed to every
-chat API call.}
+\item{api_args}{Named list of arbitrary extra arguments appended to the body
+of every chat API call.}
 
 \item{echo}{One of the following options:
 \itemize{
