@@ -21,6 +21,8 @@ chat_azure(
 
 \item{deployment_id}{Deployment id for the model you want to use.}
 
+\item{api_version}{The API version to use.}
+
 \item{system_prompt}{A system prompt to set the behavior of the assistant.}
 
 \item{turns}{A list of turns to start the chat with (i.e., continuing a
