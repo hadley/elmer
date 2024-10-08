@@ -2,7 +2,7 @@
 % Please edit documentation in R/api.R
 \name{Provider}
 \alias{Provider}
-\title{A ChatBot Provider}
+\title{A chatbot provider}
 \usage{
 Provider(
   base_url = class_missing,
@@ -18,7 +18,10 @@ Provider(
 \item{extra_args}{Arbitrary extra arguments to be included in the request body.}
 }
 \description{
-A Provider captures the details of one chatbot service/API
+A Provider captures the details of one chatbot service/API. This captures
+how the API works, not the details of the underlying large language model.
+Different providers might offer the same (open source) model behind a
+different API.
 }
 \details{
 To add support for a new backend, you will need to subclass \code{Provider}

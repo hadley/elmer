@@ -8,7 +8,7 @@
 \alias{ContentImageInline}
 \alias{ContentToolRequest}
 \alias{ContentToolResult}
-\title{Content types}
+\title{Content types received from and sent to a chatbot}
 \usage{
 Content()
 

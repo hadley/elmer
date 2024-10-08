@@ -2,12 +2,14 @@
 % Please edit documentation in R/chat.R
 \name{Chat}
 \alias{Chat}
-\title{A Chat}
+\title{A chat}
 \value{
 A promise that resolves to a string (probably Markdown).
 }
 \description{
-The Chat object represents a sequence of user and assistant \link{Turns}.
+A \code{Chat} is an sequence of sequence of user and assistant \link{Turns} sent
+to a specific \link{Provider}. A \code{Chat} is a mutable object because the sequence
+of turns grows over time as you converse with the chatbot.
 
 You should generally not create this object yourself,
 but instead call \code{\link[=chat_openai]{chat_openai()}} or friends instead.

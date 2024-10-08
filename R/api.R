@@ -1,6 +1,9 @@
-#' A ChatBot Provider
+#' A chatbot provider
 #'
-#' A Provider captures the details of one chatbot service/API
+#' A Provider captures the details of one chatbot service/API. This captures
+#' how the API works, not the details of the underlying large language model.
+#' Different providers might offer the same (open source) model behind a
+#' different API.
 #'
 #' To add support for a new backend, you will need to subclass `Provider`
 #' (adding any additional fields that your provider needs) and then implement

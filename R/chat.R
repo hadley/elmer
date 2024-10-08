@@ -1,10 +1,12 @@
 #' @include utils-coro.R
 NULL
 
-#' A Chat
+#' A chat
 #'
 #' @description
-#' The Chat object represents a sequence of user and assistant [Turns].
+#' A `Chat` is an sequence of sequence of user and assistant [Turns] sent
+#' to a specific [Provider]. A `Chat` is a mutable object because the sequence
+#' of turns grows over time as you converse with the chatbot.
 #'
 #' You should generally not create this object yourself,
 #' but instead call [chat_openai()] or friends instead.

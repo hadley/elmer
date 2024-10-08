@@ -1,7 +1,7 @@
 #' @include utils-S7.R
 NULL
 
-#' Content types
+#' Content types received from and sent to a chatbot
 #'
 #' @description
 #' elmer abstracts away differences in the way that different [Providers]
