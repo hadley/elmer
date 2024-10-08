@@ -41,8 +41,9 @@ chat API call.}
 
 \item{echo}{One of the following options:
 \itemize{
-\item \code{none}: don't emit any output.
-\item \code{text}: echo text output as it streams in.
+\item \code{none}: don't emit any output (default when running in a function).
+\item \code{text}: echo text output as it streams in (default when running at
+the console).
 \item \code{all}: echo all input and output.
 }
 
