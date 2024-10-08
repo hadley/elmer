@@ -50,7 +50,6 @@ gemini_key <- function() {
 
 # HTTP request and response handling -------------------------------------
 
-# https://platform.openai.com/docs/api-reference/chat/create
 method(chat_request, ProviderGemini) <- function(provider,
                                                   stream = TRUE,
                                                   turns = list(),
