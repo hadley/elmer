@@ -40,13 +40,12 @@ chat_claude <- function(system_prompt = NULL,
 
 ProviderClaude <- new_class(
   "ProviderClaude",
+  parent = Provider,
   package = "elmer",
   properties = list(
+    api_key = prop_string(),
     model = prop_string(),
-    max_tokens = prop_number_whole(min = 1),
-    extra_args = class_list,
-    base_url = prop_string(),
-    api_key = prop_string()
+    max_tokens = prop_number_whole(min = 1)
   )
 )
 

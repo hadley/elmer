@@ -36,12 +36,11 @@ chat_gemini <- function(system_prompt = NULL,
 
 ProviderGemini <- new_class(
   "ProviderGemini",
+  parent = Provider,
   package = "elmer",
   properties = list(
-    base_url = prop_string(),
-    model = prop_string(),
     api_key = prop_string(),
-    extra_args = class_list
+    model = prop_string()
   )
 )
 
