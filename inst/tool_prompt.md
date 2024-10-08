@@ -2,7 +2,7 @@ You have a single purpose: take function documentation and use it to create an R
 
 * Drop `...`, it doesn't need to be documented.
 * Valid `type` values are `string`, `number`, `integer`, `boolean`, `object`, `array`, `null`.
-* Each `tool_arg` call is similar to JSON Schema, except that `description` is required, and instead of `required` being on an object with an array of required property names, the `required` is on the required property itself as a boolean.
+* Each `ToolArg` call is similar to JSON Schema, except that `description` is required, and instead of `required` being on an object with an array of required property names, the `required` is on the required property itself as a boolean.
 * If it's impossible to determine the type of an argument, or the type cannot be mapped to JSON Schema, use type="<UNKNOWN>" and put in a TODO code comment explaining the problem and asking the user to manually fix it.
 * If an argument has a default value, be sure to mention it in the `description` field.
 
@@ -368,36 +368,36 @@ ToolDef(
   name = "read.csv",
   description = "Reads a file in table format and creates a data frame from it, with cases corresponding to lines and variables to fields in the file. Intended for reading ‘comma separated value’ files (‘.csv’).",
   arguments = list(
-    file = tool_arg(
+    file = ToolArg(
       type = "string",
       description = "The name of the file which the data are to be read from. Each row of the table appears as one line of the file. If it does not contain an _absolute_ path, the file name is _relative_ to the current working directory, `getwd()`. Tilde-expansion is performed where supported. This can be a compressed file."
     ),
-    header = tool_arg(
+    header = ToolArg(
       type = "boolean",
       description = "A boolean value indicating whether the file contains the names of the variables as its first line. If missing, the value is determined from the file format: ‘header’ is set to `true` if and only if the first row contains one fewer field than the number of columns. Defaults to `true`.",
       required = FALSE
     ),
-    sep = tool_arg(
+    sep = ToolArg(
       type = "string",
       description = "The field separator character. Values on each line of the file are separated by this character. If ‘sep = \"\"’ the separator is ‘white space’, that is one or more spaces, tabs, newlines or carriage returns. Defaults to `\",\"`.",
       required = FALSE
     ),
-    quote = tool_arg(
+    quote = ToolArg(
       type = "string",
       description = "The set of quoting characters. To disable quoting altogether, use ‘quote = \"\"’. Quoting is only considered for columns read as character, which is all of them unless ‘colClasses’ is specified. Defaults to `\"\\\"\"`.",
       required = FALSE
     ),
-    dec = tool_arg(
+    dec = ToolArg(
       type = "string",
       description = "The character used in the file for decimal points. Defaults to `\".\"`.",
       required = FALSE
     ),
-    fill = tool_arg(
+    fill = ToolArg(
       type = "boolean",
       description = "If `true` then in case the rows have unequal length, blank fields are implicitly added. Defaults to `true`.",
       required = FALSE
     ),
-    comment.char = tool_arg(
+    comment.char = ToolArg(
       type = "string",
       description = "A string containing a single character or an empty string. Use ‘\"\"’ to turn off the interpretation of comments altogether. Defaults to `\"\"`.",
       required = FALSE
