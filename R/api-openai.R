@@ -181,7 +181,7 @@ openai_messages <- function(turns) {
         add_message("user", content = content)
       }
       for (tool in turn@contents[is_tool]) {
-        add_message("tool", content = openai_content(tool), tool_call_id = tool@id)
+        add_message("tool", content = tool_string(tool), tool_call_id = tool@id)
       }
     } else if (turn@role == "assistant") {
       # Tool requests come out of content and go into own argument
@@ -214,16 +214,6 @@ method(openai_content, ContentImageInline) <- function(content) {
       url = paste0("data:", content@type, ";base64,", content@data)
     )
   )
-}
-
-method(openai_content, ContentToolResult) <- function(content) {
-  if (is.null(content@result)) {
-    result <- paste0("Tool calling failed with error ", content@error)
-  } else {
-    result <- toString(content@result)
-  }
-
-  result
 }
 
 method(openai_content, ContentToolRequest) <- function(content) {

@@ -218,19 +218,11 @@ method(claude_content, ContentToolRequest) <- function(content) {
 
 # https://docs.anthropic.com/en/docs/build-with-claude/tool-use#handling-tool-use-and-tool-result-content-blocks
 method(claude_content, ContentToolResult) <- function(content) {
-  if (is.null(content@result)) {
-    result <- paste0("Tool calling failed with error ", content@error)
-    is_error <- TRUE
-  } else {
-    result <- toString(content@result)
-    is_error <- FALSE
-  }
-
   list(
     type = "tool_result",
     tool_use_id = content@id,
-    content = result,
-    is_error = is_error
+    content = tool_string(content),
+    is_error = tool_errored(content)
   )
 }
 

@@ -231,16 +231,10 @@ method(gemini_content, ContentToolRequest) <- function(content) {
 
 # https://ai.google.dev/api/caching#FunctionResponse
 method(gemini_content, ContentToolResult) <- function(content) {
-  if (is.null(content@result)) {
-    result <- paste0("Tool calling failed with error ", content@error)
-  } else {
-    result <- toString(content@result)
-  }
-
   list(
     functionResponse = list(
       name = content@id,
-      response = list(value = result)
+      response = list(value = tool_string(content))
     )
   )
 }
