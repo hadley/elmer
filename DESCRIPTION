@@ -23,15 +23,17 @@ Suggests:
     base64enc,
     bslib,
     gitcreds,
+    knitr,
     later,
     magick,
     promises,
+    rmarkdown,
     shiny,
     testthat (>= 3.0.0),
     withr
 Remotes:
     jcheng5/shinychat
-Config/Needs/website: tidyverse/tidytemplate
+Config/Needs/website: tidyverse/tidytemplate, rmarkdown
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 Encoding: UTF-8
@@ -53,6 +55,7 @@ Collate:
     'content-image.R'
     'content-tools.R'
     'elmer-package.R'
+    'httr2.R'
     'import-standalone-obj-type.R'
     'import-standalone-purrr.R'
     'import-standalone-types-check.R'
@@ -64,3 +67,4 @@ Collate:
     'utils-merge.R'
     'utils.R'
     'zzz.R'
+VignetteBuilder: knitr

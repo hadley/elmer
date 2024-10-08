@@ -8,7 +8,7 @@
 #' Note that these functions will mutate the input `chat` object as
 #' you chat because your turns will be appended to the history.
 #'
-#' @param chat A chat object created by [new_chat_openai()] or friends.
+#' @param chat A chat object created by [chat_openai()] or friends.
 #' @param quiet If `TRUE`, suppresses the initial message that explains how
 #'   to use the console.
 #' @export
@@ -76,7 +76,10 @@ chat_browser <- function(chat, quiet = FALSE) {
   )
   server <- function(input, output, session) {
     for (turn in chat$turns()) {
-      shinychat::chat_append_message("chat", turn)
+      shinychat::chat_append_message("chat", list(
+        role = turn@role,
+        content = turn@text
+      ))
     }
 
     shiny::observeEvent(input$chat_user_input, {

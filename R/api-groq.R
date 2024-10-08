@@ -3,12 +3,13 @@
 #' @description
 #' Sign up at <https://groq.com>.
 #'
-#' This function is a lightweight wrapper around [new_chat_openai()] with
+#' This function is a lightweight wrapper around [chat_openai()] with
 #' the defaults tweaked for the groq.
 #'
 #' @export
-#' @inheritParams new_chat_openai
-new_chat_groq <- function(system_prompt = NULL,
+#' @family chatbots
+#' @inheritParams chat_openai
+chat_groq <- function(system_prompt = NULL,
                           turns = NULL,
                           base_url = "https://api.groq.com/openai/v1",
                           api_key = groq_key(),
@@ -18,7 +19,7 @@ new_chat_groq <- function(system_prompt = NULL,
                           echo = NULL) {
   model <- set_default(model, "llama3-8b-8192")
 
-  new_chat_openai(
+  chat_openai(
     system_prompt = system_prompt,
     turns = turns,
     base_url = base_url,

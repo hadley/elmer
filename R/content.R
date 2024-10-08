@@ -1,59 +1,57 @@
 #' @include utils-S7.R
 NULL
 
-content <- new_class("content", package = "elmer")
+Content <- new_class("Content", package = "elmer")
 
-content_text <- new_class(
-  "content_text",
-  parent = content,
+ContentText <- new_class(
+  "ContentText",
+  parent = Content,
   properties = list(text = prop_string()),
   package = "elmer"
 )
-method(format, content_text) <- function(x, ...) {
-  # Using format_inline for word wrapping. Passing `"{x}"` instead of
-  # `x` to avoid evaluation of the (potentially malicious) content.
-  cli::format_inline("{x@text}")
+method(format, ContentText) <- function(x, ...) {
+  paste0(unlist(strwrap(x@text, width = getOption("width"))), collapse = "\n")
 }
 
 # Images -----------------------------------------------------------------
 
-content_image <- new_class(
-  "content_image",
-  parent = content,
+ContentImage <- new_class(
+  "ContentImage",
+  parent = Content,
   package = "elmer"
 )
 
-content_image_remote <- new_class(
-  "content_image_remote",
-  parent = content_image,
+ContentImageRemote <- new_class(
+  "ContentImageRemote",
+  parent = Content,
   properties = list(
     url = prop_string(),
     detail = prop_string()
   ),
   package = "elmer"
 )
-method(format, content_image_remote) <- function(x, ...) {
+method(format, ContentImageRemote) <- function(x, ...) {
   cli::format_inline("[{.strong remote image}]: {.url {x@url}}")
 }
 
-content_image_inline <- new_class(
-  "content_image_inline",
-  parent = content_image,
+ContentImageInline <- new_class(
+  "ContentImageInline",
+  parent = Content,
   properties = list(
     type = prop_string(),
     data = prop_string(allow_null = TRUE)
   ),
   package = "elmer"
 )
-method(format, content_image_inline) <- function(x, ...) {
+method(format, ContentImageInline) <- function(x, ...) {
   cli::format_inline("[{.strong inline image}]")
 }
 
 # Tools ------------------------------------------------------------------
 
-content_tool_request <- new_class(
-  "content_tool_request",
-  parent = content,
+ContentToolRequest <- new_class(
+  "ContentToolRequest",
+  parent = Content,
   properties = list(
     id = prop_string(),
     name = prop_string(),
@@ -62,7 +60,7 @@ content_tool_request <- new_class(
   ),
   package = "elmer"
 )
-method(format, content_tool_request) <- function(x, ...) {
+method(format, ContentToolRequest) <- function(x, ...) {
   if (length(x@arguments) == 0) {
     call <- call2(x@name)
   } else {
@@ -71,9 +69,9 @@ method(format, content_tool_request) <- function(x, ...) {
   cli::format_inline("[{.strong tool request} ({x@id})]: {format(call)}")
 }
 
-content_tool_result <- new_class(
-  "content_tool_result",
-  parent = content,
+ContentToolResult <- new_class(
+  "ContentToolResult",
+  parent = Content,
   properties = list(
     id = prop_string(),
     result = class_any,
@@ -81,7 +79,7 @@ content_tool_result <- new_class(
   ),
   package = "elmer"
 )
-method(format, content_tool_result) <- function(x, ...) {
+method(format, ContentToolResult) <- function(x, ...) {
   cli::format_inline("[{.strong tool result}  ({x@id})]: {x@result}")
 }
 
@@ -91,8 +89,8 @@ as_content <- function(x, error_call = caller_env()) {
   if (is.null(x)) {
     list()
   } else if (is.character(x)) {
-    content_text(x)
-  } else if (S7_inherits(x, content)) {
+    ContentText(x)
+  } else if (S7_inherits(x, Content)) {
     x
   } else {
     stop_input_type(

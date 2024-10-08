@@ -1,11 +1,11 @@
 #' Create metadata for a tool
 #'
-#' @description In order to use a function as a tool in a chat, you need to
-#' craft the right metadata to pass to `register_tool()`. This function helps
-#' you do that for documented functions by extracting the function's R
-#' documentation and creating a `register_tool` call for you, using an LLM. It's
-#' meant to be used interactively while writing your code, not as part of your
-#' final code.
+#' @description
+#' In order to use a function as a tool in a chat, you need to craft the right
+#' [ToolDef]. This function helps you do that for documented functions by
+#' extracting the function's R documentation and creating a `ToolDef()` call for
+#' you, using an LLM. It's meant to be used interactively while writing your
+#' code, not as part of your final code.
 #'
 #' If the function has package documentation, that will be used. Otherwise, if
 #' the source code of the function can be automatically detected, then the
@@ -35,13 +35,16 @@
 #' @examples
 #' \dontrun{
 #'   # These are all equivalent
-#'   create_tool_metadata(rnorm)
-#'   create_tool_metadata(stats::rnorm)
-#'   create_tool_metadata("rnorm")
+#'   create_tool_def(rnorm)
+#'   create_tool_def(stats::rnorm)
+#'   create_tool_def("rnorm")
 #' }
 #'
 #' @export
-create_tool_metadata <- function(topic, model = "gpt-4o", echo = interactive(), verbose = FALSE) {
+create_tool_def <- function(topic,
+                            model = "gpt-4o",
+                            echo = interactive(),
+                            verbose = FALSE) {
   expr <- enexpr(topic)
 
   pkg <- NULL
@@ -85,7 +88,7 @@ create_tool_metadata <- function(topic, model = "gpt-4o", echo = interactive(), 
     cli::cli_rule(cli::style_bold("Response"))
   }
 
-  chat <- new_chat_openai(system_prompt = tool_prompt, model = model, echo = echo)
+  chat <- chat_openai(system_prompt = tool_prompt, model = model, echo = echo)
   chat$chat(payload)
 }
 

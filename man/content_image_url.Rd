@@ -51,7 +51,7 @@ image, while \code{content_image_file()} is used to provide the image data itsel
 }
 \examples{
 \dontshow{if (elmer:::openai_key_exists()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
-chat <- new_chat_openai(echo = TRUE)
+chat <- chat_openai(echo = TRUE)
 chat$chat(
   "What do you see in these images?",
   content_image_url("https://www.r-project.org/Rlogo.png"),
@@ -60,7 +60,7 @@ chat$chat(
 
 \dontshow{dev.control('enable')}
 plot(waiting ~ eruptions, data = faithful)
-chat <- new_chat_openai(echo = TRUE)
+chat <- chat_openai(echo = TRUE)
 chat$chat(
   "Describe this plot in one paragraph, as suitable for inclusion in
    alt-text. You should briefly describe the plot type, the axes, and

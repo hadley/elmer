@@ -2,3 +2,16 @@ url: https://hadley.github.io/elmer/
 template:
   bootstrap: 5
 
+reference:
+- title: Chatbots
+  contents:
+  - starts_with("chat_")
+
+- title: Tool use
+  contents:
+  - ToolDef
+  - create_tool_def
+
+- title: Images
+  contents:
+  - content_image_url

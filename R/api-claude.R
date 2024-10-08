@@ -9,11 +9,12 @@ NULL
 #' server, and the messages that you receive back. If you register a tool
 #' (aka an R function), it also takes care of the tool loop.
 #'
-#' @inheritParams new_chat_openai
+#' @inheritParams chat_openai
 #' @param max_tokens Maximum number of tokens to generate before stopping.
+#' @family chatbots
 #' @export
 #' @returns A [Chat] object.
-new_chat_claude <- function(system_prompt = NULL,
+chat_claude <- function(system_prompt = NULL,
                             turns = NULL,
                             max_tokens = 4096,
                             model = NULL,
@@ -26,7 +27,7 @@ new_chat_claude <- function(system_prompt = NULL,
 
   model <- model %||% "claude-3-5-sonnet-20240620"
 
-  provider <- new_claude_provider(
+  provider <- ProviderClaude(
     model = model,
     max_tokens = max_tokens,
     extra_args = api_args,
@@ -37,41 +38,15 @@ new_chat_claude <- function(system_prompt = NULL,
   Chat$new(provider = provider, turns = turns, echo = echo)
 }
 
-new_claude_provider <- function(model,
-                                max_tokens = 4096,
-                                extra_args = list(),
-                                api_key = anthropic_key(),
-                                base_url = "https://api.anthropic.com/v1",
-                                error_call = caller_env()) {
-
-  # These checks could/should be placed in the validator, but the S7 object is
-  # currently an implementation detail. Keeping these errors here avoids
-  # leaking that implementation detail to the user.
-
-  check_string(model, call = error_call)
-  check_number_whole(max_tokens, min = 1, call = error_call)
-  # check_named_list(extra_args, call = error_call())
-  check_string(base_url, call = error_call)
-  check_string(api_key, call = error_call)
-
-  claude_provider(
-    model = model,
-    max_tokens = max_tokens,
-    extra_args = extra_args,
-    base_url = base_url,
-    api_key = api_key
-  )
-}
-
-claude_provider <- new_class(
-  "claude_provider",
+ProviderClaude <- new_class(
+  "ProviderClaude",
   package = "elmer",
   properties = list(
-    model = class_character,
-    max_tokens = class_numeric,
+    model = prop_string(),
+    max_tokens = prop_number_whole(min = 1),
     extra_args = class_list,
-    base_url = class_character,
-    api_key = class_character
+    base_url = prop_string(),
+    api_key = prop_string()
   )
 )
 
@@ -81,17 +56,17 @@ anthropic_key <- function() {
 
 # HTTP request and response handling -------------------------------------
 
-method(chat_request, claude_provider) <- function(provider,
+method(chat_request, ProviderClaude) <- function(provider,
                                                   stream = TRUE,
                                                   turns = list(),
                                                   tools = list(),
                                                   extra_args = list()) {
 
-  req <- httr2::request(provider@base_url)
+  req <- request(provider@base_url)
   # https://docs.anthropic.com/en/api/messages
-  req <- httr2::req_url_path_append(req, "/messages")
+  req <- req_url_path_append(req, "/messages")
 
-  req <- httr2::req_headers(req,
+  req <- req_headers(req,
     # <https://docs.anthropic.com/en/api/versioning>
     `anthropic-version` = "2023-06-01",
     # <https://docs.anthropic.com/en/api/getting-started#authentication>
@@ -100,11 +75,11 @@ method(chat_request, claude_provider) <- function(provider,
   )
 
   # <https://docs.anthropic.com/en/api/rate-limits>
-  req <- httr2::req_retry(req, max_tries = 2)
+  req <- req_retry(req, max_tries = 2)
 
   # <https://docs.anthropic.com/en/api/errors>
-  req <- httr2::req_error(req, body = function(resp) {
-    json <- httr2::resp_body_json(resp)
+  req <- req_error(req, body = function(resp) {
+    json <- resp_body_json(resp)
     paste0(json$error$message, " [", json$error$type, "]")
   })
 
@@ -115,7 +90,7 @@ method(chat_request, claude_provider) <- function(provider,
   }
 
   messages <- claude_messages(turns)
-  tools <- lapply(tools, claude_tool)
+  tools <- unname(lapply(tools, claude_tool))
 
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
   body <- compact(list2(
@@ -127,27 +102,29 @@ method(chat_request, claude_provider) <- function(provider,
     tools = tools,
     !!!extra_args
   ))
-  req <- httr2::req_body_json(req, body)
+  req <- req_body_json(req, body)
 
   req
 }
 
-method(stream_is_done, claude_provider) <- function(provider, event) {
+method(stream_parse, ProviderClaude) <- function(provider, event) {
   if (is.null(event)) {
     cli::cli_abort("Connection closed unexpectedly")
-  } else {
-    identical(event$type, "message_stop")
   }
+
+  data <- jsonlite::parse_json(event$data)
+  if (identical(data$type, "message_stop")) {
+    return(NULL)
+  }
+
+  data
 }
-method(stream_parse, claude_provider) <- function(provider, event) {
-  jsonlite::parse_json(event$data)
-}
-method(stream_text, claude_provider) <- function(provider, event) {
+method(stream_text, ProviderClaude) <- function(provider, event) {
   if (event$type == "content_block_delta") {
     event$delta$text
   }
 }
-method(stream_merge_chunks, claude_provider) <- function(provider, result, chunk) {
+method(stream_merge_chunks, ProviderClaude) <- function(provider, result, chunk) {
   if (chunk$type == "ping") {
     # nothing to do
   } else if (chunk$type == "message_start") {
@@ -170,12 +147,12 @@ method(stream_merge_chunks, claude_provider) <- function(provider, result, chunk
   }
   result
 }
-method(stream_turn, claude_provider) <- function(provider, result) {
-  content <- lapply(result$content, function(content) {
+method(stream_turn, ProviderClaude) <- function(provider, result) {
+  contents <- lapply(result$content, function(content) {
     if (content$type == "text") {
-      content_text(content$text)
+      ContentText(content$text)
     } else if (content$type == "tool_use") {
-      content_tool_request(content$id, content$name, content$input)
+      ContentToolRequest(content$id, content$name, content$input)
     } else {
       cli::cli_abort(
         "Unknown content type {.str {content$type}}.",
@@ -184,9 +161,9 @@ method(stream_turn, claude_provider) <- function(provider, result) {
     }
   })
 
-  turn(result$role, content)
+  Turn(result$role, contents)
 }
-method(value_turn, claude_provider) <- method(stream_turn, claude_provider)
+method(value_turn, ProviderClaude) <- method(stream_turn, ProviderClaude)
 
 
 # Convert elmer turns + content to claude messages ----------------------------
@@ -200,7 +177,7 @@ claude_messages <- function(turns) {
     if (turn@role == "system") {
       # claude passes system prompt as separate arg
     } else if (turn@role %in% c("user", "assistant")) {
-      content <- lapply(turn@content, claude_content)
+      content <- lapply(turn@contents, claude_content)
       add_message(turn@role, content = content)
     } else {
       cli::cli_abort("Unknown role {turn@role}", .internal = TRUE)
@@ -212,15 +189,15 @@ claude_messages <- function(turns) {
 
 claude_content <- new_generic("claude_content", "content")
 
-method(claude_content, content_text) <- function(content) {
+method(claude_content, ContentText) <- function(content) {
   list(type = "text", text = content@text)
 }
 
-method(claude_content, content_image_remote) <- function(content) {
+method(claude_content, ContentImageRemote) <- function(content) {
   cli::cli_abort("Claude doesn't support remote images")
 }
 
-method(claude_content, content_image_inline) <- function(content) {
+method(claude_content, ContentImageInline) <- function(content) {
   list(
     type = "image",
     source = list(
@@ -232,7 +209,7 @@ method(claude_content, content_image_inline) <- function(content) {
 }
 
 # https://docs.anthropic.com/en/docs/build-with-claude/tool-use#handling-tool-use-and-tool-result-content-blocks
-method(claude_content, content_tool_request) <- function(content) {
+method(claude_content, ContentToolRequest) <- function(content) {
   list(
     type = "tool_use",
     id = content@id,
@@ -242,7 +219,7 @@ method(claude_content, content_tool_request) <- function(content) {
 }
 
 # https://docs.anthropic.com/en/docs/build-with-claude/tool-use#handling-tool-use-and-tool-result-content-blocks
-method(claude_content, content_tool_result) <- function(content) {
+method(claude_content, ContentToolResult) <- function(content) {
   if (is.null(content@result)) {
     result <- paste0("Tool calling failed with error ", content@error)
     is_error <- TRUE

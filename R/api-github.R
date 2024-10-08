@@ -4,12 +4,13 @@
 #' This assumes that you have been accepted into the beta access program
 #' at <https://github.com/marketplace/models>.
 #'
-#' This function is a lightweight wrapper around [new_chat_openai()] with
+#' This function is a lightweight wrapper around [chat_openai()] with
 #' the defaults tweaked for the GitHub model marketplace.
 #'
+#' @family chatbots
 #' @export
-#' @inheritParams new_chat_openai
-new_chat_github <- function(system_prompt = NULL,
+#' @inheritParams chat_openai
+chat_github <- function(system_prompt = NULL,
                             turns = NULL,
                             base_url = "https://models.inference.ai.azure.com/",
                             api_key = github_key(),
@@ -22,7 +23,7 @@ new_chat_github <- function(system_prompt = NULL,
 
   model <- set_default(model, "gpt-4o-mini")
 
-  new_chat_openai(
+  chat_openai(
     system_prompt = system_prompt,
     turns = turns,
     base_url = base_url,

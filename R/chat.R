@@ -6,7 +6,9 @@ NULL
 #' @description
 #' The Chat object represents a sequence of turns between the user and
 #' assistant (chat API). You should generally not create this object yourself,
-#' but instead call [new_chat_openai()] or friends.
+#' but instead call [chat_openai()] or friends.
+#'
+#' @keywords internal
 #'
 Chat <- R6::R6Class("Chat",
   public = list(
@@ -119,39 +121,14 @@ Chat <- R6::R6Class("Chat",
 
     #' @description Register a tool (an R function) that the chatbot can use.
     #'   If the chatbot decides to use the function,  elmer will automatically
-    #'   call it and submit the results back. (See [create_tool_metadata()] for
-    #'   an AI-enabled helper function that can write a `register_tool` call
-    #'   for you in some cases.)
-    #' @param fun The function to be invoked when the tool is called.
-    #' @param name The name of the function.
-    #' @param description A detailed description of what the function does.
-    #'   Generally, the more information that you can provide here, the better.
-    #' @param arguments A named list of arguments that the function accepts.
-    #'   Should be a named list of objects created by [tool_arg()].
-    #' @param strict Should the argument definition be strictly enforced? If
-    #'   `TRUE`, enables [Structured
-    #'   Output](https://platform.openai.com/docs/guides/structured-outputs)
-    #'   mode, which comes with a number of [additional
-    #'   requirements](https://platform.openai.com/docs/guides/structured-outputs/supported-schemas).
-    register_tool = function(fun, name = NULL, description, arguments = list(), strict = FALSE) {
-      if (is.null(name)) {
-        fun_expr <- enexpr(fun)
-        if (is.name(fun_expr)) {
-          name <- as.character(fun_expr)
-        } else {
-          name <- paste0("tool", length(private$tool_infos))
-        }
+    #'   call it and submit the results back.
+    #' @param tool_def Tool definition created by [ToolDef].
+    register_tool = function(tool_def) {
+      if (!S7_inherits(tool_def, ToolDef)) {
+        cli::cli_abort("{.arg tool} must be a <ToolDef>.")
       }
 
-      check_function(fun)
-
-      tool <- tool_def(
-        name = name,
-        description = description,
-        arguments = arguments,
-        strict = strict
-      )
-      private$add_tool(name, fun, tool)
+      private$tools[[tool_def@name]] <- tool_def
       invisible(self)
     }
   ),
@@ -170,14 +147,10 @@ Chat <- R6::R6Class("Chat",
 
     .turns = NULL,
     echo = NULL,
-
-    # OpenAI-compliant tool metadata
-    tool_infos = NULL,
-    # Named list of R functions that implement tools
-    tool_funs = NULL,
+    tools = NULL,
 
     add_turn = function(x) {
-      if (!S7_inherits(x, turn)) {
+      if (!S7_inherits(x, Turn)) {
         cli::cli_abort("Invalid input", .internal = TRUE)
       }
 
@@ -194,22 +167,10 @@ Chat <- R6::R6Class("Chat",
       i <- length(private$.turns)
 
       if (private$.turns[[i]]@role != "user") {
-        private$.turns[[i + 1]] <- turn("user", content = contents)
+        private$.turns[[i + 1]] <- Turn("user", contents)
       } else {
-        private$.turns[[i]]@content <- c(private$.turns[[i]]@content, contents)
+        private$.turns[[i]]@contents <- c(private$.turns[[i]]@contents, contents)
       }
-      invisible(self)
-    },
-
-    add_tool = function(name, fun, tool) {
-      # Remove existing, if any
-      if (!is.null(private$tool_funs[[name]])) {
-        private$tool_infos <- Filter(function(info) info$name != name, private$tool_infos)
-      }
-
-      private$tool_infos <- c(private$tool_infos, list(tool))
-      private$tool_funs[[name]] <- fun
-
       invisible(self)
     },
 
@@ -260,7 +221,7 @@ Chat <- R6::R6Class("Chat",
         provider = private$provider,
         mode = if (stream) "stream" else "value",
         turns = c(private$.turns, list(user_turn)),
-        tools = private$tool_infos
+        tools = private$tools
       )
       emit <- emitter(echo)
 
@@ -287,8 +248,8 @@ Chat <- R6::R6Class("Chat",
         }
 
         if (echo == "all") {
-          is_text <- map_lgl(turn@content, S7_inherits, content_text)
-          formatted <- map_chr(turn@content[!is_text], format)
+          is_text <- map_lgl(turn@contents, S7_inherits, ContentText)
+          formatted <- map_chr(turn@contents[!is_text], format)
           cat_line(formatted, prefix = "< ")
         }
       } else {
@@ -319,7 +280,7 @@ Chat <- R6::R6Class("Chat",
         provider = private$provider,
         mode = if (stream) "async-stream" else "async-value",
         turns = c(private$.turns, list(user_turn)),
-        tools = private$tool_infos
+        tools = private$tools
       )
       emit <- emitter(echo)
 
@@ -364,27 +325,19 @@ Chat <- R6::R6Class("Chat",
     }),
 
     invoke_tools = function() {
-      if (length(private$tool_infos) == 0) {
-        return()
-      }
-
-      tool_results <- invoke_tools(self$last_turn(), private$tool_funs)
+      tool_results <- invoke_tools(self$last_turn(), private$tools)
       if (length(tool_results) == 0) {
         return()
       }
-      turn("user", tool_results)
+      Turn("user", tool_results)
     },
 
     invoke_tools_async = async_method(function(self, private) {
-      if (length(private$tool_infos) == 0) {
-        return()
-      }
-
-      tool_results <- await(invoke_tools_async(self$last_turn(), private$tool_funs))
+      tool_results <- await(invoke_tools_async(self$last_turn(), private$tools))
       if (length(tool_results) == 0) {
         return()
       }
-      turn("user", tool_results)
+      Turn("user", tool_results)
     }),
 
     has_system_prompt = function() {
@@ -405,7 +358,7 @@ print.Chat <- function(x, ...) {
       identity
     )
     cli::cat_rule(cli::format_inline("{color(turn@role)}"))
-    for (content in turn@content) {
+    for (content in turn@contents) {
       cat_line(format(content))
     }
   }
