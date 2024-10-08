@@ -9,27 +9,28 @@ Turn(role, contents = list(), json = list(), tokens = c(0, 0))
 \arguments{
 \item{role}{Either "user", "assistant", or "system".}
 
-\item{contents}{A List of \link{Content} objects.}
+\item{contents}{A list of \link{Content} objects.}
 
-\item{json}{The serialized JSON corresponding that underlies the turns.
-This is currently only provided for assistant turns, and is useful if
-there's information returned by the API that elmer doesn't otherwise
-expose.}
+\item{json}{The serialized JSON corresponding to the underlying data of
+the turns. Currently only provided for assistant.
 
-\item{tokens}{A numeric vector of length representing the number of
+This is useful if there's information returned by the provider that elmer
+doesn't otherwise expose.}
+
+\item{tokens}{A numeric vector of length 2 representing the number of
 input and output tokens (respectively) used in this turn. Currently
 only recorded for assistant turns.}
 }
 \description{
-Every conversation with a chatbox consists of pairs of user and assistant
-turns, corresponding to a HTTP request and response. These turns are
-represented by the \code{Turn} object, contains a list of \link{Content}s representing
+Every conversation with a chatbot consists of pairs of user and assistant
+turns, corresponding to an HTTP request and response. These turns are
+represented by the \code{Turn} object, which contains a list of \link{Content}s representing
 the individual messages within the turn. These might be text, images, tool
-requests (assistant only), or tool reponses (user only).
+requests (assistant only), or tool responses (user only).
 
-Note that a call to \verb{$chat()} and friends may result in multiple
+Note that a call to \verb{$chat()} and related functions may result in multiple
 user-assistant turn cycles. For example, if you have registered tools,
-elmer will automatically handle the tool calling loop which may result in
+elmer will automatically handle the tool calling loop, which may result in
 any number of additional cycles. Learn more about tool calling in
 \code{vignette("tool-calling")}.
 }

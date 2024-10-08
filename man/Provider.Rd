@@ -13,13 +13,15 @@ Provider(
 \arguments{
 \item{base_url}{The base URL for the API.}
 
-\item{api_key}{The api key used for authentication.}
+\item{api_key}{The API key used for authentication.}
 
-\item{extra_args}{Arbitrary extra arguments included in the request body.}
+\item{extra_args}{Arbitrary extra arguments to be included in the request body.}
 }
 \description{
-A provider captures the details of one chatbot service/API. To add support
-for a new backend, you will need to subclass \code{Provider} (adding any
-additional fields that your provider needs) and then implement the
-various generics that control the behaviour of each provider.
+A Provider captures the details of one chatbot service/API
+}
+\details{
+To add support for a new backend, you will need to subclass \code{Provider}
+(adding any additional fields that your provider needs) and then implement
+the various generics that control the behavior of each provider.
 }

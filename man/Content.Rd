@@ -16,7 +16,7 @@ ContentText(text = class_missing)
 
 ContentImage()
 
-ContentImageRemote(url = class_missing)
+ContentImageRemote(url = class_missing, detail = class_missing)
 
 ContentImageInline(type = class_missing, data = class_missing)
 
@@ -52,18 +52,19 @@ it succeeded, otherwise the error message, as a string. One of
 \code{value} and \code{error} will always be \code{NULL}.}
 }
 \description{
-elmer abstracts away differences in the way that different providers
-represent different types of content, so that you can more easily write
+elmer abstracts away differences in the way that different \link{Providers}
+represent various types of content, allowing you to more easily write
 code that works with any chatbot.
 
 This set of classes represents the various types of content that can be
-sent to and recieved from a chat bot:
+sent to and received from a provider:
 \itemize{
 \item \code{ContentText}: simple text (often in markdown format). This is the only
 type of content that can be streamed live as it's received.
 \item \code{ContentImageRemote} and \code{ContentImageInline}: images, either as a pointer
-to a remote URL or included inline the object. See \code{\link[=content_image_file]{content_image_file()}}
-and friends for convenient ways to construct these objects.
+to a remote URL or included inline in the object. See
+\code{\link[=content_image_file]{content_image_file()}} and friends for convenient ways to construct these
+objects.
 \item \code{ContentToolRequest}: a request to perform a tool call (sent by the
 assistant).
 \item \code{ContentToolResult}: the result of calling the tool (sent by the user).

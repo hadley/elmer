@@ -4,18 +4,19 @@ NULL
 #' Content types
 #'
 #' @description
-#' elmer abstracts away differences in the way that different providers
-#' represent different types of content, so that you can more easily write
+#' elmer abstracts away differences in the way that different [Providers]
+#' represent various types of content, allowing you to more easily write
 #' code that works with any chatbot.
 #'
 #' This set of classes represents the various types of content that can be
-#' sent to and recieved from a chat bot:
+#' sent to and received from a provider:
 #'
 #' * `ContentText`: simple text (often in markdown format). This is the only
 #'   type of content that can be streamed live as it's received.
 #' * `ContentImageRemote` and `ContentImageInline`: images, either as a pointer
-#'   to a remote URL or included inline the object. See [content_image_file()]
-#'   and friends for convenient ways to construct these objects.
+#'   to a remote URL or included inline in the object. See
+#'   [content_image_file()] and friends for convenient ways to construct these
+#'   objects.
 #' * `ContentToolRequest`: a request to perform a tool call (sent by the
 #'    assistant).
 #' * `ContentToolResult`: the result of calling the tool (sent by the user).
