@@ -81,7 +81,7 @@ but instead call <code><a href="chat_openai.html">chat_openai()</a></code> or fr
 
 <div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/Chat.html">Chat</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">provider</span>, <span class="va">turns</span>, seed <span class="op">=</span> <span class="cn">NULL</span>, echo <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/Chat.html">Chat</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span><span class="va">provider</span>, <span class="va">turns</span>, seed <span class="op">=</span> <span class="cn">NULL</span>, echo <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -102,9 +102,10 @@ more reproducible.</p></dd>
 
 
 <dt><code>echo</code></dt>
-<dd><p>If <code>TRUE</code>, the <code>chat()</code> method streams the response to stdout
-(while also returning the final response). Note that this has no effect
-on the <code>stream()</code>, <code>chat_async()</code>, and <code>stream_async()</code> methods.</p></dd>
+<dd><p>One of the following options:</p><ul><li><p><code>none</code>: don't emit any output.</p></li>
+<li><p><code>text</code>: echo text output as it streams in.</p></li>
+<li><p><code>all</code>: echo all input and output.</p></li>
+</ul><p>Note this only affects the <code>chat()</code> method.</p></dd>
 
 
 </dl><p></p></div>

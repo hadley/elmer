@@ -65,7 +65,7 @@ the defaults tweaked for ollama.</p>
 <span>  <span class="va">model</span>,</span>
 <span>  seed <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  api_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
-<span>  echo <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  echo <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -108,9 +108,10 @@ chat API call.</p></dd>
 
 
 <dt id="arg-echo">echo<a class="anchor" aria-label="anchor" href="#arg-echo"></a></dt>
-<dd><p>If <code>TRUE</code>, the <code>chat()</code> method streams the response to stdout by
-default. (Note that this has no effect on the <code>stream()</code>, <code>chat_async()</code>,
-and <code>stream_async()</code> methods.)</p></dd>
+<dd><p>One of the following options:</p><ul><li><p><code>none</code>: don't emit any output.</p></li>
+<li><p><code>text</code>: echo text output as it streams in.</p></li>
+<li><p><code>all</code>: echo all input and output.</p></li>
+</ul><p>Note this only affects the <code>chat()</code> method.</p></dd>
 
 </dl></div>
     <div class="section level2">
