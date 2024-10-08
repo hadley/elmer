@@ -39,6 +39,7 @@ ProviderGemini <- new_class(
   parent = Provider,
   package = "elmer",
   properties = list(
+    api_key = prop_string(),
     model = prop_string()
   )
 )

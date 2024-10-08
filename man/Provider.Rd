@@ -4,16 +4,10 @@
 \alias{Provider}
 \title{A chatbot provider}
 \usage{
-Provider(
-  base_url = class_missing,
-  api_key = class_missing,
-  extra_args = class_missing
-)
+Provider(base_url = class_missing, extra_args = class_missing)
 }
 \arguments{
 \item{base_url}{The base URL for the API.}
-
-\item{api_key}{The API key used for authentication.}
 
 \item{extra_args}{Arbitrary extra arguments to be included in the request body.}
 }

@@ -76,6 +76,7 @@ ProviderOpenAI <- new_class(
   parent = Provider,
   package = "elmer",
   properties = list(
+    api_key = prop_string(),
     model = prop_string(),
     seed = prop_number_whole(allow_null = TRUE)
   )

@@ -11,14 +11,12 @@
 #'
 #' @export
 #' @param base_url The base URL for the API.
-#' @param api_key The API key used for authentication.
 #' @param extra_args Arbitrary extra arguments to be included in the request body.
 Provider <- new_class(
   "Provider",
   package = "elmer",
   properties = list(
     base_url = prop_string(),
-    api_key = prop_string(),
     extra_args = class_list
   )
 )
