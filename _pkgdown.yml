@@ -7,6 +7,7 @@ reference:
   contents:
   - starts_with("chat_")
   - starts_with("live_")
+  - token_usage
 
 - title: Tool use
   contents:

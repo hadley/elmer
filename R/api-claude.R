@@ -164,6 +164,8 @@ method(stream_turn, ProviderClaude) <- function(provider, result) {
   })
 
   tokens <- c(result$usage[[1]], result$usage[[2]])
+  tokens_log("Claude", tokens)
+
   Turn(result$role, contents, json = result, tokens = tokens)
 }
 method(value_turn, ProviderClaude) <- method(stream_turn, ProviderClaude)

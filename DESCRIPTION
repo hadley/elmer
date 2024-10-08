@@ -60,6 +60,7 @@ Collate:
     'import-standalone-purrr.R'
     'import-standalone-types-check.R'
     'shiny.R'
+    'tokens.R'
     'tools-def-auto.R'
     'tools-def.R'
     'turns.R'

@@ -170,6 +170,7 @@ openai_assistant_turn <- function(message, result) {
     content <- c(content, calls)
   }
   tokens <- c(result$usage$prompt_tokens, result$usage$completion_tokens)
+  tokens_log("OpenAI", tokens)
 
   Turn(message$role, content, json = result, tokens = tokens)
 }
