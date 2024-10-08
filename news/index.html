@@ -39,7 +39,7 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="elmer-development-version">elmer (development version)<a class="anchor" aria-label="anchor" href="#elmer-development-version"></a></h2>
 <ul><li><p><code>chat_browser()</code> and <code>chat_console()</code> are now <code><a href="../reference/live_console.html">live_browser()</a></code> and <code><a href="../reference/live_console.html">live_console()</a></code>.</p></li>
-<li><p>The <code>echo</code> can now be one of three values: “none”, “text”, or “all”. If “all”, you’ll now see both user and assistant turns, and all content types will be printed, not just text.</p></li>
+<li><p>The <code>echo</code> can now be one of three values: “none”, “text”, or “all”. If “all”, you’ll now see both user and assistant turns, and all content types will be printed, not just text. When running in the global environment, <code>echo</code> defaults to “text”, and when running inside a function it defaults to “none”.</p></li>
 <li><p><code>chat$register_tool()</code> now takes an object created by <code><a href="../reference/ToolArg.html">ToolDef()</a></code>. This makes it a little easier to reuse tool definitions (<a href="https://github.com/hadley/elmer/issues/32" class="external-link">#32</a>).</p></li>
 <li><p><code>new_chat_openai()</code> is now <code><a href="../reference/chat_openai.html">chat_openai()</a></code>.</p></li>
 <li><p>Claude and Gemini are now supported via <code><a href="../reference/chat_claude.html">chat_claude()</a></code> and <code><a href="../reference/chat_gemini.html">chat_gemini()</a></code>.</p></li>
