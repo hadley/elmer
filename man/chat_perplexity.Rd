@@ -40,8 +40,8 @@ choosing a model for all but the most casual use.}
 \item{seed}{Optional integer seed that ChatGPT uses to try and make output
 more reproducible.}
 
-\item{api_args}{Named list of arbitrary extra arguments passed to every
-chat API call.}
+\item{api_args}{Named list of arbitrary extra arguments appended to the body
+of every chat API call.}
 
 \item{echo}{One of the following options:
 \itemize{

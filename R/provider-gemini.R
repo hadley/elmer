@@ -84,11 +84,13 @@ method(chat_request, ProviderGemini) <- function(provider,
 
   contents <- gemini_contents(turns)
   tools <- gemini_tools(tools)
+  extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
   body <- compact(list(
     contents = contents,
     tools = tools,
-    systemInstruction = system
+    systemInstruction = system,
+    !!!extra_args
   ))
   req <- req_body_json(req, body)
 
