@@ -43,6 +43,16 @@ Chat <- R6::R6Class("Chat",
       }
     },
 
+    #' @description List the number of tokens consumed by each assistant turn.
+    #'   Currently tokens are recorded for assistant turns only; so user
+    #'   turns will have zeros.
+    tokens = function() {
+      tokens <- vapply(private$.turns, function(turn) turn@tokens, double(2))
+      tokens <- t(tokens)
+      colnames(tokens) <- c("input", "output")
+      tokens
+    },
+
     #' @description The last turn returned by the assistant.
     #' @param role Optionally, specify a role to find the last turn with
     #'   for the role.
@@ -334,7 +344,8 @@ Chat <- R6::R6Class("Chat",
 #' @export
 print.Chat <- function(x, ...) {
   turns <- x$turns(include_system_prompt = TRUE)
-  cat(paste0("<Chat turns=", length(turns), ">\n"))
+  tokens <- colSums(x$tokens())
+  cat(paste0("<Chat turns=", length(turns), " tokens=", tokens[1], "/", tokens[2], ">\n"))
   for (turn in turns) {
     color <- switch(turn@role,
       user = cli::col_blue,

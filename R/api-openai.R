@@ -112,6 +112,7 @@ method(chat_request, ProviderOpenAI) <- function(provider,
     model = provider@model,
     seed = provider@seed,
     stream = stream,
+    stream_options = if (stream) list(include_usage = TRUE),
     tools = tools,
     !!!extra_args
   ))
@@ -132,7 +133,12 @@ method(stream_parse, ProviderOpenAI) <- function(provider, event) {
   jsonlite::parse_json(event$data)
 }
 method(stream_text, ProviderOpenAI) <- function(provider, event) {
-  event$choices[[1]]$delta$content
+  if (length(event$choices) == 0) {
+    NULL
+  } else {
+    event$choices[[1]]$delta$content
+  }
+
 }
 method(stream_merge_chunks, ProviderOpenAI) <- function(provider, result, chunk) {
   if (is.null(result)) {
@@ -142,12 +148,12 @@ method(stream_merge_chunks, ProviderOpenAI) <- function(provider, result, chunk)
   }
 }
 method(stream_turn, ProviderOpenAI) <- function(provider, result) {
-  openai_assistant_turn(result$choices[[1]]$delta)
+  openai_assistant_turn(result$choices[[1]]$delta, result)
 }
 method(value_turn, ProviderOpenAI) <- function(provider, result) {
-  openai_assistant_turn(result$choices[[1]]$message)
+  openai_assistant_turn(result$choices[[1]]$message, result)
 }
-openai_assistant_turn <- function(message) {
+openai_assistant_turn <- function(message, result) {
   content <- lapply(message$content, as_content)
 
   if (has_name(message, "tool_calls")) {
@@ -159,7 +165,9 @@ openai_assistant_turn <- function(message) {
     })
     content <- c(content, calls)
   }
-  Turn(message$role, content, extra = message["refusal"])
+  tokens <- c(result$usage$prompt_tokens, result$usage$completion_tokens)
+
+  Turn(message$role, content, json = result, tokens = tokens)
 }
 
 # Convert elmer turns + content to chatGPT messages ----------------------------

@@ -24,6 +24,7 @@ but instead call \code{\link[=chat_openai]{chat_openai()}} or friends.
 \itemize{
 \item \href{#method-Chat-new}{\code{Chat$new()}}
 \item \href{#method-Chat-turns}{\code{Chat$turns()}}
+\item \href{#method-Chat-tokens}{\code{Chat$tokens()}}
 \item \href{#method-Chat-last_turn}{\code{Chat$last_turn()}}
 \item \href{#method-Chat-chat}{\code{Chat$chat()}}
 \item \href{#method-Chat-chat_async}{\code{Chat$chat_async()}}
@@ -78,6 +79,18 @@ turns (if any exists).}
 }
 \if{html}{\out{</div>}}
 }
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Chat-tokens"></a>}}
+\if{latex}{\out{\hypertarget{method-Chat-tokens}{}}}
+\subsection{Method \code{tokens()}}{
+List the number of tokens consumed by each assistant turn.
+Currently tokens are recorded for assistant turns only; so user
+turns will have zeros.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Chat$tokens()}\if{html}{\out{</div>}}
+}
+
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Chat-last_turn"></a>}}
