@@ -1,4 +1,4 @@
-#' @include api.R
+#' @include provider.R
 #' @include content.R
 NULL
 
@@ -74,13 +74,12 @@ chat_openai <- function(system_prompt = NULL,
 
 ProviderOpenAI <- new_class(
   "ProviderOpenAI",
+  parent = Provider,
   package = "elmer",
   properties = list(
-    base_url = prop_string(),
-    model = prop_string(),
-    seed = prop_number_whole(allow_null = TRUE),
     api_key = prop_string(),
-    extra_args = class_list
+    model = prop_string(),
+    seed = prop_number_whole(allow_null = TRUE)
   )
 )
 

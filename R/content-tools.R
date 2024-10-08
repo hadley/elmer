@@ -9,7 +9,7 @@ invoke_tools <- function(turn, tools) {
     fun <- tools[[call@name]]@fun
     result <- invoke_tool(fun, call@arguments, call@id)
 
-    if (promises::is.promise(result@result)) {
+    if (promises::is.promise(result@value)) {
       cli::cli_abort(c(
         "Can't use async tools with `$chat()` or `$stream()`.",
         i = "Async tools are supported, but you must use `$chat_async()` or `$stream_async()`."
