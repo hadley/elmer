@@ -36,8 +36,8 @@ variable.}
 a reasonable default, and tell you about. We strongly recommend explicitly
 choosing a model for all but the most casual use.}
 
-\item{api_args}{Named list of arbitrary extra arguments passed to every
-chat API call.}
+\item{api_args}{Named list of arbitrary extra arguments appended to the body
+of every chat API call.}
 
 \item{echo}{One of the following options:
 \itemize{

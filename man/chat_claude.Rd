@@ -33,8 +33,8 @@ Normally there is also a \code{content} field, which is a string.}
 a reasonable default, and tell you about. We strongly recommend explicitly
 choosing a model for all but the most casual use.}
 
-\item{api_args}{Named list of arbitrary extra arguments passed to every
-chat API call.}
+\item{api_args}{Named list of arbitrary extra arguments appended to the body
+of every chat API call.}
 
 \item{base_url}{The base URL to the endpoint; the default uses OpenAI.}
 

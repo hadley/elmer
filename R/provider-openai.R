@@ -28,8 +28,8 @@ NULL
 #'   choosing a model for all but the most casual use.
 #' @param seed Optional integer seed that ChatGPT uses to try and make output
 #'   more reproducible.
-#' @param api_args Named list of arbitrary extra arguments passed to every
-#'   chat API call.
+#' @param api_args Named list of arbitrary extra arguments appended to the body
+#'   of every chat API call.
 #' @param echo One of the following options:
 #'   * `none`: don't emit any output (default when running in a function).
 #'   * `text`: echo text output as it streams in (default when running at
