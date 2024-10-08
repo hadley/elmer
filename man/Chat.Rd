@@ -7,7 +7,7 @@
 A promise that resolves to a string (probably Markdown).
 }
 \description{
-A \code{Chat} is an sequence of sequence of user and assistant \link{Turns} sent
+A \code{Chat} is an sequence of sequence of user and assistant \link{Turn}s sent
 to a specific \link{Provider}. A \code{Chat} is a mutable object because the sequence
 of turns grows over time as you converse with the chatbot.
 

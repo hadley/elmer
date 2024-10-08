@@ -37,6 +37,8 @@ ContentToolResult(
 
 \item{url}{URL to a remote image.}
 
+\item{detail}{Not currently used.}
+
 \item{type}{MIME type of the image.}
 
 \item{data}{Base64 encoded image data.}
@@ -52,7 +54,7 @@ it succeeded, otherwise the error message, as a string. One of
 \code{value} and \code{error} will always be \code{NULL}.}
 }
 \description{
-elmer abstracts away differences in the way that different \link{Providers}
+elmer abstracts away differences in the way that different \link{Provider}s
 represent various types of content, allowing you to more easily write
 code that works with any chatbot.
 

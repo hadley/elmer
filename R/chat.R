@@ -4,7 +4,7 @@ NULL
 #' A chat
 #'
 #' @description
-#' A `Chat` is an sequence of sequence of user and assistant [Turns] sent
+#' A `Chat` is an sequence of sequence of user and assistant [Turn]s sent
 #' to a specific [Provider]. A `Chat` is a mutable object because the sequence
 #' of turns grows over time as you converse with the chatbot.
 #'

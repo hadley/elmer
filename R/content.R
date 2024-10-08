@@ -4,7 +4,7 @@ NULL
 #' Content types received from and sent to a chatbot
 #'
 #' @description
-#' elmer abstracts away differences in the way that different [Providers]
+#' elmer abstracts away differences in the way that different [Provider]s
 #' represent various types of content, allowing you to more easily write
 #' code that works with any chatbot.
 #'
@@ -50,6 +50,7 @@ ContentImage <- new_class(
 #' @rdname Content
 #' @export
 #' @param url URL to a remote image.
+#' @param detail Not currently used.
 ContentImageRemote <- new_class(
   "ContentImageRemote",
   parent = Content,
