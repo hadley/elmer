@@ -19,8 +19,9 @@ Chat <- R6::R6Class("Chat",
     #' @param seed Optional integer seed that ChatGPT uses to try and make output
     #'   more reproducible.
     #' @param echo One of the following options:
-    #'   * `none`: don't emit any output.
-    #'   * `text`: echo text output as it streams in.
+    #'   * `none`: don't emit any output (default when running in a function).
+    #'   * `text`: echo text output as it streams in (default when running at
+    #'     the console).
     #'   * `all`: echo all input and output.
     #'
     #'  Note this only affects the `chat()` method.
