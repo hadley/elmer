@@ -60,10 +60,11 @@ regardless of which of the various ways of chatting you use.
 ### Interactive chat console
 
 The most interactive, least programmatic way of using elmer is to chat
-with it directly in your R console.
+with it directly in your R console with `live_console(chat)` or in your
+browser with `live_brower()`.
 
 ``` r
-chat_console(chat)
+live_console(chat)
 #> ╔════════════════════════════════════════════════════════╗
 #> ║  Entering chat console. Use """ for multi-line input.  ║
 #> ║  Press Ctrl+C to quit.                                 ║

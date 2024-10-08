@@ -1,9 +1,9 @@
-#' Open an interactive chat application
+#' Open a live chat application
 #'
 #' @description
 #'
-#' * `chat_console()` lets you chat interactively in the console.
-#' * `chat_browser()` lets you chat interactively in a browser.
+#' * `live_console()` lets you chat interactively in the console.
+#' * `live_browser()` lets you chat interactively in a browser.
 #'
 #' Note that these functions will mutate the input `chat` object as
 #' you chat because your turns will be appended to the history.
@@ -13,7 +13,7 @@
 #'   to use the console.
 #' @export
 #' @returns (Invisibly) The input `chat`.
-chat_console <- function(chat, quiet = FALSE) {
+live_console <- function(chat, quiet = FALSE) {
   if (!is_interactive()) {
     cli::cli_abort("The chat console is only available in interactive mode.")
   }
@@ -62,8 +62,8 @@ chat_console <- function(chat, quiet = FALSE) {
 }
 
 #' @export
-#' @rdname chat_console
-chat_browser <- function(chat, quiet = FALSE) {
+#' @rdname live_console
+live_browser <- function(chat, quiet = FALSE) {
   check_installed(c("bslib", "shiny", "shinychat"))
 
   ui <- bslib::page_fillable(
