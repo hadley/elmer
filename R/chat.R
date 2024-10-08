@@ -18,10 +18,13 @@ Chat <- R6::R6Class("Chat",
     #'   conversation begins from scratch.
     #' @param seed Optional integer seed that ChatGPT uses to try and make output
     #'   more reproducible.
-    #' @param echo If `TRUE`, the `chat()` method streams the response to stdout
-    #'   (while also returning the final response). Note that this has no effect
-    #'   on the `stream()`, `chat_async()`, and `stream_async()` methods.
-    initialize = function(provider, turns, seed = NULL, echo = FALSE) {
+    #' @param echo One of the following options:
+    #'   * `none`: don't emit any output.
+    #'   * `text`: echo text output as it streams in.
+    #'   * `all`: echo all input and output.
+    #'
+    #'  Note this only affects the `chat()` method.
+    initialize = function(provider, turns, seed = NULL, echo = "none") {
       private$provider <- provider
       private$.turns <- turns %||% list()
       private$echo <- echo
@@ -78,19 +81,14 @@ Chat <- R6::R6Class("Chat",
     #'   will be used.
     chat = function(..., echo = NULL) {
       turn <- user_turn(...)
-      echo <- echo %||% private$echo
+      echo <- check_echo(echo %||% private$echo)
 
       # Returns a single turn (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
-      coro::collect(private$chat_impl(turn, stream = echo, echo = echo))
+      coro::collect(private$chat_impl(turn, stream = echo != "none", echo = echo))
 
       text <- self$last_turn()@text
-
-      if (echo) {
-        invisible(text)
-      } else {
-        text
-      }
+      if (echo == "none") text else invisible(text)
     },
 
     #' @description Submit input to the chatbot, and receive a promise that
@@ -103,7 +101,7 @@ Chat <- R6::R6Class("Chat",
       # Returns a single turn (the final response from the assistant), even if
       # multiple rounds of back and forth happened.
       done <- coro::async_collect(
-        private$chat_impl_async(turn, stream = FALSE, echo = FALSE)
+        private$chat_impl_async(turn, stream = FALSE, echo = "none")
       )
       promises::then(done, function(dummy) {
         self$last_turn()@text
@@ -118,7 +116,7 @@ Chat <- R6::R6Class("Chat",
     #' @param ... The input to send to the chatbot. Can be strings or images.
     stream = function(...) {
       turn <- user_turn(...)
-      private$chat_impl(turn, stream = TRUE, echo = FALSE)
+      private$chat_impl(turn, stream = TRUE, echo = "none")
     },
 
     #' @description Submit input to the chatbot, returning asynchronously
@@ -128,7 +126,7 @@ Chat <- R6::R6Class("Chat",
     #' @param ... The input to send to the chatbot. Can be strings or images.
     stream_async = function(...) {
       turn <- user_turn(...)
-      private$chat_impl_async(turn, stream = TRUE, echo = FALSE)
+      private$chat_impl_async(turn, stream = TRUE, echo = "none")
     },
 
     #' @description Register a tool (an R function) that the chatbot can use.
@@ -210,6 +208,9 @@ Chat <- R6::R6Class("Chat",
           yield(chunk)
         }
         user_turn <- await(private$invoke_tools_async())
+        if (echo == "all") {
+          cat(format(user_turn))
+        }
       }
 
       # Work around https://github.com/r-lib/coro/issues/51
@@ -221,6 +222,11 @@ Chat <- R6::R6Class("Chat",
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant turns.
     submit_turns = generator_method(function(self, private, user_turn, stream, echo) {
+
+      if (echo == "all") {
+        cat_line(format(user_turn), prefix = "> ")
+      }
+
       response <- chat_perform(
         provider = private$provider,
         mode = if (stream) "stream" else "value",
@@ -243,13 +249,19 @@ Chat <- R6::R6Class("Chat",
 
           result <- stream_merge_chunks(private$provider, result, chunk)
         }
+        turn <- stream_turn(private$provider, result)
+
         # Ensure turns always end in a newline
         if (any_text) {
           emit("\n")
           yield("\n")
         }
 
-        turn <- stream_turn(private$provider, result)
+        if (echo == "all") {
+          is_text <- map_lgl(turn@contents, S7_inherits, ContentText)
+          formatted <- map_chr(turn@contents[!is_text], format)
+          cat_line(formatted, prefix = "< ")
+        }
       } else {
         turn <- value_turn(private$provider, response)
         text <- turn@text
@@ -257,6 +269,9 @@ Chat <- R6::R6Class("Chat",
           text <- paste0(text, "\n")
           emit(text)
           yield(text)
+        }
+        if (echo == "all") {
+          cat_line(format(turn), prefix = "< ")
         }
       }
       private$add_turn(user_turn)

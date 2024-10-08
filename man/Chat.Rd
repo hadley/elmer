@@ -39,7 +39,7 @@ but instead call \code{\link[=chat_openai]{chat_openai()}} or friends.
 \if{latex}{\out{\hypertarget{method-Chat-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$new(provider, turns, seed = NULL, echo = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Chat$new(provider, turns, seed = NULL, echo = "none")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -54,9 +54,14 @@ conversation begins from scratch.}
 \item{\code{seed}}{Optional integer seed that ChatGPT uses to try and make output
 more reproducible.}
 
-\item{\code{echo}}{If \code{TRUE}, the \code{chat()} method streams the response to stdout
-(while also returning the final response). Note that this has no effect
-on the \code{stream()}, \code{chat_async()}, and \code{stream_async()} methods.}
+\item{\code{echo}}{One of the following options:
+\itemize{
+\item \code{none}: don't emit any output.
+\item \code{text}: echo text output as it streams in.
+\item \code{all}: echo all input and output.
+}
+
+Note this only affects the \code{chat()} method.}
 }
 \if{html}{\out{</div>}}
 }

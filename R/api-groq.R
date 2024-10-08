@@ -16,7 +16,7 @@ chat_groq <- function(system_prompt = NULL,
                           model = NULL,
                           seed = NULL,
                           api_args = list(),
-                          echo = FALSE) {
+                          echo = NULL) {
   model <- set_default(model, "llama3-8b-8192")
 
   chat_openai(

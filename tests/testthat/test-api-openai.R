@@ -116,7 +116,7 @@ test_that("can call multiple tools in sequence", {
     arguments = list(year = ToolArg("integer", "Year"))
   ))
 
-  result <- chat$chat("What was the most popular name this year?")
+  result <- chat$chat("What was the most popular name this year.")
   expect_equal(result, "Susan")
   expect_length(chat$turns(), 6)
 })

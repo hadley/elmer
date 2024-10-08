@@ -20,10 +20,10 @@ chat_gemini <- function(system_prompt = NULL,
                             api_key = gemini_key(),
                             model = NULL,
                             api_args = list(),
-                            echo = FALSE) {
+                            echo = NULL) {
   turns <- normalize_turns(turns, system_prompt)
-  check_bool(echo)
   model <- set_default(model, "gemini-1.5-flash")
+  echo <- check_echo(echo)
 
   provider <- ProviderGemini(
     base_url = base_url,

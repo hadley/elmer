@@ -16,7 +16,7 @@ chat_perplexity <- function(system_prompt = NULL,
                                 model = NULL,
                                 seed = NULL,
                                 api_args = list(),
-                                echo = FALSE) {
+                                echo = NULL) {
 
   model <- set_default(model, "llama-3.1-sonar-small-128k-online")
 
