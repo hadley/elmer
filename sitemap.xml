@@ -11,7 +11,6 @@
 <url><loc>https://hadley.github.io/elmer/reference/Chat.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/ToolArg.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/chat_claude.html</loc></url>
-<url><loc>https://hadley.github.io/elmer/reference/chat_console.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/chat_gemini.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/chat_github.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/chat_groq.html</loc></url>
@@ -22,5 +21,6 @@
 <url><loc>https://hadley.github.io/elmer/reference/create_tool_def.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/elmer-package.html</loc></url>
 <url><loc>https://hadley.github.io/elmer/reference/index.html</loc></url>
+<url><loc>https://hadley.github.io/elmer/reference/live_console.html</loc></url>
 </urlset>
 
