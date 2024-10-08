@@ -1,4 +1,4 @@
-#' @include api.R
+#' @include provider.R
 #' @include content.R
 NULL
 
