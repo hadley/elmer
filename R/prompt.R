@@ -24,8 +24,7 @@
 prompt <- function(prompt, ..., .envir = parent.frame()) {
   check_string(prompt)
 
-  nms <- ...names()
-  if (...length() > 0 && (is.null(nms) || any(is.na(nms) || nms == ""))) {
+  if (!dots_named(...)) {
     cli::cli_abort("All elements of `...` must be named")
   }
 
