@@ -87,7 +87,7 @@ method(chat_request, ProviderAzure) <- function(provider,
   req <- req_body_json(req, data)
 
   req
-  }
+}
 
 method(stream_turn, ProviderAzure) <- function(provider, result) {
   # Will need to register tokens differently
