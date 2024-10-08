@@ -31,8 +31,9 @@ NULL
 #' @param api_args Named list of arbitrary extra arguments passed to every
 #'   chat API call.
 #' @param echo One of the following options:
-#'   * `none`: don't emit any output.
-#'   * `text`: echo text output as it streams in.
+#'   * `none`: don't emit any output (default when running in a function).
+#'   * `text`: echo text output as it streams in (default when running at
+#'     the console).
 #'   * `all`: echo all input and output.
 #'
 #'  Note this only affects the `chat()` method.

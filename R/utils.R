@@ -48,7 +48,7 @@ last_request_json <- function(req = last_request()) {
 }
 
 check_echo <- function(echo = NULL) {
-  if (is.null(echo)) {
+  if (is.null(echo) || identical(echo, c("none", "text", "all"))) {
     if (env_is_user_facing(parent.frame(2)) && !is_testing()) {
       "text"
     } else {
