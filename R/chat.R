@@ -1,15 +1,13 @@
 #' @include utils-coro.R
 NULL
 
-#' Chat object
+#' A Chat
 #'
 #' @description
-#' The Chat object represents a sequence of turns between the user and
-#' assistant (chat API). You should generally not create this object yourself,
-#' but instead call [chat_openai()] or friends.
+#' The Chat object represents a sequence of user and assistant [Turns].
 #'
-#' @keywords internal
-#'
+#' You should generally not create this object yourself,
+#' but instead call [chat_openai()] or friends instead.
 Chat <- R6::R6Class("Chat",
   public = list(
     #' @param provider A provider object.

@@ -1,3 +1,24 @@
+#' A ChatBot Provider
+#'
+#' A provider captures the details of one chatbot service/API. To add support
+#' for a new backend, you will need to subclass `Provider` (adding any
+#' additional fields that your provider needs) and then implement the
+#' various generics that control the behaviour of each provider.
+#'
+#' @export
+#' @param base_url The base URL for the API.
+#' @param api_key The api key used for authentication.
+#' @param extra_args Arbitrary extra arguments included in the request body.
+Provider <- new_class(
+  "Provider",
+  package = "elmer",
+  properties = list(
+    base_url = prop_string(),
+    api_key = prop_string(),
+    extra_args = class_list
+  )
+)
+
 # Create a request------------------------------------
 
 chat_request <- new_generic("chat_request", "provider",

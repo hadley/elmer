@@ -1,5 +1,31 @@
+#' A user or assistant turn
+#'
+#' @description
+#' Every conversation with a chatbox consists of pairs of user and assistant
+#' turns, corresponding to a HTTP request and response. These turns are
+#' represented by the `Turn` object, contains a list of [Content]s representing
+#' the individual messages within the turn. These might be text, images, tool
+#' requests (assistant only), or tool reponses (user only).
+#'
+#' Note that a call to `$chat()` and friends may result in multiple
+#' user-assistant turn cycles. For example, if you have registered tools,
+#' elmer will automatically handle the tool calling loop which may result in
+#' any number of additional cycles. Learn more about tool calling in
+#' `vignette("tool-calling")`.
+#'
+#' @param role Either "user", "assistant", or "system".
+#' @param contents A List of [Content] objects.
+#' @param json The serialized JSON corresponding that underlies the turns.
+#'   This is currently only provided for assistant turns, and is useful if
+#'   there's information returned by the API that elmer doesn't otherwise
+#'   expose.
+#' @param tokens A numeric vector of length representing the number of
+#'   input and output tokens (respectively) used in this turn. Currently
+#'   only recorded for assistant turns.
+#' @export
 Turn <- new_class(
   "Turn",
+  package = "elmer",
   properties = list(
     role = prop_string(),
     contents = prop_list_of(Content),
