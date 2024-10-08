@@ -2,9 +2,11 @@ test_that("can make simple request", {
   chat <- chat_claude("Be as terse as possible; no punctuation")
   resp <- chat$chat("What is 1 + 1?")
   expect_match(resp, "2")
+  expect_equal(chat$last_turn()@tokens, c(26, 5))
 
   resp <- sync(chat$chat_async("What is 1 + 1?"))
   expect_match(resp, "2")
+  expect_equal(chat$last_turn()@tokens, c(43, 5))
 })
 
 test_that("can make simple streaming request", {

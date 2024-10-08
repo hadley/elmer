@@ -3,7 +3,7 @@
     Code
       chat
     Output
-      <Chat turns=3 tokens=0>
+      <Chat turns=3 tokens=15/5>
       -- system ----------------------------------------------------------------------
       You're a helpful assistant that returns very minimal output
       -- user ------------------------------------------------------------------------

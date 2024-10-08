@@ -161,7 +161,8 @@ method(stream_turn, ProviderClaude) <- function(provider, result) {
     }
   })
 
-  Turn(result$role, contents, json = result, tokens = unlist(result$usage))
+  tokens <- c(result$usage[[1]], result$usage[[2]])
+  Turn(result$role, contents, json = result, tokens = tokens)
 }
 method(value_turn, ProviderClaude) <- method(stream_turn, ProviderClaude)
 

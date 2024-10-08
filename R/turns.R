@@ -24,7 +24,7 @@ Turn <- new_class(
   constructor = function(role,
                          contents = list(),
                          json = list(),
-                         tokens = c(NA_real_, NA_real_)) {
+                         tokens = c(0, 0)) {
 
    if (is.character(contents)) {
       contents <- list(ContentText(paste0(contents, collapse = "\n")))
