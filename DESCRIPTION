@@ -18,7 +18,8 @@ Imports:
     R6,
     S7,
     rlang (>= 1.1.0),
-    shinychat (>= 0.0.0.9000)
+    shinychat (>= 0.0.0.9000),
+    glue
 Suggests:
     base64enc,
     bslib,
@@ -51,6 +52,7 @@ Collate:
     'import-standalone-obj-type.R'
     'import-standalone-purrr.R'
     'import-standalone-types-check.R'
+    'prompt.R'
     'provider.R'
     'provider-claude.R'
     'provider-gemini.R'
