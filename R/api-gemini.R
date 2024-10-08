@@ -114,12 +114,12 @@ method(stream_merge_chunks, ProviderGemini) <- function(provider, result, chunk)
   }
 }
 method(stream_turn, ProviderGemini) <- function(provider, result) {
-  gemini_assistant_turn(result$candidates[[1]]$content)
+  gemini_assistant_turn(result$candidates[[1]]$content, result)
 }
 method(value_turn, ProviderGemini) <- function(provider, result) {
-  gemini_assistant_turn(result$candidates[[1]]$content)
+  gemini_assistant_turn(result$candidates[[1]]$content, result)
 }
-gemini_assistant_turn <- function(message) {
+gemini_assistant_turn <- function(message, result) {
   contents <- lapply(message$parts, function(content) {
     if (has_name(content, "text")) {
       ContentText(content$text)
@@ -133,8 +133,10 @@ gemini_assistant_turn <- function(message) {
       browser()
     }
   })
+  usage <- result$usageMetadata
+  tokens <- c(usage$promptTokenCount, usage$candidatesTokenCount)
 
-  Turn("assistant", contents)
+  Turn("assistant", contents, json = result, tokens = tokens)
 }
 
 # Convert elmer turns + content to chatGPT messages
@@ -231,16 +233,10 @@ method(gemini_content, ContentToolRequest) <- function(content) {
 
 # https://ai.google.dev/api/caching#FunctionResponse
 method(gemini_content, ContentToolResult) <- function(content) {
-  if (is.null(content@result)) {
-    result <- paste0("Tool calling failed with error ", content@error)
-  } else {
-    result <- toString(content@result)
-  }
-
   list(
     functionResponse = list(
       name = content@id,
-      response = list(value = result)
+      response = list(value = tool_string(content))
     )
   )
 }

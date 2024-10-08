@@ -83,6 +83,15 @@ method(format, ContentToolResult) <- function(x, ...) {
   cli::format_inline("[{.strong tool result}  ({x@id})]: {x@result}")
 }
 
+tool_errored <- function(x) !is.null(x@error)
+tool_string <- function(x) {
+  if (tool_errored(x)) {
+    paste0("Tool calling failed with error ", x@error)
+  } else {
+    toString(x@result)
+  }
+}
+
 # Helpers ----------------------------------------------------------------------
 
 as_content <- function(x, error_call = caller_env()) {

@@ -128,7 +128,7 @@ method(stream_merge_chunks, ProviderClaude) <- function(provider, result, chunk)
   if (chunk$type == "ping") {
     # nothing to do
   } else if (chunk$type == "message_start") {
-    result$role <- chunk$message$role
+    result <- chunk$message
   } else if (chunk$type == "content_block_start") {
     result$content[[chunk$index + 1L]] <- chunk$content_block
   } else if (chunk$type == "content_block_delta") {
@@ -139,7 +139,9 @@ method(stream_merge_chunks, ProviderClaude) <- function(provider, result, chunk)
   } else if (chunk$type == "content_block_stop") {
     # nothing to do
   } else if (chunk$type == "message_delta") {
-    # TODO: do something with stop reason
+    result$stop_reason <- chunk$delta$stop_reason
+    result$stop_sequence <- chunk$delta$stop_sequence
+    result$usage$output_tokens <- chunk$usage$output_tokens
   } else if (chunk$type == "error") {
     cli::cli_abort("{chunk$error$message}")
   } else {
@@ -161,7 +163,8 @@ method(stream_turn, ProviderClaude) <- function(provider, result) {
     }
   })
 
-  Turn(result$role, contents)
+  tokens <- c(result$usage[[1]], result$usage[[2]])
+  Turn(result$role, contents, json = result, tokens = tokens)
 }
 method(value_turn, ProviderClaude) <- method(stream_turn, ProviderClaude)
 
@@ -220,19 +223,11 @@ method(claude_content, ContentToolRequest) <- function(content) {
 
 # https://docs.anthropic.com/en/docs/build-with-claude/tool-use#handling-tool-use-and-tool-result-content-blocks
 method(claude_content, ContentToolResult) <- function(content) {
-  if (is.null(content@result)) {
-    result <- paste0("Tool calling failed with error ", content@error)
-    is_error <- TRUE
-  } else {
-    result <- toString(content@result)
-    is_error <- FALSE
-  }
-
   list(
     type = "tool_result",
     tool_use_id = content@id,
-    content = result,
-    is_error = is_error
+    content = tool_string(content),
+    is_error = tool_errored(content)
   )
 }
 

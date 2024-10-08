@@ -115,6 +115,7 @@ method(chat_request, ProviderOpenAI) <- function(provider,
     model = provider@model,
     seed = provider@seed,
     stream = stream,
+    stream_options = if (stream) list(include_usage = TRUE),
     tools = tools,
     !!!extra_args
   ))
@@ -135,7 +136,12 @@ method(stream_parse, ProviderOpenAI) <- function(provider, event) {
   jsonlite::parse_json(event$data)
 }
 method(stream_text, ProviderOpenAI) <- function(provider, event) {
-  event$choices[[1]]$delta$content
+  if (length(event$choices) == 0) {
+    NULL
+  } else {
+    event$choices[[1]]$delta$content
+  }
+
 }
 method(stream_merge_chunks, ProviderOpenAI) <- function(provider, result, chunk) {
   if (is.null(result)) {
@@ -145,12 +151,12 @@ method(stream_merge_chunks, ProviderOpenAI) <- function(provider, result, chunk)
   }
 }
 method(stream_turn, ProviderOpenAI) <- function(provider, result) {
-  openai_assistant_turn(result$choices[[1]]$delta)
+  openai_assistant_turn(result$choices[[1]]$delta, result)
 }
 method(value_turn, ProviderOpenAI) <- function(provider, result) {
-  openai_assistant_turn(result$choices[[1]]$message)
+  openai_assistant_turn(result$choices[[1]]$message, result)
 }
-openai_assistant_turn <- function(message) {
+openai_assistant_turn <- function(message, result) {
   content <- lapply(message$content, as_content)
 
   if (has_name(message, "tool_calls")) {
@@ -162,7 +168,9 @@ openai_assistant_turn <- function(message) {
     })
     content <- c(content, calls)
   }
-  Turn(message$role, content, extra = message["refusal"])
+  tokens <- c(result$usage$prompt_tokens, result$usage$completion_tokens)
+
+  Turn(message$role, content, json = result, tokens = tokens)
 }
 
 # Convert elmer turns + content to chatGPT messages ----------------------------
@@ -184,7 +192,7 @@ openai_messages <- function(turns) {
         add_message("user", content = content)
       }
       for (tool in turn@contents[is_tool]) {
-        add_message("tool", content = openai_content(tool), tool_call_id = tool@id)
+        add_message("tool", content = tool_string(tool), tool_call_id = tool@id)
       }
     } else if (turn@role == "assistant") {
       # Tool requests come out of content and go into own argument
@@ -217,16 +225,6 @@ method(openai_content, ContentImageInline) <- function(content) {
       url = paste0("data:", content@type, ";base64,", content@data)
     )
   )
-}
-
-method(openai_content, ContentToolResult) <- function(content) {
-  if (is.null(content@result)) {
-    result <- paste0("Tool calling failed with error ", content@error)
-  } else {
-    result <- toString(content@result)
-  }
-
-  result
 }
 
 method(openai_content, ContentToolRequest) <- function(content) {

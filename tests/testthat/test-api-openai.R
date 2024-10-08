@@ -6,9 +6,11 @@ test_that("can make simple request", {
   chat <- chat_openai("Be as terse as possible; no punctuation")
   resp <- chat$chat("What is 1 + 1?")
   expect_match(resp, "2")
+  expect_equal(chat$last_turn()@tokens, c(27, 1))
 
   resp <- sync(chat$chat_async("What is 1 + 1?"))
   expect_match(resp, "2")
+  expect_equal(chat$last_turn()@tokens, c(44, 1))
 })
 
 test_that("can make simple streaming request", {
