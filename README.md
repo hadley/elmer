@@ -61,7 +61,7 @@ regardless of which of the various ways of chatting you use.
 
 The most interactive, least programmatic way of using elmer is to chat
 with it directly in your R console with `live_console(chat)` or in your
-browser with `live_brower()`.
+browser with `live_browser()`.
 
 ``` r
 live_console(chat)
