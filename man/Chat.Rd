@@ -8,8 +8,11 @@ A promise that resolves to a string (probably Markdown).
 }
 \description{
 A \code{Chat} is an sequence of sequence of user and assistant \link{Turn}s sent
-to a specific \link{Provider}. A \code{Chat} is a mutable object because the sequence
-of turns grows over time as you converse with the chatbot.
+to a specific \link{Provider}. A \code{Chat} is a mutable R6 object that takes care of
+managing the state associated with the chat; i.e. it records the messages
+that you send to the server, and the messages that you receive back.
+If you register a tool (i.e. an R function that the assistant can call on
+your behalf), it also takes care of the tool loop.
 
 You should generally not create this object yourself,
 but instead call \code{\link[=chat_openai]{chat_openai()}} or friends instead.

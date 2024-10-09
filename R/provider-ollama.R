@@ -1,10 +1,9 @@
 #' Chat with a local ollama model
 #'
 #' @description
-#' Download and install [ollama](https://ollama.com) and then you can
-#' chat with it from R with `chat_ollama()`. To install additional
-#' models, use the `ollama` command line, e.g. `ollama pull llama3.1`
-#' or `ollama pull gemma2`.
+#' To use `chat_ollama()` first download and install
+#' [ollama](https://ollama.com). Then install some models from the command line,
+#' e.g. with `ollama pull llama3.1` or `ollama pull gemma2`.
 #'
 #' This function is a lightweight wrapper around [chat_openai()] with
 #' the defaults tweaked for ollama.

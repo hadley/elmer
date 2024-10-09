@@ -49,10 +49,9 @@ the console).
 Note this only affects the \code{chat()} method.}
 }
 \description{
-Download and install \href{https://ollama.com}{ollama} and then you can
-chat with it from R with \code{chat_ollama()}. To install additional
-models, use the \code{ollama} command line, e.g. \verb{ollama pull llama3.1}
-or \verb{ollama pull gemma2}.
+To use \code{chat_ollama()} first download and install
+\href{https://ollama.com}{ollama}. Then install some models from the command line,
+e.g. with \verb{ollama pull llama3.1} or \verb{ollama pull gemma2}.
 
 This function is a lightweight wrapper around \code{\link[=chat_openai]{chat_openai()}} with
 the defaults tweaked for ollama.

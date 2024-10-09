@@ -6,11 +6,21 @@ NULL
 
 #' Chat with a model hosted on Azure OpenAI
 #'
+#' @description
+#' The [Azure OpenAI server](https://azure.microsoft.com/en-us/products/ai-services/openai-service)
+#' hosts a number of open source models as well as proprietary models
+#' from OpenAI.
+#'
 #' @param endpoint Azure OpenAI endpoint url with protocol and hostname, i.e.
-#'  `https://{your-resource-name}.openai.azure.com`
+#'  `https://{your-resource-name}.openai.azure.com`. Defaults to using the
+#'   value of the `AZURE_OPENAI_ENDPOINT` envinronment variable.
 #' @param deployment_id Deployment id for the model you want to use.
 #' @param api_version The API version to use.
+#' @param api_key The API key to use for authentication. You generally should
+#'   not supply this directly, but instead set the `AZURE_OPENAI_API_KEY` environment
+#'   variable.
 #' @inheritParams chat_openai
+#' @inherit chat_openai return
 #' @export
 chat_azure <- function(endpoint = azure_endpoint(),
                        deployment_id,

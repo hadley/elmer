@@ -30,8 +30,8 @@ Normally there is also a \code{content} field, which is a string.}
 \item{base_url}{The base URL to the endpoint; the default uses OpenAI.}
 
 \item{api_key}{The API key to use for authentication. You generally should
-not supply this directly, but instead set the \code{OPENAI_API_KEY} environment
-variable.}
+not supply this directly, but instead manage your GitHub credentials
+as described in \url{https://usethis.r-lib.org/articles/git-credentials.html}.}
 
 \item{model}{The model to use for the chat. The default, \code{NULL}, will pick
 a reasonable default, and tell you about. We strongly recommend explicitly
@@ -53,9 +53,14 @@ the console).
 
 Note this only affects the \code{chat()} method.}
 }
+\value{
+A \link{Chat} object.
+}
 \description{
-This assumes that you have been accepted into the beta access program
-at \url{https://github.com/marketplace/models}.
+GitHub (via Azure) hosts a number of open source and OpenAI models.
+To access the GitHub model marketplace, you will need to apply for and
+be accepted into the beta access program. See
+\url{https://github.com/marketplace/models} for details.
 
 This function is a lightweight wrapper around \code{\link[=chat_openai]{chat_openai()}} with
 the defaults tweaked for the GitHub model marketplace.

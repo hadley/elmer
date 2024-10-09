@@ -29,7 +29,7 @@ Normally there is also a \code{content} field, which is a string.}
 \item{base_url}{The base URL to the endpoint; the default uses OpenAI.}
 
 \item{api_key}{The API key to use for authentication. You generally should
-not supply this directly, but instead set the \code{OPENAI_API_KEY} environment
+not supply this directly, but instead set the \code{GOOGLE_API_KEY} environment
 variable.}
 
 \item{model}{The model to use for the chat. The default, \code{NULL}, will pick
@@ -53,11 +53,7 @@ Note this only affects the \code{chat()} method.}
 A \link{Chat} object.
 }
 \description{
-This function returns a \link{Chat} object that takes care of managing the state
-associated with the chat; i.e. it records the messages that you send to the
-server, and the messages that you receive back. If you register a tool
-(i.e. an R function that the assistant can call on your behalf), it also
-takes care of the tool loop.
+Chat with a Google Gemini model
 }
 \seealso{
 Other chatbots: 

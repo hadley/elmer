@@ -57,7 +57,7 @@ Note this only affects the \code{chat()} method.}
 Sign up at \url{https://groq.com}.
 
 This function is a lightweight wrapper around \code{\link[=chat_openai]{chat_openai()}} with
-the defaults tweaked for the groq.
+the defaults tweaked for groq.
 }
 \seealso{
 Other chatbots: 

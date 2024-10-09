@@ -17,7 +17,8 @@ chat_azure(
 }
 \arguments{
 \item{endpoint}{Azure OpenAI endpoint url with protocol and hostname, i.e.
-\verb{https://\{your-resource-name\}.openai.azure.com}}
+\verb{https://\{your-resource-name\}.openai.azure.com}. Defaults to using the
+value of the \code{AZURE_OPENAI_ENDPOINT} envinronment variable.}
 
 \item{deployment_id}{Deployment id for the model you want to use.}
 
@@ -35,7 +36,7 @@ Each message in the list should be a named list with at least \code{role}
 Normally there is also a \code{content} field, which is a string.}
 
 \item{api_key}{The API key to use for authentication. You generally should
-not supply this directly, but instead set the \code{OPENAI_API_KEY} environment
+not supply this directly, but instead set the \code{AZURE_OPENAI_API_KEY} environment
 variable.}
 
 \item{api_args}{Named list of arbitrary extra arguments appended to the body
@@ -51,6 +52,11 @@ the console).
 
 Note this only affects the \code{chat()} method.}
 }
+\value{
+A \link{Chat} object.
+}
 \description{
-Chat with a model hosted on Azure OpenAI
+The \href{https://azure.microsoft.com/en-us/products/ai-services/openai-service}{Azure OpenAI server}
+hosts a number of open source models as well as proprietary models
+from OpenAI.
 }

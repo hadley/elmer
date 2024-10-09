@@ -39,7 +39,7 @@ of every chat API call.}
 \item{base_url}{The base URL to the endpoint; the default uses OpenAI.}
 
 \item{api_key}{The API key to use for authentication. You generally should
-not supply this directly, but instead set the \code{OPENAI_API_KEY} environment
+not supply this directly, but instead set the \code{ANTHROPIC_API_KEY} environment
 variable.}
 
 \item{echo}{One of the following options:
@@ -56,10 +56,14 @@ Note this only affects the \code{chat()} method.}
 A \link{Chat} object.
 }
 \description{
-This function returns a \link{Chat} object that takes care of managing the state
-associated with the chat; i.e. it records the messages that you send to the
-server, and the messages that you receive back. If you register a tool
-(aka an R function), it also takes care of the tool loop.
+\href{https://www.anthropic.com}{Anthropic} provides a number of chat based
+models under the \href{https://www.anthropic.com/claude}{Claude} moniker.
+
+Note that a Claude Prop membership does not give you the ability to call
+models via the API. You will need to go to the
+\href{https://console.anthropic.com/account/keys}{developer console} to sign up
+(and pay for) a developer account that will give you an API key that
+you can use with this package.
 }
 \seealso{
 Other chatbots: 
