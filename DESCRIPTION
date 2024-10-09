@@ -25,10 +25,10 @@ Suggests:
     knitr,
     later,
     magick,
+    promises,
     rmarkdown,
     shiny,
-    shinychat (>= 0.0.0.9000)
-    promises,
+    shinychat (>= 0.0.0.9000),
     testthat (>= 3.0.0),
     withr
 VignetteBuilder:
