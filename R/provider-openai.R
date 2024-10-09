@@ -2,13 +2,17 @@
 #' @include content.R
 NULL
 
-#' Create a chatbot that speaks to an OpenAI compatible endpoint
+#' Chat with an OpenAI model
 #'
-#' This function returns a [Chat] object that takes care of managing the state
-#' associated with the chat; i.e. it records the messages that you send to the
-#' server, and the messages that you receive back. If you register a tool
-#' (i.e. an R function that the assistant can call on your behalf), it also
-#' takes care of the tool loop.
+#' @description
+#' [OpenAI](https://openai.com/o1/) provides a number of chat based models under
+#' the [ChatGPT](https://chatgpt.com) moniker.
+#'
+#' Note that a ChatGPT Plus membership does not give you the ability to call
+#' models via the API. You will need to go to the
+#' [developer platform](https://platform.openai.com) to sign up
+#' (and pay for) a developer account that will give you an API key that
+#' you can use with this package.
 #'
 #' @param system_prompt A system prompt to set the behavior of the assistant.
 #' @param turns A list of turns to start the chat with (i.e., continuing a
@@ -36,7 +40,7 @@ NULL
 #'     the console).
 #'   * `all`: echo all input and output.
 #'
-#'  Note this only affects the `chat()` method.
+#'   Note this only affects the `chat()` method.
 #' @family chatbots
 #' @export
 #' @returns A [Chat] object.

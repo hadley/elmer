@@ -2,7 +2,7 @@
 % Please edit documentation in R/provider-groq.R
 \name{chat_groq}
 \alias{chat_groq}
-\title{Chat with models from Groq}
+\title{Chat with a model hosted on Groq}
 \usage{
 chat_groq(
   system_prompt = NULL,
@@ -57,7 +57,7 @@ Note this only affects the \code{chat()} method.}
 Sign up at \url{https://groq.com}.
 
 This function is a lightweight wrapper around \code{\link[=chat_openai]{chat_openai()}} with
-the defaults tweaked for the groq.
+the defaults tweaked for groq.
 }
 \seealso{
 Other chatbots: 

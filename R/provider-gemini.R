@@ -2,18 +2,15 @@
 #' @include content.R
 NULL
 
-#' Create a chatbot that speaks to Google's Gemini
+#' Chat with a Google Gemini model
 #'
-#' This function returns a [Chat] object that takes care of managing the state
-#' associated with the chat; i.e. it records the messages that you send to the
-#' server, and the messages that you receive back. If you register a tool
-#' (i.e. an R function that the assistant can call on your behalf), it also
-#' takes care of the tool loop.
-#'
+#' @param api_key The API key to use for authentication. You generally should
+#'   not supply this directly, but instead set the `GOOGLE_API_KEY` environment
+#'   variable.
 #' @inheritParams chat_openai
+#' @inherit chat_openai return
 #' @family chatbots
 #' @export
-#' @returns A [Chat] object.
 chat_gemini <- function(system_prompt = NULL,
                             turns = NULL,
                             base_url = "https://generativelanguage.googleapis.com/v1beta/",

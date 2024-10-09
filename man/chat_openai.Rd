@@ -2,7 +2,7 @@
 % Please edit documentation in R/provider-openai.R
 \name{chat_openai}
 \alias{chat_openai}
-\title{Create a chatbot that speaks to an OpenAI compatible endpoint}
+\title{Chat with an OpenAI model}
 \usage{
 chat_openai(
   system_prompt = NULL,
@@ -57,11 +57,14 @@ Note this only affects the \code{chat()} method.}
 A \link{Chat} object.
 }
 \description{
-This function returns a \link{Chat} object that takes care of managing the state
-associated with the chat; i.e. it records the messages that you send to the
-server, and the messages that you receive back. If you register a tool
-(i.e. an R function that the assistant can call on your behalf), it also
-takes care of the tool loop.
+\href{https://openai.com/o1/}{OpenAI} provides a number of chat based models under
+the \href{https://chatgpt.com}{ChatGPT} moniker.
+
+Note that a ChatGPT Plus membership does not give you the ability to call
+models via the API. You will need to go to the
+\href{https://platform.openai.com}{developer platform} to sign up
+(and pay for) a developer account that will give you an API key that
+you can use with this package.
 }
 \examples{
 \dontshow{if (elmer:::openai_key_exists()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}

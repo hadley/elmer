@@ -1,14 +1,18 @@
-#' Chat with models from perplexity.ai
+#' Chat with a model hosted on perplexity.ai
 #'
 #' @description
 #' Sign up at <https://www.perplexity.ai>.
 #'
 #' This function is a lightweight wrapper around [chat_openai()] with
-#' the defaults tweaked for the groq.
+#' the defaults tweaked for groq.
 #'
 #' @export
 #' @family chatbots
+#' @param api_key The API key to use for authentication. You generally should
+#'   not supply this directly, but instead set the `PERPLEXITY_API_KEY` environment
+#'   variable.
 #' @inheritParams chat_openai
+#' @inherit chat_openai return
 chat_perplexity <- function(system_prompt = NULL,
                                 turns = NULL,
                                 base_url = "https://api.perplexity.ai/",

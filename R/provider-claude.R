@@ -2,18 +2,26 @@
 #' @include content.R
 NULL
 
-#' Create a chatbot that speaks to Anthropic's Claude
+#' Chat with an Anthropic Claude model
 #'
-#' This function returns a [Chat] object that takes care of managing the state
-#' associated with the chat; i.e. it records the messages that you send to the
-#' server, and the messages that you receive back. If you register a tool
-#' (aka an R function), it also takes care of the tool loop.
+#' @description
+#' [Anthropic](https://www.anthropic.com) provides a number of chat based
+#' models under the [Claude](https://www.anthropic.com/claude) moniker.
+#'
+#' Note that a Claude Prop membership does not give you the ability to call
+#' models via the API. You will need to go to the
+#' [developer console](https://console.anthropic.com/account/keys) to sign up
+#' (and pay for) a developer account that will give you an API key that
+#' you can use with this package.
 #'
 #' @inheritParams chat_openai
+#' @inherit chat_openai return
+#' @param api_key The API key to use for authentication. You generally should
+#'   not supply this directly, but instead set the `ANTHROPIC_API_KEY` environment
+#'   variable.
 #' @param max_tokens Maximum number of tokens to generate before stopping.
 #' @family chatbots
 #' @export
-#' @returns A [Chat] object.
 chat_claude <- function(system_prompt = NULL,
                             turns = NULL,
                             max_tokens = 4096,
