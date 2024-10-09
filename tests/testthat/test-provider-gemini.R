@@ -5,10 +5,13 @@ test_that("can make simple request", {
   resp <- chat$chat("What is 1 + 1?")
   expect_match(resp, "2")
   expect_equal(chat$last_turn()@tokens, c(17, 1))
+})
 
+test_that("can make simple async request", {
+  chat <- chat_gemini("Be as terse as possible; no punctuation")
   resp <- sync(chat$chat_async("What is 1 + 1?"))
   expect_match(resp, "2")
-  expect_equal(chat$last_turn()@tokens, c(30, 1))
+  expect_equal(chat$last_turn()@tokens, c(17, 1))
 })
 
 test_that("can make simple streaming request", {
@@ -39,7 +42,12 @@ test_that("all tool variations work", {
   test_tools_simple(chat_fun)
   test_tools_async(chat_fun)
   test_tools_parallel(chat_fun)
-  test_tools_sequential(chat_fun, total_calls = 8)
+
+  # <10% of the time, it uses only 6 calls, suggesting that it's made a poor
+  # choice. Running it twice (i.e. retrying 1) should reduce failure rate to <1%
+  retry_test(
+    test_tools_sequential(chat_fun, total_calls = 8)
+  )
 })
 
 test_that("can use images", {

@@ -1,3 +1,21 @@
+retry_test <- function(code, retries = 1) {
+  code <- enquo(code)
+
+  i <- 1
+  while (i <= retries) {
+    tryCatch(
+      {
+        return(eval(get_expr(code), get_env(code)))
+        break
+      },
+      expectation_failure = function(cnd) NULL
+    )
+    i <- i + 1
+  }
+
+  eval(get_expr(code), get_env(code))
+}
+
 # Turns ------------------------------------------------------------------
 
 test_turns_system <- function(chat_fun) {
