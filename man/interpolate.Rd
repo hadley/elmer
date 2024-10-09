@@ -2,9 +2,12 @@
 % Please edit documentation in R/interpolate.R
 \name{interpolate}
 \alias{interpolate}
+\alias{interpolate_file}
 \title{Helpers for interpolating data into prompts}
 \usage{
 interpolate(prompt, ..., .envir = parent.frame())
+
+interpolate_file(path, ..., .envir = parent.frame())
 }
 \arguments{
 \item{prompt}{A prompt string. You should not generally expose this
@@ -16,6 +19,8 @@ code.}
 \item{.envir}{Environment to evaluate \code{...} expressions in. Used when
 wrapping in another function. See \code{vignette("wrappers", package = "glue")}
 for more details.}
+
+\item{path}{A path to a prompt file (often a \code{.md}).}
 }
 \description{
 These functions are lightweight wrappers around

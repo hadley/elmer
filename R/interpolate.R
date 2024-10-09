@@ -43,7 +43,7 @@ interpolate <- function(prompt, ..., .envir = parent.frame()) {
 }
 
 #' @param path A path to a prompt file (often a `.md`).
-#' @rdname prompt
+#' @rdname interpolate
 #' @export
 interpolate_file <- function(path, ..., .envir = parent.frame()) {
   string <- read_file(path)
