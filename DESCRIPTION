@@ -63,6 +63,7 @@ Collate:
     'provider-ollama.R'
     'provider-perplexity.R'
     'shiny.R'
+    'tokens.R'
     'tools-def-auto.R'
     'tools-def.R'
     'turns.R'

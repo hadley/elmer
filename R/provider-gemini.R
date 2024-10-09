@@ -132,6 +132,7 @@ gemini_assistant_turn <- function(message, result) {
   })
   usage <- result$usageMetadata
   tokens <- c(usage$promptTokenCount, usage$candidatesTokenCount)
+  tokens_log("Gemini", tokens)
 
   Turn("assistant", contents, json = result, tokens = tokens)
 }
