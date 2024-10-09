@@ -6,17 +6,15 @@ reference:
 - title: Chatbots
   contents:
   - starts_with("chat_")
-  - starts_with("live_")
   - token_usage
 
-- title: Tool use
+- title: Chat helpers
   contents:
-  - ToolDef
   - create_tool_def
-
-- title: Images
-  contents:
   - content_image_url
+  - starts_with("live_")
+  - interpolate
+  - ToolDef
 
 - title: Objects
   desc: >

@@ -1,5 +1,7 @@
 # elmer (development version)
 
+* New `interpolate()` and `prompt_file()` make it easier to create prompts that are a mix of static text and dynamic values.
+
 * You can find how many tokens you've used in the current session by calling `token_usage()`.
 
 * `chat_browser()` and `chat_console()` are now `live_browser()` and `live_console()`.

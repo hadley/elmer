@@ -62,3 +62,7 @@ check_echo <- function(echo = NULL) {
     arg_match(echo, c("none", "text", "all"))
   }
 }
+
+dots_named <- function(...) {
+  is_named2(list(...))
+}
