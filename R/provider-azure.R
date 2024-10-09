@@ -4,7 +4,7 @@ NULL
 
 # https://learn.microsoft.com/en-us/azure/ai-services/openai/reference#chat-completions
 
-#' Chat with Azure OpenAI
+#' Chat with a model hosted on Azure OpenAI
 #'
 #' @param endpoint Azure OpenAI endpoint url with protocol and hostname, i.e.
 #'  `https://{your-resource-name}.openai.azure.com`

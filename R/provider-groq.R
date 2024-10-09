@@ -1,4 +1,4 @@
-#' Chat with models from Groq
+#' Chat with a model hosted on Groq
 #'
 #' @description
 #' Sign up at <https://groq.com>.

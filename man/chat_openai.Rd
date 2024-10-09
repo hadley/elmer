@@ -2,7 +2,7 @@
 % Please edit documentation in R/provider-openai.R
 \name{chat_openai}
 \alias{chat_openai}
-\title{Create a chatbot that speaks to an OpenAI compatible endpoint}
+\title{Chat with an OpenAI model}
 \usage{
 chat_openai(
   system_prompt = NULL,

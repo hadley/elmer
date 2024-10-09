@@ -2,7 +2,7 @@
 % Please edit documentation in R/provider-azure.R
 \name{chat_azure}
 \alias{chat_azure}
-\title{Chat with Azure OpenAI}
+\title{Chat with a model hosted on Azure OpenAI}
 \usage{
 chat_azure(
   endpoint = azure_endpoint(),
@@ -52,5 +52,5 @@ the console).
 Note this only affects the \code{chat()} method.}
 }
 \description{
-Chat with Azure OpenAI
+Chat with a model hosted on Azure OpenAI
 }

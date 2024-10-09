@@ -1,4 +1,4 @@
-#' Chat with models from perplexity.ai
+#' Chat with a model hosted on perplexity.ai
 #'
 #' @description
 #' Sign up at <https://www.perplexity.ai>.

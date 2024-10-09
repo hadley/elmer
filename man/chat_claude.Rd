@@ -2,7 +2,7 @@
 % Please edit documentation in R/provider-claude.R
 \name{chat_claude}
 \alias{chat_claude}
-\title{Create a chatbot that speaks to Anthropic's Claude}
+\title{Chat with an Anthropic Claude model}
 \usage{
 chat_claude(
   system_prompt = NULL,

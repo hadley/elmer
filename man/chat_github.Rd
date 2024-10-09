@@ -2,7 +2,7 @@
 % Please edit documentation in R/provider-github.R
 \name{chat_github}
 \alias{chat_github}
-\title{Chat with models in the GitHub model marketplace}
+\title{Chat with a model hosted on the GitHub model marketplace}
 \usage{
 chat_github(
   system_prompt = NULL,

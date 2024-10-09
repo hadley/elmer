@@ -2,7 +2,7 @@
 % Please edit documentation in R/provider-groq.R
 \name{chat_groq}
 \alias{chat_groq}
-\title{Chat with models from Groq}
+\title{Chat with a model hosted on Groq}
 \usage{
 chat_groq(
   system_prompt = NULL,

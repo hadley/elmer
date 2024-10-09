@@ -1,4 +1,4 @@
-#' Connect to a local ollama instances
+#' Chat with a local ollama model
 #'
 #' @description
 #' Download and install [ollama](https://ollama.com) and then you can

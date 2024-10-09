@@ -2,7 +2,7 @@
 % Please edit documentation in R/provider-perplexity.R
 \name{chat_perplexity}
 \alias{chat_perplexity}
-\title{Chat with models from perplexity.ai}
+\title{Chat with a model hosted on perplexity.ai}
 \usage{
 chat_perplexity(
   system_prompt = NULL,

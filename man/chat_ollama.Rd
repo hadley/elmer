@@ -2,7 +2,7 @@
 % Please edit documentation in R/provider-ollama.R
 \name{chat_ollama}
 \alias{chat_ollama}
-\title{Connect to a local ollama instances}
+\title{Chat with a local ollama model}
 \usage{
 chat_ollama(
   system_prompt = NULL,

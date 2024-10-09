@@ -1,4 +1,4 @@
-#' Chat with models in the GitHub model marketplace
+#' Chat with a model hosted on the GitHub model marketplace
 #'
 #' @description
 #' This assumes that you have been accepted into the beta access program

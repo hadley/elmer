@@ -2,7 +2,7 @@
 % Please edit documentation in R/provider-gemini.R
 \name{chat_gemini}
 \alias{chat_gemini}
-\title{Create a chatbot that speaks to Google's Gemini}
+\title{Chat with a Google Gemini model}
 \usage{
 chat_gemini(
   system_prompt = NULL,

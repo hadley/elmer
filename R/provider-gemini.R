@@ -2,7 +2,7 @@
 #' @include content.R
 NULL
 
-#' Create a chatbot that speaks to Google's Gemini
+#' Chat with a Google Gemini model
 #'
 #' This function returns a [Chat] object that takes care of managing the state
 #' associated with the chat; i.e. it records the messages that you send to the
