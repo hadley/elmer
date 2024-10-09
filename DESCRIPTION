@@ -13,6 +13,7 @@ BugReports: https://github.com/hadley/elmer/issues
 Imports:
     cli,
     coro,
+    glue,
     httr2 (>= 1.0.5),
     jsonlite,
     R6,
@@ -53,7 +54,7 @@ Collate:
     'import-standalone-obj-type.R'
     'import-standalone-purrr.R'
     'import-standalone-types-check.R'
-    'prompt.R'
+    'interpolate.R'
     'provider.R'
     'provider-openai.R'
     'provider-azure.R'

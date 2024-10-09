@@ -6,7 +6,9 @@
 #' expect you to wrap dynamic values in `{{ }}`, making it easier to include
 #' R code and JSON in your prompt.
 #'
-#' @param prompt A prompt string
+#' @param prompt A prompt string. You should not generally expose this
+#'   to the end user, since glue interpolation makes it easy to run arbitrary
+#'   code.
 #' @param ... Define additional temporary variables for substitution.
 #' @param .envir Environment to evaluate `...` expressions in. Used when
 #'   wrapping in another function. See `vignette("wrappers", package = "glue")`
@@ -16,12 +18,12 @@
 #' joke <- "You're a cool dude who loves to make jokes. Tell me a joke about {{topic}}."
 #'
 #' # You can supply valuese directly:
-#' prompt(joke, topic = "bananas")
+#' interpolate(joke, topic = "bananas")
 #'
-#' # Or allow prompt to find them in the current environment:
+#' # Or allow interpolate to find them in the current environment:
 #' topic <- "applies"
-#' prompt(joke)
-prompt <- function(prompt, ..., .envir = parent.frame()) {
+#' interpolate(joke)
+interpolate <- function(prompt, ..., .envir = parent.frame()) {
   check_string(prompt)
 
   if (!dots_named(...)) {
@@ -43,9 +45,9 @@ prompt <- function(prompt, ..., .envir = parent.frame()) {
 #' @param path A path to a prompt file (often a `.md`).
 #' @rdname prompt
 #' @export
-prompt_file <- function(path, ..., .envir = parent.frame()) {
+interpolate_file <- function(path, ..., .envir = parent.frame()) {
   string <- read_file(path)
-  prompt(string, ..., .envir = .envir)
+  interpolate(string, ..., .envir = .envir)
 }
 
 read_file <- function(path) {

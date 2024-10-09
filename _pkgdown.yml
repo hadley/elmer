@@ -13,7 +13,7 @@ reference:
   - create_tool_def
   - content_image_url
   - starts_with("live_")
-  - prompt
+  - inteprolate
   - ToolDef
 
 - title: Objects
