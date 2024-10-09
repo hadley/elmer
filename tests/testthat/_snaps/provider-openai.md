@@ -1,11 +1,11 @@
-# default model is reported
+# defaults are reported
 
     Code
-      . <- chat_openai()$chat("Hi")
+      . <- chat_openai()
     Message
       Using model = "gpt-4o-mini".
 
-# can make an async tool call
+# all tool variations work
 
     Code
       chat$chat("Great. Do it again.")

@@ -1,4 +1,9 @@
-# can make an async tool call
+# defaults are reported
+
+    Code
+      . <- chat_claude()
+
+# all tool variations work
 
     Code
       chat$chat("Great. Do it again.")
@@ -7,10 +12,10 @@
       ! Can't use async tools with `$chat()` or `$stream()`.
       i Async tools are supported, but you must use `$chat_async()` or `$stream_async()`.
 
-# can use inline images
+# can use images
 
     Code
-      . <- chat$chat("What's in this image?", remote_image)
+      . <- chat$chat("What's in this image?", image_remote)
     Condition
       Error:
       ! Claude doesn't support remote images
