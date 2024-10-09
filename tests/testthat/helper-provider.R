@@ -23,10 +23,9 @@ test_turns_existing <- function(chat_fun) {
   expect_length(chat$turns(), 2)
 
   resp <- chat$chat("Who is the remaining one? Just give the name")
-  expect_equal(resp, "Prancer")
+  expect_match(resp, "Prancer")
   expect_length(chat$turns(), 4)
 }
-
 
 # Tool calls -------------------------------------------------------------
 
@@ -76,11 +75,12 @@ test_tools_parallel <- function(chat_fun) {
     What are Joe and Hadley's favourite colours?
     Answer like name1: colour1, name2: colour2
   ")
-  expect_identical(result, "Joe: sage green, Hadley: red")
+  expect_match(result, "Joe: sage green")
+  expect_match(result, "Hadley: red")
   expect_length(chat$turns(), 4)
 }
 
-test_tools_sequential <- function(chat_fun) {
+test_tools_sequential <- function(chat_fun, total_calls) {
   chat <- chat_fun(system_prompt = "Be very terse, not even punctuation.")
   chat$register_tool(ToolDef(
     function() 2024,
@@ -95,15 +95,15 @@ test_tools_sequential <- function(chat_fun) {
   ))
 
   result <- chat$chat("What was the most popular name this year.")
-  expect_equal(result, "Susan")
-  expect_length(chat$turns(), 6)
+  expect_match(result, "Susan")
+  expect_length(chat$turns(), total_calls)
 }
 
 
 # Images -----------------------------------------------------------------
 
 test_images_inline <- function(chat_fun) {
-  chat <- chat_fun(model = "gpt-4o-mini")
+  chat <- chat_fun()
   response <- chat$chat(
     "What's in this image? (Be sure to mention the outside shape)",
     content_image_file(system.file("httr2.png", package = "elmer"))
@@ -113,11 +113,22 @@ test_images_inline <- function(chat_fun) {
 }
 
 test_images_remote <- function(chat_fun) {
-  chat <- chat_fun(model = "gpt-4o-mini")
+  chat <- chat_fun()
   response <- chat$chat(
     "What's in this image? (Be sure to mention the outside shape)",
     content_image_url("https://httr2.r-lib.org/logo.png")
   )
   expect_match(response, "hex")
   expect_match(response, "baseball")
+}
+
+test_images_remote_error <- function(chat_fun) {
+  chat <- chat_fun()
+
+  image_remote <- content_image_url("https://httr2.r-lib.org/logo.png")
+  expect_snapshot(
+    . <- chat$chat("What's in this image?", image_remote),
+    error = TRUE
+  )
+  expect_length(chat$turns(), 0)
 }
