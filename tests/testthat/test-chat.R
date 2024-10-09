@@ -1,36 +1,48 @@
 test_that("can perform a simple batch chat", {
-  chat <- chat_openai(
-    "You're a helpful assistant that returns very minimal output.
-    If asked a math question, return only the answer.",
-  )
-  result <- chat$chat("What's 1 + 1")
+  chat <- chat_openai()
+
+  result <- chat$chat("What's 1 + 1. Just give me the answer, no punctuation")
   expect_equal(result, "2")
   expect_equal(chat$last_turn()@contents[[1]]@text, "2")
+})
 
-  result <- chat$chat_async("What's 1 + 1")
+test_that("can perform a simple async batch chat", {
+  chat <- chat_openai()
+
+  result <- chat$chat_async("What's 1 + 1. Just give me the answer, no punctuation")
   expect_s3_class(result, "promise")
+
   result <- sync(result)
   expect_equal(result, "2")
   expect_equal(chat$last_turn()@contents[[1]]@text, "2")
 })
 
 test_that("can perform a simple streaming chat", {
-  rainbow_re <- "^red *\norange *\nyellow *\ngreen *\nblue *\nindigo *\nviolet *\n?$"
-  chat <- chat_openai("
-    You're a helpful assistant that returns very minimal output.
-    When answering a question with multiple answers, put each answer on its own
-    line with no punctuation."
-  )
+  chat <- chat_openai()
 
-  chunks <- coro::collect(chat$stream("What are the canonical colors of the ROYGBIV rainbow?"))
+  chunks <- coro::collect(chat$stream("
+    What are the canonical colors of the ROYGBIV rainbow?
+    Put each colour on its own line. Don't use punctuation.
+  "))
   expect_gt(length(chunks), 2)
+
+  rainbow_re <- "^red *\norange *\nyellow *\ngreen *\nblue *\nindigo *\nviolet *\n?$"
   expect_match(paste(chunks, collapse = ""), rainbow_re, ignore.case = TRUE)
   expect_match(chat$last_turn()@contents[[1]]@text, rainbow_re, ignore.case = TRUE)
+})
 
-  chunks <- coro::async_collect(chat$stream_async("What are the canonical colors of the ROYGBIV rainbow?"))
+test_that("can perform a simple async batch chat", {
+  chat <- chat_openai()
+
+  chunks <- coro::async_collect(chat$stream_async("
+    What are the canonical colors of the ROYGBIV rainbow?
+    Put each colour on its own line. Don't use punctuation.
+  "))
   expect_s3_class(chunks, "promise")
+
   chunks <- sync(chunks)
   expect_gt(length(chunks), 2)
+  rainbow_re <- "^red *\norange *\nyellow *\ngreen *\nblue *\nindigo *\nviolet *\n?$"
   expect_match(paste(chunks, collapse = ""), rainbow_re, ignore.case = TRUE)
   expect_match(chat$last_turn()@contents[[1]]@text, rainbow_re, ignore.case = TRUE)
 })

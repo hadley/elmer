@@ -6,6 +6,7 @@ reference:
 - title: Chatbots
   contents:
   - starts_with("chat_")
+  - token_usage
 
 - title: Chat helpers
   contents:

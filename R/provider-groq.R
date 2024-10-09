@@ -1,10 +1,10 @@
-#' Chat with models from Groq
+#' Chat with a model hosted on Groq
 #'
 #' @description
 #' Sign up at <https://groq.com>.
 #'
 #' This function is a lightweight wrapper around [chat_openai()] with
-#' the defaults tweaked for the groq.
+#' the defaults tweaked for groq.
 #'
 #' @export
 #' @family chatbots

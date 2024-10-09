@@ -2,6 +2,8 @@
 #' @importFrom R6 R6Class
 "_PACKAGE"
 
+the <- new_environment()
+
 ## usethis namespace: start
 #' @import rlang
 #' @import httr2

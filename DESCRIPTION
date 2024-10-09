@@ -16,10 +16,8 @@ Imports:
     httr2 (>= 1.0.5),
     jsonlite,
     R6,
-    S7,
     rlang (>= 1.1.0),
-    shinychat (>= 0.0.0.9000),
-    glue
+    shinychat (>= 0.0.0.9000)
 Suggests:
     base64enc,
     bslib,
@@ -30,8 +28,11 @@ Suggests:
     promises,
     rmarkdown,
     shiny,
+    shinychat (>= 0.0.0.9000),
     testthat (>= 3.0.0),
     withr
+VignetteBuilder:
+    knitr
 Remotes:
     jcheng5/shinychat
 Config/Needs/website: tidyverse/tidytemplate, rmarkdown
@@ -54,14 +55,16 @@ Collate:
     'import-standalone-types-check.R'
     'prompt.R'
     'provider.R'
+    'provider-openai.R'
+    'provider-azure.R'
     'provider-claude.R'
     'provider-gemini.R'
     'provider-github.R'
     'provider-groq.R'
     'provider-ollama.R'
-    'provider-openai.R'
     'provider-perplexity.R'
     'shiny.R'
+    'tokens.R'
     'tools-def-auto.R'
     'tools-def.R'
     'turns.R'
@@ -69,4 +72,3 @@ Collate:
     'utils-merge.R'
     'utils.R'
     'zzz.R'
-VignetteBuilder: knitr

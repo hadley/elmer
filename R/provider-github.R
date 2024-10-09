@@ -1,15 +1,21 @@
-#' Chat with models in the GitHub model marketplace
+#' Chat with a model hosted on the GitHub model marketplace
 #'
 #' @description
-#' This assumes that you have been accepted into the beta access program
-#' at <https://github.com/marketplace/models>.
+#' GitHub (via Azure) hosts a number of open source and OpenAI models.
+#' To access the GitHub model marketplace, you will need to apply for and
+#' be accepted into the beta access program. See
+#' <https://github.com/marketplace/models> for details.
 #'
 #' This function is a lightweight wrapper around [chat_openai()] with
 #' the defaults tweaked for the GitHub model marketplace.
 #'
 #' @family chatbots
+#' @param api_key The API key to use for authentication. You generally should
+#'   not supply this directly, but instead manage your GitHub credentials
+#'   as described in <https://usethis.r-lib.org/articles/git-credentials.html>.
 #' @export
 #' @inheritParams chat_openai
+#' @inherit chat_openai return
 chat_github <- function(system_prompt = NULL,
                             turns = NULL,
                             base_url = "https://models.inference.ai.azure.com/",

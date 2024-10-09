@@ -2,7 +2,7 @@
 % Please edit documentation in R/provider-perplexity.R
 \name{chat_perplexity}
 \alias{chat_perplexity}
-\title{Chat with models from perplexity.ai}
+\title{Chat with a model hosted on perplexity.ai}
 \usage{
 chat_perplexity(
   system_prompt = NULL,
@@ -30,7 +30,7 @@ Normally there is also a \code{content} field, which is a string.}
 \item{base_url}{The base URL to the endpoint; the default uses OpenAI.}
 
 \item{api_key}{The API key to use for authentication. You generally should
-not supply this directly, but instead set the \code{OPENAI_API_KEY} environment
+not supply this directly, but instead set the \code{PERPLEXITY_API_KEY} environment
 variable.}
 
 \item{model}{The model to use for the chat. The default, \code{NULL}, will pick
@@ -53,11 +53,14 @@ the console).
 
 Note this only affects the \code{chat()} method.}
 }
+\value{
+A \link{Chat} object.
+}
 \description{
 Sign up at \url{https://www.perplexity.ai}.
 
 This function is a lightweight wrapper around \code{\link[=chat_openai]{chat_openai()}} with
-the defaults tweaked for the groq.
+the defaults tweaked for groq.
 }
 \seealso{
 Other chatbots: 

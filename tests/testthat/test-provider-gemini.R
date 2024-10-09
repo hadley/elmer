@@ -1,130 +1,48 @@
+# Getting started --------------------------------------------------------
+
 test_that("can make simple request", {
   chat <- chat_gemini("Be as terse as possible; no punctuation")
-  resp <- chat$chat("What is 1 + 1?")
+  resp <- chat$chat("What is 1 + 1?", echo = FALSE)
   expect_match(resp, "2")
   expect_equal(chat$last_turn()@tokens, c(17, 1))
-
-  resp <- sync(chat$chat_async("What is 1 + 1?"))
-  expect_match(resp, "2")
-  expect_equal(chat$last_turn()@tokens, c(30, 1))
 })
 
 test_that("can make simple streaming request", {
   chat <- chat_gemini("Be as terse as possible; no punctuation")
   resp <- coro::collect(chat$stream("What is 1 + 1?"))
   expect_match(paste0(unlist(resp), collapse = ""), "2")
-
-  resp <- sync(coro::async_collect(chat$stream_async("1 + 1")))
-  expect_match(paste0(unlist(resp), collapse = ""), "2")
 })
 
-test_that("system prompt can be passed explicitly or as a turn", {
-  system_prompt <- "Return very minimal output, AND ONLY USE UPPERCASE."
+# Common provider interface -----------------------------------------------
 
-  chat <- chat_gemini(system_prompt = system_prompt)
-  resp <- chat$chat("What is the name of Winnie the Pooh's human friend?")
-  expect_match(resp, "CHRISTOPHER ROBIN")
-
-  chat <- chat_gemini(turns = list(Turn("system", system_prompt)))
-  resp <- chat$chat("What is the name of Winnie the Pooh's human friend?")
-  expect_match(resp, "CHRISTOPHER ROBIN")
+test_that("defaults are reported", {
+  expect_snapshot(. <- chat_gemini())
 })
 
-test_that("existing conversation history is used", {
-  chat <- chat_gemini(turns = list(
-    Turn("system", "Return very minimal output; no punctuation."),
-    Turn("user", "List the names of any 8 of Santa's 9 reindeer."),
-    Turn("assistant", "Dasher, Dancer, Vixen, Comet, Cupid, Donner, Blitzen, and Rudolph.")
-  ))
+test_that("respects turns interface", {
+  chat_fun <- chat_gemini
 
-  resp <- chat$chat("Who is the remaining one? Just give the name")
-  expect_match(resp, "Prancer")
+  test_turns_system(chat_fun)
+  test_turns_existing(chat_fun)
 })
 
-# Tool calls -------------------------------------------------------------------
+test_that("all tool variations work", {
+  chat_fun <- chat_gemini
 
-test_that("can make a simple tool call", {
-  chat <- chat_gemini(system_prompt = "Be very terse, not even punctuation.")
-  chat$register_tool(ToolDef(
-    function() "2024-01-01",
-    name = "get_date",
-    description = "Gets the current date"
-  ))
+  test_tools_simple(chat_fun)
+  test_tools_async(chat_fun)
+  test_tools_parallel(chat_fun)
 
-  result <- chat$chat("What's the current date?")
-  expect_match(result, "2024-01-01")
-
-  result <- chat$chat("What month is it?")
-  expect_match(result, "January")
-})
-
-test_that("can make an async tool call", {
-  chat <- chat_gemini(system_prompt = "Be very terse, not even punctuation.")
-  chat$register_tool(ToolDef(
-    coro::async(function() "2024-01-01"),
-    name = "get_date",
-    description = "Gets the current date"
-  ))
-
-  result <- sync(chat$chat_async("What's the current date?"))
-  expect_match(result, "2024-01-01")
-
-  expect_snapshot(chat$chat("Great. Do it again."), error = TRUE)
-})
-
-test_that("can call multiple tools in parallel", {
-  chat <- chat_gemini(system_prompt = "Be very terse, not even punctuation.")
-  chat$register_tool(ToolDef(
-    function(person) if (person == "Joe") "sage green" else "red",
-    name = "favourite_color",
-    description = "Returns a person's favourite colour",
-    arguments = list(person = ToolArg("string", "Name of a person")),
-    strict = TRUE
-  ))
-
-  result <- chat$chat("
-    What are Joe and Hadley's favourite colours?
-    Answer like name1: colour1, name2: colour2
-  ")
-  expect_match(result, "Joe: sage green, Hadley: red")
-  expect_length(chat$turns(), 4)
-})
-
-test_that("can call multiple tools in sequence", {
-  chat <- chat_gemini()
-  chat$register_tool(ToolDef(
-    function() 2024,
-    name = "get_year",
-    description = "Get the current year"
-  ))
-  chat$register_tool(ToolDef(
-    function(year) if (year == 2024) "Susan" else "I don't know",
-    name = "popular_name",
-    description = "Gets the most popular name for a year",
-    arguments = list(year = ToolArg("integer", "Year"))
-  ))
-
-  result <- chat$chat("What's the most popular name this year?")
-  expect_match(result, "Susan")
-  expect_length(chat$turns(), 6)
-})
-
-# Images -----------------------------------------------------------------
-
-test_that("can use images (inline and remote)", {
-  chat <- chat_gemini()
-  response <- chat$chat(
-    "What's in this image? (Be sure to mention the outside shape)",
-    content_image_file(system.file("httr2.png", package = "elmer"))
+  # <10% of the time, it uses only 6 calls, suggesting that it's made a poor
+  # choice. Running it twice (i.e. retrying 1) should reduce failure rate to <1%
+  retry_test(
+    test_tools_sequential(chat_fun, total_calls = 8)
   )
-  expect_match(response, "hex")
-  expect_match(response, "baseball")
-  expect_length(chat$turns(), 2)
+})
 
-  image_remote <- content_image_url("https://httr2.r-lib.org/logo.png")
-  expect_snapshot(
-    . <- chat$chat("What's in this image?", image_remote),
-    error = TRUE
-  )
-  expect_length(chat$turns(), 2)
+test_that("can use images", {
+  chat_fun <- chat_gemini
+
+  test_images_inline(chat_fun)
+  test_images_remote_error(chat_fun)
 })
