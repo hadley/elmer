@@ -95,6 +95,37 @@ Chat <- R6::R6Class("Chat",
       if (echo == "none") text else invisible(text)
     },
 
+    #' @description Extract structured data
+    #' @param ... The input to send to the chatbot. Will typically include
+    #'   the phrase "extract structured data".
+    #' @param type A type specification for the extracted data. Should be
+    #'   created with a [`type_()`][type_boolean] function.
+    extract_data = function(..., type) {
+      turn <- user_turn(...)
+
+      tool_def <- ToolDef(
+        fun = function(...) {},
+        name = "_structured_tool_call",
+        description = "Extract structured data",
+        arguments = type_object(data = type)
+      )
+      private$tools[[tool_def@name]] <- tool_def
+      defer(private$tools[[tool_def@name]] <- NULL)
+
+      # TODO: require tool usage
+      coro::collect(private$submit_turns(turn, stream = FALSE, echo = FALSE))
+
+      turn <- self$last_turn()
+      is_tool_request <- map_lgl(turn@contents, S7_inherits, ContentToolRequest)
+      n <- sum(is_tool_request)
+      if (n != 1) {
+        cli::cli_abort("Data extraction failed: {n} tool requests recieved.")
+      }
+
+      request <- turn@contents[[which(is_tool_request)]]
+      request@arguments$data
+    },
+
     #' @description Submit input to the chatbot, and receive a promise that
     #'   resolves with the response all at once.
     #' @param ... The input to send to the chatbot. Can be strings or images.
