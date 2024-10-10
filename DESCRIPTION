@@ -67,6 +67,7 @@ Collate:
     'shiny.R'
     'tokens.R'
     'tools-def-auto.R'
+    'types.R'
     'tools-def.R'
     'turns.R'
     'utils-cat.R'

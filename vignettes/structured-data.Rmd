@@ -1,0 +1,64 @@
+---
+title: "structured-data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{structured-data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(elmer)
+```
+
+```R
+# https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb
+
+type_object(
+  "Summary of the article.",
+  author = type_string("Name of the article author"),
+  topics = type_array(
+    'Array of topics, e.g. ["tech", "politics"]. Should be as specific as possible, and can overlap.',
+    type_string(),
+  ),
+  summary = type_string("Summary of the article. One or two paragraphs max."),
+  coherence = type_integer("Coherence of the article's key points, 0-100 (inclusive)"),
+  persuasion = type_number("Article's persuasion score, 0.0-1.0 (inclusive)")
+)
+
+type_object(
+  "named entities",
+  entities = type_array(
+    "Array of named entities",
+    type_object(
+      name = type_string("The extracted entity name."),
+      type = type_string("The entity type (e.g., PERSON, ORGANIZATION, LOCATION)."),
+      content = type_string("The context in which the entity appears in the text.")
+    )
+  )
+)
+
+type_object(
+  "Extract the sentiment scores of a given text.",
+  positive_score = type_number("The positive sentiment score, ranging from 0.0 to 1.0."),
+  negative_score = type_number("The negative sentiment score, ranging from 0.0 to 1.0."),
+  neutral_score = type_number("The neutral sentiment score, ranging from 0.0 to 1.0.")
+)
+
+type_object(
+  categories = type_array(
+    "Array of classification results",
+    type_object(
+      name = type_string("The category name."),
+      score = type_number("The classification score for the category, ranging from 0.0 to 1.0.")
+    )
+  )
+)
+```

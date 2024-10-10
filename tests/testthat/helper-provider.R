@@ -49,11 +49,7 @@ test_turns_existing <- function(chat_fun) {
 
 test_tools_simple <- function(chat_fun) {
   chat <- chat_fun(system_prompt = "Be very terse, not even punctuation.")
-  chat$register_tool(ToolDef(
-    function() "2024-01-01",
-    name = "get_date",
-    description = "Gets the current date"
-  ))
+  chat$register_tool(tool(function() "2024-01-01", "Gets the current date"))
 
   result <- chat$chat("What's the current date in YMD format?")
   expect_match(result, "2024-01-01")
@@ -64,11 +60,7 @@ test_tools_simple <- function(chat_fun) {
 
 test_tools_async <- function(chat_fun) {
   chat <- chat_fun(system_prompt = "Be very terse, not even punctuation.")
-  chat$register_tool(ToolDef(
-    coro::async(function() "2024-01-01"),
-    name = "get_date",
-    description = "Gets the current date"
-  ))
+  chat$register_tool(tool(coro::async(function() "2024-01-01"), "Gets the current date"))
 
   result <- sync(chat$chat_async("What's the current date in YMD format?"))
   expect_match(result, "2024-01-01")
@@ -81,12 +73,10 @@ test_tools_parallel <- function(chat_fun) {
   favourite_color <- function(person) {
     if (person == "Joe") "sage green" else "red"
   }
-  chat$register_tool(ToolDef(
+  chat$register_tool(tool(
     function(person) if (person == "Joe") "sage green" else "red",
-    name = "favourite_color",
-    description = "Returns a person's favourite colour",
-    arguments = list(person = ToolArg("string", "Name of a person")),
-    strict = TRUE
+    "Returns a person's favourite colour",
+    person = type_string("Name of a person")
   ))
 
   result <- chat$chat("
@@ -100,23 +90,17 @@ test_tools_parallel <- function(chat_fun) {
 
 test_tools_sequential <- function(chat_fun, total_calls) {
   chat <- chat_fun(system_prompt = "Be very terse, not even punctuation.")
-  chat$register_tool(ToolDef(
-    function() 2024,
-    name = "get_year",
-    description = "Get the current year"
-  ))
-  chat$register_tool(ToolDef(
+  chat$register_tool(tool(function() 2024, "Get the current year"))
+  chat$register_tool(tool(
     function(year) if (year == 2024) "Susan" else "I don't know",
-    name = "popular_name",
-    description = "Gets the most popular name for a year",
-    arguments = list(year = ToolArg("integer", "Year"))
+    "Gets the most popular name for a year",
+    year = type_integer("Year")
   ))
 
   result <- chat$chat("What was the most popular name this year.")
   expect_match(result, "Susan")
   expect_length(chat$turns(), total_calls)
 }
-
 
 # Images -----------------------------------------------------------------
 

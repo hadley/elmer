@@ -244,6 +244,6 @@ claude_tool <- function(tool) {
   list(
     name = tool@name,
     description = tool@description,
-    input_schema = compact(json_schema_parameters(tool@arguments))
+    input_schema = compact(as_json_schema(tool@arguments))
   )
 }

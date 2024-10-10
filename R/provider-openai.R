@@ -247,8 +247,8 @@ openai_tool <- function(tool) {
     "function" = compact(list(
       name = tool@name,
       description = tool@description,
-      strict = tool@extra$strict,
-      parameters = json_schema_parameters(tool@arguments)
+      strict = TRUE,
+      parameters = as_json_schema(tool@arguments)
     ))
   )
 }
