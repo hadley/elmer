@@ -37,6 +37,17 @@ method(format, ContentText) <- function(x, ...) {
   paste0(unlist(strwrap(x@text, width = getOption("width"))), collapse = "\n")
 }
 
+# Internal generic for content that has a textual representation.
+contents_text <- new_generic("contents_text", "content")
+
+method(contents_text, Content) <- function(content) {
+  NULL
+}
+
+method(contents_text, ContentText) <- function(content) {
+  content@text
+}
+
 # Images -----------------------------------------------------------------
 
 #' @rdname Content

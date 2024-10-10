@@ -58,6 +58,7 @@ Chat with a Google Gemini model
 \seealso{
 Other chatbots: 
 \code{\link{chat_claude}()},
+\code{\link{chat_cortex}()},
 \code{\link{chat_github}()},
 \code{\link{chat_groq}()},
 \code{\link{chat_ollama}()},

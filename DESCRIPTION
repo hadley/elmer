@@ -26,6 +26,7 @@ Suggests:
     knitr,
     later,
     magick,
+    openssl,
     promises,
     rmarkdown,
     shiny,
@@ -59,6 +60,8 @@ Collate:
     'provider-openai.R'
     'provider-azure.R'
     'provider-claude.R'
+    'turns.R'
+    'provider-cortex.R'
     'provider-gemini.R'
     'provider-github.R'
     'provider-groq.R'
@@ -68,7 +71,6 @@ Collate:
     'tokens.R'
     'tools-def-auto.R'
     'tools-def.R'
-    'turns.R'
     'utils-cat.R'
     'utils-merge.R'
     'utils.R'
