@@ -10,7 +10,8 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  eval = FALSE # elmer:::openai_key_exists()
 )
 ```
 
@@ -18,10 +19,12 @@ knitr::opts_chunk$set(
 library(elmer)
 ```
 
-```R
-# https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb
+Examplese from: <https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb>:
 
-type_object(
+# Example 1: Article summarization
+
+```{r}
+article_summary <- type_object(
   "Summary of the article.",
   author = type_string("Name of the article author"),
   topics = type_array(
@@ -33,7 +36,28 @@ type_object(
   persuasion = type_number("Article's persuasion score, 0.0-1.0 (inclusive)")
 )
 
-type_object(
+url <- "https://www.anthropic.com/news/third-party-testing"
+html <- rvest::read_html(url)
+text <- rvest::html_text2(rvest::html_element(html, ".page-container"))
+
+prompt <- interpolate("
+Extract structured data from:
+
+<article>
+{{text}}
+</article>")
+
+chat <- chat_openai()
+str(chat$extract_data(prompt, type = article_summary))
+```
+
+## Example 2: Named entity recognition
+
+```{r}
+text <- "John works at Google in New York. He met with Sarah, the CEO of Acme Inc., last week in San Francisco."
+prompt <- interpolate("Extract structured data from <text>{{text}}</text>")
+
+named_entities <- type_object(
   "named entities",
   entities = type_array(
     "Array of named entities",
@@ -45,20 +69,73 @@ type_object(
   )
 )
 
-type_object(
+chat <- chat_openai()
+str(chat$extract_data(prompt, type = named_entities))
+```
+
+## Example 3: Sentiment analysis
+
+```{r}
+sentiment <- type_object(
   "Extract the sentiment scores of a given text.",
   positive_score = type_number("The positive sentiment score, ranging from 0.0 to 1.0."),
   negative_score = type_number("The negative sentiment score, ranging from 0.0 to 1.0."),
   neutral_score = type_number("The neutral sentiment score, ranging from 0.0 to 1.0.")
 )
 
-type_object(
+text <- "The product was okay, but the customer service was terrible. I probably won't buy from them again."
+prompt <- interpolate("Extract structured data from <text>{{text}}</text>")
+chat <- chat_openai()
+str(chat$extract_data(prompt, type = sentiment))
+```
+
+## Example 4: Text classification
+
+```{r}
+classification <- type_object(
   categories = type_array(
     "Array of classification results",
     type_object(
-      name = type_string("The category name."),
+      name = type_enum(
+        "The category name",
+        values = c("Politics", "Sports", "Technology", "Entertainment", "Business", "Other")
+      ),
       score = type_number("The classification score for the category, ranging from 0.0 to 1.0.")
     )
   )
 )
+text <- "The new quantum computing breakthrough could revolutionize the tech industry."
+
+prompt <- interpolate("
+Extract structured data from the following <text>. The classification scores should sum to 1.
+
+<text>
+{{text}}
+</text>
+")
+
+chat <- chat_openai()
+chat$extract_data(prompt, type = classification)
+```
+
+## Example 5: Working with unknown keys
+
+(Only works with claude, and not chatGPT.)
+
+```{r}
+characteristics <- type_object(
+  "All characteristics",
+  .additional_properties = TRUE
+)
+
+prompt <- "
+  Given a description of a character, your task is to extract all the characteristics of that character.
+
+  <description>
+  The man is tall, with a beard and a scar on his left cheek. He has a deep voice and wears a black leather jacket.
+  </description>
+"
+
+chat <- chat_claude()
+chat$extract_data(prompt, type = characteristics)
 ```

@@ -32,6 +32,7 @@ but instead call \code{\link[=chat_openai]{chat_openai()}} or friends instead.
 \item \href{#method-Chat-tokens}{\code{Chat$tokens()}}
 \item \href{#method-Chat-last_turn}{\code{Chat$last_turn()}}
 \item \href{#method-Chat-chat}{\code{Chat$chat()}}
+\item \href{#method-Chat-extract_data}{\code{Chat$extract_data()}}
 \item \href{#method-Chat-chat_async}{\code{Chat$chat_async()}}
 \item \href{#method-Chat-stream}{\code{Chat$stream()}}
 \item \href{#method-Chat-stream_async}{\code{Chat$stream_async()}}
@@ -144,6 +145,27 @@ simple string (probably Markdown).
 \item{\code{echo}}{Whether to emit the response to stdout as it is received. If
 \code{NULL}, then the value of \code{echo} set when the chat object was created
 will be used.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Chat-extract_data"></a>}}
+\if{latex}{\out{\hypertarget{method-Chat-extract_data}{}}}
+\subsection{Method \code{extract_data()}}{
+Extract structured data
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Chat$extract_data(..., type)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{The input to send to the chatbot. Will typically include
+the phrase "extract structured data".}
+
+\item{\code{type}}{A type specification for the extracted data. Should be
+created with a \code{\link[=type_boolean]{type_()}} function.}
 }
 \if{html}{\out{</div>}}
 }

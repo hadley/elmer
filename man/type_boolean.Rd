@@ -22,7 +22,12 @@ type_enum(description = NULL, values, required = TRUE)
 
 type_array(description = NULL, items, required = TRUE)
 
-type_object(.description = NULL, ..., .required = TRUE)
+type_object(
+  .description = NULL,
+  ...,
+  .required = TRUE,
+  .additional_properties = FALSE
+)
 }
 \arguments{
 \item{description, .description}{The purpose of the component. Generally,
@@ -34,6 +39,9 @@ the more information that you can provide here, the better.}
 
 \item{...}{Name-type pairs defineing the components that the object must
 possess.}
+
+\item{.additional_properties}{Can the object have arbitrary additional
+properties that are not explicitly listed? Only supported by Claude.}
 
 \item{item}{The type of the array items. Can be created by any of the
 \code{type_} function.}

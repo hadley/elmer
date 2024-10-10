@@ -1,9 +1,40 @@
 
-Type <- new_class("Type", properties = list(description = prop_string(allow_null = TRUE), required = prop_bool()))
-TypeBasic <- new_class("TypeBasic", Type, properties = list(type = prop_string()))
-TypeEnum <- new_class("TypeEnum", Type, properties = list(values = class_character))
-TypeArray <- new_class("TypeArray", Type, properties = list(items = Type))
-TypeObject <- new_class("TypeObject", Type, properties = list(properties = prop_list_of(Type, names = "all")))
+Type <- new_class(
+  "Type",
+  properties = list(
+    description = prop_string(allow_null = TRUE),
+    required = prop_bool()
+  )
+)
+TypeBasic <- new_class(
+  "TypeBasic",
+  Type,
+  properties = list(
+    type = prop_string()
+  )
+)
+TypeEnum <- new_class(
+  "TypeEnum",
+  Type,
+  properties = list(
+    values = class_character
+  )
+)
+TypeArray <- new_class(
+  "TypeArray",
+  Type,
+  properties = list(
+    items = Type
+  )
+)
+TypeObject <- new_class(
+  "TypeObject",
+  Type,
+  properties = list(
+    properties = prop_list_of(Type, names = "all"),
+    additional_properties = prop_bool()
+  )
+)
 
 #' Type defintions
 #'
@@ -54,13 +85,19 @@ type_array <- function(description = NULL, items, required = TRUE) {
 
 #' @param ... Name-type pairs defineing the components that the object must
 #'   possess.
+#' @param .additional_properties Can the object have arbitrary additional
+#'   properties that are not explicitly listed? Only supported by Claude.
 #' @export
 #' @rdname type_boolean
-type_object <- function(.description = NULL, ..., .required = TRUE) {
+type_object <- function(.description = NULL,
+                        ...,
+                        .required = TRUE,
+                        .additional_properties = FALSE) {
   TypeObject(
     properties = list2(...),
     description = .description,
-    required = .required
+    required = .required,
+    additional_properties = .additional_properties
   )
 }
 
@@ -69,11 +106,15 @@ type_object <- function(.description = NULL, ..., .required = TRUE) {
 as_json_schema <- new_generic("as_json_schema", "x")
 
 method(as_json_schema, TypeBasic) <- function(x) {
-  list(type = x@type, description = x@description)
+  list(type = x@type, description = x@description %||% "")
 }
 
 method(as_json_schema, TypeEnum) <- function(x) {
-  list(type = "string", description = x@description, enum = as.list(x@values))
+  list(
+    type = "string",
+    description = x@description %||% "",
+    enum = as.list(x@values)
+  )
 }
 
 method(as_json_schema, TypeObject) <- function(x) {
@@ -88,14 +129,14 @@ method(as_json_schema, TypeObject) <- function(x) {
     description = x@description %||% "",
     properties = properties,
     required = as.list(names[required]),
-    additionalProperties = FALSE
+    additionalProperties = x@additional_properties
   )
 }
 
 method(as_json_schema, TypeArray) <- function(x) {
   list(
     type = "array",
-    description = x@description,
+    description = x@description %||% "",
     items = as_json_schema(x@items)
   )
 }
