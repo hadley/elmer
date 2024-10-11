@@ -13,3 +13,5 @@
 * `new_chat_openai()` is now `chat_openai()`.
 
 * Claude and Gemini are now supported via `chat_claude()` and `chat_gemini()`.
+
+* The Snowflake Cortex Analyst is now supported via `chat_cortex()` (#56).
