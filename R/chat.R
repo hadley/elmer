@@ -152,10 +152,11 @@ Chat <- R6::R6Class("Chat",
     system_prompt = function(value) {
       if (!missing(value)) {
         check_string(value, allow_null = TRUE)
-        # Remove existing prompt
+        # Remove prompt, if present
         if (private$has_system_prompt()) {
           private$.turns <- private$.turns[-1]
         }
+        # Add prompt, if new
         if (is.character(value)) {
           private$.turns <- c(list(Turn("system", value)), private$.turns)
         }
