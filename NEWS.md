@@ -1,5 +1,7 @@
 # elmer (development version)
 
+* Streaming OpenAI results now capture more results, including `logprops` (#115).
+
 * New `interpolate()` and `prompt_file()` make it easier to create prompts that are a mix of static text and dynamic values.
 
 * You can find how many tokens you've used in the current session by calling `token_usage()`.
