@@ -1,5 +1,7 @@
 # elmer (development version)
 
+* `content_image_url()` will now create inline images when given a data url (#110).
+
 * Streaming ollama results works once again (#117).
 
 * Streaming OpenAI results now capture more results, including `logprops` (#115).

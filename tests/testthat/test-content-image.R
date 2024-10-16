@@ -3,6 +3,21 @@ test_that("can create image from url", {
   expect_s3_class(obj, "elmer::ContentImageRemote")
 })
 
+test_that("can create inline image from data url", {
+  obj <- content_image_url("data:image/png;base64,abcd")
+  expect_s3_class(obj, "elmer::ContentImageInline")
+  expect_equal(obj@type, "image/png")
+  expect_equal(obj@data, "abcd")
+})
+
+test_that("errors with invalid data urls", {
+  expect_snapshot(content_image_url("data:base64,abcd"), error = TRUE)
+
+  expect_error(content_image_url("data:"))
+  expect_error(content_image_url("data:;;;"))
+  expect_error(content_image_url("data:image/png;abc"))
+})
+
 test_that("can create image from path", {
   skip_if_not_installed("magick")
 
