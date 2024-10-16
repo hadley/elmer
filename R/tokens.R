@@ -6,6 +6,7 @@ tokens_log <- function(name, tokens) {
     the$tokens[[name]] <- c(0, 0)
   }
 
+  tokens[is.na(tokens)] <- 0
   the$tokens[[name]] <- the$tokens[[name]] + tokens
   invisible()
 }
