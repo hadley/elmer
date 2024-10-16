@@ -89,7 +89,7 @@ the <a href="https://coro.r-lib.org/" class="external-link">coro package</a>, wh
 loop over to process the response as it arrives.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">stream</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">stream</span><span class="op">(</span><span class="st">"What are some common uses of R?"</span><span class="op">)</span></span>
-<span><span class="fu">coro</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coro/man/collect.html" class="external-link">loop</a></span><span class="op">(</span><span class="kw">for</span> <span class="op">(</span><span class="va">chunk</span> <span class="kw">in</span> <span class="va">stream</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="fu">coro</span><span class="fu">::</span><span class="fu"><a href="https://coro.r-lib.org/reference/collect.html" class="external-link">loop</a></span><span class="op">(</span><span class="kw">for</span> <span class="op">(</span><span class="va">chunk</span> <span class="kw">in</span> <span class="va">stream</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/chartr.html" class="external-link">toupper</a></span><span class="op">(</span><span class="va">chunk</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt;  R IS COMMONLY USED FOR:</span></span>
@@ -147,7 +147,7 @@ except instead of giving you strings, it gives you promises that resolve
 to strings.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">stream</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">stream_async</span><span class="op">(</span><span class="st">"What are some common uses of R?"</span><span class="op">)</span></span>
-<span><span class="fu">coro</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/coro/man/async.html" class="external-link">async</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span><span class="fu">coro</span><span class="fu">::</span><span class="fu"><a href="https://coro.r-lib.org/reference/async.html" class="external-link">async</a></span><span class="op">(</span><span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="kw">for</span> <span class="op">(</span><span class="va">chunk</span> <span class="kw">in</span> <span class="fu">await_each</span><span class="op">(</span><span class="va">stream</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/chartr.html" class="external-link">toupper</a></span><span class="op">(</span><span class="va">chunk</span><span class="op">)</span><span class="op">)</span></span>
 <span>  <span class="op">}</span></span>
