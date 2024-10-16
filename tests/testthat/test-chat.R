@@ -92,3 +92,26 @@ test_that("can retrieve system prompt with helper or last_turn()", {
   expect_equal(chat2$system_prompt, "You are from New Zealand")
   expect_equal(chat2$last_turn("system"), Turn("system", "You are from New Zealand"))
 })
+
+test_that("can modify the system prompt", {
+  chat <- chat_openai(turns = list(
+    Turn("user", "Hi"),
+    Turn("assistant", "Hello")
+  ))
+
+  # NULL -> NULL
+  chat$system_prompt <- NULL
+  expect_equal(chat$system_prompt, NULL)
+
+  # NULL -> string
+  chat$system_prompt <- "x"
+  expect_equal(chat$system_prompt, "x")
+
+  # string -> string
+  chat$system_prompt <- "y"
+  expect_equal(chat$system_prompt, "y")
+
+  # string -> NULL
+  chat$system_prompt <- NULL
+  expect_equal(chat$system_prompt, NULL)
+})
