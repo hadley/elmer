@@ -6,7 +6,7 @@ merge_dicts <- function(left, right) {
     left_v <- left[[right_k]]
 
     if (is.null(right_v)) {
-      if (!hasName(left, right_k)) {
+      if (!has_name(left, right_k)) {
         left[right_k] <- list(NULL)
       }
     } else if (is.null(left_v)) {
