@@ -9,7 +9,7 @@ test_that("tool can get name", {
 
 test_that("json_schema_parameters generates correct paramters if no arguments", {
   expect_equal(
-    as_json_schema(type_object()),
+    as_json_schema(Provider(), type_object()),
     list(
       type = "object",
       description = "",

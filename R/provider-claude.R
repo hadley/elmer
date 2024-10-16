@@ -112,7 +112,7 @@ method(chat_request, ProviderClaude) <- function(provider,
   } else {
     tool_choice <- NULL
   }
-  tools <- unname(lapply(tools, claude_tool))
+  tools <- unname(lapply(tools, claude_tool, provider = provider))
 
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
   body <- compact(list2(
@@ -260,10 +260,10 @@ method(claude_content, ContentToolResult) <- function(content) {
   )
 }
 
-claude_tool <- function(tool) {
+claude_tool <- function(provider, tool) {
   list(
     name = tool@name,
     description = tool@description,
-    input_schema = compact(as_json_schema(tool@arguments))
+    input_schema = compact(as_json_schema(provider, tool@arguments))
   )
 }

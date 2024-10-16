@@ -36,11 +36,11 @@ TypeObject <- new_class(
   )
 )
 
-#' Type defintions
+#' Type specifications
 #'
 #' @description
-#' These functions define object types in a way that chatbots understand and
-#' are used for tool calling and structured data extraction. There names are
+#' These functions specify object types in a way that chatbots understand and
+#' are used for tool calling and structured data extraction. Their names are
 #' based on the [JSON schema](https://json-schema.org), which is what the APIs
 #' expected behind the scenes, but it's fairly straightforward to translated
 #' from what you know about R.
@@ -103,13 +103,13 @@ type_object <- function(.description = NULL,
 
 # JSON schema ------------------------------------------------------------
 
-as_json_schema <- new_generic("as_json_schema", "x")
+as_json_schema <- new_generic("as_json_schema", c("provider", "x"))
 
-method(as_json_schema, TypeBasic) <- function(x) {
+method(as_json_schema, list(Provider, TypeBasic)) <- function(provider, x) {
   list(type = x@type, description = x@description %||% "")
 }
 
-method(as_json_schema, TypeEnum) <- function(x) {
+method(as_json_schema, list(Provider, TypeEnum)) <- function(provider, x) {
   list(
     type = "string",
     description = x@description %||% "",
@@ -117,7 +117,7 @@ method(as_json_schema, TypeEnum) <- function(x) {
   )
 }
 
-method(as_json_schema, TypeObject) <- function(x) {
+method(as_json_schema, list(Provider, TypeObject)) <- function(provider, x) {
   names <- names2(x@properties)
   required <- map_lgl(x@properties, function(prop) prop@required)
 
@@ -133,7 +133,34 @@ method(as_json_schema, TypeObject) <- function(x) {
   )
 }
 
-method(as_json_schema, TypeArray) <- function(x) {
+
+method(as_json_schema, list(ProviderOpenAI, TypeObject)) <- function(provider, x) {
+  if (x@additional_properties) {
+    cli::cli_abort("{.arg additional_properties} not supported for OpenAI")
+  }
+
+  names <- names2(x@properties)
+  properties <- lapply(x@properties, function(x) {
+    out <- as_json_schema(provider, x)
+    if (!x@required) {
+      out$type <- c(out$type, "null")
+    }
+    out
+  })
+
+  names(properties) <- names
+
+  list(
+    type = "object",
+    description = x@description %||% "",
+    properties = properties,
+    required = as.list(names),
+    additionalProperties = x@additional_properties
+  )
+}
+
+
+method(as_json_schema, list(Provider, TypeArray)) <- function(provider, x) {
   list(
     type = "array",
     description = x@description %||% "",

@@ -120,7 +120,7 @@ method(chat_request, ProviderOpenAI) <- function(provider,
       type = "json_schema",
       json_schema = list(
         name = "structured_data",
-        schema = as_json_schema(spec),
+        schema = as_json_schema(provider, spec),
         strict = TRUE
       )
     )

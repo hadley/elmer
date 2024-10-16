@@ -8,7 +8,7 @@
 \alias{type_enum}
 \alias{type_array}
 \alias{type_object}
-\title{Type defintions}
+\title{Type specifications}
 \usage{
 type_boolean(description = NULL, required = TRUE)
 
@@ -47,8 +47,8 @@ properties that are not explicitly listed? Only supported by Claude.}
 \code{type_} function.}
 }
 \description{
-These functions define object types in a way that chatbots understand and
-are used for tool calling and structured data extraction. There names are
+These functions specify object types in a way that chatbots understand and
+are used for tool calling and structured data extraction. Their names are
 based on the \href{https://json-schema.org}{JSON schema}, which is what the APIs
 expected behind the scenes, but it's fairly straightforward to translated
 from what you know about R.

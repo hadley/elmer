@@ -155,7 +155,7 @@ will be used.}
 \subsection{Method \code{extract_data()}}{
 Extract structured data
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$extract_data(..., type)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Chat$extract_data(..., spec, echo = NULL)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -164,7 +164,7 @@ Extract structured data
 \item{\code{...}}{The input to send to the chatbot. Will typically include
 the phrase "extract structured data".}
 
-\item{\code{type}}{A type specification for the extracted data. Should be
+\item{\code{spec}}{A type specification for the extracted data. Should be
 created with a \code{\link[=type_boolean]{type_()}} function.}
 }
 \if{html}{\out{</div>}}
