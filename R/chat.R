@@ -98,32 +98,28 @@ Chat <- R6::R6Class("Chat",
     #' @description Extract structured data
     #' @param ... The input to send to the chatbot. Will typically include
     #'   the phrase "extract structured data".
-    #' @param type A type specification for the extracted data. Should be
+    #' @param spec A type specification for the extracted data. Should be
     #'   created with a [`type_()`][type_boolean] function.
-    extract_data = function(..., type) {
+    extract_data = function(..., spec, echo = NULL) {
       turn <- user_turn(...)
+      echo <- check_echo(echo %||% private$echo)
 
-      tool_def <- ToolDef(
-        fun = function(...) {},
-        name = "_structured_tool_call",
-        description = "Extract structured data",
-        arguments = type_object(data = type)
-      )
-      private$tools[[tool_def@name]] <- tool_def
-      defer(private$tools[[tool_def@name]] <- NULL)
-
-      # TODO: require tool usage
-      coro::collect(private$submit_turns(turn, stream = FALSE, echo = FALSE))
+      coro::collect(private$submit_turns(
+        turn,
+        spec = spec,
+        stream = echo != "none",
+        echo = echo
+      ))
 
       turn <- self$last_turn()
-      is_tool_request <- map_lgl(turn@contents, S7_inherits, ContentToolRequest)
-      n <- sum(is_tool_request)
+      is_json <- map_lgl(turn@contents, S7_inherits, ContentJson)
+      n <- sum(is_json)
       if (n != 1) {
         cli::cli_abort("Data extraction failed: {n} tool requests recieved.")
       }
 
-      request <- turn@contents[[which(is_tool_request)]]
-      request@arguments$data
+      json <- turn@contents[[which(is_json)]]
+      json@value
     },
 
     #' @description Submit input to the chatbot, and receive a promise that
@@ -256,7 +252,7 @@ Chat <- R6::R6Class("Chat",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant turns.
-    submit_turns = generator_method(function(self, private, user_turn, stream, echo) {
+    submit_turns = generator_method(function(self, private, user_turn, stream, echo, spec = NULL) {
 
       if (echo == "all") {
         cat_line(format(user_turn), prefix = "> ")
@@ -266,7 +262,8 @@ Chat <- R6::R6Class("Chat",
         provider = private$provider,
         mode = if (stream) "stream" else "value",
         turns = c(private$.turns, list(user_turn)),
-        tools = private$tools
+        tools = private$tools,
+        spec = spec
       )
       emit <- emitter(echo)
 
@@ -284,7 +281,7 @@ Chat <- R6::R6Class("Chat",
 
           result <- stream_merge_chunks(private$provider, result, chunk)
         }
-        turn <- stream_turn(private$provider, result)
+        turn <- stream_turn(private$provider, result, has_spec = !is.null(spec))
 
         # Ensure turns always end in a newline
         if (any_text) {
@@ -298,7 +295,7 @@ Chat <- R6::R6Class("Chat",
           cat_line(formatted, prefix = "< ")
         }
       } else {
-        turn <- value_turn(private$provider, response)
+        turn <- value_turn(private$provider, response, has_spec = !is.null(spec))
         text <- turn@text
         if (!is.null(text)) {
           text <- paste0(text, "\n")

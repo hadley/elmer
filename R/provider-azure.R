@@ -74,6 +74,7 @@ method(chat_request, ProviderAzure) <- function(provider,
                                                 stream = TRUE,
                                                 turns = list(),
                                                 tools = list(),
+                                                spec = NULL,
                                                 extra_args = list()) {
 
   req <- request(provider@base_url)
@@ -86,6 +87,8 @@ method(chat_request, ProviderAzure) <- function(provider,
   messages <- openai_messages(turns)
   tools <- unname(lapply(tools, openai_tool))
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
+
+  # TODO: spec
 
   data <- compact(list2(
     messages = messages,

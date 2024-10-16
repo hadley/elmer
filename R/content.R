@@ -135,6 +135,19 @@ tool_string <- function(x) {
   }
 }
 
+ContentJson <- new_class(
+  "ContentJson",
+  parent = Content,
+  properties = list(value = class_any),
+  package = "elmer"
+)
+method(format, ContentJson) <- function(x, ...) {
+  paste0(
+    cli::format_inline("[{.strong data}] "),
+    pretty_json(x@value)
+  )
+}
+
 # Helpers ----------------------------------------------------------------------
 
 as_content <- function(x, error_call = caller_env()) {

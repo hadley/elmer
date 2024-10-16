@@ -38,7 +38,7 @@ article_summary <- type_object(
 
 url <- "https://www.anthropic.com/news/third-party-testing"
 html <- rvest::read_html(url)
-text <- rvest::html_text2(rvest::html_element(html, ".page-container"))
+text <- rvest::html_text2(rvest::html_element(html, "article"))
 
 prompt <- interpolate("
 Extract structured data from:
@@ -48,7 +48,7 @@ Extract structured data from:
 </article>")
 
 chat <- chat_openai()
-str(chat$extract_data(prompt, type = article_summary))
+str(chat$extract_data(prompt, spec = article_summary))
 ```
 
 ## Example 2: Named entity recognition
@@ -70,7 +70,7 @@ named_entities <- type_object(
 )
 
 chat <- chat_openai()
-str(chat$extract_data(prompt, type = named_entities))
+str(chat$extract_data(prompt, spec = named_entities))
 ```
 
 ## Example 3: Sentiment analysis
@@ -86,7 +86,7 @@ sentiment <- type_object(
 text <- "The product was okay, but the customer service was terrible. I probably won't buy from them again."
 prompt <- interpolate("Extract structured data from <text>{{text}}</text>")
 chat <- chat_openai()
-str(chat$extract_data(prompt, type = sentiment))
+str(chat$extract_data(prompt, spec = sentiment))
 ```
 
 ## Example 4: Text classification
@@ -115,7 +115,7 @@ Extract structured data from the following <text>. The classification scores sho
 ")
 
 chat <- chat_openai()
-chat$extract_data(prompt, type = classification)
+chat$extract_data(prompt, spec = classification)
 ```
 
 ## Example 5: Working with unknown keys
@@ -137,5 +137,5 @@ prompt <- "
 "
 
 chat <- chat_claude()
-chat$extract_data(prompt, type = characteristics)
+chat$extract_data(prompt, spec = characteristics)
 ```

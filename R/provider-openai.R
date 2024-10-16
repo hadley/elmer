@@ -99,10 +99,11 @@ openai_key <- function() {
 
 # https://platform.openai.com/docs/api-reference/chat/create
 method(chat_request, ProviderOpenAI) <- function(provider,
-                                                  stream = TRUE,
-                                                  turns = list(),
-                                                  tools = list(),
-                                                  extra_args = list()) {
+                                                 stream = TRUE,
+                                                 turns = list(),
+                                                 tools = list(),
+                                                 spec = NULL,
+                                                 extra_args = list()) {
 
   req <- request(provider@base_url)
   req <- req_url_path_append(req, "/chat/completions")
@@ -114,6 +115,19 @@ method(chat_request, ProviderOpenAI) <- function(provider,
   tools <- unname(lapply(tools, openai_tool))
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
+  if (!is.null(spec)) {
+    response_format <- list(
+      type = "json_schema",
+      json_schema = list(
+        name = "structured_data",
+        schema = as_json_schema(spec),
+        strict = TRUE
+      )
+    )
+  } else {
+    response_format <- NULL
+  }
+
   data <- compact(list2(
     messages = messages,
     model = provider@model,
@@ -121,6 +135,7 @@ method(chat_request, ProviderOpenAI) <- function(provider,
     stream = stream,
     stream_options = if (stream) list(include_usage = TRUE),
     tools = tools,
+    response_format = response_format,
     !!!extra_args
   ))
   req <- req_body_json(req, data)
@@ -154,15 +169,19 @@ method(stream_merge_chunks, ProviderOpenAI) <- function(provider, result, chunk)
     merge_dicts(result, chunk)
   }
 }
-method(stream_turn, ProviderOpenAI) <- function(provider, result) {
-  openai_assistant_turn(result$choices[[1]]$delta, result)
+method(stream_turn, ProviderOpenAI) <- function(provider, result, has_spec = FALSE) {
+  openai_assistant_turn(result$choices[[1]]$delta, result, has_spec)
 }
-method(value_turn, ProviderOpenAI) <- function(provider, result) {
-  openai_assistant_turn(result$choices[[1]]$message, result)
+method(value_turn, ProviderOpenAI) <- function(provider, result, has_spec = FALSE) {
+  openai_assistant_turn(result$choices[[1]]$message, result, has_spec)
 }
-openai_assistant_turn <- function(message, result) {
-  content <- lapply(message$content, as_content)
-
+openai_assistant_turn <- function(message, result, has_spec) {
+  if (has_spec) {
+    json <- jsonlite::parse_json(message$content[[1]])
+    content <- list(ContentJson(json))
+  } else {
+    content <- lapply(message$content, as_content)
+  }
   if (has_name(message, "tool_calls")) {
     calls <- lapply(message$tool_calls, function(call) {
       name <- call$`function`$name
@@ -239,6 +258,10 @@ method(openai_content, ContentToolRequest) <- function(content) {
     `function` = list(name = content@name, arguments = json_args),
     type = "function"
   )
+}
+
+method(openai_content, ContentJson) <- function(content) {
+  list(type = "text", text = "")
 }
 
 openai_tool <- function(tool) {

@@ -48,10 +48,11 @@ gemini_key <- function() {
 # HTTP request and response handling -------------------------------------
 
 method(chat_request, ProviderGemini) <- function(provider,
-                                                  stream = TRUE,
-                                                  turns = list(),
-                                                  tools = list(),
-                                                  extra_args = list()) {
+                                                 stream = TRUE,
+                                                 turns = list(),
+                                                 tools = list(),
+                                                 spec = NULL,
+                                                 extra_args = list()) {
 
 
   req <- request(provider@base_url)
