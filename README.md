@@ -28,7 +28,7 @@ pak::pak("hadley/elmer")
 
 Depending on which backend you use, you’ll need to set the appropriate
 environment variable in your `~/.Renviron` (an easy way to open that
-file is to call `usethis::use_renviron()`):
+file is to call `usethis::edit_r_environ()`):
 
 - For `chat_claude()`, set `ANTHROPIC_API_KEY` using the key from
   <https://console.anthropic.com/account/keys>.
