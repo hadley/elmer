@@ -38,7 +38,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="elmer-development-version">elmer (development version)<a class="anchor" aria-label="anchor" href="#elmer-development-version"></a></h2>
-<ul><li><p>New <code><a href="../reference/interpolate.html">interpolate()</a></code> and <code>prompt_file()</code> make it easier to create prompts that are a mix of static text and dynamic values.</p></li>
+<ul><li><p>Streaming OpenAI results now capture more results, including <code>logprops</code> (<a href="https://github.com/hadley/elmer/issues/115" class="external-link">#115</a>).</p></li>
+<li><p>New <code><a href="../reference/interpolate.html">interpolate()</a></code> and <code>prompt_file()</code> make it easier to create prompts that are a mix of static text and dynamic values.</p></li>
 <li><p>You can find how many tokens you’ve used in the current session by calling <code><a href="../reference/token_usage.html">token_usage()</a></code>.</p></li>
 <li><p><code>chat_browser()</code> and <code>chat_console()</code> are now <code><a href="../reference/live_console.html">live_browser()</a></code> and <code><a href="../reference/live_console.html">live_console()</a></code>.</p></li>
 <li><p>The <code>echo</code> can now be one of three values: “none”, “text”, or “all”. If “all”, you’ll now see both user and assistant turns, and all content types will be printed, not just text. When running in the global environment, <code>echo</code> defaults to “text”, and when running inside a function it defaults to “none”.</p></li>
