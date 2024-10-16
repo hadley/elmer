@@ -419,10 +419,10 @@ cortex_credentials <- function(account = Sys.getenv("SNOWFLAKE_ACCOUNT")) {
   if (grepl("posit-workbench", sf_home, fixed = TRUE)) {
     token <- workbench_snowflake_token(account, sf_home)
     if (!is.null(token)) {
-      list(
+      return(list(
         Authorization = paste("Bearer", token),
         `X-Snowflake-Authorization-Token-Type` = "OAUTH"
-      )
+      ))
     }
   }
 
