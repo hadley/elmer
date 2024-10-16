@@ -1,5 +1,7 @@
 # elmer (development version)
 
+* Streaming ollama results works once again (#117).
+
 * Streaming OpenAI results now capture more results, including `logprops` (#115).
 
 * New `interpolate()` and `prompt_file()` make it easier to create prompts that are a mix of static text and dynamic values.

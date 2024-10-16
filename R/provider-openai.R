@@ -155,12 +155,12 @@ method(stream_merge_chunks, ProviderOpenAI) <- function(provider, result, chunk)
   }
 }
 method(stream_turn, ProviderOpenAI) <- function(provider, result) {
-  openai_assistant_turn(result$choices[[1]]$delta, result)
+  openai_assistant_turn(provider, result$choices[[1]]$delta, result)
 }
 method(value_turn, ProviderOpenAI) <- function(provider, result) {
-  openai_assistant_turn(result$choices[[1]]$message, result)
+  openai_assistant_turn(provider, result$choices[[1]]$message, result)
 }
-openai_assistant_turn <- function(message, result) {
+openai_assistant_turn <- function(provider, message, result) {
   content <- lapply(message$content, as_content)
 
   if (has_name(message, "tool_calls")) {
@@ -172,8 +172,11 @@ openai_assistant_turn <- function(message, result) {
     })
     content <- c(content, calls)
   }
-  tokens <- c(result$usage$prompt_tokens, result$usage$completion_tokens)
-  tokens_log("OpenAI", tokens)
+  tokens <- c(
+    result$usage$prompt_tokens %||% NA_integer_,
+    result$usage$completion_tokens %||% NA_integer_
+  )
+  tokens_log(paste0("OpenAI<", provider@base_url, ">"), tokens)
 
   Turn(message$role, content, json = result, tokens = tokens)
 }
