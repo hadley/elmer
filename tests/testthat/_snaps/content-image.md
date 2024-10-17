@@ -1,3 +1,11 @@
+# errors with invalid data urls
+
+    Code
+      content_image_url("data:base64,abcd")
+    Condition
+      Error in `content_image_url()`:
+      ! `url` is not a valid data url.
+
 # image resizing
 
     Code

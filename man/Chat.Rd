@@ -20,7 +20,8 @@ but instead call \code{\link[=chat_openai]{chat_openai()}} or friends instead.
 \section{Active bindings}{
 \if{html}{\out{<div class="r6-active-bindings">}}
 \describe{
-\item{\code{system_prompt}}{The system prompt, if any, as a string.}
+\item{\code{system_prompt}}{The system prompt, if present, as a string.
+Otherwise, \code{NULL}.}
 }
 \if{html}{\out{</div>}}
 }

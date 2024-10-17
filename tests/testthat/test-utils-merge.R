@@ -36,6 +36,13 @@ test_that("can merge dictionaries with different keys", {
   )
 })
 
+test_that("nulls don't overwrite existing values (#115)", {
+  expect_equal(
+    merge_dicts(list(a = 1, b = 2), list(a = NULL)),
+    list(a = 1, b = 2)
+  )
+})
+
 test_that("can merge lists", {
   expect_equal(
     merge_dicts(list(a = list(1, 2)), list()),

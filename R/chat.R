@@ -177,12 +177,25 @@ Chat <- R6::R6Class("Chat",
     }
   ),
   active = list(
-    #' @field system_prompt The system prompt, if any, as a string.
-    system_prompt = function() {
-      if (private$has_system_prompt()) {
-        private$.turns[[1]]@text
+    #' @field system_prompt The system prompt, if present, as a string.
+    #'   Otherwise, `NULL`.
+    system_prompt = function(value) {
+      if (!missing(value)) {
+        check_string(value, allow_null = TRUE)
+        # Remove prompt, if present
+        if (private$has_system_prompt()) {
+          private$.turns <- private$.turns[-1]
+        }
+        # Add prompt, if new
+        if (is.character(value)) {
+          private$.turns <- c(list(Turn("system", value)), private$.turns)
+        }
       } else {
-        NULL
+        if (private$has_system_prompt()) {
+          private$.turns[[1]]@text
+        } else {
+          NULL
+        }
       }
     }
   ),

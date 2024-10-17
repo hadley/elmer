@@ -48,6 +48,19 @@ test_that("can use images", {
   test_images_remote(chat_fun)
 })
 
+# Custom tests -----------------------------------------------------------------
+
+test_that("can retrieve logprobs (#115)", {
+  chat <- chat_openai(api_args = list(logprobs = TRUE))
+  pieces <- coro::collect(chat$stream("Hi"))
+
+  logprops <- chat$last_turn()@json$choices[[1]]$logprobs$content
+  expect_equal(
+    length(logprops),
+    length(pieces) - 2 # leading "" + trailing \n
+  )
+})
+
 # Custom -----------------------------------------------------------------
 
 test_that("as_json specialised for OpenAI", {

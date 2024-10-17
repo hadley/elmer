@@ -171,12 +171,12 @@ method(stream_merge_chunks, ProviderOpenAI) <- function(provider, result, chunk)
   }
 }
 method(stream_turn, ProviderOpenAI) <- function(provider, result, has_spec = FALSE) {
-  openai_assistant_turn(result$choices[[1]]$delta, result, has_spec)
+  openai_assistant_turn(provider, result$choices[[1]]$delta, result, has_spec)
 }
 method(value_turn, ProviderOpenAI) <- function(provider, result, has_spec = FALSE) {
-  openai_assistant_turn(result$choices[[1]]$message, result, has_spec)
+  openai_assistant_turn(provider, result$choices[[1]]$message, result, has_spec)
 }
-openai_assistant_turn <- function(message, result, has_spec) {
+openai_assistant_turn <- function(provider, message, result, has_spec) {
   if (has_spec) {
     json <- jsonlite::parse_json(message$content[[1]])
     content <- list(ContentJson(json))
@@ -192,8 +192,11 @@ openai_assistant_turn <- function(message, result, has_spec) {
     })
     content <- c(content, calls)
   }
-  tokens <- c(result$usage$prompt_tokens, result$usage$completion_tokens)
-  tokens_log("OpenAI", tokens)
+  tokens <- c(
+    result$usage$prompt_tokens %||% NA_integer_,
+    result$usage$completion_tokens %||% NA_integer_
+  )
+  tokens_log(paste0("OpenAI<", provider@base_url, ">"), tokens)
 
   Turn(message$role, content, json = result, tokens = tokens)
 }
