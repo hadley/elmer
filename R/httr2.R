@@ -5,7 +5,7 @@ chat_perform <- function(provider,
                          mode = c("value", "stream", "async-stream", "async-value"),
                          turns,
                          tools = list(),
-                         spec = list(),
+                         spec = NULL,
                          extra_args = list()) {
 
   mode <- arg_match(mode)
