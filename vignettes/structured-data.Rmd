@@ -1,8 +1,8 @@
 ---
-title: "structured-data"
+title: "Structured Data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{structured-data}
+  %\VignetteIndexEntry{Structured Data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -11,19 +11,101 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = FALSE # elmer:::openai_key_exists()
+  eval = elmer:::openai_key_exists()
 )
 ```
+
+When using an LLM to extract data from text or images, you can ask the chatbot to nicely format it, in JSON or any other format that you like. This will generally work well most of the time, but there's no gaurantee that you'll actually get the exact format that you want. In particular, if you're trying to get JSON, find that it's typically surrounded in ```` ```json ````, and you'll occassionally get text that isn't actually valid JSON. To avoid these challenges you can use a recent LLM feature: **structured data** (aka structured output). With structured data, you supply a type specification that exactly defines the object structure that you want and the LLM will guarantee that's what you get back.
 
 ```{r setup}
 library(elmer)
 ```
 
-Examplese from: <https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb>:
+## Structured data basics
 
-# Example 1: Article summarization
+To extract structured data you call the `$extract_data()` method instead of the regular `$chat()` method. You'll also need to define a type specification that describes the structure of the data that you want (more on that shortly). Here's a simple example of extracting a few values from a string:
 
 ```{r}
+chat <- chat_openai()
+chat$extract_data(
+  "My name is Susan and I'm 13 years old",
+  spec = type_object(
+    age = type_number(),
+    name = type_string()
+  )
+)
+```
+
+(For the sake of simplicity, I'll only use text in these examples, but there's no reason that you can't use `$extract_data()` with images.)
+
+## Data types
+
+The first challenge you'll need to overcome is defining the type specification (also known as the **schema**) for the output that you want. In elmer you do this with the `type_*()` functions. The type functions can be divided into three main groups:
+
+* **Scalars** represent single values, and of which there are five types: `type_boolean()`, `type_integer()`, `type_number()`, `type_string()`, and `type_enum()`, representing a single logical, integer, double, string, and factor value respectively.
+
+* **Arrays** represent any number of values of the same type and are created with `type_array()`. Arrays of scalars are very similar to R's vectors, but you can also have arrays of arrays and arrays of objects.
+
+* **Objects** represent a collection of named values and are created with `type_object()`. Objects can contain any number of scalars, arrays, and other objects.
+
+### Description
+
+For very simple cases, the LLM may be able to impute what you want just from the structure of the objects. But in most cases you'll also provide a description of what you want to go in that element. That's a good place to ask nicely for other attributes you'll like the value to possess (e.g. minimum or maximum values, date formats, ...).
+
+### Required vs optional
+
+By default, all components of an object are required. If you want to make some optional, set `required = FALSE`. This is a good idea if you don't think your text will always contain the required fields as LLMs may hallucinate data in order to fulfill your spec.
+
+For example, here the LLM hallucinates a date even though there isn't one in the text:
+
+```{r}
+article_spec <- type_object(
+  "Information about an article written in markdown",
+  title = type_string("Article title"),
+  author = type_string("Name of the author"),
+  date = type_string("Date written in YYYY-MM-DD format.")
+)
+
+prompt <- "
+  Extract data from the following text:
+
+  <text>
+  # Structured Data
+  By Hadley Wickham
+
+  When using an LLM to extract data from text or images, you can ask the chatbot to nicely format it, in JSON or any other format that you like.
+  </text>
+"
+
+chat <- chat_openai()
+chat$extract_data(prompt, spec = article_spec)
+```
+
+Note that I've used more of an explict prompt here. For this example, I found that this generated better results, and it's a useful place to put additional instructions.
+
+If let the LLM know that the fields are all optional, it'll instead return `NULL` for the missing fields:
+
+```{r}
+article_spec <- type_object(
+  "Information about an article written in markdown",
+  title = type_string("Article title", required = FALSE),
+  author = type_string("Name of the author", required = FALSE),
+  date = type_string("Date written in YYYY-MM-DD format.", required = FALSE)
+)
+chat$extract_data(prompt, spec = article_spec)
+```
+
+## Examples
+
+The following examples are [closely inspired by the Claude documentation](https://github.com/anthropics/anthropic-cookbook/blob/main/tool_use/extracting_structured_json.ipynb) and hint at some of the ways you can use structured data extraction.
+
+### Example 1: Article summarisation
+
+```{r}
+url <- "https://www.anthropic.com/news/third-party-testing"
+html <- rvest::read_html(url)
+text <- rvest::html_text2(rvest::html_element(html, "article"))
+
 article_summary <- type_object(
   "Summary of the article.",
   author = type_string("Name of the article author"),
@@ -31,31 +113,22 @@ article_summary <- type_object(
     'Array of topics, e.g. ["tech", "politics"]. Should be as specific as possible, and can overlap.',
     type_string(),
   ),
-  summary = type_string("Summary of the article. One or two paragraphs max."),
+  summary = type_string("Summary of the article. One or two paragraphs max"),
   coherence = type_integer("Coherence of the article's key points, 0-100 (inclusive)"),
   persuasion = type_number("Article's persuasion score, 0.0-1.0 (inclusive)")
 )
 
-url <- "https://www.anthropic.com/news/third-party-testing"
-html <- rvest::read_html(url)
-text <- rvest::html_text2(rvest::html_element(html, "article"))
-
-prompt <- interpolate("
-Extract structured data from:
-
-<article>
-{{text}}
-</article>")
-
 chat <- chat_openai()
-str(chat$extract_data(prompt, spec = article_summary))
+data <- chat$extract_data(text, spec = article_summary)
+cat(data$summary)
+
+str(data)
 ```
 
-## Example 2: Named entity recognition
+### Example 2: Named entity recognition
 
 ```{r}
 text <- "John works at Google in New York. He met with Sarah, the CEO of Acme Inc., last week in San Francisco."
-prompt <- interpolate("Extract structured data from <text>{{text}}</text>")
 
 named_entities <- type_object(
   "named entities",
@@ -63,66 +136,73 @@ named_entities <- type_object(
     "Array of named entities",
     type_object(
       name = type_string("The extracted entity name."),
-      type = type_string("The entity type (e.g., PERSON, ORGANIZATION, LOCATION)."),
-      content = type_string("The context in which the entity appears in the text.")
+      type = type_enum("The entity type", c("person", "location", "organization")),
+      context = type_string("The context in which the entity appears in the text.")
     )
   )
 )
 
 chat <- chat_openai()
-str(chat$extract_data(prompt, spec = named_entities))
+str(chat$extract_data(text, spec = named_entities))
 ```
 
-## Example 3: Sentiment analysis
+### Example 3: Sentiment analysis
 
 ```{r}
+text <- "The product was okay, but the customer service was terrible. I probably won't buy from them again."
+
 sentiment <- type_object(
-  "Extract the sentiment scores of a given text.",
-  positive_score = type_number("The positive sentiment score, ranging from 0.0 to 1.0."),
-  negative_score = type_number("The negative sentiment score, ranging from 0.0 to 1.0."),
-  neutral_score = type_number("The neutral sentiment score, ranging from 0.0 to 1.0.")
+  "Extract the sentiment scores of a given text. Sentiment scores should sum to 1.",
+  positive_score = type_number("Positive sentiment score, ranging from 0.0 to 1.0."),
+  negative_score = type_number("Negative sentiment score, ranging from 0.0 to 1.0."),
+  neutral_score = type_number("Neutral sentiment score, ranging from 0.0 to 1.0.")
 )
 
-text <- "The product was okay, but the customer service was terrible. I probably won't buy from them again."
-prompt <- interpolate("Extract structured data from <text>{{text}}</text>")
 chat <- chat_openai()
-str(chat$extract_data(prompt, spec = sentiment))
+str(chat$extract_data(text, spec = sentiment))
 ```
 
-## Example 4: Text classification
+Note that we've asked nicely for the scores to sum 1, and they do in this example (at least when I ran the code), but it's not guaranteed.
+
+### Example 4: Text classification
 
 ```{r}
+text <- "The new quantum computing breakthrough could revolutionize the tech industry."
+
 classification <- type_object(
   categories = type_array(
-    "Array of classification results",
+    "Array of classification results. The scores should sum to 1.",
     type_object(
       name = type_enum(
         "The category name",
-        values = c("Politics", "Sports", "Technology", "Entertainment", "Business", "Other")
+        values = c(
+          "Politics",
+          "Sports",
+          "Technology",
+          "Entertainment",
+          "Business",
+          "Other"
+        )
       ),
-      score = type_number("The classification score for the category, ranging from 0.0 to 1.0.")
+      score = type_number(
+        "The classification score for the category, ranging from 0.0 to 1.0."
+      )
     )
   )
 )
-text <- "The new quantum computing breakthrough could revolutionize the tech industry."
-
-prompt <- interpolate("
-Extract structured data from the following <text>. The classification scores should sum to 1.
-
-<text>
-{{text}}
-</text>
-")
 
 chat <- chat_openai()
-chat$extract_data(prompt, spec = classification)
+data <- chat$extract_data(text, spec = classification)
+do.call(rbind, lapply(data$categories, as.data.frame))
 ```
+
+Here we don't really need an object, except that the OpenAI API requires all structured data to use one.
 
 ## Example 5: Working with unknown keys
 
-(Only works with claude, and not chatGPT.)
+This examples only works with claude, not chatGPT or Gemini, because only Claude supports adding arbitrary additional properies.
 
-```{r}
+```{r, eval = elmer:::anthropic_key_exists()}
 characteristics <- type_object(
   "All characteristics",
   .additional_properties = TRUE
@@ -137,5 +217,13 @@ prompt <- "
 "
 
 chat <- chat_claude()
-chat$extract_data(prompt, spec = characteristics)
+str(chat$extract_data(prompt, spec = characteristics))
+```
+
+## Token usage
+
+```{r}
+#| type: asis
+#| echo: false
+knitr::kable(token_usage())
 ```

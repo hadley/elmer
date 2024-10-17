@@ -156,7 +156,7 @@ will be used.}
 \subsection{Method \code{extract_data()}}{
 Extract structured data
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$extract_data(..., spec, echo = NULL)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Chat$extract_data(..., spec, echo = "none")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -168,9 +168,9 @@ the phrase "extract structured data".}
 \item{\code{spec}}{A type specification for the extracted data. Should be
 created with a \code{\link[=type_boolean]{type_()}} function.}
 
-\item{\code{echo}}{Whether to emit the response to stdout as it is received. If
-\code{NULL}, then the value of \code{echo} set when the chat object was created
-will be used. (Not supported by all providers.)}
+\item{\code{echo}}{Whether to emit the response to stdout as it is received.
+Set to "text" to stream JSON data as it's generated (not supported by
+all providers).}
 }
 \if{html}{\out{</div>}}
 }

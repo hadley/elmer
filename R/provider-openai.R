@@ -196,7 +196,7 @@ openai_assistant_turn <- function(provider, message, result, has_spec) {
     result$usage$prompt_tokens %||% NA_integer_,
     result$usage$completion_tokens %||% NA_integer_
   )
-  tokens_log(paste0("OpenAI<", provider@base_url, ">"), tokens)
+  tokens_log(paste0("OpenAI-", provider@base_url), tokens)
 
   Turn(message$role, content, json = result, tokens = tokens)
 }

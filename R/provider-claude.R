@@ -60,7 +60,9 @@ ProviderClaude <- new_class(
 anthropic_key <- function() {
   key_get("ANTHROPIC_API_KEY")
 }
-
+anthropic_key_exists <- function() {
+  key_exists("ANTHROPIC_API_KEY")
+}
 # HTTP request and response handling -------------------------------------
 
 method(chat_request, ProviderClaude) <- function(provider,
