@@ -33,6 +33,7 @@ Otherwise, \code{NULL}.}
 \item \href{#method-Chat-tokens}{\code{Chat$tokens()}}
 \item \href{#method-Chat-last_turn}{\code{Chat$last_turn()}}
 \item \href{#method-Chat-chat}{\code{Chat$chat()}}
+\item \href{#method-Chat-extract_data}{\code{Chat$extract_data()}}
 \item \href{#method-Chat-chat_async}{\code{Chat$chat_async()}}
 \item \href{#method-Chat-stream}{\code{Chat$stream()}}
 \item \href{#method-Chat-stream_async}{\code{Chat$stream_async()}}
@@ -150,6 +151,31 @@ will be used.}
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Chat-extract_data"></a>}}
+\if{latex}{\out{\hypertarget{method-Chat-extract_data}{}}}
+\subsection{Method \code{extract_data()}}{
+Extract structured data
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Chat$extract_data(..., spec, echo = "none")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{The input to send to the chatbot. Will typically include
+the phrase "extract structured data".}
+
+\item{\code{spec}}{A type specification for the extracted data. Should be
+created with a \code{\link[=type_boolean]{type_()}} function.}
+
+\item{\code{echo}}{Whether to emit the response to stdout as it is received.
+Set to "text" to stream JSON data as it's generated (not supported by
+all providers).}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Chat-chat_async"></a>}}
 \if{latex}{\out{\hypertarget{method-Chat-chat_async}{}}}
 \subsection{Method \code{chat_async()}}{
@@ -220,7 +246,7 @@ call it and submit the results back.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{tool_def}}{Tool definition created by \link{ToolDef}.}
+\item{\code{tool_def}}{Tool definition created by \code{\link[=tool]{tool()}}.}
 }
 \if{html}{\out{</div>}}
 }

@@ -24,7 +24,7 @@ Provider <- new_class(
 # Create a request------------------------------------
 
 chat_request <- new_generic("chat_request", "provider",
-  function(provider, stream = TRUE, turns = list(), tools = list(), extra_args = list()) {
+  function(provider, stream = TRUE, turns = list(), tools = list(), spec = NULL, extra_args = list()) {
     S7_dispatch()
   })
 
@@ -45,16 +45,11 @@ stream_merge_chunks <- new_generic("stream_merge_chunks", "provider",
     S7_dispatch()
   }
 )
-stream_turn <- new_generic("stream_turn", "provider",
-  function(provider, result) {
-    S7_dispatch()
-  }
-)
+stream_turn <- new_generic("stream_turn", "provider")
 
 # Extract data from non-streaming results --------------------------------------
 
-value_turn <- new_generic("value_turn", "provider",
-  function(provider, result) {
-    S7_dispatch()
-  }
-)
+value_turn <- new_generic("value_turn", "provider")
+
+# Convert to JSON
+as_json <- new_generic("as_json", c("provider", "x"))

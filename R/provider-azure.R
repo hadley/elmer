@@ -74,6 +74,7 @@ method(chat_request, ProviderAzure) <- function(provider,
                                                 stream = TRUE,
                                                 turns = list(),
                                                 tools = list(),
+                                                spec = NULL,
                                                 extra_args = list()) {
 
   req <- request(provider@base_url)
@@ -87,6 +88,8 @@ method(chat_request, ProviderAzure) <- function(provider,
   tools <- unname(lapply(tools, openai_tool))
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
+  # TODO: spec
+
   data <- compact(list2(
     messages = messages,
     stream = stream,
@@ -99,9 +102,9 @@ method(chat_request, ProviderAzure) <- function(provider,
   req
 }
 
-method(stream_turn, ProviderAzure) <- function(provider, result) {
-  openai_assistant_turn(provider, result$choices[[1]]$delta, result)
+method(stream_turn, ProviderAzure) <- function(provider, result, has_spec = FALSE) {
+  openai_assistant_turn(provider, result$choices[[1]]$delta, result, has_spec = has_spec)
 }
-method(value_turn, ProviderAzure) <- function(provider, result) {
-  openai_assistant_turn(provider, result$choices[[1]]$message, result)
+method(value_turn, ProviderAzure) <- function(provider, result, has_spec = FALSE) {
+  openai_assistant_turn(provider, result$choices[[1]]$message, result, has_spec = has_spec)
 }

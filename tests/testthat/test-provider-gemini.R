@@ -40,6 +40,12 @@ test_that("all tool variations work", {
   )
 })
 
+test_that("can extract data", {
+  chat_fun <- chat_gemini
+
+  test_data_extraction(chat_fun)
+})
+
 test_that("can use images", {
   chat_fun <- chat_gemini
 
