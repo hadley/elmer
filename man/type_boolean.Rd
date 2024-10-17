@@ -41,14 +41,14 @@ Only applies when the element is nested inside of a \code{type_object()}.}
 
 \item{values}{Character vector of permitted values.}
 
+\item{items}{The type of the array items. Can be created by any of the
+\code{type_} function.}
+
 \item{...}{Name-type pairs defineing the components that the object must
 possess.}
 
 \item{.additional_properties}{Can the object have arbitrary additional
 properties that are not explicitly listed? Only supported by Claude.}
-
-\item{item}{The type of the array items. Can be created by any of the
-\code{type_} function.}
 }
 \description{
 These functions specify object types in a way that chatbots understand and

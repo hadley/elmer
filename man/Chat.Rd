@@ -246,7 +246,7 @@ call it and submit the results back.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{tool_def}}{Tool definition created by \link{ToolDef}.}
+\item{\code{tool_def}}{Tool definition created by \code{\link[=tool]{tool()}}.}
 }
 \if{html}{\out{</div>}}
 }

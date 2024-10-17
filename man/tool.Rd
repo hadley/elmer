@@ -7,6 +7,8 @@
 tool(.fun, .description, ..., .name = NULL)
 }
 \arguments{
+\item{.fun}{The function to be invoked when the tool is called.}
+
 \item{.description}{A detailed description of what the function does.
 Generally, the more information that you can provide here, the better.}
 
@@ -15,8 +17,6 @@ function. Each element should be created by a \code{\link[=type_boolean]{type_*(
 function.}
 
 \item{.name}{The name of the function.}
-
-\item{fun}{The function to be invoked when the tool is called.}
 }
 \description{
 Define an R function for use by a chatbot. The function will always be

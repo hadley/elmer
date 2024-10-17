@@ -11,7 +11,7 @@ NULL
 #' Learn more in `vignette("tool-calling")`.
 #'
 #' @export
-#' @param fun The function to be invoked when the tool is called.
+#' @param .fun The function to be invoked when the tool is called.
 #' @param .name The name of the function.
 #' @param .description A detailed description of what the function does.
 #'   Generally, the more information that you can provide here, the better.

@@ -118,7 +118,7 @@ type_enum <- function(description = NULL, values, required = TRUE) {
   TypeEnum(values = values, description = description, required = required)
 }
 
-#' @param item The type of the array items. Can be created by any of the
+#' @param items The type of the array items. Can be created by any of the
 #'   `type_` function.
 #' @export
 #' @rdname type_boolean
