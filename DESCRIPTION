@@ -43,11 +43,14 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 Collate:
+    'utils-S7.R'
+    'types.R'
+    'provider.R'
+    'as-json.R'
     'utils-coro.R'
     'chat.R'
     'content-image.R'
     'content-tools.R'
-    'utils-S7.R'
     'content.R'
     'elmer-package.R'
     'httr2.R'
@@ -55,7 +58,6 @@ Collate:
     'import-standalone-purrr.R'
     'import-standalone-types-check.R'
     'interpolate.R'
-    'provider.R'
     'provider-openai.R'
     'provider-azure.R'
     'provider-claude.R'
@@ -67,7 +69,6 @@ Collate:
     'shiny.R'
     'tokens.R'
     'tools-def-auto.R'
-    'types.R'
     'tools-def.R'
     'turns.R'
     'utils-cat.R'

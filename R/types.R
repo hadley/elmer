@@ -1,3 +1,6 @@
+#' @include utils-S7.R
+NULL
+
 Type <- new_class(
   "Type",
   properties = list(
@@ -138,94 +141,5 @@ type_object <- function(.description = NULL,
     description = .description,
     required = .required,
     additional_properties = .additional_properties
-  )
-}
-
-# JSON schema ------------------------------------------------------------
-
-as_json_schema <- new_generic("as_json_schema", c("provider", "x"))
-
-method(as_json_schema, list(Provider, TypeBasic)) <- function(provider, x) {
-  list(type = x@type, description = x@description %||% "")
-}
-
-method(as_json_schema, list(Provider, TypeEnum)) <- function(provider, x) {
-  list(
-    type = "string",
-    description = x@description %||% "",
-    enum = as.list(x@values)
-  )
-}
-
-method(as_json_schema, list(Provider, TypeObject)) <- function(provider, x) {
-  names <- names2(x@properties)
-  required <- map_lgl(x@properties, function(prop) prop@required)
-
-  properties <- lapply(x@properties, as_json_schema, provider = provider)
-  names(properties) <- names
-
-  list(
-    type = "object",
-    description = x@description %||% "",
-    properties = properties,
-    required = as.list(names[required]),
-    additionalProperties = x@additional_properties
-  )
-}
-
-method(as_json_schema, list(ProviderOpenAI, TypeObject)) <- function(provider, x) {
-  if (x@additional_properties) {
-    cli::cli_abort("{.arg .additional_properties} not supported for OpenAI.")
-  }
-
-  names <- names2(x@properties)
-  properties <- lapply(x@properties, function(x) {
-    out <- as_json_schema(provider, x)
-    if (!x@required) {
-      out$type <- c(out$type, "null")
-    }
-    out
-  })
-
-  names(properties) <- names
-
-  list(
-    type = "object",
-    description = x@description %||% "",
-    properties = properties,
-    required = as.list(names),
-    additionalProperties = x@additional_properties
-  )
-}
-
-method(as_json_schema, list(ProviderGemini, TypeObject)) <- function(provider, x) {
-  if (x@additional_properties) {
-    cli::cli_abort("{.arg .additional_properties} not supported for Gemini.")
-  }
-
-  if (length(x@properties) == 0) {
-    return(list())
-  }
-
-  names <- names2(x@properties)
-  required <- map_lgl(x@properties, function(prop) prop@required)
-
-  properties <- lapply(x@properties, as_json_schema, provider = provider)
-  names(properties) <- names
-
-  compact(list(
-    type = "object",
-    description = x@description,
-    properties = properties,
-    required = as.list(names[required])
-  ))
-}
-
-
-method(as_json_schema, list(Provider, TypeArray)) <- function(provider, x) {
-  list(
-    type = "array",
-    description = x@description %||% "",
-    items = as_json_schema(provider, x@items)
   )
 }

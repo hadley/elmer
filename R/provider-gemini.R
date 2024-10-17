@@ -1,5 +1,6 @@
 #' @include provider.R
 #' @include content.R
+#' @include types.R
 NULL
 
 #' Chat with a Google Gemini model
@@ -82,7 +83,7 @@ method(chat_request, ProviderGemini) <- function(provider,
   if (!is.null(spec)) {
     generation_config <- list(
       response_mime_type = "application/json",
-      response_schema = as_json_schema(provider, spec)
+      response_schema = as_json(provider, spec)
     )
   } else {
     generation_config <- NULL
@@ -180,7 +181,7 @@ gemini_tools <- function(provider, tools) {
     compact(list(
       name = tool@name,
       description = tool@description,
-      parameters = as_json_schema(provider, tool@arguments)
+      parameters = as_json(provider, tool@arguments)
     ))
   })
   list(functionDeclarations = unname(funs))
@@ -225,4 +226,27 @@ method(gemini_content, ContentToolResult) <- function(content) {
       response = list(value = tool_string(content))
     )
   )
+}
+
+method(as_json, list(ProviderGemini, TypeObject)) <- function(provider, x) {
+  if (x@additional_properties) {
+    cli::cli_abort("{.arg .additional_properties} not supported for Gemini.")
+  }
+
+  if (length(x@properties) == 0) {
+    return(list())
+  }
+
+  names <- names2(x@properties)
+  required <- map_lgl(x@properties, function(prop) prop@required)
+
+  properties <- lapply(x@properties, as_json, provider = provider)
+  names(properties) <- names
+
+  compact(list(
+    type = "object",
+    description = x@description,
+    properties = properties,
+    required = as.list(names[required])
+  ))
 }

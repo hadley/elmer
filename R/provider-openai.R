@@ -1,5 +1,6 @@
 #' @include provider.R
 #' @include content.R
+#' @include types.R
 NULL
 
 #' Chat with an OpenAI model
@@ -120,7 +121,7 @@ method(chat_request, ProviderOpenAI) <- function(provider,
       type = "json_schema",
       json_schema = list(
         name = "structured_data",
-        schema = as_json_schema(provider, spec),
+        schema = as_json(provider, spec),
         strict = TRUE
       )
     )
@@ -271,7 +272,33 @@ openai_tool <- function(provider, tool) {
       name = tool@name,
       description = tool@description,
       strict = TRUE,
-      parameters = as_json_schema(provider, tool@arguments)
+      parameters = as_json(provider, tool@arguments)
     ))
+  )
+}
+
+
+method(as_json, list(ProviderOpenAI, TypeObject)) <- function(provider, x) {
+  if (x@additional_properties) {
+    cli::cli_abort("{.arg .additional_properties} not supported for OpenAI.")
+  }
+
+  names <- names2(x@properties)
+  properties <- lapply(x@properties, function(x) {
+    out <- as_json(provider, x)
+    if (!x@required) {
+      out$type <- c(out$type, "null")
+    }
+    out
+  })
+
+  names(properties) <- names
+
+  list(
+    type = "object",
+    description = x@description %||% "",
+    properties = properties,
+    required = as.list(names),
+    additionalProperties = x@additional_properties
   )
 }

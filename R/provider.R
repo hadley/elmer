@@ -50,3 +50,6 @@ stream_turn <- new_generic("stream_turn", "provider")
 # Extract data from non-streaming results --------------------------------------
 
 value_turn <- new_generic("value_turn", "provider")
+
+# Convert to JSON
+as_json <- new_generic("as_json", c("provider", "x"))
