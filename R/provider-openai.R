@@ -112,7 +112,7 @@ method(chat_request, ProviderOpenAI) <- function(provider,
   req <- req_error(req, body = function(resp) resp_body_json(resp)$error$message)
 
   messages <- openai_messages(turns)
-  tools <- unname(lapply(tools, openai_tool))
+  tools <- unname(lapply(tools, openai_tool, provider = provider))
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
   if (!is.null(spec)) {
@@ -264,14 +264,14 @@ method(openai_content, ContentJson) <- function(content) {
   list(type = "text", text = "")
 }
 
-openai_tool <- function(tool) {
+openai_tool <- function(provider, tool) {
   list(
     type = "function",
     "function" = compact(list(
       name = tool@name,
       description = tool@description,
       strict = TRUE,
-      parameters = as_json_schema(tool@arguments)
+      parameters = as_json_schema(provider, tool@arguments)
     ))
   )
 }

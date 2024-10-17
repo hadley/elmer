@@ -173,6 +173,11 @@ method(stream_merge_chunks, ProviderClaude) <- function(provider, result, chunk)
   result
 }
 method(stream_turn, ProviderClaude) <- function(provider, result, has_spec = FALSE) {
+
+  if (has_spec) {
+    browser()
+  }
+
   contents <- lapply(result$content, function(content) {
     if (content$type == "text") {
       ContentText(content$text)
