@@ -102,11 +102,11 @@ method(chat_request, ProviderAzure) <- function(provider,
   req
 }
 
-method(stream_turn, ProviderAzure) <- function(provider, result) {
+method(stream_turn, ProviderAzure) <- function(provider, result, has_spec = FALSE) {
   # Will need to register tokens differently
-  openai_assistant_turn(result$choices[[1]]$delta, result)
+  openai_assistant_turn(result$choices[[1]]$delta, result, has_spec = has_spec)
 }
-method(value_turn, ProviderAzure) <- function(provider, result) {
+method(value_turn, ProviderAzure) <- function(provider, result, has_spec = FALSE) {
   # Will need to register tokens differently
-  openai_assistant_turn(result$choices[[1]]$message, result)
+  openai_assistant_turn(result$choices[[1]]$message, result, has_spec = has_spec)
 }
