@@ -30,10 +30,13 @@ type_object(
 )
 }
 \arguments{
-\item{description, .description}{The purpose of the component. Generally,
-the more information that you can provide here, the better.}
+\item{description, .description}{The purpose of the component. This is
+used by the LLM to determine what values to pass to the tool or what
+values to extract in the structured data, so the more detail that you can
+provide here, the better.}
 
-\item{required, .required}{Is the component required?}
+\item{required, .required}{Is the component required? If \code{FALSE}, and the
+component does not exist in the data, the LLM may hallucinate a value.}
 
 \item{values}{Character vector of permitted values.}
 
@@ -50,6 +53,42 @@ properties that are not explicitly listed? Only supported by Claude.}
 These functions specify object types in a way that chatbots understand and
 are used for tool calling and structured data extraction. Their names are
 based on the \href{https://json-schema.org}{JSON schema}, which is what the APIs
-expected behind the scenes, but it's fairly straightforward to translated
-from what you know about R.
+expect behind the scenes. The translation from R concepts to these types is
+fairly straightforward.
+\itemize{
+\item \code{type_boolean()}, \code{type_integer()}, \code{type_double()}, and \code{type_string()}
+each represent scalars. These are equivalent to length-1 logical,
+integer, double, and character vectors (respectively).
+\item \code{type_enum()} is equivalent to a length-1 factor; it is a string that can
+only take the specified values.
+\item \code{type_array()} is equivalent to a vector in R. You can use it to represent
+an atomic vector: e.g. \code{type_array(items = type_boolean())} is equivalent
+to a logical vector and \code{type_array(items = type_string())} is equivalent
+to a character vector). You can also use it to represent a list of more
+complicated types where every element is the same type (R has no base
+equivalent to this), e.g. \code{type_array(items = type_array(items = type_string()))}
+represents a list of character vectors.
+\item \code{type_object()} is equivalent to a named list in R, but where every element
+must have the specified type. For example,
+\code{type_object(a = type_string(), b = type_array(type_integer()))} is
+equivalent to a list with an element called \code{a} that is a string and
+an element called \code{b} that is an integer vector.
+}
+}
+\examples{
+# An integer vector
+type_array(items = type_integer())
+
+# The closest equivalent to a data frame is an array of objects
+type_array(items = type_object(
+   x = type_boolean(),
+   y = type_string(),
+   z = type_double()
+))
+
+# There's no specific type for dates, but you use a string with the
+# requested format in the description (it's not gauranteed that you'll
+# get this format back, but you should most of the time)
+type_string("The creation date, in YYYY-MM-DD format.")
+type_string("The update date, in dd/mm/yyyy format.")
 }
