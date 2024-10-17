@@ -35,6 +35,12 @@ test_that("all tool variations work", {
   test_tools_sequential(chat_fun, total_calls = 6)
 })
 
+test_that("can extract data", {
+  chat_fun <- chat_openai
+
+  test_data_extraction(chat_fun)
+})
+
 test_that("can use images", {
   chat_fun <- chat_openai
 

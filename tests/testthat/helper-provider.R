@@ -105,6 +105,29 @@ test_tools_sequential <- function(chat_fun, total_calls) {
   expect_length(chat$turns(), total_calls)
 }
 
+
+# Data extraction --------------------------------------------------------
+
+test_data_extraction <- function(chat_fun) {
+  article_summary <- type_object(
+    "Summary of the article.",
+    title = type_string("Content title"),
+    author = type_string("Name of the author")
+  )
+
+  prompt <- "
+    # Apples are tasty
+    By Hadley Wickham
+
+    Apples are delicious and tasty and I like to eat them.
+    Except for red delicious, that is. They are NOT delicious.
+  "
+
+  chat <- chat_fun()
+  data <- chat$extract_data(prompt, spec = article_summary)
+  expect_equal(data, list(title = "Apples are tasty", author = "Hadley Wickham"))
+}
+
 # Images -----------------------------------------------------------------
 
 test_images_inline <- function(chat_fun) {
