@@ -36,7 +36,8 @@ values to extract in the structured data, so the more detail that you can
 provide here, the better.}
 
 \item{required, .required}{Is the component required? If \code{FALSE}, and the
-component does not exist in the data, the LLM may hallucinate a value.}
+component does not exist in the data, the LLM may hallucinate a value.
+Only applies when the element is nested inside of a \code{type_object()}.}
 
 \item{values}{Character vector of permitted values.}
 
@@ -56,7 +57,7 @@ based on the \href{https://json-schema.org}{JSON schema}, which is what the APIs
 expect behind the scenes. The translation from R concepts to these types is
 fairly straightforward.
 \itemize{
-\item \code{type_boolean()}, \code{type_integer()}, \code{type_double()}, and \code{type_string()}
+\item \code{type_boolean()}, \code{type_integer()}, \code{type_number()}, and \code{type_string()}
 each represent scalars. These are equivalent to length-1 logical,
 integer, double, and character vectors (respectively).
 \item \code{type_enum()} is equivalent to a length-1 factor; it is a string that can
@@ -83,7 +84,7 @@ type_array(items = type_integer())
 type_array(items = type_object(
    x = type_boolean(),
    y = type_string(),
-   z = type_double()
+   z = type_number()
 ))
 
 # There's no specific type for dates, but you use a string with the

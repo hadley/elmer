@@ -1,1 +1,1 @@
-print(token_usage())
+token_usage()

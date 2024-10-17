@@ -44,7 +44,7 @@ TypeObject <- new_class(
 #' expect behind the scenes. The translation from R concepts to these types is
 #' fairly straightforward.
 #'
-#' * `type_boolean()`, `type_integer()`, `type_double()`, and `type_string()`
+#' * `type_boolean()`, `type_integer()`, `type_number()`, and `type_string()`
 #'   each represent scalars. These are equivalent to length-1 logical,
 #'   integer, double, and character vectors (respectively).
 #'
@@ -71,6 +71,7 @@ TypeObject <- new_class(
 #'   provide here, the better.
 #' @param required,.required Is the component required? If `FALSE`, and the
 #'   component does not exist in the data, the LLM may hallucinate a value.
+#'   Only applies when the element is nested inside of a `type_object()`.
 #' @export
 #' @examples
 #' # An integer vector
@@ -80,7 +81,7 @@ TypeObject <- new_class(
 #' type_array(items = type_object(
 #'    x = type_boolean(),
 #'    y = type_string(),
-#'    z = type_double()
+#'    z = type_number()
 #' ))
 #'
 #' # There's no specific type for dates, but you use a string with the
@@ -160,7 +161,7 @@ method(as_json_schema, list(Provider, TypeObject)) <- function(provider, x) {
   names <- names2(x@properties)
   required <- map_lgl(x@properties, function(prop) prop@required)
 
-  properties <- lapply(x@properties, as_json_schema)
+  properties <- lapply(x@properties, as_json_schema, provider = provider)
   names(properties) <- names
 
   list(
@@ -175,7 +176,7 @@ method(as_json_schema, list(Provider, TypeObject)) <- function(provider, x) {
 
 method(as_json_schema, list(ProviderOpenAI, TypeObject)) <- function(provider, x) {
   if (x@additional_properties) {
-    cli::cli_abort("{.arg additional_properties} not supported for OpenAI")
+    cli::cli_abort("{.arg .additional_properties} not supported for OpenAI.")
   }
 
   names <- names2(x@properties)
@@ -203,6 +204,6 @@ method(as_json_schema, list(Provider, TypeArray)) <- function(provider, x) {
   list(
     type = "array",
     description = x@description %||% "",
-    items = as_json_schema(x@items)
+    items = as_json_schema(provider, x@items)
   )
 }
