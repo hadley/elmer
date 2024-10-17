@@ -173,7 +173,6 @@ method(as_json_schema, list(Provider, TypeObject)) <- function(provider, x) {
   )
 }
 
-
 method(as_json_schema, list(ProviderOpenAI, TypeObject)) <- function(provider, x) {
   if (x@additional_properties) {
     cli::cli_abort("{.arg .additional_properties} not supported for OpenAI.")
@@ -197,6 +196,29 @@ method(as_json_schema, list(ProviderOpenAI, TypeObject)) <- function(provider, x
     required = as.list(names),
     additionalProperties = x@additional_properties
   )
+}
+
+method(as_json_schema, list(ProviderGemini, TypeObject)) <- function(provider, x) {
+  if (x@additional_properties) {
+    cli::cli_abort("{.arg .additional_properties} not supported for Gemini.")
+  }
+
+  if (length(x@properties) == 0) {
+    return(list())
+  }
+
+  names <- names2(x@properties)
+  required <- map_lgl(x@properties, function(prop) prop@required)
+
+  properties <- lapply(x@properties, as_json_schema, provider = provider)
+  names(properties) <- names
+
+  compact(list(
+    type = "object",
+    description = x@description,
+    properties = properties,
+    required = as.list(names[required])
+  ))
 }
 
 

@@ -80,7 +80,7 @@ method(chat_request, ProviderGemini) <- function(provider,
   }
 
   contents <- gemini_contents(turns)
-  tools <- gemini_tools(tools)
+  tools <- gemini_tools(provider, tools)
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
   body <- compact(list(
@@ -111,13 +111,18 @@ method(stream_merge_chunks, ProviderGemini) <- function(provider, result, chunk)
     merge_dicts(result, chunk)
   }
 }
-method(stream_turn, ProviderGemini) <- function(provider, result) {
+method(stream_turn, ProviderGemini) <- function(provider, result, has_spec = FALSE) {
   gemini_assistant_turn(result$candidates[[1]]$content, result)
 }
-method(value_turn, ProviderGemini) <- function(provider, result) {
+method(value_turn, ProviderGemini) <- function(provider, result, has_spec = FALSE) {
   gemini_assistant_turn(result$candidates[[1]]$content, result)
 }
-gemini_assistant_turn <- function(message, result) {
+gemini_assistant_turn <- function(message, result, has_spec = FALSE) {
+
+  if (has_spec) {
+    browser()
+  }
+
   contents <- lapply(message$parts, function(content) {
     if (has_name(content, "text")) {
       ContentText(content$text)
@@ -158,7 +163,7 @@ gemini_contents <- function(turns) {
 }
 
 # https://ai.google.dev/api/caching#Tool
-gemini_tools <- function(tools) {
+gemini_tools <- function(provider, tools) {
   if (length(tools) == 0) {
     return()
   }
@@ -167,36 +172,10 @@ gemini_tools <- function(tools) {
     compact(list(
       name = tool@name,
       description = tool@description,
-      parameters = openapi_schema_parameters(tool@arguments)
+      parameters = as_json_schema(provider, tool@arguments)
     ))
   })
   list(functionDeclarations = unname(funs))
-}
-
-# https://ai.google.dev/api/caching#Schema
-openapi_schema_parameters <- function(arguments) {
-  if (length(arguments) == 0) {
-    return(list())
-  }
-
-  arg_names <- names2(arguments)
-  arg_required <- map_lgl(arguments, function(arg) {
-    arg@required %||% FALSE
-  })
-
-  properties <- lapply(arguments, function(arg) {
-    list(
-      type = arg@type,
-      description = arg@description
-    )
-  })
-  names(properties) <- arg_names
-
-  list(
-    type = "object",
-    properties = properties,
-    required = arg_names[arg_required]
-  )
 }
 
 gemini_content <- new_generic("gemini_content", "content")

@@ -74,7 +74,7 @@ test_tools_parallel <- function(chat_fun) {
     if (person == "Joe") "sage green" else "red"
   }
   chat$register_tool(tool(
-    function(person) if (person == "Joe") "sage green" else "red",
+    favourite_color,
     "Returns a person's favourite colour",
     person = type_string("Name of a person")
   ))
@@ -90,9 +90,12 @@ test_tools_parallel <- function(chat_fun) {
 
 test_tools_sequential <- function(chat_fun, total_calls) {
   chat <- chat_fun(system_prompt = "Be very terse, not even punctuation.")
-  chat$register_tool(tool(function() 2024, "Get the current year"))
+
+  current_year <- function() 2024
+  popular_name <- function(year) if (year == 2024) "Susan" else "I don't know"
+  chat$register_tool(tool(current_year, "Get the current year"))
   chat$register_tool(tool(
-    function(year) if (year == 2024) "Susan" else "I don't know",
+    popular_name,
     "Gets the most popular name for a year",
     year = type_integer("Year")
   ))
