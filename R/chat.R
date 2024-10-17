@@ -100,6 +100,9 @@ Chat <- R6::R6Class("Chat",
     #'   the phrase "extract structured data".
     #' @param spec A type specification for the extracted data. Should be
     #'   created with a [`type_()`][type_boolean] function.
+    #' @param echo Whether to emit the response to stdout as it is received. If
+    #'   `NULL`, then the value of `echo` set when the chat object was created
+    #'   will be used. (Not supported by all providers.)
     extract_data = function(..., spec, echo = NULL) {
       turn <- user_turn(...)
       echo <- check_echo(echo %||% private$echo)

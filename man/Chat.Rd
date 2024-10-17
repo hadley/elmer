@@ -166,6 +166,10 @@ the phrase "extract structured data".}
 
 \item{\code{spec}}{A type specification for the extracted data. Should be
 created with a \code{\link[=type_boolean]{type_()}} function.}
+
+\item{\code{echo}}{Whether to emit the response to stdout as it is received. If
+\code{NULL}, then the value of \code{echo} set when the chat object was created
+will be used. (Not supported by all providers.)}
 }
 \if{html}{\out{</div>}}
 }
