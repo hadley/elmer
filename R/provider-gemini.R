@@ -79,6 +79,15 @@ method(chat_request, ProviderGemini) <- function(provider,
     system <- list(parts = list(text = ""))
   }
 
+  if (!is.null(spec)) {
+    generation_config <- list(
+      response_mime_type = "application/json",
+      response_schema = as_json_schema(provider, spec)
+    )
+  } else {
+    generation_config <- NULL
+  }
+
   contents <- gemini_contents(turns)
   tools <- gemini_tools(provider, tools)
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
@@ -87,6 +96,7 @@ method(chat_request, ProviderGemini) <- function(provider,
     contents = contents,
     tools = tools,
     systemInstruction = system,
+    generation_config = generation_config,
     !!!extra_args
   ))
   req <- req_body_json(req, body)
@@ -112,20 +122,16 @@ method(stream_merge_chunks, ProviderGemini) <- function(provider, result, chunk)
   }
 }
 method(stream_turn, ProviderGemini) <- function(provider, result, has_spec = FALSE) {
-  gemini_assistant_turn(result$candidates[[1]]$content, result)
-}
-method(value_turn, ProviderGemini) <- function(provider, result, has_spec = FALSE) {
-  gemini_assistant_turn(result$candidates[[1]]$content, result)
-}
-gemini_assistant_turn <- function(message, result, has_spec = FALSE) {
-
-  if (has_spec) {
-    browser()
-  }
+  message <- result$candidates[[1]]$content
 
   contents <- lapply(message$parts, function(content) {
     if (has_name(content, "text")) {
-      ContentText(content$text)
+      if (has_spec) {
+        data <- jsonlite::parse_json(content$text)
+        ContentJson(data)
+      } else {
+        ContentText(content$text)
+      }
     } else if (has_name(content, "functionCall")) {
       ContentToolRequest(
         content$functionCall$name,
@@ -133,7 +139,10 @@ gemini_assistant_turn <- function(message, result, has_spec = FALSE) {
         content$functionCall$args
       )
     } else {
-      browser()
+      cli::cli_abort(
+        "Unknown content type with names {.str {names(content)}}.",
+        .internal = TRUE
+      )
     }
   })
   usage <- result$usageMetadata
@@ -142,8 +151,7 @@ gemini_assistant_turn <- function(message, result, has_spec = FALSE) {
 
   Turn("assistant", contents, json = result, tokens = tokens)
 }
-
-# Convert elmer turns + content to chatGPT messages
+method(value_turn, ProviderGemini) <- method(stream_turn, ProviderGemini)
 
 # https://ai.google.dev/api/caching#Content
 gemini_contents <- function(turns) {

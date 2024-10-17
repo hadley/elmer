@@ -33,7 +33,6 @@ test_that("all tool variations work", {
   test_tools_sequential(chat_fun, total_calls = 6)
 })
 
-
 test_that("can extract data", {
   chat_fun <- chat_claude
 

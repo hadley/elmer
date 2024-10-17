@@ -115,7 +115,7 @@ Chat <- R6::R6Class("Chat",
       is_json <- map_lgl(turn@contents, S7_inherits, ContentJson)
       n <- sum(is_json)
       if (n != 1) {
-        cli::cli_abort("Data extraction failed: {n} tool requests recieved.")
+        cli::cli_abort("Data extraction failed: {n} data results recieved.")
       }
 
       json <- turn@contents[[which(is_json)]]
