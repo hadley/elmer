@@ -1,5 +1,5 @@
 test_that("tool can get name", {
-  f <- funtion() {}
+  f <- function() {}
   td <- tool(f, "")
   expect_equal(td@name, "f")
 
@@ -9,7 +9,7 @@ test_that("tool can get name", {
 
 test_that("json_schema_parameters generates correct paramters if no arguments", {
   expect_equal(
-    as_json(Provider(), type_object()),
+    as_json(Provider(""), type_object()),
     list(
       type = "object",
       description = "",
