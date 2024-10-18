@@ -11,6 +11,7 @@ chat_azure(
   system_prompt = NULL,
   turns = NULL,
   api_key = azure_key(),
+  token = NULL,
   api_args = list(),
   echo = c("none", "text", "all")
 )
@@ -38,6 +39,9 @@ Normally there is also a \code{content} field, which is a string.}
 \item{api_key}{The API key to use for authentication. You generally should
 not supply this directly, but instead set the \code{AZURE_OPENAI_API_KEY} environment
 variable.}
+
+\item{token}{Azure token for authentication. This is typically not required for
+Azure OpenAI API calls, but can be used if your setup requires it.}
 
 \item{api_args}{Named list of arbitrary extra arguments appended to the body
 of every chat API call.}
