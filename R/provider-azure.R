@@ -19,6 +19,8 @@ NULL
 #' @param api_key The API key to use for authentication. You generally should
 #'   not supply this directly, but instead set the `AZURE_OPENAI_API_KEY` environment
 #'   variable.
+#' @param token Azure token for authentication. This is typically not required for
+#' Azure OpenAI API calls, but can be used if your setup requires it.
 #' @inheritParams chat_openai
 #' @inherit chat_openai return
 #' @export
@@ -28,6 +30,7 @@ chat_azure <- function(endpoint = azure_endpoint(),
                        system_prompt = NULL,
                        turns = NULL,
                        api_key = azure_key(),
+                       token = NULL,
                        api_args = list(),
                        echo = c("none", "text", "all")) {
   check_string(endpoint)
@@ -43,6 +46,7 @@ chat_azure <- function(endpoint = azure_endpoint(),
     endpoint = endpoint,
     model = deployment_id,
     api_version = api_version,
+    token = token,
     extra_args = api_args,
     api_key = api_key
   )
@@ -55,6 +59,7 @@ ProviderAzure <- new_class(
   package = "elmer",
   properties = list(
     api_key = prop_string(),
+    token = prop_string(allow_null = TRUE),
     endpoint = prop_string(),
     api_version = prop_string()
   )
@@ -81,6 +86,9 @@ method(chat_request, ProviderAzure) <- function(provider,
   req <- req_url_path_append(req, "/chat/completions")
   req <- req_url_query(req, `api-version` = provider@api_version)
   req <- req_headers(req, `api-key` = provider@api_key, .redact = "api-key")
+  if (!is.null(provider@token)) {
+    req <- req_auth_bearer_token(req, provider@token)
+  }
   req <- req_retry(req, max_tries = 2)
   req <- req_error(req, body = function(resp) resp_body_json(resp)$message)
 
