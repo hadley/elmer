@@ -39,12 +39,17 @@ set_default <- function(value, default, arg = caller_arg(value)) {
   }
 }
 
-print_json <- function(x) {
-  cat(jsonlite::toJSON(x, pretty = TRUE, auto_unbox = TRUE))
+last_request_json <- function() {
+  print_json(last_request()$body$data)
 }
-
-last_request_json <- function(req = last_request()) {
-  print_json(req$body$data)
+last_response_json <- function() {
+  print_json(resp_body_json(last_response()))
+}
+print_json <- function(x) {
+  cat(pretty_json(x))
+}
+pretty_json <- function(x) {
+  jsonlite::toJSON(x, pretty = TRUE, auto_unbox = TRUE)
 }
 
 check_echo <- function(echo = NULL) {

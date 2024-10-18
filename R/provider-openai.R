@@ -1,5 +1,6 @@
 #' @include provider.R
 #' @include content.R
+#' @include types.R
 NULL
 
 #' Chat with an OpenAI model
@@ -99,10 +100,11 @@ openai_key <- function() {
 
 # https://platform.openai.com/docs/api-reference/chat/create
 method(chat_request, ProviderOpenAI) <- function(provider,
-                                                  stream = TRUE,
-                                                  turns = list(),
-                                                  tools = list(),
-                                                  extra_args = list()) {
+                                                 stream = TRUE,
+                                                 turns = list(),
+                                                 tools = list(),
+                                                 spec = NULL,
+                                                 extra_args = list()) {
 
   req <- request(provider@base_url)
   req <- req_url_path_append(req, "/chat/completions")
@@ -111,8 +113,21 @@ method(chat_request, ProviderOpenAI) <- function(provider,
   req <- req_error(req, body = function(resp) resp_body_json(resp)$error$message)
 
   messages <- openai_messages(turns)
-  tools <- unname(lapply(tools, openai_tool))
+  tools <- unname(lapply(tools, openai_tool, provider = provider))
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
+
+  if (!is.null(spec)) {
+    response_format <- list(
+      type = "json_schema",
+      json_schema = list(
+        name = "structured_data",
+        schema = as_json(provider, spec),
+        strict = TRUE
+      )
+    )
+  } else {
+    response_format <- NULL
+  }
 
   data <- compact(list2(
     messages = messages,
@@ -121,6 +136,7 @@ method(chat_request, ProviderOpenAI) <- function(provider,
     stream = stream,
     stream_options = if (stream) list(include_usage = TRUE),
     tools = tools,
+    response_format = response_format,
     !!!extra_args
   ))
   req <- req_body_json(req, data)
@@ -154,15 +170,19 @@ method(stream_merge_chunks, ProviderOpenAI) <- function(provider, result, chunk)
     merge_dicts(result, chunk)
   }
 }
-method(stream_turn, ProviderOpenAI) <- function(provider, result) {
-  openai_assistant_turn(provider, result$choices[[1]]$delta, result)
+method(stream_turn, ProviderOpenAI) <- function(provider, result, has_spec = FALSE) {
+  openai_assistant_turn(provider, result$choices[[1]]$delta, result, has_spec)
 }
-method(value_turn, ProviderOpenAI) <- function(provider, result) {
-  openai_assistant_turn(provider, result$choices[[1]]$message, result)
+method(value_turn, ProviderOpenAI) <- function(provider, result, has_spec = FALSE) {
+  openai_assistant_turn(provider, result$choices[[1]]$message, result, has_spec)
 }
-openai_assistant_turn <- function(provider, message, result) {
-  content <- lapply(message$content, as_content)
-
+openai_assistant_turn <- function(provider, message, result, has_spec) {
+  if (has_spec) {
+    json <- jsonlite::parse_json(message$content[[1]])
+    content <- list(ContentJson(json))
+  } else {
+    content <- lapply(message$content, as_content)
+  }
   if (has_name(message, "tool_calls")) {
     calls <- lapply(message$tool_calls, function(call) {
       name <- call$`function`$name
@@ -176,7 +196,7 @@ openai_assistant_turn <- function(provider, message, result) {
     result$usage$prompt_tokens %||% NA_integer_,
     result$usage$completion_tokens %||% NA_integer_
   )
-  tokens_log(paste0("OpenAI<", provider@base_url, ">"), tokens)
+  tokens_log(paste0("OpenAI-", provider@base_url), tokens)
 
   Turn(message$role, content, json = result, tokens = tokens)
 }
@@ -244,14 +264,44 @@ method(openai_content, ContentToolRequest) <- function(content) {
   )
 }
 
-openai_tool <- function(tool) {
+method(openai_content, ContentJson) <- function(content) {
+  list(type = "text", text = "")
+}
+
+openai_tool <- function(provider, tool) {
   list(
     type = "function",
     "function" = compact(list(
       name = tool@name,
       description = tool@description,
-      strict = tool@extra$strict,
-      parameters = json_schema_parameters(tool@arguments)
+      strict = TRUE,
+      parameters = as_json(provider, tool@arguments)
     ))
+  )
+}
+
+
+method(as_json, list(ProviderOpenAI, TypeObject)) <- function(provider, x) {
+  if (x@additional_properties) {
+    cli::cli_abort("{.arg .additional_properties} not supported for OpenAI.")
+  }
+
+  names <- names2(x@properties)
+  properties <- lapply(x@properties, function(x) {
+    out <- as_json(provider, x)
+    if (!x@required) {
+      out$type <- c(out$type, "null")
+    }
+    out
+  })
+
+  names(properties) <- names
+
+  list(
+    type = "object",
+    description = x@description %||% "",
+    properties = properties,
+    required = as.list(names),
+    additionalProperties = x@additional_properties
   )
 }

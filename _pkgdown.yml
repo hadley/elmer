@@ -14,7 +14,11 @@ reference:
   - content_image_url
   - starts_with("live_")
   - interpolate
-  - ToolDef
+
+- title: Tools and structured data
+  contents:
+  - tool
+  - type_boolean
 
 - title: Objects
   desc: >
