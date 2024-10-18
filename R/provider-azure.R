@@ -19,7 +19,8 @@ NULL
 #' @param api_key The API key to use for authentication. You generally should
 #'   not supply this directly, but instead set the `AZURE_OPENAI_API_KEY` environment
 #'   variable.
-#' @param token Azure token typically not required for Azure api calls
+#' @param token Azure token for authentication. This is typically not required for
+#' Azure OpenAI API calls, but can be used if your setup requires it.
 #' @inheritParams chat_openai
 #' @inherit chat_openai return
 #' @export
