@@ -36,7 +36,18 @@ chat$extract_data(
 )
 ```
 
-(For the sake of simplicity, I'll only use text in these examples, but there's no reason that you can't use `$extract_data()` with images.)
+The same basic idea works with images too:
+
+```{r}
+chat$extract_data(
+  content_image_url("https://www.r-project.org/Rlogo.png"),
+  spec = type_object(
+    primary_shape = type_string(),
+    primary_colour = type_string()
+  )
+)
+```
+
 
 ## Data types basics
 
