@@ -100,9 +100,10 @@ The following examples are [closely inspired by the Claude documentation](https:
 ### Example 1: Article summarisation
 
 ```{r}
-url <- "https://www.anthropic.com/news/third-party-testing"
-html <- rvest::read_html(url)
-text <- rvest::html_text2(rvest::html_element(html, "article"))
+text <- readLines(system.file("examples/third-party-testing.txt", package = "elmer"))
+# url <- "https://www.anthropic.com/news/third-party-testing"
+# html <- rvest::read_html(url)
+# text <- rvest::html_text2(rvest::html_element(html, "article"))
 
 article_summary <- type_object(
   "Summary of the article.",
