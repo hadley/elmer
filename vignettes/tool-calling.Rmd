@@ -72,7 +72,7 @@ get_current_time()
 
 Now we need to tell our chat object about our `get_current_time` function. This by creating and registering a tool:
 
-```{r eval=TRUE}
+```{r}
 chat <- chat_openai(model = "gpt-4o")
 
 chat$register_tool(tool(
