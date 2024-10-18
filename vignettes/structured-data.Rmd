@@ -23,7 +23,7 @@ library(elmer)
 
 ## Structured data basics
 
-To extract structured data you call the `$extract_data()` method instead of the regular `$chat()` method. You'll also need to define a type specification that describes the structure of the data that you want (more on that shortly). Here's a simple example of extracting a few values from a string:
+To extract structured data you call `$extract_data()` instead of the `$chat()`. You'll also need to define a type specification that describes the structure of the data that you want (more on that shortly). Here's a simple example that extracts two few values from a string:
 
 ```{r}
 chat <- chat_openai()
@@ -38,62 +38,49 @@ chat$extract_data(
 
 (For the sake of simplicity, I'll only use text in these examples, but there's no reason that you can't use `$extract_data()` with images.)
 
-## Data types
+## Data types basics
 
-The first challenge you'll need to overcome is defining the type specification (also known as the **schema**) for the output that you want. In elmer you do this with the `type_*()` functions. The type functions can be divided into three main groups:
+To define your desired type specification (also known as a **schema**), you use the `type_()` functions. (You might already be familiar with these if you've done any function calling, as discussed in `vignette("function-calling")`). The type functions can be divided into three main groups:
 
-* **Scalars** represent single values, and of which there are five types: `type_boolean()`, `type_integer()`, `type_number()`, `type_string()`, and `type_enum()`, representing a single logical, integer, double, string, and factor value respectively.
+* **Scalars** represent single values, of which there are five types: `type_boolean()`, `type_integer()`, `type_number()`, `type_string()`, and `type_enum()`, representing a single logical, integer, double, string, and factor value respectively.
 
-* **Arrays** represent any number of values of the same type and are created with `type_array()`. Arrays of scalars are very similar to R's vectors, but you can also have arrays of arrays and arrays of objects.
+* **Arrays** represent any number of values of the same type and are created with `type_array()`. You must always supply the `item` argument which specifies the type of each individual element. Arrays of scalars are very similar to R's atomic vectors:
 
-* **Objects** represent a collection of named values and are created with `type_object()`. Objects can contain any number of scalars, arrays, and other objects.
+  ```{r}
+  logical <- type_array(items = type_boolean())
+  integer <- type_array(items = type_integer())
+  double <- type_array(items = type_number())
+  character <- type_array(items = type_string())
+  ```
 
-### Description
+  You can also have arrays of arrays and arrays of objects, which more closely resemble lists with well defined structures:
 
-For very simple cases, the LLM may be able to impute what you want just from the structure of the objects. But in most cases you'll also provide a description of what you want to go in that element. That's a good place to ask nicely for other attributes you'll like the value to possess (e.g. minimum or maximum values, date formats, ...).
+  ```{r}
+  list_of_intergers <- type_array(items = type_array(items = type_integer()))
+  ```
 
-### Required vs optional
+* **Objects** represent a collection of named values and are created with `type_object()`. Objects can contain any number of scalars, arrays, and other objects. They are similar to named lists in R.
 
-By default, all components of an object are required. If you want to make some optional, set `required = FALSE`. This is a good idea if you don't think your text will always contain the required fields as LLMs may hallucinate data in order to fulfill your spec.
+  ```{r}
+  person <- type_object(
+    name = type_string(),
+    age = type_integer(),
+    hobbies = type_array(items = type_string())
+  )
+  ```
 
-For example, here the LLM hallucinates a date even though there isn't one in the text:
-
-```{r}
-article_spec <- type_object(
-  "Information about an article written in markdown",
-  title = type_string("Article title"),
-  author = type_string("Name of the author"),
-  date = type_string("Date written in YYYY-MM-DD format.")
-)
-
-prompt <- "
-  Extract data from the following text:
-
-  <text>
-  # Structured Data
-  By Hadley Wickham
-
-  When using an LLM to extract data from text or images, you can ask the chatbot to nicely format it, in JSON or any other format that you like.
-  </text>
-"
-
-chat <- chat_openai()
-chat$extract_data(prompt, spec = article_spec)
-```
-
-Note that I've used more of an explict prompt here. For this example, I found that this generated better results, and it's a useful place to put additional instructions.
-
-If let the LLM know that the fields are all optional, it'll instead return `NULL` for the missing fields:
+As well as the definition of the types, you need to provide the LLM with some information about what you actually want. This is the purpose of the first argument, `description`, which is a string that describes the data that you want. This is a good place to ask nicely for other attributes you'll like the value to possess (e.g. minimum or maximum values, date formats, ...). You aren't guaranteed that these requests will be honoured, but the LLM will usually make a best effort to do so.
 
 ```{r}
-article_spec <- type_object(
-  "Information about an article written in markdown",
-  title = type_string("Article title", required = FALSE),
-  author = type_string("Name of the author", required = FALSE),
-  date = type_string("Date written in YYYY-MM-DD format.", required = FALSE)
+person <- type_object(
+  "A person",
+  name = type_string("Name"),
+  age = type_integer("Age, in years."),
+  hobbies = type_array("List of hobbies. Should be exclusive and brief.", type_string())
 )
-chat$extract_data(prompt, spec = article_spec)
 ```
+
+Now we'll dive into some examples before coming back to talk more data types details.
 
 ## Examples
 
@@ -169,38 +156,43 @@ Note that we've asked nicely for the scores to sum 1, and they do in this exampl
 ```{r}
 text <- "The new quantum computing breakthrough could revolutionize the tech industry."
 
-classification <- type_object(
-  categories = type_array(
-    "Array of classification results. The scores should sum to 1.",
-    type_object(
-      name = type_enum(
-        "The category name",
-        values = c(
-          "Politics",
-          "Sports",
-          "Technology",
-          "Entertainment",
-          "Business",
-          "Other"
-        )
-      ),
-      score = type_number(
-        "The classification score for the category, ranging from 0.0 to 1.0."
+classification <- type_array(
+  "Array of classification results. The scores should sum to 1.",
+  type_object(
+    name = type_enum(
+      "The category name",
+      values = c(
+        "Politics",
+        "Sports",
+        "Technology",
+        "Entertainment",
+        "Business",
+        "Other"
       )
+    ),
+    score = type_number(
+      "The classification score for the category, ranging from 0.0 to 1.0."
     )
   )
 )
+wrapper <- type_object(
+  classification = classification
+)
 
 chat <- chat_openai()
-data <- chat$extract_data(text, spec = classification)
-do.call(rbind, lapply(data$categories, as.data.frame))
+data <- chat$extract_data(text, spec = wrapper)
+do.call(rbind, lapply(data$classification, as.data.frame))
 ```
 
-Here we don't really need an object, except that the OpenAI API requires all structured data to use one.
+Here we created a wrapper object because the OpenAI API requires all structured data to use an object. If you're working with Claude or Gemini, the code is a little simpler:
+
+```{r, eval = elmer:::anthropic_key_exists()}
+chat <- chat_claude()
+data <- chat$extract_data(text, spec = classification)
+do.call(rbind, lapply(data, as.data.frame))
+```
 
 ## Example 5: Working with unknown keys
-
-This examples only works with claude, not chatGPT or Gemini, because only Claude supports adding arbitrary additional properies.
 
 ```{r, eval = elmer:::anthropic_key_exists()}
 characteristics <- type_object(
@@ -219,6 +211,85 @@ prompt <- "
 chat <- chat_claude()
 str(chat$extract_data(prompt, spec = characteristics))
 ```
+
+This examples only works with claude, not chatGPT or Gemini, because only Claude supports adding arbitrary additional properies.
+
+## Advanced data types
+
+Now that you've seen a few examples, it's time to
+
+### Required vs optional
+
+By default, all components of an object are required. If you want to make some optional, set `required = FALSE`. This is a good idea if you don't think your text will always contain the required fields as LLMs may hallucinate data in order to fulfill your spec.
+
+For example, here the LLM hallucinates a date even though there isn't one in the text:
+
+```{r}
+article_spec <- type_object(
+  "Information about an article written in markdown",
+  title = type_string("Article title"),
+  author = type_string("Name of the author"),
+  date = type_string("Date written in YYYY-MM-DD format.")
+)
+
+prompt <- "
+  Extract data from the following text:
+
+  <text>
+  # Structured Data
+  By Hadley Wickham
+
+  When using an LLM to extract data from text or images, you can ask the chatbot to nicely format it, in JSON or any other format that you like.
+  </text>
+"
+
+chat <- chat_openai()
+chat$extract_data(prompt, spec = article_spec)
+```
+
+Note that I've used more of an explict prompt here. For this example, I found that this generated better results, and it's a useful place to put additional instructions.
+
+If let the LLM know that the fields are all optional, it'll instead return `NULL` for the missing fields:
+
+```{r}
+article_spec <- type_object(
+  "Information about an article written in markdown",
+  title = type_string("Article title", required = FALSE),
+  author = type_string("Name of the author", required = FALSE),
+  date = type_string("Date written in YYYY-MM-DD format.", required = FALSE)
+)
+chat$extract_data(prompt, spec = article_spec)
+```
+
+### Data frames
+
+If you want to define a data frame like object, you might be tempted to create a definition similar to what R uses: an object (i.e. a named list) containing multiple vectors (i.e. arrays):
+
+```{r}
+my_df_type <- type_object(
+  name = type_array(items = type_string()),
+  age = type_array(items = type_integer()),
+  height = type_array(items = type_number()),
+  weight = type_array(items = type_number())
+)
+```
+
+This however, is not quite right becuase there's no way to specify that each array should have the same length. Instead you need to turn the data structure "inside out", and instead create an array of objects:
+
+```{r}
+my_df_type <- type_array(
+  items = type_object(
+    name = type_string(),
+    age = type_integer(),
+    height = type_number(),
+    weight = type_number()
+  )
+)
+```
+
+If you're familiar with the terms between row-oriented and column-oriented data frames, this is the same idea. Since most language don't possess vectorisation like R, row-oriented structures tend to be much more common in the wild.
+
+If you're working with OpenAI, you'll need to wrap this in a dummy object because OpenAI requires an when doing structured data extraction. See Example 4 above for a concrete example.
 
 ## Token usage
 
