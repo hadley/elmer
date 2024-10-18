@@ -155,3 +155,4 @@ the response before displaying it.
   `vignette("streaming-async")`.
 - Learn more about tool calling (aka function calling) in
   `vignette("tool-calling")`.
+- Learn how to extract structured data in `vignette("structured-data")`.
