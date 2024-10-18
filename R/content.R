@@ -113,7 +113,7 @@ method(format, ContentToolRequest) <- function(x, ...) {
   if (length(x@arguments) == 0) {
     call <- call2(x@name)
   } else {
-    call <- call2(x@name, x@arguments)
+    call <- call2(x@name, !!!x@arguments)
   }
   cli::format_inline("[{.strong tool request} ({x@id})]: {format(call)}")
 }
