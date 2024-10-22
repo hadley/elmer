@@ -96,8 +96,6 @@ method(chat_request, ProviderAzure) <- function(provider,
   tools <- unname(lapply(tools, openai_tool))
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
-  # TODO: spec
-
   if (!is.null(spec)) {
     response_format <- list(
       type = "json_schema",
