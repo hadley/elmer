@@ -96,13 +96,27 @@ method(chat_request, ProviderAzure) <- function(provider,
   tools <- unname(lapply(tools, openai_tool))
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
-  # TODO: spec
+  if (!is.null(spec)) {
+    response_format <- list(
+      type = "json_schema",
+      json_schema = list(
+        name = "structured_data",
+        schema = as_json(provider, spec),
+        strict = TRUE
+      )
+    )
+  } else {
+    response_format <- NULL
+  }
 
   data <- compact(list2(
     messages = messages,
+    model = provider@model,
+    seed = provider@seed,
     stream = stream,
     stream_options = if (stream) list(include_usage = TRUE),
     tools = tools,
+    response_format = response_format,
     !!!extra_args
   ))
   req <- req_body_json(req, data)
