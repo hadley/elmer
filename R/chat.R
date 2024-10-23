@@ -125,10 +125,42 @@ Chat <- R6::R6Class("Chat",
       json@value
     },
 
+    #' @description Extract structured data, asynchronously. Returns a promise
+    #'   that resolves to an object matching the type specification.
+    #' @param ... The input to send to the chatbot. Will typically include
+    #'   the phrase "extract structured data".
+    #' @param spec A type specification for the extracted data. Should be
+    #'   created with a [`type_()`][type_boolean] function.
+    #' @param echo Whether to emit the response to stdout as it is received.
+    #'   Set to "text" to stream JSON data as it's generated (not supported by
+    #'  all providers).
+    extract_data_async = function(..., spec, echo = "none") {
+      turn <- user_turn(...)
+      echo <- check_echo(echo %||% private$echo)
+
+      done <- coro::async_collect(private$submit_turns_async(
+        turn,
+        spec = spec,
+        stream = echo != "none",
+        echo = echo
+      ))
+      promises::then(done, function(dummy) {
+        turn <- self$last_turn()
+        is_json <- map_lgl(turn@contents, S7_inherits, ContentJson)
+        n <- sum(is_json)
+        if (n != 1) {
+          cli::cli_abort("Data extraction failed: {n} data results recieved.")
+        }
+
+        json <- turn@contents[[which(is_json)]]
+        json@value
+      })
+    },
+
     #' @description Submit input to the chatbot, and receive a promise that
-    #'   resolves with the response all at once.
+    #'   resolves with the response all at once. Returns a promise that resolves
+    #'   to a string (probably Markdown).
     #' @param ... The input to send to the chatbot. Can be strings or images.
-    #' @returns A promise that resolves to a string (probably Markdown).
     chat_async = function(...) {
       turn <- user_turn(...)
 
@@ -333,12 +365,13 @@ Chat <- R6::R6Class("Chat",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant turns.
-    submit_turns_async = async_generator_method(function(self, private, user_turn, stream, echo) {
+    submit_turns_async = async_generator_method(function(self, private, user_turn, stream, echo, spec = NULL) {
       response <- chat_perform(
         provider = private$provider,
         mode = if (stream) "async-stream" else "async-value",
         turns = c(private$.turns, list(user_turn)),
-        tools = private$tools
+        tools = private$tools,
+        spec = spec
       )
       emit <- emitter(echo)
 
@@ -355,17 +388,17 @@ Chat <- R6::R6Class("Chat",
 
           result <- stream_merge_chunks(private$provider, result, chunk)
         }
+        turn <- stream_turn(private$provider, result, has_spec = !is.null(spec))
+
         # Ensure turns always end in a newline
         if (any_text) {
           emit("\n")
           yield("\n")
         }
-
-        turn <- stream_turn(private$provider, result)
       } else {
         result <- await(response)
 
-        turn <- value_turn(private$provider, result)
+        turn <- value_turn(private$provider, result, has_spec = !is.null(spec))
         text <- turn@text
         if (!is.null(text)) {
           text <- paste0(text, "\n")

@@ -126,6 +126,10 @@ test_data_extraction <- function(chat_fun) {
   chat <- chat_fun()
   data <- chat$extract_data(prompt, spec = article_summary)
   expect_mapequal(data, list(title = "Apples are tasty", author = "Hadley Wickham"))
+
+  chat2 <- chat_fun()
+  data2 <- sync(chat2$extract_data_async(prompt, spec = article_summary))
+  expect_mapequal(data, data2)
 }
 
 # Images -----------------------------------------------------------------
