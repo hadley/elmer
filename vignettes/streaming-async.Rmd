@@ -71,7 +71,6 @@ library(shiny)
 library(bslib)
 library(elmer)
 library(promises)
-library(future)
 library(shinyjs)
 
 # Initialize chat
