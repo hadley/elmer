@@ -23,7 +23,7 @@ library(elmer)
 
 ## Structured data basics
 
-To extract structured data you call `$extract_data()` instead of the `$chat()`. You'll also need to define a type specification that describes the structure of the data that you want (more on that shortly). Here's a simple example that extracts two few values from a string:
+To extract structured data you call the `$extract_data()` method instead of the `$chat()` method. You'll also need to define a type specification that describes the structure of the data that you want (more on that shortly). Here's a simple example that extracts two specific values from a string:
 
 ```{r}
 chat <- chat_openai()
@@ -224,11 +224,11 @@ chat <- chat_claude()
 str(chat$extract_data(prompt, spec = characteristics))
 ```
 
-This examples only works with claude, not chatGPT or Gemini, because only Claude supports adding arbitrary additional properies.
+This examples only works with Claude, not GPT or Gemini, because only Claude supports adding arbitrary additional properties.
 
 ## Advanced data types
 
-Now that you've seen a few examples, it's time to
+Now that you've seen a few examples, it's time to get into more specifics about data type declarations.
 
 ### Required vs optional
 
