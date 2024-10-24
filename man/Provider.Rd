@@ -4,7 +4,7 @@
 \alias{Provider}
 \title{A chatbot provider}
 \usage{
-Provider(base_url = character(0), extra_args = list())
+Provider(base_url = class_missing, extra_args = class_missing)
 }
 \arguments{
 \item{base_url}{The base URL for the API.}

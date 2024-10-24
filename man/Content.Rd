@@ -12,17 +12,25 @@
 \usage{
 Content()
 
-ContentText(text = character(0))
+ContentText(text = class_missing)
 
 ContentImage()
 
-ContentImageRemote(url = character(0), detail = character(0))
+ContentImageRemote(url = class_missing, detail = class_missing)
 
-ContentImageInline(type = character(0), data = NULL)
+ContentImageInline(type = class_missing, data = class_missing)
 
-ContentToolRequest(id = character(0), name = character(0), arguments = list())
+ContentToolRequest(
+  id = class_missing,
+  name = class_missing,
+  arguments = class_missing
+)
 
-ContentToolResult(id = character(0), value = NULL, error = NULL)
+ContentToolResult(
+  id = class_missing,
+  value = class_missing,
+  error = class_missing
+)
 }
 \arguments{
 \item{text}{A single string.}
