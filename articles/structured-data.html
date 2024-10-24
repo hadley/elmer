@@ -287,10 +287,9 @@ Gemini, the code is a little simpler:</p>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">text</span>, spec <span class="op">=</span> <span class="va">classification</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">as.data.frame</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
-</div>
-<div class="section level2">
-<h2 id="example-5-working-with-unknown-keys">Example 5: Working with unknown keys<a class="anchor" aria-label="anchor" href="#example-5-working-with-unknown-keys"></a>
-</h2>
+<div class="section level3">
+<h3 id="example-5-working-with-unknown-keys">Example 5: Working with unknown keys<a class="anchor" aria-label="anchor" href="#example-5-working-with-unknown-keys"></a>
+</h3>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">characteristics</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
 <span>  <span class="st">"All characteristics"</span>,</span>
@@ -309,6 +308,7 @@ Gemini, the code is a little simpler:</p>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">prompt</span>, spec <span class="op">=</span> <span class="va">characteristics</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>This examples only works with Claude, not GPT or Gemini, because only
 Claude supports adding arbitrary additional properties.</p>
+</div>
 <div class="section level3">
 <h3 id="example-6-extracting-data-from-an-image">Example 6: Extracting data from an image<a class="anchor" aria-label="anchor" href="#example-6-extracting-data-from-an-image"></a>
 </h3>
