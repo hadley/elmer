@@ -40,6 +40,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/streaming-async.html">Streaming and async APIs</a></li>
+    <li><a class="dropdown-item" href="../articles/structured-data.html">Structured Data</a></li>
     <li><a class="dropdown-item" href="../articles/tool-calling.html">Tool calling (a.k.a. function calling)</a></li>
   </ul>
 </li>
@@ -139,20 +140,17 @@ important step that will help the model use your tool correctly!</p>
 <h3 id="registering-tools">Registering tools<a class="anchor" aria-label="anchor" href="#registering-tools"></a>
 </h3>
 <p>Now we need to tell our chat object about our
-<code>get_current_time</code> function. This by creating a tool
-definition and then registering it:</p>
+<code>get_current_time</code> function. This by creating and registering
+a tool:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_openai.html">chat_openai</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"gpt-4o"</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">chat</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span><span class="fu"><a href="../reference/ToolArg.html">ToolDef</a></span><span class="op">(</span></span>
-<span>  fun <span class="op">=</span> <span class="va">get_current_time</span>,</span>
-<span>  description <span class="op">=</span> <span class="st">"Gets the current time in the given time zone."</span>,</span>
-<span>  arguments <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    tz <span class="op">=</span> <span class="fu"><a href="../reference/ToolArg.html">ToolArg</a></span><span class="op">(</span></span>
-<span>      type <span class="op">=</span> <span class="st">"string"</span>,</span>
-<span>      description <span class="op">=</span> <span class="st">"The time zone to get the current time in. Defaults to `\"UTC\"`."</span>,</span>
-<span>      required <span class="op">=</span> <span class="cn">FALSE</span></span>
-<span>    <span class="op">)</span></span>
+<span><span class="va">chat</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span><span class="fu"><a href="../reference/tool.html">tool</a></span><span class="op">(</span></span>
+<span>  <span class="va">get_current_time</span>,</span>
+<span>  <span class="st">"Gets the current time in the given time zone."</span>,</span>
+<span>  tz <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span></span>
+<span>    <span class="st">"The time zone to get the current time in. Defaults to `\"UTC\"`."</span>,</span>
+<span>    required <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>This is a fair amount of code to write, even for such a simple

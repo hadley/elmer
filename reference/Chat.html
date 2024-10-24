@@ -33,6 +33,7 @@ but instead call chat_openai() or friends instead."><meta property="og:image" co
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/streaming-async.html">Streaming and async APIs</a></li>
+    <li><a class="dropdown-item" href="../articles/structured-data.html">Structured Data</a></li>
     <li><a class="dropdown-item" href="../articles/tool-calling.html">Tool calling (a.k.a. function calling)</a></li>
   </ul></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -64,10 +65,6 @@ but instead call <code><a href="chat_openai.html">chat_openai()</a></code> or fr
 
 
     <div class="section level2">
-    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A promise that resolves to a string (probably Markdown).</p>
-    </div>
-    <div class="section level2">
     <h2 id="active-bindings">Active bindings<a class="anchor" aria-label="anchor" href="#active-bindings"></a></h2>
     <p></p><div class="r6-active-bindings"><dl><dt><code>system_prompt</code></dt>
 <dd><p>The system prompt, if present, as a string.
@@ -87,6 +84,8 @@ Otherwise, <code>NULL</code>.</p></dd>
 <li><p><a href="#method-Chat-tokens"><code>Chat$tokens()</code></a></p></li>
 <li><p><a href="#method-Chat-last_turn"><code>Chat$last_turn()</code></a></p></li>
 <li><p><a href="#method-Chat-chat"><code>Chat$chat()</code></a></p></li>
+<li><p><a href="#method-Chat-extract_data"><code>Chat$extract_data()</code></a></p></li>
+<li><p><a href="#method-Chat-extract_data_async"><code>Chat$extract_data_async()</code></a></p></li>
 <li><p><a href="#method-Chat-chat_async"><code>Chat$chat_async()</code></a></p></li>
 <li><p><a href="#method-Chat-stream"><code>Chat$stream()</code></a></p></li>
 <li><p><a href="#method-Chat-stream_async"><code>Chat$stream_async()</code></a></p></li>
@@ -202,16 +201,74 @@ will be used.</p></dd>
 </dl><p></p></div>
 </div>
 
-</div><p></p><hr><a id="method-Chat-chat_async"></a><div class="section">
-<h3 id="method-chat-async-">Method <code>chat_async()</code><a class="anchor" aria-label="anchor" href="#method-chat-async-"></a></h3>
-<p>Submit input to the chatbot, and receive a promise that
-resolves with the response all at once.</p><div class="section">
+</div><p></p><hr><a id="method-Chat-extract_data"></a><div class="section">
+<h3 id="method-extract-data-">Method <code>extract_data()</code><a class="anchor" aria-label="anchor" href="#method-extract-data-"></a></h3>
+<p>Extract structured data</p><div class="section">
 <h4 id="usage-5">Usage<a class="anchor" aria-label="anchor" href="#usage-5"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">chat_async</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">...</span>, <span class="va">spec</span>, echo <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
 <h4 id="arguments-4">Arguments<a class="anchor" aria-label="anchor" href="#arguments-4"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>...</code></dt>
+<dd><p>The input to send to the chatbot. Will typically include
+the phrase "extract structured data".</p></dd>
+
+
+<dt><code>spec</code></dt>
+<dd><p>A type specification for the extracted data. Should be
+created with a <code><a href="type_boolean.html">type_()</a></code> function.</p></dd>
+
+
+<dt><code>echo</code></dt>
+<dd><p>Whether to emit the response to stdout as it is received.
+Set to "text" to stream JSON data as it's generated (not supported by
+all providers).</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-Chat-extract_data_async"></a><div class="section">
+<h3 id="method-extract-data-async-">Method <code>extract_data_async()</code><a class="anchor" aria-label="anchor" href="#method-extract-data-async-"></a></h3>
+<p>Extract structured data, asynchronously. Returns a promise
+that resolves to an object matching the type specification.</p><div class="section">
+<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">extract_data_async</span><span class="op">(</span><span class="va">...</span>, <span class="va">spec</span>, echo <span class="op">=</span> <span class="st">"none"</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
+<p></p><div class="arguments"><dl><dt><code>...</code></dt>
+<dd><p>The input to send to the chatbot. Will typically include
+the phrase "extract structured data".</p></dd>
+
+
+<dt><code>spec</code></dt>
+<dd><p>A type specification for the extracted data. Should be
+created with a <code><a href="type_boolean.html">type_()</a></code> function.</p></dd>
+
+
+<dt><code>echo</code></dt>
+<dd><p>Whether to emit the response to stdout as it is received.
+Set to "text" to stream JSON data as it's generated (not supported by
+all providers).</p></dd>
+
+
+</dl><p></p></div>
+</div>
+
+</div><p></p><hr><a id="method-Chat-chat_async"></a><div class="section">
+<h3 id="method-chat-async-">Method <code>chat_async()</code><a class="anchor" aria-label="anchor" href="#method-chat-async-"></a></h3>
+<p>Submit input to the chatbot, and receive a promise that
+resolves with the response all at once. Returns a promise that resolves
+to a string (probably Markdown).</p><div class="section">
+<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">chat_async</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
+</div>
+
+<div class="section">
+<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>...</code></dt>
 <dd><p>The input to send to the chatbot. Can be strings or images.</p></dd>
 
@@ -225,12 +282,12 @@ resolves with the response all at once.</p><div class="section">
 Returns A <a href="https://coro.r-lib.org/articles/generator.html#iterating" class="external-link">coro generator</a>
 that yields strings. While iterating, the generator will block while
 waiting for more content from the chatbot.</p><div class="section">
-<h4 id="usage-6">Usage<a class="anchor" aria-label="anchor" href="#usage-6"></a></h4>
+<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">stream</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-5">Arguments<a class="anchor" aria-label="anchor" href="#arguments-5"></a></h4>
+<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>...</code></dt>
 <dd><p>The input to send to the chatbot. Can be strings or images.</p></dd>
 
@@ -243,12 +300,12 @@ waiting for more content from the chatbot.</p><div class="section">
 <p>Submit input to the chatbot, returning asynchronously
 streaming results. Returns a <a href="https://coro.r-lib.org/reference/async_generator.html" class="external-link">coro async generator</a> that
 yields string promises.</p><div class="section">
-<h4 id="usage-7">Usage<a class="anchor" aria-label="anchor" href="#usage-7"></a></h4>
+<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">stream_async</span><span class="op">(</span><span class="va">...</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-6">Arguments<a class="anchor" aria-label="anchor" href="#arguments-6"></a></h4>
+<h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>...</code></dt>
 <dd><p>The input to send to the chatbot. Can be strings or images.</p></dd>
 
@@ -261,14 +318,14 @@ yields string promises.</p><div class="section">
 <p>Register a tool (an R function) that the chatbot can use.
 If the chatbot decides to use the function,  elmer will automatically
 call it and submit the results back.</p><div class="section">
-<h4 id="usage-8">Usage<a class="anchor" aria-label="anchor" href="#usage-8"></a></h4>
+<h4 id="usage-10">Usage<a class="anchor" aria-label="anchor" href="#usage-10"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span><span class="va">tool_def</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-7">Arguments<a class="anchor" aria-label="anchor" href="#arguments-7"></a></h4>
+<h4 id="arguments-9">Arguments<a class="anchor" aria-label="anchor" href="#arguments-9"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>tool_def</code></dt>
-<dd><p>Tool definition created by <a href="ToolArg.html">ToolDef</a>.</p></dd>
+<dd><p>Tool definition created by <code><a href="tool.html">tool()</a></code>.</p></dd>
 
 
 </dl><p></p></div>
@@ -277,12 +334,12 @@ call it and submit the results back.</p><div class="section">
 </div><p></p><hr><a id="method-Chat-clone"></a><div class="section">
 <h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
-<h4 id="usage-9">Usage<a class="anchor" aria-label="anchor" href="#usage-9"></a></h4>
+<h4 id="usage-11">Usage<a class="anchor" aria-label="anchor" href="#usage-11"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
-<h4 id="arguments-8">Arguments<a class="anchor" aria-label="anchor" href="#arguments-8"></a></h4>
+<h4 id="arguments-10">Arguments<a class="anchor" aria-label="anchor" href="#arguments-10"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
 

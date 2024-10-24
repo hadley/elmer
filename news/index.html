@@ -19,6 +19,7 @@
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/streaming-async.html">Streaming and async APIs</a></li>
+    <li><a class="dropdown-item" href="../articles/structured-data.html">Structured Data</a></li>
     <li><a class="dropdown-item" href="../articles/tool-calling.html">Tool calling (a.k.a. function calling)</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
@@ -38,14 +39,16 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="elmer-development-version">elmer (development version)<a class="anchor" aria-label="anchor" href="#elmer-development-version"></a></h2>
-<ul><li><p><code><a href="../reference/content_image_url.html">content_image_url()</a></code> will now create inline images when given a data url (<a href="https://github.com/hadley/elmer/issues/110" class="external-link">#110</a>).</p></li>
+<ul><li><p>New <code>chat$extract_data()</code> uses the structured data API where available (and tool calling otherwise) to extract data structured according to a known type specification. You can create specs with functions <code><a href="../reference/type_boolean.html">type_boolean()</a></code>, <code><a href="../reference/type_boolean.html">type_integer()</a></code>, <code><a href="../reference/type_boolean.html">type_number()</a></code>, <code><a href="../reference/type_boolean.html">type_string()</a></code>, <code><a href="../reference/type_boolean.html">type_enum()</a></code>, <code><a href="../reference/type_boolean.html">type_array()</a></code>, and <code><a href="../reference/type_boolean.html">type_object()</a></code> (<a href="https://github.com/hadley/elmer/issues/31" class="external-link">#31</a>).</p></li>
+<li><p>The general <code>ToolArg()</code> has been replaced by the more specific <code>type_*()</code> functions. <code>ToolDef()</code> has been renamed to <code>tool</code>.</p></li>
+<li><p><code><a href="../reference/content_image_url.html">content_image_url()</a></code> will now create inline images when given a data url (<a href="https://github.com/hadley/elmer/issues/110" class="external-link">#110</a>).</p></li>
 <li><p>Streaming ollama results works once again (<a href="https://github.com/hadley/elmer/issues/117" class="external-link">#117</a>).</p></li>
 <li><p>Streaming OpenAI results now capture more results, including <code>logprops</code> (<a href="https://github.com/hadley/elmer/issues/115" class="external-link">#115</a>).</p></li>
 <li><p>New <code><a href="../reference/interpolate.html">interpolate()</a></code> and <code>prompt_file()</code> make it easier to create prompts that are a mix of static text and dynamic values.</p></li>
 <li><p>You can find how many tokens you’ve used in the current session by calling <code><a href="../reference/token_usage.html">token_usage()</a></code>.</p></li>
 <li><p><code>chat_browser()</code> and <code>chat_console()</code> are now <code><a href="../reference/live_console.html">live_browser()</a></code> and <code><a href="../reference/live_console.html">live_console()</a></code>.</p></li>
 <li><p>The <code>echo</code> can now be one of three values: “none”, “text”, or “all”. If “all”, you’ll now see both user and assistant turns, and all content types will be printed, not just text. When running in the global environment, <code>echo</code> defaults to “text”, and when running inside a function it defaults to “none”.</p></li>
-<li><p><code>chat$register_tool()</code> now takes an object created by <code><a href="../reference/ToolArg.html">ToolDef()</a></code>. This makes it a little easier to reuse tool definitions (<a href="https://github.com/hadley/elmer/issues/32" class="external-link">#32</a>).</p></li>
+<li><p><code>chat$register_tool()</code> now takes an object created by <code>Tool()</code>. This makes it a little easier to reuse tool definitions (<a href="https://github.com/hadley/elmer/issues/32" class="external-link">#32</a>).</p></li>
 <li><p><code>new_chat_openai()</code> is now <code><a href="../reference/chat_openai.html">chat_openai()</a></code>.</p></li>
 <li><p>Claude and Gemini are now supported via <code><a href="../reference/chat_claude.html">chat_claude()</a></code> and <code><a href="../reference/chat_gemini.html">chat_gemini()</a></code>.</p></li>
 <li><p>The Snowflake Cortex Analyst is now supported via <code><a href="../reference/chat_cortex.html">chat_cortex()</a></code> (<a href="https://github.com/hadley/elmer/issues/56" class="external-link">#56</a>).</p></li>

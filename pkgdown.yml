@@ -3,8 +3,9 @@ pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
   streaming-async: streaming-async.html
+  structured-data: structured-data.html
   tool-calling: tool-calling.html
-last_built: 2024-10-24T21:23Z
+last_built: 2024-10-24T21:39Z
 urls:
   reference: https://hadley.github.io/elmer/reference
   article: https://hadley.github.io/elmer/articles
