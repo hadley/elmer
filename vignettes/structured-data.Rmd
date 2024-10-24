@@ -224,7 +224,40 @@ chat <- chat_claude()
 str(chat$extract_data(prompt, spec = characteristics))
 ```
 
-This examples only works with Claude, not GPT or Gemini, because only Claude supports adding arbitrary additional properties.
+This examples only works with Claude, not GPT or Gemini, because only Claude
+supports adding arbitrary additional properties.
+
+### Example 6: Extracting data from an image
+
+This example comes from [Dan Nguyen](https://gist.github.com/dannguyen/faaa56cebf30ad51108a9fe4f8db36d8) and you can see other interesting applications at that link.
+
+The goal is to extract structured data from this screenshot:
+
+![A screenshot of schedule A: a table showing assets and "unearned" income](congressional-assets.png)
+
+Even without any descriptions, ChatGPT does pretty well:
+
+```{r}
+asset <- type_object(
+  assert_name = type_string(),
+  owner = type_string(),
+  location = type_string(),
+  asset_value_low = type_integer(),
+  asset_value_high = type_integer(),
+  income_type = type_string(),
+  income_low = type_integer(),
+  income_high = type_integer(),
+  tx_gt_1000 = type_boolean()
+)
+disclosure_report <- type_object(
+  assets = type_array(items = asset)
+)
+
+chat <- chat_openai()
+image <- content_image_file("congressional-assets.png")
+data <- chat$extract_data(image, spec = disclosure_report)
+str(data)
+```
 
 ## Advanced data types
 
@@ -257,6 +290,7 @@ prompt <- "
 
 chat <- chat_openai()
 chat$extract_data(prompt, spec = article_spec)
+str(data)
 ```
 
 Note that I've used more of an explict prompt here. For this example, I found that this generated better results, and it's a useful place to put additional instructions.
