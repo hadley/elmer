@@ -33,7 +33,7 @@ chat_claude <- function(system_prompt = NULL,
   turns <- normalize_turns(turns, system_prompt)
   echo <- check_echo(echo)
 
-  model <- model %||% "claude-3-5-sonnet-20240620"
+  model <- model %||% "claude-3-5-sonnet-latest"
 
   provider <- ProviderClaude(
     model = model,
