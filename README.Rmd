@@ -129,3 +129,4 @@ This mode is useful for programming using elmer, when the result is either not i
 
 * Learn more about streaming and async APIs in `vignette("streaming-async")`.
 * Learn more about tool calling (aka function calling) in `vignette("tool-calling")`.
+* Learn how to extract structured data in `vignette("structured-data")`.

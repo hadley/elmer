@@ -1,5 +1,6 @@
 #' @include provider.R
 #' @include content.R
+#' @include types.R
 NULL
 
 #' Chat with a Google Gemini model
@@ -48,10 +49,11 @@ gemini_key <- function() {
 # HTTP request and response handling -------------------------------------
 
 method(chat_request, ProviderGemini) <- function(provider,
-                                                  stream = TRUE,
-                                                  turns = list(),
-                                                  tools = list(),
-                                                  extra_args = list()) {
+                                                 stream = TRUE,
+                                                 turns = list(),
+                                                 tools = list(),
+                                                 spec = NULL,
+                                                 extra_args = list()) {
 
 
   req <- request(provider@base_url)
@@ -78,14 +80,24 @@ method(chat_request, ProviderGemini) <- function(provider,
     system <- list(parts = list(text = ""))
   }
 
+  if (!is.null(spec)) {
+    generation_config <- list(
+      response_mime_type = "application/json",
+      response_schema = as_json(provider, spec)
+    )
+  } else {
+    generation_config <- NULL
+  }
+
   contents <- gemini_contents(turns)
-  tools <- gemini_tools(tools)
+  tools <- gemini_tools(provider, tools)
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
   body <- compact(list(
     contents = contents,
     tools = tools,
     systemInstruction = system,
+    generation_config = generation_config,
     !!!extra_args
   ))
   req <- req_body_json(req, body)
@@ -110,16 +122,17 @@ method(stream_merge_chunks, ProviderGemini) <- function(provider, result, chunk)
     merge_dicts(result, chunk)
   }
 }
-method(stream_turn, ProviderGemini) <- function(provider, result) {
-  gemini_assistant_turn(result$candidates[[1]]$content, result)
-}
-method(value_turn, ProviderGemini) <- function(provider, result) {
-  gemini_assistant_turn(result$candidates[[1]]$content, result)
-}
-gemini_assistant_turn <- function(message, result) {
+method(stream_turn, ProviderGemini) <- function(provider, result, has_spec = FALSE) {
+  message <- result$candidates[[1]]$content
+
   contents <- lapply(message$parts, function(content) {
     if (has_name(content, "text")) {
-      ContentText(content$text)
+      if (has_spec) {
+        data <- jsonlite::parse_json(content$text)
+        ContentJson(data)
+      } else {
+        ContentText(content$text)
+      }
     } else if (has_name(content, "functionCall")) {
       ContentToolRequest(
         content$functionCall$name,
@@ -127,7 +140,10 @@ gemini_assistant_turn <- function(message, result) {
         content$functionCall$args
       )
     } else {
-      browser()
+      cli::cli_abort(
+        "Unknown content type with names {.str {names(content)}}.",
+        .internal = TRUE
+      )
     }
   })
   usage <- result$usageMetadata
@@ -136,8 +152,7 @@ gemini_assistant_turn <- function(message, result) {
 
   Turn("assistant", contents, json = result, tokens = tokens)
 }
-
-# Convert elmer turns + content to chatGPT messages
+method(value_turn, ProviderGemini) <- method(stream_turn, ProviderGemini)
 
 # https://ai.google.dev/api/caching#Content
 gemini_contents <- function(turns) {
@@ -157,7 +172,7 @@ gemini_contents <- function(turns) {
 }
 
 # https://ai.google.dev/api/caching#Tool
-gemini_tools <- function(tools) {
+gemini_tools <- function(provider, tools) {
   if (length(tools) == 0) {
     return()
   }
@@ -166,36 +181,10 @@ gemini_tools <- function(tools) {
     compact(list(
       name = tool@name,
       description = tool@description,
-      parameters = openapi_schema_parameters(tool@arguments)
+      parameters = as_json(provider, tool@arguments)
     ))
   })
   list(functionDeclarations = unname(funs))
-}
-
-# https://ai.google.dev/api/caching#Schema
-openapi_schema_parameters <- function(arguments) {
-  if (length(arguments) == 0) {
-    return(list())
-  }
-
-  arg_names <- names2(arguments)
-  arg_required <- map_lgl(arguments, function(arg) {
-    arg@required %||% FALSE
-  })
-
-  properties <- lapply(arguments, function(arg) {
-    list(
-      type = arg@type,
-      description = arg@description
-    )
-  })
-  names(properties) <- arg_names
-
-  list(
-    type = "object",
-    properties = properties,
-    required = arg_names[arg_required]
-  )
 }
 
 gemini_content <- new_generic("gemini_content", "content")
@@ -237,4 +226,27 @@ method(gemini_content, ContentToolResult) <- function(content) {
       response = list(value = tool_string(content))
     )
   )
+}
+
+method(as_json, list(ProviderGemini, TypeObject)) <- function(provider, x) {
+  if (x@additional_properties) {
+    cli::cli_abort("{.arg .additional_properties} not supported for Gemini.")
+  }
+
+  if (length(x@properties) == 0) {
+    return(list())
+  }
+
+  names <- names2(x@properties)
+  required <- map_lgl(x@properties, function(prop) prop@required)
+
+  properties <- lapply(x@properties, as_json, provider = provider)
+  names(properties) <- names
+
+  compact(list(
+    type = "object",
+    description = x@description,
+    properties = properties,
+    required = as.list(names[required])
+  ))
 }

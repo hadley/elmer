@@ -3,9 +3,6 @@
 \name{Chat}
 \alias{Chat}
 \title{A chat}
-\value{
-A promise that resolves to a string (probably Markdown).
-}
 \description{
 A \code{Chat} is an sequence of sequence of user and assistant \link{Turn}s sent
 to a specific \link{Provider}. A \code{Chat} is a mutable R6 object that takes care of
@@ -33,6 +30,8 @@ Otherwise, \code{NULL}.}
 \item \href{#method-Chat-tokens}{\code{Chat$tokens()}}
 \item \href{#method-Chat-last_turn}{\code{Chat$last_turn()}}
 \item \href{#method-Chat-chat}{\code{Chat$chat()}}
+\item \href{#method-Chat-extract_data}{\code{Chat$extract_data()}}
+\item \href{#method-Chat-extract_data_async}{\code{Chat$extract_data_async()}}
 \item \href{#method-Chat-chat_async}{\code{Chat$chat_async()}}
 \item \href{#method-Chat-stream}{\code{Chat$stream()}}
 \item \href{#method-Chat-stream_async}{\code{Chat$stream_async()}}
@@ -150,11 +149,63 @@ will be used.}
 }
 }
 \if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Chat-extract_data"></a>}}
+\if{latex}{\out{\hypertarget{method-Chat-extract_data}{}}}
+\subsection{Method \code{extract_data()}}{
+Extract structured data
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Chat$extract_data(..., spec, echo = "none")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{The input to send to the chatbot. Will typically include
+the phrase "extract structured data".}
+
+\item{\code{spec}}{A type specification for the extracted data. Should be
+created with a \code{\link[=type_boolean]{type_()}} function.}
+
+\item{\code{echo}}{Whether to emit the response to stdout as it is received.
+Set to "text" to stream JSON data as it's generated (not supported by
+all providers).}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Chat-extract_data_async"></a>}}
+\if{latex}{\out{\hypertarget{method-Chat-extract_data_async}{}}}
+\subsection{Method \code{extract_data_async()}}{
+Extract structured data, asynchronously. Returns a promise
+that resolves to an object matching the type specification.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Chat$extract_data_async(..., spec, echo = "none")}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{...}}{The input to send to the chatbot. Will typically include
+the phrase "extract structured data".}
+
+\item{\code{spec}}{A type specification for the extracted data. Should be
+created with a \code{\link[=type_boolean]{type_()}} function.}
+
+\item{\code{echo}}{Whether to emit the response to stdout as it is received.
+Set to "text" to stream JSON data as it's generated (not supported by
+all providers).}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-Chat-chat_async"></a>}}
 \if{latex}{\out{\hypertarget{method-Chat-chat_async}{}}}
 \subsection{Method \code{chat_async()}}{
 Submit input to the chatbot, and receive a promise that
-resolves with the response all at once.
+resolves with the response all at once. Returns a promise that resolves
+to a string (probably Markdown).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Chat$chat_async(...)}\if{html}{\out{</div>}}
 }
@@ -220,7 +271,7 @@ call it and submit the results back.
 \subsection{Arguments}{
 \if{html}{\out{<div class="arguments">}}
 \describe{
-\item{\code{tool_def}}{Tool definition created by \link{ToolDef}.}
+\item{\code{tool_def}}{Tool definition created by \code{\link[=tool]{tool()}}.}
 }
 \if{html}{\out{</div>}}
 }
