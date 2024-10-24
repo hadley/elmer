@@ -54,7 +54,7 @@ test_tools_simple <- function(chat_fun) {
   result <- chat$chat("What's the current date in YMD format?")
   expect_match(result, "2024-01-01")
 
-  result <- chat$chat("What month is it?")
+  result <- chat$chat("What month is it? Provide the full name")
   expect_match(result, "January")
 }
 
