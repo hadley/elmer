@@ -204,7 +204,7 @@ data <- chat$extract_data(text, spec = classification)
 do.call(rbind, lapply(data, as.data.frame))
 ```
 
-## Example 5: Working with unknown keys
+### Example 5: Working with unknown keys
 
 ```{r, eval = elmer:::anthropic_key_exists()}
 characteristics <- type_object(
