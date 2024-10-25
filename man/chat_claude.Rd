@@ -67,6 +67,7 @@ you can use with this package.
 }
 \seealso{
 Other chatbots: 
+\code{\link{chat_bedrock}()},
 \code{\link{chat_cortex}()},
 \code{\link{chat_gemini}()},
 \code{\link{chat_github}()},

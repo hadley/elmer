@@ -1,5 +1,7 @@
 # elmer (development version)
 
+* New `chat_bedrock()` to chat with AWS bedrock models (#50).
+
 * New `chat$extract_data()` uses the structured data API where available (and tool calling otherwise) to extract data structured according to a known type specification. You can create specs with functions `type_boolean()`, `type_integer()`, `type_number()`, `type_string()`, `type_enum()`, `type_array()`, and `type_object()` (#31).
 
 * The general `ToolArg()` has been replaced by the more specific `type_*()` functions. `ToolDef()` has been renamed to `tool`.

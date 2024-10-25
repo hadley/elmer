@@ -38,7 +38,7 @@ on_load(chat_perform_stream <- coro::generator(function(provider, req) {
   reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
 
   repeat {
-    event <- resp_stream_sse(resp)
+    event <- chat_resp_stream(provider, resp)
     data <- stream_parse(provider, event)
     if (is.null(data)) {
       break
@@ -64,7 +64,7 @@ on_load(chat_perform_async_stream <- coro::async_generator(function(provider, re
   # reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
 
   repeat {
-    event <- resp_stream_sse(resp)
+    event <- chat_resp_stream(provider, resp)
     if (is.null(event) && isIncomplete(resp$body)) {
       await(coro::async_sleep(polling_interval_secs))
       next

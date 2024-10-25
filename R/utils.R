@@ -71,3 +71,7 @@ check_echo <- function(echo = NULL) {
 dots_named <- function(...) {
   is_named2(list(...))
 }
+
+`paste<-` <- function(x, value) {
+  paste0(x, value)
+}

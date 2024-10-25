@@ -67,6 +67,7 @@ the defaults tweaked for the GitHub model marketplace.
 }
 \seealso{
 Other chatbots: 
+\code{\link{chat_bedrock}()},
 \code{\link{chat_claude}()},
 \code{\link{chat_cortex}()},
 \code{\link{chat_gemini}()},
