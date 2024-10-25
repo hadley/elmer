@@ -70,9 +70,24 @@ method(chat_request, ProviderBedrock) <- function(provider,
   }
 
   messages <- bedrock_messages(turns)
+
+  if (!is.null(spec)) {
+    tool_def <- ToolDef(
+      fun = function(...) {},
+      name = "structured_tool_call__",
+      description = "Extract structured data",
+      arguments = type_object(data = spec)
+    )
+    tools[[tool_def@name]] <- tool_def
+    tool_choice <- list(tool = list(name = tool_def@name))
+    stream <- FALSE
+  } else {
+    tool_choice <- NULL
+  }
+
   if (length(tools) > 0) {
     tools <- unname(lapply(tools, bedrock_tool, provider = provider))
-    toolConfig <- list(tools = tools)
+    toolConfig <- compact(list(tools = tools, tool_choice = tool_choice))
   } else {
     toolConfig <- NULL
   }
@@ -157,11 +172,15 @@ method(stream_turn, ProviderBedrock) <- function(provider, result, has_spec = FA
     if (has_name(content, "text")) {
       ContentText(content$text)
     } else if (has_name(content, "toolUse")) {
-      ContentToolRequest(
-        name = content$toolUse$name,
-        arguments = content$toolUse$input,
-        id = content$toolUse$toolUseId
-      )
+      if (has_spec) {
+        ContentJson(content$toolUse$input$data)
+      } else {
+        ContentToolRequest(
+          name = content$toolUse$name,
+          arguments = content$toolUse$input,
+          id = content$toolUse$toolUseId
+        )
+      }
     } else {
       cli::cli_abort(
         "Unknown content type {.str {names(content)}}.",
