@@ -79,6 +79,7 @@ method(chat_request, ProviderAzure) <- function(provider,
                                                 stream = TRUE,
                                                 turns = list(),
                                                 tools = list(),
+                                                spec = NULL,
                                                 extra_args = list()) {
 
   req <- request(provider@base_url)
@@ -95,11 +96,27 @@ method(chat_request, ProviderAzure) <- function(provider,
   tools <- unname(lapply(tools, openai_tool))
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
+  if (!is.null(spec)) {
+    response_format <- list(
+      type = "json_schema",
+      json_schema = list(
+        name = "structured_data",
+        schema = as_json(provider, spec),
+        strict = TRUE
+      )
+    )
+  } else {
+    response_format <- NULL
+  }
+
   data <- compact(list2(
     messages = messages,
+    model = provider@model,
+    seed = provider@seed,
     stream = stream,
     stream_options = if (stream) list(include_usage = TRUE),
     tools = tools,
+    response_format = response_format,
     !!!extra_args
   ))
   req <- req_body_json(req, data)
@@ -107,9 +124,9 @@ method(chat_request, ProviderAzure) <- function(provider,
   req
 }
 
-method(stream_turn, ProviderAzure) <- function(provider, result) {
-  openai_assistant_turn(provider, result$choices[[1]]$delta, result)
+method(stream_turn, ProviderAzure) <- function(provider, result, has_spec = FALSE) {
+  openai_assistant_turn(provider, result$choices[[1]]$delta, result, has_spec = has_spec)
 }
-method(value_turn, ProviderAzure) <- function(provider, result) {
-  openai_assistant_turn(provider, result$choices[[1]]$message, result)
+method(value_turn, ProviderAzure) <- function(provider, result, has_spec = FALSE) {
+  openai_assistant_turn(provider, result$choices[[1]]$message, result, has_spec = has_spec)
 }

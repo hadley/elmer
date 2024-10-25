@@ -94,14 +94,18 @@ ProviderCortex <- new_class(
 )
 
 # See: https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/reference/cortex-analyst
-#      https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-analyst/tutorials/tutorial-1#step-3-create-a-streamlit-app-to-talk-to-your-data-through-cortex-analyst    
+#      https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-analyst/tutorials/tutorial-1#step-3-create-a-streamlit-app-to-talk-to-your-data-through-cortex-analyst
 method(chat_request, ProviderCortex) <- function(provider,
                                                  stream = TRUE,
                                                  turns = list(),
                                                  tools = list(),
+                                                 spec = NULL,
                                                  extra_args = list()) {
   if (length(tools) != 0) {
     cli::cli_abort("Tools are not supported by Cortex.")
+  }
+  if (!is.null(spec) != 0) {
+    cli::cli_abort("Structured data extraction is not supported by Cortex.")
   }
 
   req <- request(provider@base_url)
@@ -230,14 +234,14 @@ cortex_chunk_to_message <- function(x) {
   }
 }
 
-method(stream_turn, ProviderCortex) <- function(provider, result) {
+method(stream_turn, ProviderCortex) <- function(provider, result, has_spec = FALSE) {
   # We somehow lose the role when streaming, so add it back.
   cortex_message_to_turn(list(role = "assistant", content = result))
 }
 
 # Non-streaming support --------------------------------------------------------
 
-method(value_turn, ProviderCortex) <- function(provider, result) {
+method(value_turn, ProviderCortex) <- function(provider, result, has_spec = FALSE) {
   cortex_message_to_turn(result$message)
 }
 

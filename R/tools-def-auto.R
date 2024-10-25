@@ -2,8 +2,8 @@
 #'
 #' @description
 #' In order to use a function as a tool in a chat, you need to craft the right
-#' [ToolDef]. This function helps you do that for documented functions by
-#' extracting the function's R documentation and creating a `ToolDef()` call for
+#' call to [tool()]. This function helps you do that for documented functions by
+#' extracting the function's R documentation and creating a `tool()` call for
 #' you, using an LLM. It's meant to be used interactively while writing your
 #' code, not as part of your final code.
 #'

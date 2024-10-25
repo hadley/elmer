@@ -49,26 +49,18 @@ test_turns_existing <- function(chat_fun) {
 
 test_tools_simple <- function(chat_fun) {
   chat <- chat_fun(system_prompt = "Be very terse, not even punctuation.")
-  chat$register_tool(ToolDef(
-    function() "2024-01-01",
-    name = "get_date",
-    description = "Gets the current date"
-  ))
+  chat$register_tool(tool(function() "2024-01-01", "Gets the current date"))
 
   result <- chat$chat("What's the current date in YMD format?")
   expect_match(result, "2024-01-01")
 
-  result <- chat$chat("What month is it?")
+  result <- chat$chat("What month is it? Provide the full name")
   expect_match(result, "January")
 }
 
 test_tools_async <- function(chat_fun) {
   chat <- chat_fun(system_prompt = "Be very terse, not even punctuation.")
-  chat$register_tool(ToolDef(
-    coro::async(function() "2024-01-01"),
-    name = "get_date",
-    description = "Gets the current date"
-  ))
+  chat$register_tool(tool(coro::async(function() "2024-01-01"), "Gets the current date"))
 
   result <- sync(chat$chat_async("What's the current date in YMD format?"))
   expect_match(result, "2024-01-01")
@@ -81,12 +73,10 @@ test_tools_parallel <- function(chat_fun) {
   favourite_color <- function(person) {
     if (person == "Joe") "sage green" else "red"
   }
-  chat$register_tool(ToolDef(
-    function(person) if (person == "Joe") "sage green" else "red",
-    name = "favourite_color",
-    description = "Returns a person's favourite colour",
-    arguments = list(person = ToolArg("string", "Name of a person")),
-    strict = TRUE
+  chat$register_tool(tool(
+    favourite_color,
+    "Returns a person's favourite colour",
+    person = type_string("Name of a person")
   ))
 
   result <- chat$chat("
@@ -100,16 +90,14 @@ test_tools_parallel <- function(chat_fun) {
 
 test_tools_sequential <- function(chat_fun, total_calls) {
   chat <- chat_fun(system_prompt = "Be very terse, not even punctuation.")
-  chat$register_tool(ToolDef(
-    function() 2024,
-    name = "get_year",
-    description = "Get the current year"
-  ))
-  chat$register_tool(ToolDef(
-    function(year) if (year == 2024) "Susan" else "I don't know",
-    name = "popular_name",
-    description = "Gets the most popular name for a year",
-    arguments = list(year = ToolArg("integer", "Year"))
+
+  current_year <- function() 2024
+  popular_name <- function(year) if (year == 2024) "Susan" else "I don't know"
+  chat$register_tool(tool(current_year, "Get the current year"))
+  chat$register_tool(tool(
+    popular_name,
+    "Gets the most popular name for a year",
+    year = type_integer("Year")
   ))
 
   result <- chat$chat("What was the most popular name this year.")
@@ -117,6 +105,32 @@ test_tools_sequential <- function(chat_fun, total_calls) {
   expect_length(chat$turns(), total_calls)
 }
 
+
+# Data extraction --------------------------------------------------------
+
+test_data_extraction <- function(chat_fun) {
+  article_summary <- type_object(
+    "Summary of the article.",
+    title = type_string("Content title"),
+    author = type_string("Name of the author")
+  )
+
+  prompt <- "
+    # Apples are tasty
+    By Hadley Wickham
+
+    Apples are delicious and tasty and I like to eat them.
+    Except for red delicious, that is. They are NOT delicious.
+  "
+
+  chat <- chat_fun()
+  data <- chat$extract_data(prompt, spec = article_summary)
+  expect_mapequal(data, list(title = "Apples are tasty", author = "Hadley Wickham"))
+
+  chat2 <- chat_fun()
+  data2 <- sync(chat2$extract_data_async(prompt, spec = article_summary))
+  expect_mapequal(data, data2)
+}
 
 # Images -----------------------------------------------------------------
 
