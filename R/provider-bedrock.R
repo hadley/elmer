@@ -77,7 +77,6 @@ method(chat_request, ProviderBedrock) <- function(provider,
     toolConfig <- NULL
   }
 
-
   # https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html
   req <- req_body_json(req, list(
     messages = messages,
@@ -167,6 +166,7 @@ method(stream_turn, ProviderBedrock) <- function(provider, result, has_spec = FA
 method(value_turn, ProviderBedrock) <- method(stream_turn, ProviderBedrock)
 
 
+# https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_ContentBlock.html
 bedrock_messages <- function(turns) {
   messages <- list()
   add_message <- function(role, ...) {
@@ -193,23 +193,20 @@ method(bedrock_content, ContentText) <- function(content) {
 }
 
 method(bedrock_content, ContentImageRemote) <- function(content) {
-  browser()
-  cli::cli_abort("Claude doesn't support remote images")
+  cli::cli_abort("Bedrock doesn't support remote images")
 }
 
+# https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_ImageBlock.html
 method(bedrock_content, ContentImageInline) <- function(content) {
-  browser()
   list(
-    type = "image",
-    source = list(
-      type = "base64",
-      media_type = content@type,
-      data = content@data
+    Image = list(
+      format = content@type,
+      source = list(bytes = content@data)
     )
   )
 }
 
-# https://docs.anthropic.com/en/docs/build-with-bedrock/tool-use#handling-tool-use-and-tool-result-content-blocks
+# https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_ToolUseBlock.html
 method(bedrock_content, ContentToolRequest) <- function(content) {
   list(
     toolUse = list(
@@ -220,7 +217,7 @@ method(bedrock_content, ContentToolRequest) <- function(content) {
   )
 }
 
-# https://docs.anthropic.com/en/docs/build-with-bedrock/tool-use#handling-tool-use-and-tool-result-content-blocks
+# https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_ToolResultBlock.html
 method(bedrock_content, ContentToolResult) <- function(content) {
   list(
     toolResult = list(
@@ -230,7 +227,6 @@ method(bedrock_content, ContentToolResult) <- function(content) {
     )
   )
 }
-
 
 bedrock_tool <- function(tool, provider) {
   list(
