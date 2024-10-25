@@ -1,6 +1,20 @@
-#' @examples
+#' Chat with an AWS bedrock model
 #'
-#' chat_bedrock()$chat("Who are you?")
+#' @description
+#' [AWS Bedrock](https://aws.amazon.com/bedrock/) provides a number of chat
+#' based models, including those Anthropic's
+#' [Claude](https://aws.amazon.com/bedrock/claude/).
+#'
+#' Authenthication is handled through \{paws.common\}, so if authenthication
+#' does not work for you automatically, you'll need to follow the advice
+#' at <https://www.paws-r-sdk.com/#credentials>. In particular, if your
+#' org uses AWS SSO, you'll need to run `aws sso login` at the terminal.
+#'
+#' @param profile AWS profile to use.
+#' @inheritParams chat_openai
+#' @inherit chat_openai return
+#' @family chatbots
+#' @export
 chat_bedrock <- function(system_prompt = NULL,
                          turns = NULL,
                          model = NULL,
@@ -279,14 +293,15 @@ bedrock_tool <- function(tool, provider) {
 
 # Helpers ----------------------------------------------------------------
 
-has_paws_credentials <- function() {
-  tryCatch(
-    {
-      paws.common::locate_credentials()
-      TRUE
-    },
-    error = function(e) {
-      FALSE
-    }
-  )
+paws_credentials <- function(profile) {
+  if (is_testing()) {
+    tryCatch(
+      paws.common::locate_credentials(profile),
+      error = function(cnd) {
+        testthat::skip("Failed to locate AWS credentails")
+      }
+    )
+  } else {
+    paws.common::locate_credentials(profile)
+  }
 }

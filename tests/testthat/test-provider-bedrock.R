@@ -1,6 +1,4 @@
 test_that("can make simple batch request", {
-  skip_if_not(has_paws_credentials())
-
   chat <- chat_bedrock("Be as terse as possible; no punctuation")
   resp <- chat$chat("What is 1 + 1?", echo = FALSE)
   expect_match(resp, "2")
@@ -8,8 +6,6 @@ test_that("can make simple batch request", {
 })
 
 test_that("can make simple streaming request", {
-  skip_if_not(has_paws_credentials())
-
   chat <- chat_bedrock("Be as terse as possible; no punctuation")
   resp <- coro::collect(chat$stream("What is 1 + 1?"))
   expect_match(paste0(unlist(resp), collapse = ""), "2")
@@ -22,7 +18,6 @@ test_that("defaults are reported", {
 })
 
 test_that("respects turns interface", {
-  skip_if_not(has_paws_credentials())
   chat_fun <- chat_bedrock
 
   test_turns_system(chat_fun)
@@ -30,7 +25,6 @@ test_that("respects turns interface", {
 })
 
 test_that("all tool variations work", {
-  skip_if_not(has_paws_credentials())
   chat_fun <- chat_bedrock
 
   test_tools_simple(chat_fun)
@@ -40,14 +34,12 @@ test_that("all tool variations work", {
 })
 
 test_that("can extract data", {
-  skip_if_not(has_paws_credentials())
   chat_fun <- chat_bedrock
 
   test_data_extraction(chat_fun)
 })
 
 test_that("can use images", {
-  skip_if_not(has_paws_credentials())
   chat_fun <- chat_bedrock
 
   test_images_inline(chat_fun)
