@@ -110,7 +110,11 @@ method(chat_request, ProviderOpenAI) <- function(provider,
   req <- req_url_path_append(req, "/chat/completions")
   req <- req_auth_bearer_token(req, provider@api_key)
   req <- req_retry(req, max_tries = 2)
-  req <- req_error(req, body = function(resp) resp_body_json(resp)$error$message)
+  req <- req_error(req, body = function(resp) {
+    if (resp_content_type(resp) == "application/json") {
+      resp_body_json(resp)$error$message
+    }
+  })
 
   messages <- openai_messages(turns)
   tools <- unname(lapply(tools, openai_tool, provider = provider))
