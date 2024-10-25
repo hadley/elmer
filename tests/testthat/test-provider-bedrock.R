@@ -4,7 +4,7 @@ test_that("can make simple batch request", {
   chat <- chat_bedrock("Be as terse as possible; no punctuation")
   resp <- chat$chat("What is 1 + 1?", echo = FALSE)
   expect_match(resp, "2")
-  expect_equal(chat$last_turn()@tokens, c(25, 5))
+  expect_equal(chat$last_turn()@tokens, c(26, 5))
 })
 
 test_that("can make simple streaming request", {
@@ -28,4 +28,13 @@ test_that("respects turns interface", {
   test_turns_system(chat_fun)
   test_turns_existing(chat_fun)
 })
- 
+
+test_that("all tool variations work", {
+  skip_if_not(has_paws_credentials())
+  chat_fun <- chat_bedrock
+
+  test_tools_simple(chat_fun)
+  test_tools_async(chat_fun)
+  test_tools_parallel(chat_fun)
+  test_tools_sequential(chat_fun, total_calls = 6)
+})

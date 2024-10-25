@@ -60,7 +60,7 @@ method(chat_request, ProviderBedrock) <- function(provider,
 
   req <- req_error(req, body = function(resp) {
     body <- resp_body_json(resp)
-    body$Message
+    body$Message %||% body$message
   })
 
   if (length(turns) >= 1 && is_system_prompt(turns[[1]])) {
@@ -69,13 +69,20 @@ method(chat_request, ProviderBedrock) <- function(provider,
     system <- NULL
   }
 
-  messages <- claude_messages(turns)
-  # tools <- unname(lapply(tools, bedrock_tool))
+  messages <- bedrock_messages(turns)
+  if (length(tools) > 0) {
+    tools <- unname(lapply(tools, bedrock_tool, provider = provider))
+    toolConfig <- list(tools = tools)
+  } else {
+    toolConfig <- NULL
+  }
+
 
   # https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html
   req <- req_body_json(req, list(
     messages = messages,
-    system = list(list(text = system))
+    system = list(list(text = system)),
+    toolConfig = toolConfig
   ))
 
   req
@@ -104,6 +111,8 @@ method(stream_text, ProviderBedrock) <- function(provider, event) {
 method(stream_merge_chunks, ProviderBedrock) <- function(provider, result, chunk) {
   if (chunk$event_type == "messageStart") {
     result <- list(role = chunk$role, content = list())
+  } else if (chunk$event_type == "contentBlockStart") {
+    browser()
   } else if (chunk$event_type == "contentBlockDelta") {
     i <- chunk$contentBlockIndex + 1
     if (i > length(result$content)) {
@@ -135,8 +144,14 @@ method(stream_turn, ProviderBedrock) <- function(provider, result, has_spec = FA
   contents <- lapply(result$output$message$content, function(content) {
     if (has_name(content, "text")) {
       ContentText(content$text)
+    } else if (has_name(content, "toolUse")) {
+      ContentToolRequest(
+        name = content$toolUse$name,
+        arguments = content$toolUse$input,
+        id = content$toolUse$toolUseId
+      )
     } else {
-      browsers()
+      browser()
       cli::cli_abort(
         "Unknown content type {.str {names(content)}}.",
         .internal = TRUE
@@ -151,6 +166,81 @@ method(stream_turn, ProviderBedrock) <- function(provider, result, has_spec = FA
 }
 method(value_turn, ProviderBedrock) <- method(stream_turn, ProviderBedrock)
 
+
+bedrock_messages <- function(turns) {
+  messages <- list()
+  add_message <- function(role, ...) {
+    messages[[length(messages) + 1]] <<- compact(list(role = role, ...))
+  }
+
+  for (turn in turns) {
+    if (turn@role == "system") {
+      # bedrock passes system prompt as separate arg
+    } else if (turn@role %in% c("user", "assistant")) {
+      content <- lapply(turn@contents, bedrock_content)
+      add_message(turn@role, content = content)
+    } else {
+      cli::cli_abort("Unknown role {turn@role}", .internal = TRUE)
+    }
+  }
+  messages
+}
+
+bedrock_content <- new_generic("bedrock_content", "content")
+
+method(bedrock_content, ContentText) <- function(content) {
+  list(text = content@text)
+}
+
+method(bedrock_content, ContentImageRemote) <- function(content) {
+  browser()
+  cli::cli_abort("Claude doesn't support remote images")
+}
+
+method(bedrock_content, ContentImageInline) <- function(content) {
+  browser()
+  list(
+    type = "image",
+    source = list(
+      type = "base64",
+      media_type = content@type,
+      data = content@data
+    )
+  )
+}
+
+# https://docs.anthropic.com/en/docs/build-with-bedrock/tool-use#handling-tool-use-and-tool-result-content-blocks
+method(bedrock_content, ContentToolRequest) <- function(content) {
+  list(
+    toolUse = list(
+      toolUseId = content@id,
+      name = content@name,
+      input = content@arguments
+    )
+  )
+}
+
+# https://docs.anthropic.com/en/docs/build-with-bedrock/tool-use#handling-tool-use-and-tool-result-content-blocks
+method(bedrock_content, ContentToolResult) <- function(content) {
+  list(
+    toolResult = list(
+      toolUseId = content@id,
+      content = list(list(text = tool_string(content))),
+      status = if (tool_errored(content)) "error" else "success"
+    )
+  )
+}
+
+
+bedrock_tool <- function(tool, provider) {
+  list(
+    toolSpec = list(
+      name = tool@name,
+      description = tool@description,
+      inputSchema = list(json = compact(as_json(provider, tool@arguments)))
+    )
+  )
+}
 
 # Helpers ----------------------------------------------------------------
 
