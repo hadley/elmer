@@ -25,8 +25,8 @@ Returned invisibly if \code{echo} is \code{TRUE}.
 }
 \description{
 In order to use a function as a tool in a chat, you need to craft the right
-\link{ToolDef}. This function helps you do that for documented functions by
-extracting the function's R documentation and creating a \code{ToolDef()} call for
+call to \code{\link[=tool]{tool()}}. This function helps you do that for documented functions by
+extracting the function's R documentation and creating a \code{tool()} call for
 you, using an LLM. It's meant to be used interactively while writing your
 code, not as part of your final code.
 

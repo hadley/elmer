@@ -33,7 +33,7 @@ chat_claude <- function(system_prompt = NULL,
   turns <- normalize_turns(turns, system_prompt)
   echo <- check_echo(echo)
 
-  model <- model %||% "claude-3-5-sonnet-20240620"
+  model <- model %||% "claude-3-5-sonnet-latest"
 
   provider <- ProviderClaude(
     model = model,
@@ -60,13 +60,16 @@ ProviderClaude <- new_class(
 anthropic_key <- function() {
   key_get("ANTHROPIC_API_KEY")
 }
-
+anthropic_key_exists <- function() {
+  key_exists("ANTHROPIC_API_KEY")
+}
 # HTTP request and response handling -------------------------------------
 
 method(chat_request, ProviderClaude) <- function(provider,
                                                   stream = TRUE,
                                                   turns = list(),
                                                   tools = list(),
+                                                  spec = NULL,
                                                   extra_args = list()) {
 
   req <- request(provider@base_url)
@@ -97,7 +100,21 @@ method(chat_request, ProviderClaude) <- function(provider,
   }
 
   messages <- claude_messages(turns)
-  tools <- unname(lapply(tools, claude_tool))
+
+  if (!is.null(spec)) {
+    tool_def <- ToolDef(
+      fun = function(...) {},
+      name = "_structured_tool_call",
+      description = "Extract structured data",
+      arguments = type_object(data = spec)
+    )
+    tools[[tool_def@name]] <- tool_def
+    tool_choice <- list(type = "tool", name = tool_def@name)
+    stream <- FALSE
+  } else {
+    tool_choice <- NULL
+  }
+  tools <- unname(lapply(tools, claude_tool, provider = provider))
 
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
   body <- compact(list2(
@@ -107,6 +124,7 @@ method(chat_request, ProviderClaude) <- function(provider,
     stream = stream,
     max_tokens = provider@max_tokens,
     tools = tools,
+    tool_choice = tool_choice,
     !!!extra_args
   ))
   req <- req_body_json(req, body)
@@ -139,9 +157,14 @@ method(stream_merge_chunks, ProviderClaude) <- function(provider, result, chunk)
   } else if (chunk$type == "content_block_start") {
     result$content[[chunk$index + 1L]] <- chunk$content_block
   } else if (chunk$type == "content_block_delta") {
-    if (!is.null(chunk$delta$text)) {
+    if (chunk$delta$type == "text_delta") {
       result$content[[chunk$index + 1L]]$text <-
         paste0(result$content[[chunk$index + 1L]]$text, chunk$delta$text)
+    } else if (chunk$delta$type == "input_json_delta") {
+      result$content[[chunk$index + 1L]]$input <-
+        paste0(result$content[[chunk$index + 1L]]$input, chunk$delta$partial_json)
+    } else {
+      cli::cli_inform(c("!" = "Unknown delta type {.str {chunk$delta$type}}."))
     }
   } else if (chunk$type == "content_block_stop") {
     # nothing to do
@@ -156,12 +179,19 @@ method(stream_merge_chunks, ProviderClaude) <- function(provider, result, chunk)
   }
   result
 }
-method(stream_turn, ProviderClaude) <- function(provider, result) {
+method(stream_turn, ProviderClaude) <- function(provider, result, has_spec = FALSE) {
   contents <- lapply(result$content, function(content) {
     if (content$type == "text") {
       ContentText(content$text)
     } else if (content$type == "tool_use") {
-      ContentToolRequest(content$id, content$name, content$input)
+      if (has_spec) {
+        ContentJson(content$input$data)
+      } else {
+        if (is_string(content$input)) {
+          content$input <- jsonlite::parse_json(content$input)
+        }
+        ContentToolRequest(content$id, content$name, content$input)
+      }
     } else {
       cli::cli_abort(
         "Unknown content type {.str {content$type}}.",
@@ -240,10 +270,10 @@ method(claude_content, ContentToolResult) <- function(content) {
   )
 }
 
-claude_tool <- function(tool) {
+claude_tool <- function(provider, tool) {
   list(
     name = tool@name,
     description = tool@description,
-    input_schema = compact(json_schema_parameters(tool@arguments))
+    input_schema = compact(as_json(provider, tool@arguments))
   )
 }

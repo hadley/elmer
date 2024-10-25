@@ -35,9 +35,51 @@ test_that("all tool variations work", {
   test_tools_sequential(chat_fun, total_calls = 6)
 })
 
+test_that("can extract data", {
+  chat_fun <- chat_openai
+
+  test_data_extraction(chat_fun)
+})
+
 test_that("can use images", {
   chat_fun <- chat_openai
 
   test_images_inline(chat_fun)
   test_images_remote(chat_fun)
+})
+
+# Custom tests -----------------------------------------------------------------
+
+test_that("can retrieve logprobs (#115)", {
+  chat <- chat_openai(api_args = list(logprobs = TRUE))
+  pieces <- coro::collect(chat$stream("Hi"))
+
+  logprops <- chat$last_turn()@json$choices[[1]]$logprobs$content
+  expect_equal(
+    length(logprops),
+    length(pieces) - 2 # leading "" + trailing \n
+  )
+})
+
+# Custom -----------------------------------------------------------------
+
+test_that("as_json specialised for OpenAI", {
+  stub <- ProviderOpenAI(base_url = "", api_key = "", model = "")
+
+  expect_snapshot(
+    as_json(stub, type_object(.additional_properties = TRUE)),
+    error = TRUE
+  )
+
+  obj <- type_object(x = type_number(required = FALSE))
+  expect_equal(
+    as_json(stub, obj),
+    list(
+      type = "object",
+      description = "",
+      properties = list(x = list(type = c("number", "null"), description = "")),
+      required = list("x"),
+      additionalProperties = FALSE
+    )
+  )
 })

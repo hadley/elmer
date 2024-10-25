@@ -1,3 +1,6 @@
+#' @include utils-S7.R
+NULL
+
 #' A user or assistant turn
 #'
 #' @description
@@ -43,8 +46,7 @@ Turn <- new_class(
     text = new_property(
       class = class_character,
       getter = function(self) {
-        is_text <- map_lgl(self@contents, S7_inherits, ContentText)
-        paste0(unlist(lapply(self@contents[is_text], function(x) x@text)), collapse = "")
+        paste0(unlist(lapply(self@contents, contents_text)), collapse = "")
       }
     )
   ),

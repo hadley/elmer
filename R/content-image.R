@@ -34,7 +34,20 @@
 #' )
 content_image_url <- function(url, detail = c("auto", "low", "high")) {
   detail <- arg_match(detail)
-  ContentImageRemote(url = url, detail = detail)
+
+  if (grepl("^data:", url)) {
+    # https://developer.mozilla.org/en-US/docs/Web/URI/Schemes/data
+    parts <- strsplit(sub("^data:", "", url), ";")[[1]]
+    if (length(parts) != 2 || !grepl("^base64,", parts[[2]])) {
+      cli::cli_abort("{.arg url} is not a valid data url.")
+    }
+    content_type <- parts[[1]]
+    base64 <- sub("^base64,", "", parts[[2]])
+
+    ContentImageInline(content_type, base64)
+  } else {
+    ContentImageRemote(url = url, detail = detail)
+  }
 }
 
 #' @rdname content_image_url

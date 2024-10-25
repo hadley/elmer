@@ -37,6 +37,17 @@ method(format, ContentText) <- function(x, ...) {
   paste0(unlist(strwrap(x@text, width = getOption("width"))), collapse = "\n")
 }
 
+# Internal generic for content that has a textual representation.
+contents_text <- new_generic("contents_text", "content")
+
+method(contents_text, Content) <- function(content) {
+  NULL
+}
+
+method(contents_text, ContentText) <- function(content) {
+  content@text
+}
+
 # Images -----------------------------------------------------------------
 
 #' @rdname Content
@@ -102,7 +113,7 @@ method(format, ContentToolRequest) <- function(x, ...) {
   if (length(x@arguments) == 0) {
     call <- call2(x@name)
   } else {
-    call <- call2(x@name, x@arguments)
+    call <- call2(x@name, !!!x@arguments)
   }
   cli::format_inline("[{.strong tool request} ({x@id})]: {format(call)}")
 }
@@ -135,13 +146,26 @@ tool_string <- function(x) {
   }
 }
 
+ContentJson <- new_class(
+  "ContentJson",
+  parent = Content,
+  properties = list(value = class_any),
+  package = "elmer"
+)
+method(format, ContentJson) <- function(x, ...) {
+  paste0(
+    cli::format_inline("[{.strong data}] "),
+    pretty_json(x@value)
+  )
+}
+
 # Helpers ----------------------------------------------------------------------
 
 as_content <- function(x, error_call = caller_env()) {
   if (is.null(x)) {
     list()
   } else if (is.character(x)) {
-    ContentText(x)
+    ContentText(paste0(x, collapse = "\n"))
   } else if (S7_inherits(x, Content)) {
     x
   } else {

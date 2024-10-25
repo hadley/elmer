@@ -1,6 +1,10 @@
 test_that("prop_whole_number validates inputs", {
   check_prop <- function(...) {
-    new_class("class", properties = list(prop = prop_number_whole(...)))
+    new_class(
+      "class",
+      properties = list(prop = prop_number_whole(...)),
+      package = NULL
+    )
   }
   expect_snapshot(error = TRUE, {
     check_prop()("x")
