@@ -14,7 +14,7 @@ Imports:
     cli,
     coro,
     glue,
-    httr2 (>= 1.0.5),
+    httr2 (>= 1.0.5.9000),
     jsonlite,
     R6,
     rlang (>= 1.1.0),
@@ -26,6 +26,7 @@ Suggests:
     knitr,
     later,
     magick,
+    paws.common,
     promises,
     rmarkdown,
     shiny,
@@ -34,8 +35,9 @@ Suggests:
     withr
 VignetteBuilder:
     knitr
-Remotes:
-    jcheng5/shinychat
+Remotes: 
+    jcheng5/shinychat,
+    r-lib/httr2
 Config/Needs/website: tidyverse/tidytemplate, rmarkdown
 Config/testthat/edition: 3
 Config/testthat/parallel: true
@@ -58,6 +60,7 @@ Collate:
     'provider.R'
     'provider-openai.R'
     'provider-azure.R'
+    'provider-bedrock.R'
     'provider-claude.R'
     'provider-gemini.R'
     'provider-github.R'

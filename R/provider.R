@@ -26,7 +26,17 @@ Provider <- new_class(
 chat_request <- new_generic("chat_request", "provider",
   function(provider, stream = TRUE, turns = list(), tools = list(), extra_args = list()) {
     S7_dispatch()
-  })
+  }
+)
+
+chat_resp_stream <- new_generic("chat_resp_stream", "provider",
+  function(provider, resp) {
+    S7_dispatch()
+  }
+)
+method(chat_resp_stream, Provider) <- function(provider, resp) {
+  resp_stream_sse(resp)
+}
 
 # Extract data from streaming results ------------------------------------
 
