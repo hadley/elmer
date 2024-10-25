@@ -64,7 +64,7 @@ method(chat_request, ProviderBedrock) <- function(provider,
   })
 
   if (length(turns) >= 1 && is_system_prompt(turns[[1]])) {
-    system <- turns[[1]]@text
+    system <- list(list(text = turns[[1]]@text))
   } else {
     system <- NULL
   }
@@ -80,7 +80,7 @@ method(chat_request, ProviderBedrock) <- function(provider,
   # https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html
   req <- req_body_json(req, list(
     messages = messages,
-    system = list(list(text = system)),
+    system = system,
     toolConfig = toolConfig
   ))
 
@@ -210,9 +210,17 @@ method(bedrock_content, ContentImageRemote) <- function(content) {
 
 # https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_ImageBlock.html
 method(bedrock_content, ContentImageInline) <- function(content) {
+  type <- switch(content@type,
+    "image/png" = "png",
+    "image/gif" = "gif",
+    "image/jpeg" = "jpeg",
+    "image/webp" = "webp",
+    cli::cli_abort("Image type {content@type} is not supported by bedrock")
+  )
+
   list(
-    Image = list(
-      format = content@type,
+    image = list(
+      format = type,
       source = list(bytes = content@data)
     )
   )

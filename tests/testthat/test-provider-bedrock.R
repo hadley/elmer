@@ -38,3 +38,18 @@ test_that("all tool variations work", {
   test_tools_parallel(chat_fun)
   test_tools_sequential(chat_fun, total_calls = 6)
 })
+
+# test_that("can extract data", {
+#   skip_if_not(has_paws_credentials())
+#   chat_fun <- chat_bedrock
+
+#   test_data_extraction(chat_fun)
+# })
+
+test_that("can use images", {
+  skip_if_not(has_paws_credentials())
+  chat_fun <- chat_bedrock
+
+  test_images_inline(chat_fun)
+  test_images_remote_error(chat_fun)
+})
