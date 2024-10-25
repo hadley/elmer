@@ -22,7 +22,7 @@ chat_bedrock <- function(system_prompt = NULL,
                          echo = NULL) {
 
   check_installed("paws.common", "AWS authentication")
-  credentials <- paws.common::locate_credentials(profile)
+  credentials <- paws_credentials(profile)
 
   turns <- normalize_turns(turns, system_prompt)
   model <- set_default(model, "anthropic.claude-3-5-sonnet-20240620-v1:0")
