@@ -105,7 +105,6 @@ test_tools_sequential <- function(chat_fun, total_calls) {
   expect_length(chat$turns(), total_calls)
 }
 
-
 # Data extraction --------------------------------------------------------
 
 test_data_extraction <- function(chat_fun) {

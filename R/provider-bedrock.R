@@ -108,19 +108,33 @@ method(stream_text, ProviderBedrock) <- function(provider, event) {
   }
 }
 method(stream_merge_chunks, ProviderBedrock) <- function(provider, result, chunk) {
+  i <- chunk$contentBlockIndex + 1
+
   if (chunk$event_type == "messageStart") {
     result <- list(role = chunk$role, content = list())
   } else if (chunk$event_type == "contentBlockStart") {
-    browser()
+    result$content[[i]] <- list(toolUse = chunk$start$toolUse)
   } else if (chunk$event_type == "contentBlockDelta") {
-    i <- chunk$contentBlockIndex + 1
-    if (i > length(result$content)) {
-      result$content[[i]] <- list(text = chunk$delta$text)
+    if (has_name(chunk$delta, "text")) {
+      if (i > length(result$content)) {
+        result$content[[i]] <- list(text = chunk$delta$text)
+      } else {
+        paste(result$content[[i]]$text) <- chunk$delta$text
+      }
+    } else if (has_name(chunk$delta, "toolUse")) {
+      paste(result$content[[i]]$toolUse$input) <- chunk$delta$toolUse$input
     } else {
-      paste(result$content[[i]]$text) <- chunk$delta$text
+      cli::cli_abort("Unknown chunk type {names(chunk$delta)}", .internal = TRUE)
     }
   } else if (chunk$event_type == "contentBlockStop") {
-    # don't need to do anything?
+    if (has_name(result$content[[i]], "toolUse")) {
+      input <- result$content[[i]]$toolUse$input
+      if (input == "") {
+        result$content[[i]]$toolUse$input <- set_names(list())
+      } else {
+        result$content[[i]]$toolUse$input <- jsonlite::parse_json(input)
+      }
+    }
   } else if (chunk$event_type == "messageStop") {
     # match structure of non-streaming
     result <- list(
@@ -132,7 +146,6 @@ method(stream_merge_chunks, ProviderBedrock) <- function(provider, result, chunk
     result$usage <- chunk$usage
     result$metrics <- chunk$metrics
   } else {
-    browser()
     cli::cli_inform(c("!" = "Unknown chunk type {.str {event_type}}."))
   }
 
@@ -150,7 +163,6 @@ method(stream_turn, ProviderBedrock) <- function(provider, result, has_spec = FA
         id = content$toolUse$toolUseId
       )
     } else {
-      browser()
       cli::cli_abort(
         "Unknown content type {.str {names(content)}}.",
         .internal = TRUE
