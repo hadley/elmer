@@ -58,7 +58,11 @@ method(chat_request, ProviderBedrock) <- function(provider,
     aws_session_token = provider@credentials$session_token
   )
 
-  # TODO: add error handling
+  req <- req_error(req, body = function(resp) {
+    body <- resp_body_json(resp)
+    body$Message
+  })
+
   if (length(turns) >= 1 && is_system_prompt(turns[[1]])) {
     system <- turns[[1]]@text
   } else {
@@ -68,8 +72,10 @@ method(chat_request, ProviderBedrock) <- function(provider,
   messages <- claude_messages(turns)
   # tools <- unname(lapply(tools, bedrock_tool))
 
+  # https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_Converse.html
   req <- req_body_json(req, list(
-    messages = messages
+    messages = messages,
+    system = list(list(text = system))
   ))
 
   req
@@ -144,3 +150,18 @@ method(stream_turn, ProviderBedrock) <- function(provider, result, has_spec = FA
   Turn(result$output$message$role, contents, json = result, tokens = tokens)
 }
 method(value_turn, ProviderBedrock) <- method(stream_turn, ProviderBedrock)
+
+
+# Helpers ----------------------------------------------------------------
+
+has_paws_credentials <- function() {
+  tryCatch(
+    {
+      paws.common::locate_credentials()
+      TRUE
+    },
+    error = function(e) {
+      FALSE
+    }
+  )
+}
