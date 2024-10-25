@@ -158,11 +158,9 @@ method(stream_merge_chunks, ProviderClaude) <- function(provider, result, chunk)
     result$content[[chunk$index + 1L]] <- chunk$content_block
   } else if (chunk$type == "content_block_delta") {
     if (chunk$delta$type == "text_delta") {
-      result$content[[chunk$index + 1L]]$text <-
-        paste0(result$content[[chunk$index + 1L]]$text, chunk$delta$text)
+      paste(result$content[[chunk$index + 1L]]$text) <- chunk$delta$text
     } else if (chunk$delta$type == "input_json_delta") {
-      result$content[[chunk$index + 1L]]$input <-
-        paste0(result$content[[chunk$index + 1L]]$input, chunk$delta$partial_json)
+      paste(result$content[[chunk$index + 1L]]$input) <- chunk$delta$partial_json
     } else {
       cli::cli_inform(c("!" = "Unknown delta type {.str {chunk$delta$type}}."))
     }
