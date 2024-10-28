@@ -18,9 +18,14 @@ sample_cortex_message <- list(
 )
 
 test_that("Cortex messages are converted to turns correctly", {
+  p <- ProviderCortex(
+    account = "testorg-test_account",
+    credentials = function(account) list()
+  )
+
   expect_equal(
     # Tests roundtrip conversion.
-    cortex_message(cortex_message_to_turn(sample_cortex_message)),
+    as_json(p, cortex_message_to_turn(sample_cortex_message)),
     sample_cortex_message
   )
 })
@@ -92,7 +97,7 @@ test_that("Cortex chunks are converted to messages correctly", {
   }
   turn <- stream_turn(p, result)
   expect_equal(result, sample_cortex_message$content)
-  expect_equal(cortex_message(turn), sample_cortex_message)
+  expect_equal(as_json(p, turn), sample_cortex_message)
   # Make sure streaming output matches batch output.
   expect_equal(output, turn@text)
 })
