@@ -1,0 +1,68 @@
+---
+title: "elmer"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{elmer}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(elmer)
+```
+
+The goal of this vignette is give you the key vocabulary you need in order to use LLMs effectively. In this package, we treat LLMs as black boxes, ignoring the details of the underlying models. This is because the details of the models aren't particuarly useful at the level at which you'll mostly want to work (in the same way that you need an extremely deep understaning of physics in order to inform your understand of chemistry), and it's best to start with a highly empirical approach.
+
+* Token:
+* Prompt:
+* Conversation:
+* Provider and model:
+
+## What is a token?
+
+A tokens are very important for the implementation of LLMs, because when combined with an embedding, they convert text to numbers, which are then used to train the model. Tokens are also important for you, because they are used to compute query cost and they how much information you can put in a prompt.
+
+Models are priced according to input and output tokens. Models are priced per million tokens and vary a lot based from model-to-model. Mid-tir models (e.g. gpt-4o or claude 3 haiku) might be around $0.25 per million input and $1 per million output tokens; state of the art models (like gpt-4o or claude 3 sonnet) might be more like $2.50 per million input tokens, and $10 per million output tokens.
+
+Certainly, at the time of writing, even $10 of API credit will give you a lot of room for experimenting when using mid-tier models. It's hard to predict how these costs will change in the future. In the short-term, it's likely that costs will decrease as folks figure out more efficient implementations, but costs are currently highly subsidized by venture capital model, so you can expect costs to rise when that starts to run out.
+
+To help calibrate, on average, an English word requires around 1.5 tokens. A page might be 375-400 tokens. A complete book might be 75,000 to 150,000 tokens. Other languages will often require more tokens LLMs are trained on data from the internet, which is primarily in English.
+
+
+You'll also hear about tokens in the context of "context length", or how long your conversations can be.
+
+With elmer, you can see how many tokens a conversations has used when you print it, or you can see total usage for a session with `token_usage()`.
+
+## What is a conversation?
+
+A conversation with an LLM takes place through a series of HTTP requests and responses: you send your question to the LLM in a HTTP request, and it sends its reply back in a HTTP response. In elmer, we refer to these as conversational __turns__: a conversation is a sequence of turns between the user (you) and the assistant (the LLM).
+
+Depsite the fact that conversations are inherently stateful (i.e. your response to a question depends on the completely history of the conversation), LLM APIs are stateless. That means every time you send an question to an LLM, you have to actually send the entire conversation history. This is important to understand because:
+
+* It affects pricing. You are charged per token, so each question in a conversation is going to include all the previous questions and answers, meaning that the cost is going to grow quadratically with the number of questions. In other words, to save money, keep your conversational threads short.
+
+* You have full control over the conversational history. This means for example that you can start a conversation with one provider, and then send it to another provider.
+
+## What is a prompt?
+
+- System prompt: behind-the-scenes instructions and information for the model
+- User prompt: a question or statement for the model to respond to
+
+If you're developing an app, then you'll provide the system prompt and your users will provide their own prompts. If you're developing a solution, you'll provide both the system prompt and the user prompt.
+
+Models will also have their own systems prompts that are applied underneath your prompts. You can get a sense for what these look like from Anthropic, who [publishes their system prompts](https://docs.anthropic.com/en/release-notes/system-prompts).
+
+Writing good prompts is called __prompt engineering__ and is key to effective use of LLMs. We'll discuss that in more details in `vignette("prompt-engineering")`.
+
+## Providers and models
+
+A provider is a company that provides a model for use via API. Some providers are synonynous with a model: for example OpenAI and chatGPT, anthropic and Claude, and Google and Gemini.
+
+But other providers host many different models. These models are typically open source models (like LLaMa, mistral). Bigger providers will often partner with one of the proprietary models: for example, Azure OpenAI offers a range of open source models plus OpenAI's chatGPT, AWS Bedrock offers a range of open source models plus anthropic's Claude models.

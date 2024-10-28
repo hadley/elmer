@@ -1,0 +1,120 @@
+---
+title: "prompt-engineering"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{prompt-engineering}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(elmer)
+```
+
+
+## Directing behavior/output
+
+- "Respond with just the minimal information necessary."
+- "Explain your responses in detail."
+- "Think through this step-by-step."
+- "Carefully read and follow these instructions..."
+- "If the user asks a question related to data processing, produce R code to accomplish that task."
+- "Be careful to only provide answers that you are sure about. If you are uncertain about an answer, say so."
+
+
+## Using examples to guide behavior
+
+- **Goal:** Extract ingredient list from recipe and return in a structured format.
+
+- Example user input:
+
+  ```
+  In a large bowl, cream together 1 cup of softened unsalted butter and ½ cup of white sugar until smooth. Beat in 1 egg and 1 teaspoon of vanilla extract. Gradually stir in 2 cups of all-purpose flour until the dough forms. Finally, fold in 1 cup of semisweet chocolate chips. Drop spoonfuls of dough onto an ungreased baking sheet and bake at 350°F (175°C) for 10-12 minutes, or until the edges are lightly browned. Let the cookies cool on the baking sheet for a few minutes before transferring to a wire rack to cool completely. Enjoy!
+  ```
+
+
+## System prompt 1: just instructions
+
+```
+The user input contains a recipe. Extract a list of ingredients and return it in JSON format.
+```
+
+Assistant response:
+
+```{.json}
+{
+  "ingredients": [
+    "1 cup of softened unsalted butter",
+    "½ cup of white sugar",
+    "1 egg",
+    "1 teaspoon of vanilla extract",
+    "2 cups of all-purpose flour",
+    "1 cup of semisweet chocolate chips"
+  ]
+}
+```
+
+## System prompt 2: detailed description of output
+
+```
+The user input contains a recipe. Extract a list of ingredients and return it in JSON format. It should be an array of objects, where each object has keys `ingredient`, `quantity`, and `unit`. Put each object on one line of output.
+```
+
+Assistant response:
+
+```{.json}
+[
+    {"ingredient": "unsalted butter", "quantity": 1, "unit": "cup"},
+    {"ingredient": "white sugar", "quantity": 1/2, "unit": "cup"},
+    {"ingredient": "egg", "quantity": 1, "unit": "large"},
+    {"ingredient": "vanilla extract", "quantity": 1, "unit": "teaspoon"},
+    {"ingredient": "all-purpose flour", "quantity": 2, "unit": "cups"},
+    {"ingredient": "semisweet chocolate chips", "quantity": 1, "unit": "cup"}
+]
+```
+
+## System prompt 3: one-shot example
+
+````
+The user input contains a recipe. Extract a list of ingredients and return it in JSON format.
+
+Example Output:
+
+```json
+[
+    { "ingredient": "Flour", "quantity": 1, "unit": "cup" },
+    { "ingredient": "Vegetable oil", "quantity": 0.5, "unit": "tsp" },
+    { "ingredient": "Onion", "quantity": 1, "unit": null },
+]
+```
+````
+
+Assistant response:
+
+```{.json}
+[
+    { "ingredient": "Unsalted butter", "quantity": 1, "unit": "cup" },
+    { "ingredient": "White sugar", "quantity": 0.5, "unit": "cup" },
+    { "ingredient": "Egg", "quantity": 1, "unit": null },
+    { "ingredient": "Vanilla extract", "quantity": 1, "unit": "teaspoon" },
+    { "ingredient": "All-purpose flour", "quantity": 2, "unit": "cups" },
+    { "ingredient": "Semisweet chocolate chips", "quantity": 1, "unit": "cup" }
+]
+```
+
+## Adding context/knowledge to prompt
+
+- Add documentation files to prompt
+- Add positive examples (negative examples don't work well)
+- Docs must fit in context window
+- Examples
+  - [Elmer assistant](https://github.com/jcheng5/elmer-assistant/blob/main/prompt.generated.md) uses README files in prompt
+  - [Sidebot](https://github.com/jcheng5/py-sidebot/blob/main/prompt.md)
+  - [FastHTML LLM prompt](https://docs.fastht.ml/llms-ctx.txt)
