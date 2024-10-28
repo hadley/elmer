@@ -1,3 +1,9 @@
+#' @include provider.R
+#' @include content.R
+#' @include turns.R
+#' @include tools-def.R
+NULL
+
 #' Chat with an AWS bedrock model
 #'
 #' @description
@@ -83,7 +89,7 @@ method(chat_request, ProviderBedrock) <- function(provider,
     system <- NULL
   }
 
-  messages <- bedrock_messages(turns)
+  messages <- compact(lapply(turns, as_json, provider = provider))
 
   if (!is.null(spec)) {
     tool_def <- ToolDef(
@@ -100,7 +106,7 @@ method(chat_request, ProviderBedrock) <- function(provider,
   }
 
   if (length(tools) > 0) {
-    tools <- unname(lapply(tools, bedrock_tool, provider = provider))
+    tools <- unname(lapply(tools, as_json, provider = provider))
     toolConfig <- compact(list(tools = tools, tool_choice = tool_choice))
   } else {
     toolConfig <- NULL
@@ -119,6 +125,8 @@ method(chat_request, ProviderBedrock) <- function(provider,
 method(chat_resp_stream, ProviderBedrock) <- function(provider, resp) {
   resp_stream_aws(resp)
 }
+
+# Bedrock -> elmer -------------------------------------------------------------
 
 method(stream_parse, ProviderBedrock) <- function(provider, event) {
   if (is.null(event)) {
@@ -210,40 +218,32 @@ method(stream_turn, ProviderBedrock) <- function(provider, result, has_spec = FA
 }
 method(value_turn, ProviderBedrock) <- method(stream_turn, ProviderBedrock)
 
+# elmer -> Bedrock -------------------------------------------------------------
 
 # https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_ContentBlock.html
-bedrock_messages <- function(turns) {
-  messages <- list()
-  add_message <- function(role, ...) {
-    messages[[length(messages) + 1]] <<- compact(list(role = role, ...))
+method(as_json, list(ProviderBedrock, Turn)) <- function(provider, x) {
+  if (x@role == "system") {
+    # bedrock passes system prompt as separate arg
+    NULL
+  } else if (x@role %in% c("user", "assistant")) {
+    content <- lapply(x@contents, as_json, provider = provider)
+    list(role = x@role, content = content)
+  } else {
+    cli::cli_abort("Unknown role {turn@role}", .internal = TRUE)
   }
-
-  for (turn in turns) {
-    if (turn@role == "system") {
-      # bedrock passes system prompt as separate arg
-    } else if (turn@role %in% c("user", "assistant")) {
-      content <- lapply(turn@contents, bedrock_content)
-      add_message(turn@role, content = content)
-    } else {
-      cli::cli_abort("Unknown role {turn@role}", .internal = TRUE)
-    }
-  }
-  messages
 }
 
-bedrock_content <- new_generic("bedrock_content", "content")
-
-method(bedrock_content, ContentText) <- function(content) {
-  list(text = content@text)
+method(as_json, list(ProviderBedrock, ContentText)) <- function(provider, x) {
+  list(text = x@text)
 }
 
-method(bedrock_content, ContentImageRemote) <- function(content) {
+method(as_json, list(ProviderBedrock, ContentImageRemote)) <- function(provider, x) {
   cli::cli_abort("Bedrock doesn't support remote images")
 }
 
 # https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_ImageBlock.html
-method(bedrock_content, ContentImageInline) <- function(content) {
-  type <- switch(content@type,
+method(as_json, list(ProviderBedrock, ContentImageInline)) <- function(provider, x) {
+  type <- switch(x@type,
     "image/png" = "png",
     "image/gif" = "gif",
     "image/jpeg" = "jpeg",
@@ -254,39 +254,39 @@ method(bedrock_content, ContentImageInline) <- function(content) {
   list(
     image = list(
       format = type,
-      source = list(bytes = content@data)
+      source = list(bytes = x@data)
     )
   )
 }
 
 # https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_ToolUseBlock.html
-method(bedrock_content, ContentToolRequest) <- function(content) {
+method(as_json, list(ProviderBedrock, ContentToolRequest)) <- function(provider, x) {
   list(
     toolUse = list(
-      toolUseId = content@id,
-      name = content@name,
-      input = content@arguments
+      toolUseId = x@id,
+      name = x@name,
+      input = x@arguments
     )
   )
 }
 
 # https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_ToolResultBlock.html
-method(bedrock_content, ContentToolResult) <- function(content) {
+method(as_json, list(ProviderBedrock, ContentToolResult)) <- function(provider, x) {
   list(
     toolResult = list(
-      toolUseId = content@id,
-      content = list(list(text = tool_string(content))),
-      status = if (tool_errored(content)) "error" else "success"
+      toolUseId = x@id,
+      content = list(list(text = tool_string(x))),
+      status = if (tool_errored(x)) "error" else "success"
     )
   )
 }
 
-bedrock_tool <- function(tool, provider) {
+method(as_json, list(ProviderBedrock, ToolDef)) <- function(provider, x) {
   list(
     toolSpec = list(
-      name = tool@name,
-      description = tool@description,
-      inputSchema = list(json = compact(as_json(provider, tool@arguments)))
+      name = x@name,
+      description = x@description,
+      inputSchema = list(json = compact(as_json(provider, x@arguments)))
     )
   )
 }
