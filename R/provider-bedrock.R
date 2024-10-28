@@ -89,7 +89,7 @@ method(chat_request, ProviderBedrock) <- function(provider,
     system <- NULL
   }
 
-  messages <- compact(lapply(turns, as_json, provider = provider))
+  messages <- compact(as_json(provider, turns))
 
   if (!is.null(spec)) {
     tool_def <- ToolDef(
@@ -106,7 +106,7 @@ method(chat_request, ProviderBedrock) <- function(provider,
   }
 
   if (length(tools) > 0) {
-    tools <- unname(lapply(tools, as_json, provider = provider))
+    tools <- as_json(provider, unname(tools))
     toolConfig <- compact(list(tools = tools, tool_choice = tool_choice))
   } else {
     toolConfig <- NULL
@@ -226,8 +226,7 @@ method(as_json, list(ProviderBedrock, Turn)) <- function(provider, x) {
     # bedrock passes system prompt as separate arg
     NULL
   } else if (x@role %in% c("user", "assistant")) {
-    content <- lapply(x@contents, as_json, provider = provider)
-    list(role = x@role, content = content)
+    list(role = x@role, content = as_json(provider, x@contents))
   } else {
     cli::cli_abort("Unknown role {turn@role}", .internal = TRUE)
   }

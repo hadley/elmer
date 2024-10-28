@@ -88,12 +88,12 @@ method(chat_request, ProviderGemini) <- function(provider,
     generation_config <- NULL
   }
 
-  contents <- lapply(turns, as_json, provider = provider)
+  contents <- as_json(provider, turns)
 
   # https://ai.google.dev/api/caching#Tool
   if (length(tools) > 0) {
-    funs <- lapply(tools, as_json, provider = provider)
-    tools <- list(functionDeclarations = unname(funs))
+    funs <- as_json(provider, unname(tools))
+    tools <- list(functionDeclarations = funs)
   } else {
     tools <- NULL
   }
@@ -169,11 +169,9 @@ method(as_json, list(ProviderGemini, Turn)) <- function(provider, x) {
   if (x@role == "system") {
     # System messages go in the top-level API parameter
   } else if (x@role == "user") {
-    parts <- lapply(x@contents, as_json, provider = provider)
-    list(role = x@role, parts = parts)
+    list(role = x@role, parts = as_json(provider, x@contents))
   } else if (x@role == "assistant") {
-    parts <- lapply(x@contents, as_json, provider = provider)
-    list(role = "model", parts = parts)
+    list(role = "model", parts = as_json(provider, x@contents))
   } else {
     cli::cli_abort("Unknown role {turn@role}", .internal = TRUE)
   }
@@ -236,16 +234,12 @@ method(as_json, list(ProviderGemini, TypeObject)) <- function(provider, x) {
     return(list())
   }
 
-  names <- names2(x@properties)
   required <- map_lgl(x@properties, function(prop) prop@required)
-
-  properties <- lapply(x@properties, as_json, provider = provider)
-  names(properties) <- names
 
   compact(list(
     type = "object",
     description = x@description,
-    properties = properties,
-    required = as.list(names[required])
+    properties = as_json(provider, x@properties),
+    required = as.list(names2(x@properties)[required])
   ))
 }

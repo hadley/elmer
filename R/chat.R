@@ -236,7 +236,7 @@ Chat <- R6::R6Class("Chat",
 
     .turns = NULL,
     echo = NULL,
-    tools = NULL,
+    tools = list(),
 
     add_turn = function(x) {
       if (!S7_inherits(x, Turn)) {

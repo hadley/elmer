@@ -17,7 +17,7 @@ method(as_json, list(Provider, TypeObject)) <- function(provider, x) {
   names <- names2(x@properties)
   required <- map_lgl(x@properties, function(prop) prop@required)
 
-  properties <- lapply(x@properties, as_json, provider = provider)
+  properties <- as_json(provider, x@properties)
   names(properties) <- names
 
   list(

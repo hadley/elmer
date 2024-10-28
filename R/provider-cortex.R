@@ -141,7 +141,7 @@ method(chat_request, ProviderCortex) <- function(provider,
 
   # Cortex does not yet support multi-turn chats.
   turns <- tail(turns, n = 1)
-  messages <- lapply(turns, as_json, provider = provider)
+  messages <- as_json(provider, turns)
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
   data <- compact(list2(messages = messages, stream = stream, !!!extra_args))
@@ -256,7 +256,7 @@ method(as_json, list(ProviderCortex, Turn)) <- function(provider, x) {
   }
   list(
     role = role,
-    content = lapply(x@contents, as_json, provider = provider)
+    content = as_json(provider, x@contents)
   )
 }
 
