@@ -37,6 +37,23 @@ file is to call `usethis::edit_r_environ()`):
 - For `chat_openai()` set `OPENAI_API_KEY` using the key from
   <https://platform.openai.com/account/api-keys>.
 
+### Model choice
+
+If you’re usi ng elmer inside your organisation, you’ll typically need
+to use whatever you’re allowed to. If you’re using elmer for your own
+personal exploration, we recommend starting with:
+
+- `chat_openai()`, which defaults to **GPT-4o-mini**. You might want to
+  try `model = "gpt-4o"` for more demanding task and if you want to
+  force complex reasoning, `model = "o1-mini"`.
+
+- `chat_claude()`, which defaults to **Claude 3.5 Sonnet**. This
+  currently appears to be the best model for code generation.
+
+- If you want to put a lot of data in the prompt, try `chat_gemini()`
+  which defaults to **Gemini 1.5 Flash** and supports 1 million tokens,
+  compared to 200k for Claude 3.5 Sonnet and 128k for GPT 4o mini.
+
 ## Using elmer
 
 You chat with elmer in several different ways, depending on whether you
