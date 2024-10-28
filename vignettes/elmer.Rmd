@@ -95,3 +95,5 @@ Interaction with the LLM:
     * <https://simonpcouch.github.io/pal/>
 
 * Connect an LLM with more data by using tool calling. Learn more in `vignette("tool-calling")`.
+
+* Define create a prompt with example of the structured data output that you want.
