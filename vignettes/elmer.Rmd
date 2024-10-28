@@ -25,7 +25,9 @@ The goal of this vignette is give you the key vocabulary you need in order to us
 * Conversation:
 * Provider and model:
 
-## What is a token?
+## Vocabulary
+
+### What is a token?
 
 A tokens are very important for the implementation of LLMs, because when combined with an embedding, they convert text to numbers, which are then used to train the model. Tokens are also important for you, because they are used to compute query cost and they how much information you can put in a prompt.
 
@@ -40,7 +42,7 @@ You'll also hear about tokens in the context of "context length", or how long yo
 
 With elmer, you can see how many tokens a conversations has used when you print it, or you can see total usage for a session with `token_usage()`.
 
-## What is a conversation?
+### What is a conversation?
 
 A conversation with an LLM takes place through a series of HTTP requests and responses: you send your question to the LLM in a HTTP request, and it sends its reply back in a HTTP response. In elmer, we refer to these as conversational __turns__: a conversation is a sequence of turns between the user (you) and the assistant (the LLM).
 
@@ -50,7 +52,7 @@ Depsite the fact that conversations are inherently stateful (i.e. your response 
 
 * You have full control over the conversational history. This means for example that you can start a conversation with one provider, and then send it to another provider.
 
-## What is a prompt?
+### What is a prompt?
 
 - System prompt: behind-the-scenes instructions and information for the model
 - User prompt: a question or statement for the model to respond to
@@ -61,8 +63,35 @@ Models will also have their own systems prompts that are applied underneath your
 
 Writing good prompts is called __prompt engineering__ and is key to effective use of LLMs. We'll discuss that in more details in `vignette("prompt-engineering")`.
 
-## Providers and models
+### Providers and models
 
 A provider is a company that provides a model for use via API. Some providers are synonynous with a model: for example OpenAI and chatGPT, anthropic and Claude, and Google and Gemini.
 
 But other providers host many different models. These models are typically open source models (like LLaMa, mistral). Bigger providers will often partner with one of the proprietary models: for example, Azure OpenAI offers a range of open source models plus OpenAI's chatGPT, AWS Bedrock offers a range of open source models plus anthropic's Claude models.
+
+## Sample use cases
+
+User interfaces:
+
+* A chatbot with [shinychat](https://github.com/jcheng5/shinychat).
+  From this simple framework you can add extra features, e.g.
+  <https://shiny.posit.co/blog/posts/shiny-assistant/>.
+
+* Modify code/text using {rstudioapi}.
+
+* A function that takes unstructured input and returns structured output. Learn more in `vignette("structure-data")`.
+
+Interaction with the LLM:
+
+* Automate adding data to the prompt.
+
+    * For example, you could automatically look up the documentation for an R function, and include it in the prompt.
+
+    * Describe a data frame. <https://github.com/cpsievert/aidea>
+
+* Create a long hand written prompt that teaches the LLM about something it wouldn't otherwise know about. For example, you might write a guide to updating code to use a new version of a package.
+
+    * <https://github.com/jcheng5/elmer-assistant>
+    * <https://simonpcouch.github.io/pal/>
+
+* Connect an LLM with more data by using tool calling. Learn more in `vignette("tool-calling")`.
