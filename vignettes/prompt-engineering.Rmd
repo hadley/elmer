@@ -1,8 +1,8 @@
 ---
-title: "prompt-engineering"
+title: "Prompt engineering"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{prompt-engineering}
+  %\VignetteIndexEntry{Prompt engineering}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

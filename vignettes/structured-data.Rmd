@@ -1,8 +1,8 @@
 ---
-title: "Structured Data"
+title: "Structured data"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Structured Data}
+  %\VignetteIndexEntry{Structured data}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
