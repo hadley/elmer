@@ -92,8 +92,8 @@ method(chat_request, ProviderAzure) <- function(provider,
   req <- req_retry(req, max_tries = 2)
   req <- req_error(req, body = function(resp) resp_body_json(resp)$message)
 
-  messages <- openai_messages(turns)
-  tools <- unname(lapply(tools, openai_tool))
+  messages <- compact(unlist(as_json(provider, turns), recursive = FALSE))
+  tools <- as_json(provider, unname(tools))
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
   if (!is.null(spec)) {
@@ -122,11 +122,4 @@ method(chat_request, ProviderAzure) <- function(provider,
   req <- req_body_json(req, data)
 
   req
-}
-
-method(stream_turn, ProviderAzure) <- function(provider, result, has_spec = FALSE) {
-  openai_assistant_turn(provider, result$choices[[1]]$delta, result, has_spec = has_spec)
-}
-method(value_turn, ProviderAzure) <- function(provider, result, has_spec = FALSE) {
-  openai_assistant_turn(provider, result$choices[[1]]$message, result, has_spec = has_spec)
 }
