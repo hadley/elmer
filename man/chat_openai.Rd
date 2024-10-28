@@ -57,14 +57,16 @@ Note this only affects the \code{chat()} method.}
 A \link{Chat} object.
 }
 \description{
-\href{https://openai.com/o1/}{OpenAI} provides a number of chat based models under
-the \href{https://chatgpt.com}{ChatGPT} moniker.
+\href{https://openai.com/}{OpenAI} provides a number of chat-based models,
+mostly under the \href{https://chat.openai.com/}{ChatGPT} brand.
+Note that a ChatGPT Plus membership does not grant access to the API.
+You will need to sign up for a developer account (and pay for it) at the
+\href{https://platform.openai.com}{developer platform}.
 
-Note that a ChatGPT Plus membership does not give you the ability to call
-models via the API. You will need to go to the
-\href{https://platform.openai.com}{developer platform} to sign up
-(and pay for) a developer account that will give you an API key that
-you can use with this package.
+For authentication, we recommend saving your
+\href{https://platform.openai.com/account/api-keys}{API key} to
+the \code{OPENAI_API_KEY} environment variable in your \code{.Renviron} file.
+You can easily edit this file by calling \code{usethis::edit_r_environ()}.
 }
 \examples{
 \dontshow{if (elmer:::openai_key_exists()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}

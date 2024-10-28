@@ -6,14 +6,16 @@ NULL
 #' Chat with an OpenAI model
 #'
 #' @description
-#' [OpenAI](https://openai.com/o1/) provides a number of chat based models under
-#' the [ChatGPT](https://chatgpt.com) moniker.
+#' [OpenAI](https://openai.com/) provides a number of chat-based models,
+#' mostly under the [ChatGPT](https://chat.openai.com/) brand.
+#' Note that a ChatGPT Plus membership does not grant access to the API.
+#' You will need to sign up for a developer account (and pay for it) at the
+#' [developer platform](https://platform.openai.com).
 #'
-#' Note that a ChatGPT Plus membership does not give you the ability to call
-#' models via the API. You will need to go to the
-#' [developer platform](https://platform.openai.com) to sign up
-#' (and pay for) a developer account that will give you an API key that
-#' you can use with this package.
+#' For authentication, we recommend saving your
+#' [API key](https://platform.openai.com/account/api-keys) to
+#' the `OPENAI_API_KEY` environment variable in your `.Renviron` file.
+#' You can easily edit this file by calling `usethis::edit_r_environ()`.
 #'
 #' @param system_prompt A system prompt to set the behavior of the assistant.
 #' @param turns A list of turns to start the chat with (i.e., continuing a

@@ -31,13 +31,20 @@ You can install the development version of elmer from [GitHub](https://github.co
 pak::pak("hadley/elmer")
 ```
 
-## Prerequisites
+## Providers
 
-Depending on which backend you use, you'll need to set the appropriate environment variable in your `~/.Renviron` (an easy way to open that file is to call `usethis::edit_r_environ()`):
+elmer supports a number of model providers:
 
-* For `chat_claude()`, set `ANTHROPIC_API_KEY` using the key from <https://console.anthropic.com/account/keys>.
-* For `chat_gemini()`, set `GOOGLE_API_KEY` using the key from <https://aistudio.google.com/app/apikey>.
-* For `chat_openai()` set `OPENAI_API_KEY` using the key from <https://platform.openai.com/account/api-keys>.
+* Anthropic's Claude: `chat_claude()`.
+* AWS Bedrock: `chat_bedrock()`.
+* Azure OpenAI: `chat_azure()`.
+* GitHub model marketplace: `chat_github()`.
+* Google Gemini: `chat_gemini()`.
+* Groq: `chat_groq()`.
+* Ollama local models: `chat_ollama()`.
+* OpenAI: `chat_openai()`.
+* perplexity.ai: `chat_perplexity()`.
+* Snowflake Cortex: `chat_cortex()`.
 
 ### Model choice
 
