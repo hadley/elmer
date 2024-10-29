@@ -1,13 +1,13 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# elmer <a href="https://hadley.github.io/elmer/"><img src="man/figures/logo.png" align="right" height="138" alt="elmer website" /></a>
+# elmer <a href="https://elmer.tidyverse.org"><img src="man/figures/logo.png" align="right" height="138" alt="elmer website" /></a>
 
 <!-- badges: start -->
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![R-CMD-check](https://github.com/hadley/elmer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/hadley/elmer/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/tidyverse/elmer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/tidyverse/elmer/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
 The goal of elmer is to provide a user friendly wrapper over the most
@@ -21,7 +21,7 @@ You can install the development version of elmer from
 
 ``` r
 # install.packages("pak")
-pak::pak("hadley/elmer")
+pak::pak("tidyverse/elmer")
 ```
 
 ## Prerequisites

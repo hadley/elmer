@@ -8,8 +8,8 @@ Authors@R: c(
 Description: A consistent interface for calling LLM APIs. Includes support
     for streaming.
 License: MIT + file LICENSE
-URL: https://github.com/hadley/elmer, https://hadley.github.io/elmer/
-BugReports: https://github.com/hadley/elmer/issues
+URL: https://elmer.tidyverse.org, https://github.com/tidyverse/elmer
+BugReports: https://github.com/tidyverse/elmer/issues
 Imports:
     cli,
     coro,

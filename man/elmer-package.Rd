@@ -13,9 +13,9 @@ A consistent interface for calling LLM APIs. Includes support for streaming.
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://github.com/hadley/elmer}
-  \item \url{https://hadley.github.io/elmer/}
-  \item Report bugs at \url{https://github.com/hadley/elmer/issues}
+  \item \url{https://elmer.tidyverse.org}
+  \item \url{https://github.com/tidyverse/elmer}
+  \item Report bugs at \url{https://github.com/tidyverse/elmer/issues}
 }
 
 }
