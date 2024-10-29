@@ -52,10 +52,13 @@ Depsite the fact that conversations are inherently stateful (i.e. your response 
 
 * You have full control over the conversational history. This means for example that you can start a conversation with one provider, and then send it to another provider.
 
+* Every response is affected by all previous questions and responses. You may want to start a new chat session if you don't want this history to affect subsequent answers. And in general, it's typically better to iterate on your system prompt (or first user prompt) rather than iterating through a long conversation with the model.
+
 ### What is a prompt?
 
-- System prompt: behind-the-scenes instructions and information for the model
 - User prompt: a question or statement for the model to respond to
+- System prompt: behind-the-scenes instructions and information for the model
+- Core system prompt:
 
 If you're developing an app, then you'll provide the system prompt and your users will provide their own prompts. If you're developing a solution, you'll provide both the system prompt and the user prompt.
 

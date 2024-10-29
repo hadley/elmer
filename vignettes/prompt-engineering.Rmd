@@ -18,18 +18,114 @@ knitr::opts_chunk$set(
 library(elmer)
 ```
 
+Prompt engineering is the art of writing a prompt that reliably gets you the result that you want. It's an evolving skill because as LLMs evolve the techniques needed to get results will also change. So expect to keep learning.
+
+We'll focus on prompt engineering in the system prompt, but most of the advice applies regardless of it's a system prompt or user queries.
+
+It's also a good idea to read the advice for the specific model that you're using, as there may be specific tweaks that work well with just that model. Here are some pointers to the prompt engineering guides for a few popular models:
+
+* [Claude](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview)
+* [OpenAI](https://platform.openai.com/docs/guides/prompt-engineering)
+* [Gemini](https://ai.google.dev/gemini-api/docs/prompting-intro)
 
 ## Directing behavior/output
 
-- "Respond with just the minimal information necessary."
-- "Explain your responses in detail."
-- "Think through this step-by-step."
-- "Carefully read and follow these instructions..."
-- "If the user asks a question related to data processing, produce R code to accomplish that task."
+### Basic flavour
+
+```{r}
+chat <- chat_openai(system_prompt = "Be extremely terse. Don't even use punctuation.")
+chat$chat("What's the capital of New Zealand?")
+```
+
+```{r}
+chat <- chat_openai(system_prompt = "
+  Be loquacious.
+  Enjoy using florid turns of phrase.
+  Drop in extra historical information even when not asked for it.
+")
+chat$chat("What's the capital of New Zealand?")
+```
+
+### Be clear and specific
+
+If you're not getting the results that you're looking for, you might need to provide more context.
+
+```{r}
+chat <- chat_openai(system_prompt = "
+  You are an expert R programmer.
+  You prefer to use the tidyverse when you can.
+  You follow the tidyverse style guide.
+  Use the base pipe, not magittr.
+  Just give me the code; no explanation.
+")
+chat$chat("
+  How can I compute the mean and median of variables a, b, c, ...
+  grouped by age and sex
+")
+chat$chat("Can you use across?")
+```
+
+```{r}
+chat <- chat_openai(system_prompt = "
+  You are an expert R programmer.
+  You prefer to use base R. Don't use the tidyverse.
+  Just give me the code; no explanation.
+")
+chat$chat("
+  How can I compute the mean and median of variables a, b, c, ...
+  grouped by age and sex. Return the results in a single data frame.
+")
+```
+
+### Teach it about new features
+
+```{r}
+chat <- chat_openai(system_prompt = "
+  dplyr 1.1.0 introduced per-operation grouping with the `.by` argument.
+  You job is to convert code that uses group_by() to code that uses `.by`.
+
+  Some examples:
+
+  # Before
+  transactions |>
+    group_by(company, year) |>
+    mutate(total = sum(revenue))
+
+  # After
+  transactions |>
+    mutate(
+      total = sum(revenue),
+      .by = c(company, year)
+    )
+")
+chat$chat("
+  How can I compute the mean and median of variables a, b, c, ...
+  grouped by age and sex. Just show me the code.
+")
+
+```
+
+Examples are a powerful technique that we'll discuss in more detail below.
+
+### Chain of thought
+
+You can often get better responses if you ask the LLM to explain it's work, or begin by asking it to come up with a plan of attack. Because these answers are included in the chat history, and resent to the model on each turn, the assistant can use it's own explanations to improve future answers.
+
+### Uncertainty
+
+
 - "Be careful to only provide answers that you are sure about. If you are uncertain about an answer, say so."
+
+### Other tools
+
+If you have a claude account, you can use its <https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/prompt-generator>. This prompt generator has been specifically tailored for Claude, but I suspect it will help many other LLMs, or at least give you some ideas as to what else you might want to include in your prompt.
 
 
 ## Using examples to guide behavior
+
+You'll also hear this called single-shot or multi-shot prompting.
+
+Note, however, there are some
 
 - **Goal:** Extract ingredient list from recipe and return in a structured format.
 
@@ -40,7 +136,7 @@ library(elmer)
   ```
 
 
-## System prompt 1: just instructions
+### System prompt 1: just instructions
 
 ```
 The user input contains a recipe. Extract a list of ingredients and return it in JSON format.
@@ -61,7 +157,7 @@ Assistant response:
 }
 ```
 
-## System prompt 2: detailed description of output
+### System prompt 2: detailed description of output
 
 ```
 The user input contains a recipe. Extract a list of ingredients and return it in JSON format. It should be an array of objects, where each object has keys `ingredient`, `quantity`, and `unit`. Put each object on one line of output.
@@ -80,7 +176,7 @@ Assistant response:
 ]
 ```
 
-## System prompt 3: one-shot example
+### System prompt 3: one-shot example
 
 ````
 The user input contains a recipe. Extract a list of ingredients and return it in JSON format.
