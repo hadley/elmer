@@ -1,5 +1,7 @@
 #' @include provider.R
 #' @include content.R
+#' @include turns.R
+#' @include tools-def.R
 NULL
 
 #' Chat with an Anthropic Claude model
@@ -63,7 +65,6 @@ anthropic_key <- function() {
 anthropic_key_exists <- function() {
   key_exists("ANTHROPIC_API_KEY")
 }
-# HTTP request and response handling -------------------------------------
 
 method(chat_request, ProviderClaude) <- function(provider,
                                                   stream = TRUE,
@@ -96,10 +97,10 @@ method(chat_request, ProviderClaude) <- function(provider,
   if (length(turns) >= 1 && is_system_prompt(turns[[1]])) {
     system <- turns[[1]]@text
   } else {
-    system = NULL
+    system <- NULL
   }
 
-  messages <- claude_messages(turns)
+  messages <- compact(as_json(provider, turns))
 
   if (!is.null(spec)) {
     tool_def <- ToolDef(
@@ -114,7 +115,7 @@ method(chat_request, ProviderClaude) <- function(provider,
   } else {
     tool_choice <- NULL
   }
-  tools <- unname(lapply(tools, claude_tool, provider = provider))
+  tools <- as_json(provider, unname(tools))
 
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
   body <- compact(list2(
@@ -131,6 +132,8 @@ method(chat_request, ProviderClaude) <- function(provider,
 
   req
 }
+
+# Claude -> elmer --------------------------------------------------------------
 
 method(stream_parse, ProviderClaude) <- function(provider, event) {
   if (is.null(event)) {
@@ -205,73 +208,62 @@ method(stream_turn, ProviderClaude) <- function(provider, result, has_spec = FAL
 }
 method(value_turn, ProviderClaude) <- method(stream_turn, ProviderClaude)
 
+# elmer -> Claude --------------------------------------------------------------
 
-# Convert elmer turns + content to claude messages ----------------------------
-claude_messages <- function(turns) {
-  messages <- list()
-  add_message <- function(role, ...) {
-    messages[[length(messages) + 1]] <<- compact(list(role = role, ...))
+method(as_json, list(ProviderClaude, Turn)) <- function(provider, x) {
+  if (x@role == "system") {
+    # claude passes system prompt as separate arg
+    NULL
+  } else if (x@role %in% c("user", "assistant")) {
+    list(role = x@role, content = as_json(provider, x@contents))
+  } else {
+    cli::cli_abort("Unknown role {turn@role}", .internal = TRUE)
   }
-
-  for (turn in turns) {
-    if (turn@role == "system") {
-      # claude passes system prompt as separate arg
-    } else if (turn@role %in% c("user", "assistant")) {
-      content <- lapply(turn@contents, claude_content)
-      add_message(turn@role, content = content)
-    } else {
-      cli::cli_abort("Unknown role {turn@role}", .internal = TRUE)
-    }
-  }
-  messages
 }
 
-
-claude_content <- new_generic("claude_content", "content")
-
-method(claude_content, ContentText) <- function(content) {
-  list(type = "text", text = content@text)
+method(as_json, list(ProviderClaude, ContentText)) <- function(provider, x) {
+  list(type = "text", text = x@text)
 }
 
-method(claude_content, ContentImageRemote) <- function(content) {
+method(as_json, list(ProviderClaude, ContentImageRemote)) <- function(provider, x) {
   cli::cli_abort("Claude doesn't support remote images")
 }
 
-method(claude_content, ContentImageInline) <- function(content) {
+method(as_json, list(ProviderClaude, ContentImageInline)) <- function(provider, x) {
   list(
     type = "image",
     source = list(
       type = "base64",
-      media_type = content@type,
-      data = content@data
+      media_type = x@type,
+      data = x@data
     )
   )
 }
 
 # https://docs.anthropic.com/en/docs/build-with-claude/tool-use#handling-tool-use-and-tool-result-content-blocks
-method(claude_content, ContentToolRequest) <- function(content) {
+method(as_json, list(ProviderClaude, ContentToolRequest)) <- function(provider, x) {
   list(
     type = "tool_use",
-    id = content@id,
-    name = content@name,
-    input = content@arguments
+    id = x@id,
+    name = x@name,
+    input = x@arguments
   )
 }
 
 # https://docs.anthropic.com/en/docs/build-with-claude/tool-use#handling-tool-use-and-tool-result-content-blocks
-method(claude_content, ContentToolResult) <- function(content) {
+method(as_json, list(ProviderClaude, ContentToolResult)) <- function(provider, x) {
   list(
     type = "tool_result",
-    tool_use_id = content@id,
-    content = tool_string(content),
-    is_error = tool_errored(content)
+    tool_use_id = x@id,
+    content = tool_string(x),
+    is_error = tool_errored(x)
   )
 }
 
-claude_tool <- function(provider, tool) {
+method(as_json, list(ProviderClaude, ToolDef)) <- function(provider, x) {
   list(
-    name = tool@name,
-    description = tool@description,
-    input_schema = compact(as_json(provider, tool@arguments))
+    name = x@name,
+    description = x@description,
+    input_schema = compact(as_json(provider, x@arguments))
   )
 }

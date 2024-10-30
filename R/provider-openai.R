@@ -1,6 +1,7 @@
 #' @include provider.R
 #' @include content.R
-#' @include types.R
+#' @include turns.R
+#' @include tools-def.R
 NULL
 
 #' Chat with an OpenAI model
@@ -96,8 +97,6 @@ openai_key <- function() {
   key_get("OPENAI_API_KEY")
 }
 
-# HTTP request and response handling -------------------------------------
-
 # https://platform.openai.com/docs/api-reference/chat/create
 method(chat_request, ProviderOpenAI) <- function(provider,
                                                  stream = TRUE,
@@ -116,8 +115,8 @@ method(chat_request, ProviderOpenAI) <- function(provider,
     }
   })
 
-  messages <- openai_messages(turns)
-  tools <- unname(lapply(tools, openai_tool, provider = provider))
+  messages <- compact(unlist(as_json(provider, turns), recursive = FALSE))
+  tools <- as_json(provider, unname(tools))
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
   if (!is.null(spec)) {
@@ -147,6 +146,8 @@ method(chat_request, ProviderOpenAI) <- function(provider,
 
   req
 }
+
+# OpenAI -> elmer --------------------------------------------------------------
 
 method(stream_parse, ProviderOpenAI) <- function(provider, event) {
   if (is.null(event)) {
@@ -205,81 +206,81 @@ openai_assistant_turn <- function(provider, message, result, has_spec) {
   Turn(message$role, content, json = result, tokens = tokens)
 }
 
-# Convert elmer turns + content to chatGPT messages ----------------------------
-openai_messages <- function(turns) {
-  messages <- list()
-  add_message <- function(role, ...) {
-    messages[[length(messages) + 1]] <<- compact(list(role = role, ...))
-  }
+# elmer -> OpenAI --------------------------------------------------------------
 
-  for (turn in turns) {
-    if (turn@role == "system") {
-      add_message("system", content = turn@contents[[1]]@text)
-    } else if (turn@role == "user") {
-      # Each tool result needs to go in its own message with role "tool"
-      is_tool <- map_lgl(turn@contents, S7_inherits, ContentToolResult)
+method(as_json, list(ProviderOpenAI, Turn)) <- function(provider, x) {
+  if (x@role == "system") {
+    list(
+      list(role = "system", content = x@contents[[1]]@text)
+    )
 
-      content <- lapply(turn@contents[!is_tool], openai_content)
-      if (length(content) > 0) {
-        add_message("user", content = content)
-      }
-      for (tool in turn@contents[is_tool]) {
-        add_message("tool", content = tool_string(tool), tool_call_id = tool@id)
-      }
-    } else if (turn@role == "assistant") {
-      # Tool requests come out of content and go into own argument
-      is_tool <- map_lgl(turn@contents, S7_inherits, ContentToolRequest)
-      content <- lapply(turn@contents[!is_tool], openai_content)
-      tool_calls <- lapply(turn@contents[is_tool], openai_content)
-
-      add_message("assistant", content = content, tool_calls = tool_calls)
+  } else if (x@role == "user") {
+    # Each tool result needs to go in its own message with role "tool"
+    is_tool <- map_lgl(x@contents, S7_inherits, ContentToolResult)
+    content <- as_json(provider, x@contents[!is_tool])
+    if (length(content) > 0) {
+      user <- list(list(role = "user", content = content))
     } else {
-      cli::cli_abort("Unknown role {turn@role}", .internal = TRUE)
+      user <- list()
     }
+
+    tools <- lapply(x@contents[is_tool], function(tool) {
+      list(role = "tool", content = tool_string(tool), tool_call_id = tool@id)
+    })
+
+    c(user, tools)
+  } else if (x@role == "assistant") {
+    # Tool requests come out of content and go into own argument
+    is_tool <- map_lgl(x@contents, S7_inherits, ContentToolRequest)
+    content <- as_json(provider, x@contents[!is_tool])
+    tool_calls <- as_json(provider, x@contents[is_tool])
+
+    list(
+      compact(list(role = "assistant", content = content, tool_calls = tool_calls))
+    )
+  } else {
+    cli::cli_abort("Unknown role {x@role}", .internal = TRUE)
   }
-  messages
 }
 
-openai_content <- new_generic("openai_content", "content")
-
-method(openai_content, ContentText) <- function(content) {
-  list(type = "text", text = content@text)
+method(as_json, list(ProviderOpenAI, ContentText)) <- function(provider, x) {
+  list(type = "text", text = x@text)
 }
 
-method(openai_content, ContentImageRemote) <- function(content) {
-  list(type = "image_url", image_url = list(url = content@url))
+method(as_json, list(ProviderOpenAI, ContentImageRemote)) <- function(provider, x) {
+  list(type = "image_url", image_url = list(url = x@url))
 }
 
-method(openai_content, ContentImageInline) <- function(content) {
+method(as_json, list(ProviderOpenAI, ContentImageInline)) <- function(provider, x) {
   list(
     type = "image_url",
     image_url = list(
-      url = paste0("data:", content@type, ";base64,", content@data)
+      url = paste0("data:", x@type, ";base64,", x@data)
     )
   )
 }
 
-method(openai_content, ContentToolRequest) <- function(content) {
-  json_args <- jsonlite::toJSON(content@arguments)
+method(as_json, list(ProviderOpenAI, ContentToolRequest)) <- function(provider, x) {
+  json_args <- jsonlite::toJSON(x@arguments)
   list(
-    id = content@id,
-    `function` = list(name = content@name, arguments = json_args),
+    id = x@id,
+    `function` = list(name = x@name, arguments = json_args),
     type = "function"
   )
 }
 
-method(openai_content, ContentJson) <- function(content) {
+method(as_json, list(ProviderOpenAI, ContentJson)) <- function(provider, x) {
   list(type = "text", text = "")
 }
 
-openai_tool <- function(provider, tool) {
+method(as_json, list(ProviderOpenAI, ToolDef)) <- function(provider, x) {
   list(
     type = "function",
     "function" = compact(list(
-      name = tool@name,
-      description = tool@description,
+      name = x@name,
+      description = x@description,
       strict = TRUE,
-      parameters = as_json(provider, tool@arguments)
+      parameters = as_json(provider, x@arguments)
     ))
   )
 }

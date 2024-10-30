@@ -63,3 +63,7 @@ value_turn <- new_generic("value_turn", "provider")
 
 # Convert to JSON
 as_json <- new_generic("as_json", c("provider", "x"))
+
+method(as_json, list(Provider, class_list)) <- function(provider, x) {
+  lapply(x, as_json, provider = provider)
+}

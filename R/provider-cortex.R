@@ -1,6 +1,7 @@
-#' @include content.R
 #' @include provider.R
+#' @include content.R
 #' @include turns.R
+#' @include tools-def.R
 NULL
 
 #' Create a chatbot that speaks to the Snowflake Cortex Analyst
@@ -140,7 +141,7 @@ method(chat_request, ProviderCortex) <- function(provider,
 
   # Cortex does not yet support multi-turn chats.
   turns <- tail(turns, n = 1)
-  messages <- lapply(turns, cortex_message)
+  messages <- as_json(provider, turns)
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
   data <- compact(list2(messages = messages, stream = stream, !!!extra_args))
@@ -149,7 +150,7 @@ method(chat_request, ProviderCortex) <- function(provider,
   req
 }
 
-# Streaming support ------------------------------------------------------------
+# Cortex -> elmer --------------------------------------------------------------
 
 method(stream_parse, ProviderCortex) <- function(provider, event) {
   # While undocumented, Cortex seems to mostly follow OpenAI API conventions for
@@ -221,7 +222,7 @@ cortex_chunk_to_message <- function(x) {
   if (x$type == "text") {
     list(type = x$type, text = x$text_delta)
   } else if (x$type == "sql") {
-    list(type = x$type, statement = x$statement)
+    list(type = x$type, statement = x$statement_delta)
   } else if (x$type == "suggestions") {
     list(
       type = x$type,
@@ -239,31 +240,27 @@ method(stream_turn, ProviderCortex) <- function(provider, result, has_spec = FAL
   cortex_message_to_turn(list(role = "assistant", content = result))
 }
 
-# Non-streaming support --------------------------------------------------------
-
 method(value_turn, ProviderCortex) <- function(provider, result, has_spec = FALSE) {
   cortex_message_to_turn(result$message)
 }
 
-# Conversions ------------------------------------------------------------------
+# elmer -> Cortex --------------------------------------------------------------
 
 # Cortex supports not only "text" content, but also bespoke "suggestions" and
 # "sql" types.
 
-cortex_message <- new_generic("cortex_message", "x")
-
-method(cortex_message, Turn) <- function(x) {
+method(as_json, list(ProviderCortex, Turn)) <- function(provider, x) {
   role <- x@role
   if (role == "assistant") {
     role <- "analyst"
   }
   list(
     role = role,
-    content = lapply(x@contents, cortex_message)
+    content = as_json(provider, x@contents)
   )
 }
 
-method(cortex_message, ContentText) <- function(x) {
+method(as_json, list(ProviderCortex, ContentText)) <- function(provider, x) {
   list(type = "text", text = x@text)
 }
 
@@ -274,7 +271,7 @@ ContentSuggestions <- new_class(
   package = "elmer"
 )
 
-method(cortex_message, ContentSuggestions) <- function(x) {
+method(as_json, list(ProviderCortex, ContentSuggestions)) <- function(provider, x) {
   list(type = "suggestions", suggestions = as.list(x@suggestions))
 }
 
@@ -306,7 +303,7 @@ ContentSql <- new_class(
   package = "elmer"
 )
 
-method(cortex_message, ContentSql) <- function(x) {
+method(as_json, list(ProviderCortex, ContentSql)) <- function(provider, x) {
   list(type = "sql", statement = x@statement)
 }
 
