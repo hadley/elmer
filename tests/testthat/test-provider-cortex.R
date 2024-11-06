@@ -19,8 +19,7 @@ sample_cortex_message <- list(
 
 test_that("Cortex messages are converted to turns correctly", {
   p <- ProviderCortex(
-    account = "testorg-test_account",
-    credentials = function(account) list()
+    connection = list(account = "testorg-test_account")
   )
 
   expect_equal(
@@ -86,8 +85,7 @@ test_that("Cortex chunks are converted to messages correctly", {
     )
   )
   p <- ProviderCortex(
-    account = "testorg-test_account",
-    credentials = function(account) list()
+    connection = list(account = "testorg-test_account")
   )
   result <- NULL
   output <- ""
@@ -103,6 +101,7 @@ test_that("Cortex chunks are converted to messages correctly", {
 })
 
 test_that("Cortex API requests are generated correctly", {
+  skip_if_not_installed("snowflakeauth")
   turn <- Turn(
     role = "user",
     contents = list(
@@ -110,10 +109,10 @@ test_that("Cortex API requests are generated correctly", {
     )
   )
   p <- ProviderCortex(
-    account = "testorg-test_account",
-    credentials = function(account) list(
-      Authorization = paste("Bearer", "obfuscated"),
-      `X-Snowflake-Authorization-Token-Type` = "OAUTH"
+    connection = snowflakeauth::snowflake_connection(
+      account = "testorg-test_account",
+      authenticator = "oauth",
+      token = "obfuscated"
     ),
     model_file = "@my_db.my_schema.my_stage/model.yaml"
   )
@@ -132,7 +131,10 @@ test_that("a simple Cortex chatbot works", {
 description: An empty semantic model specification.
 tables: []
 verified_queries: []
-"
+",
+    account = Sys.getenv("SNOWFLAKE_ACCOUNT"),
+    user = Sys.getenv("SNOWFLAKE_USER"),
+    private_key = Sys.getenv("SNOWFLAKE_PRIVATE_KEY")
   )
   resp <- chat$chat("What questions can I ask?")
   # Note: It may not be 100 percent certain this will be in the output.

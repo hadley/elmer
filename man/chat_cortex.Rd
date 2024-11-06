@@ -2,30 +2,17 @@
 % Please edit documentation in R/provider-cortex.R
 \name{chat_cortex}
 \alias{chat_cortex}
-\alias{cortex_credentials}
 \title{Create a chatbot that speaks to the Snowflake Cortex Analyst}
 \usage{
 chat_cortex(
-  account = Sys.getenv("SNOWFLAKE_ACCOUNT"),
-  credentials = cortex_credentials,
   model_spec = NULL,
   model_file = NULL,
   api_args = list(),
-  echo = c("none", "text", "all")
+  echo = c("none", "text", "all"),
+  ...
 )
-
-cortex_credentials(account = Sys.getenv("SNOWFLAKE_ACCOUNT"))
 }
 \arguments{
-\item{account}{A Snowflake \href{https://docs.snowflake.com/en/user-guide/admin-account-identifier}{account identifier},
-e.g. \code{"testorg-test_account"}.}
-
-\item{credentials}{A list of authentication headers to pass into
-\code{\link[httr2:req_headers]{httr2::req_headers()}} or a function that returns them when passed
-\code{account} as a parameter. The default \code{\link[=cortex_credentials]{cortex_credentials()}} function
-picks up ambient Snowflake OAuth and key-pair authentication credentials
-and handles refreshing them automatically.}
-
 \item{model_spec}{A semantic model specification, or \code{NULL} when
 using \code{model_file} instead.}
 
@@ -44,6 +31,8 @@ the console).
 }
 
 Note this only affects the \code{chat()} method.}
+
+\item{...}{Further arguments passed to \code{\link[snowflakeauth:snowflake_connection]{snowflakeauth::snowflake_connection()}}.}
 }
 \value{
 A \link{Chat} object.
@@ -60,25 +49,30 @@ reference to an existing file in a Snowflake Stage.
 Note that Cortex does not support multi-turn, so it will not remember
 previous messages. Nor does it support registering tools, and attempting to
 do so will result in an error.
-}
-\details{
-\code{cortex_credentials()} picks up the following ambient Snowflake credentials:
-\itemize{
-\item A static OAuth token defined via the \code{SNOWFLAKE_TOKEN} environment
-variable.
-\item Key-pair authentication credentials defined via the \code{SNOWFLAKE_USER} and
-\code{SNOWFLAKE_PRIVATE_KEY} (which can be a PEM-encoded private key or a path
-to one) environment variables.
-\item Posit Workbench-managed Snowflake credentials for the corresponding
-\code{account}.
-}
+
+By default we pick up on Snowflake connection parameters defined in the same
+\code{connections.toml} file used by the \href{https://docs.snowflake.com/en/developer-guide/python-connector/python-connector-connect}{Python Connector for Snowflake}
+and the \href{https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-connections}{Snowflake CLI},
+though connection parameters can be passed manually to
+\code{\link[snowflakeauth:snowflake_connection]{snowflakeauth::snowflake_connection()}}, too. Keep in mind that Cortex
+itself only supports OAuth and key-pair authentication.
 }
 \examples{
-\dontshow{if (elmer:::cortex_credentials_exist()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (FALSE) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+# Authenticate with Snowflake using an existing connections.toml file.
 chat <- chat_cortex(
   model_file = "@my_db.my_schema.my_stage/model.yaml"
 )
 chat$chat("What questions can I ask?")
+
+# Or pass connection parameters manually. For example, to use key-pair
+# authentication:
+chat <- chat_cortex(
+  model_file = "@my_db.my_schema.my_stage/model.yaml",
+  account = "myaccount",
+  user = "me",
+  private_key = "rsa_key.p8"
+)
 \dontshow{\}) # examplesIf}
 }
 \seealso{

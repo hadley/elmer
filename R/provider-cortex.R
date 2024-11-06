@@ -20,47 +20,54 @@ NULL
 #' previous messages. Nor does it support registering tools, and attempting to
 #' do so will result in an error.
 #'
-#' @param account A Snowflake [account identifier](https://docs.snowflake.com/en/user-guide/admin-account-identifier),
-#'   e.g. `"testorg-test_account"`.
-#' @param credentials A list of authentication headers to pass into
-#'   [`httr2::req_headers()`] or a function that returns them when passed
-#'   `account` as a parameter. The default [`cortex_credentials()`] function
-#'   picks up ambient Snowflake OAuth and key-pair authentication credentials
-#'   and handles refreshing them automatically.
+#' By default we pick up on Snowflake connection parameters defined in the same
+#' `connections.toml` file used by the [Python Connector for
+#' Snowflake](https://docs.snowflake.com/en/developer-guide/python-connector/python-connector-connect)
+#' and the [Snowflake
+#' CLI](https://docs.snowflake.com/en/developer-guide/snowflake-cli/connecting/configure-connections),
+#' though connection parameters can be passed manually to
+#' [snowflakeauth::snowflake_connection()], too. Keep in mind that Cortex
+#' itself only supports OAuth and key-pair authentication.
+#'
 #' @param model_spec A semantic model specification, or `NULL` when
 #'   using `model_file` instead.
 #' @param model_file Path to a semantic model file stored in a Snowflake Stage,
 #'   or `NULL` when using `model_spec` instead.
+#' @param ... Further arguments passed to [snowflakeauth::snowflake_connection()].
 #' @inheritParams chat_openai
 #' @inherit chat_openai return
 #' @family chatbots
-#' @examplesIf elmer:::cortex_credentials_exist()
+#' @examplesIf FALSE
+#' # Authenticate with Snowflake using an existing connections.toml file.
 #' chat <- chat_cortex(
 #'   model_file = "@my_db.my_schema.my_stage/model.yaml"
 #' )
 #' chat$chat("What questions can I ask?")
+#'
+#' # Or pass connection parameters manually. For example, to use key-pair
+#' # authentication:
+#' chat <- chat_cortex(
+#'   model_file = "@my_db.my_schema.my_stage/model.yaml",
+#'   account = "myaccount",
+#'   user = "me",
+#'   private_key = "rsa_key.p8"
+#' )
 #' @export
-chat_cortex <- function(account = Sys.getenv("SNOWFLAKE_ACCOUNT"),
-                        credentials = cortex_credentials,
-                        model_spec = NULL,
+chat_cortex <- function(model_spec = NULL,
                         model_file = NULL,
                         api_args = list(),
-                        echo = c("none", "text", "all")) {
-  check_string(account, allow_empty = FALSE)
+                        echo = c("none", "text", "all"),
+                        ...) {
+  check_installed("snowflakeauth", "for Snowflake authentication")
   check_string(model_spec, allow_empty = FALSE, allow_null = TRUE)
   check_string(model_file, allow_empty = FALSE, allow_null = TRUE)
   check_exclusive(model_spec, model_file)
   echo <- check_echo(echo)
 
-  if (is_list(credentials)) {
-    static_credentials <- force(credentials)
-    credentials <- function(account) static_credentials
-  }
-  check_function(credentials)
+  connection <- snowflakeauth::snowflake_connection(..., .call = current_env())
 
   provider <- ProviderCortex(
-    account = account,
-    credentials = credentials,
+    connection = connection,
     model_spec = model_spec,
     model_file = model_file,
     extra_args = api_args
@@ -73,9 +80,13 @@ ProviderCortex <- new_class(
   "ProviderCortex",
   parent = Provider,
   package = "elmer",
-  constructor = function(account, credentials, model_spec = NULL,
-                         model_file = NULL, extra_args = list()) {
-    base_url <- paste0("https://", account, ".snowflakecomputing.com")
+  constructor = function(connection,
+                         model_spec = NULL,
+                         model_file = NULL,
+                         extra_args = list()) {
+    base_url <- paste0(
+      "https://", connection$account, ".snowflakecomputing.com"
+    )
     extra_args <- compact(list2(
       semantic_model = model_spec,
       semantic_model_file = model_file,
@@ -83,13 +94,11 @@ ProviderCortex <- new_class(
     ))
     new_object(
       Provider(base_url = base_url, extra_args = extra_args),
-      account = account,
-      credentials = credentials
+      connection = connection
     )
   },
   properties = list(
-    account = prop_string(),
-    credentials = class_function,
+    connection = class_list,
     extra_args = class_list
   )
 )
@@ -112,7 +121,8 @@ method(chat_request, ProviderCortex) <- function(provider,
   req <- request(provider@base_url)
   req <- req_url_path_append(req, "/api/v2/cortex/analyst/message")
   req <- httr2::req_headers(req,
-    !!!provider@credentials(provider@account), .redact = "Authorization"
+    !!!snowflakeauth::snowflake_credentials(provider@connection),
+    .redact = "Authorization"
   )
   req <- req_retry(req, max_tries = 2)
   req <- req_timeout(req, 60)
@@ -354,107 +364,4 @@ cortex_message_to_turn <- function(message, error_call = caller_env()) {
       }
     })
   )
-}
-
-# Credential handling ----------------------------------------------------------
-
-cortex_credentials_exist <- function(...) {
-  tryCatch(is_list(cortex_credentials(...)), error = function(e) FALSE)
-}
-
-#' @details
-#' `cortex_credentials()` picks up the following ambient Snowflake credentials:
-#'
-#' - A static OAuth token defined via the `SNOWFLAKE_TOKEN` environment
-#'   variable.
-#' - Key-pair authentication credentials defined via the `SNOWFLAKE_USER` and
-#'   `SNOWFLAKE_PRIVATE_KEY` (which can be a PEM-encoded private key or a path
-#'   to one) environment variables.
-#' - Posit Workbench-managed Snowflake credentials for the corresponding
-#'   `account`.
-#'
-#' @inheritParams chat_cortex
-#' @export
-#' @rdname chat_cortex
-cortex_credentials <- function(account = Sys.getenv("SNOWFLAKE_ACCOUNT")) {
-  token <- Sys.getenv("SNOWFLAKE_TOKEN")
-  if (nchar(token) != 0) {
-    return(
-      list(
-        Authorization = paste("Bearer", token),
-        # See: https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/authentication#using-oauth
-        `X-Snowflake-Authorization-Token-Type` = "OAUTH"
-      )
-    )
-  }
-
-  # Support for Snowflake key-pair authentication.
-  # See: https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/authentication#generate-a-jwt-token
-  user <- Sys.getenv("SNOWFLAKE_USER")
-  private_key <- Sys.getenv("SNOWFLAKE_PRIVATE_KEY")
-  if (nchar(user) != 0 && nchar(private_key) != 0) {
-    check_installed("jose", "for key-pair authentication")
-    key <- openssl::read_key(private_key)
-    # We can't use openssl::fingerprint() here because it uses a different
-    # algorithm.
-    fp <- openssl::base64_encode(
-      openssl::sha256(openssl::write_der(key$pubkey))
-    )
-    sub <- toupper(paste0(account, ".", user))
-    iss <- paste0(sub, ".SHA256:", fp)
-    # Note: Snowflake employs a malformed issuer claim, so we have to inject it
-    # manually after jose's validation phase.
-    claim <- httr2::jwt_claim("dummy", sub)
-    claim$iss <- iss
-    token <- httr2::jwt_encode_sig(claim, key)
-    return(
-      list(
-        Authorization = paste("Bearer", token),
-        `X-Snowflake-Authorization-Token-Type` = "KEYPAIR_JWT"
-      )
-    )
-  }
-
-  # Check for Workbench-managed credentials.
-  sf_home <- Sys.getenv("SNOWFLAKE_HOME")
-  if (grepl("posit-workbench", sf_home, fixed = TRUE)) {
-    token <- workbench_snowflake_token(account, sf_home)
-    if (!is.null(token)) {
-      return(list(
-        Authorization = paste("Bearer", token),
-        `X-Snowflake-Authorization-Token-Type` = "OAUTH"
-      ))
-    }
-  }
-
-  if (is_testing()) {
-    testthat::skip("no Snowflake credentials available")
-  }
-
-  cli::cli_abort("No Snowflake credentials are available.")
-}
-
-# Reads Posit Workbench-managed Snowflake credentials from a
-# $SNOWFLAKE_HOME/connections.toml file, as used by the Snowflake Connector for
-# Python implementation. The file will look as follows:
-#
-# [workbench]
-# account = "account-id"
-# token = "token"
-# authenticator = "oauth"
-workbench_snowflake_token <- function(account, sf_home) {
-  cfg <- readLines(file.path(sf_home, "connections.toml"))
-  # We don't attempt a full parse of the TOML syntax, instead relying on the
-  # fact that this file will always contain only one section.
-  if (!any(grepl(account, cfg, fixed = TRUE))) {
-    # The configuration doesn't actually apply to this account.
-    return(NULL)
-  }
-  line <- grepl("token = ", cfg, fixed = TRUE)
-  token <- gsub("token = ", "", cfg[line])
-  if (nchar(token) == 0) {
-    return(NULL)
-  }
-  # Drop enclosing quotes.
-  gsub("\"", "", token)
 }

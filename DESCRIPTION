@@ -32,12 +32,14 @@ Suggests:
     rmarkdown,
     shiny,
     shinychat (>= 0.0.0.9000),
+    snowflakeauth (>= 0.0.0.9000),
     testthat (>= 3.0.0),
     withr
 VignetteBuilder:
     knitr
 Remotes:
-    jcheng5/shinychat
+    jcheng5/shinychat,
+    atheriel/snowflakeauth
 Config/Needs/website: tidyverse/tidytemplate, rmarkdown
 Config/testthat/edition: 3
 Config/testthat/parallel: true
