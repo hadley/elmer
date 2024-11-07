@@ -1,5 +1,5 @@
 ---
-title: "Prompt engineering"
+title: "Prompt design"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Prompt engineering}
@@ -18,9 +18,17 @@ knitr::opts_chunk$set(
 library(elmer)
 ```
 
-Prompt engineering is the art of writing a prompt that reliably gets you the result that you want. It's an evolving skill because as LLMs evolve the techniques needed to get results will also change. So expect to keep learning.
+## General advice
 
-We'll focus on prompt engineering in the system prompt, but most of the advice applies regardless of it's a system prompt or user queries.
+If you've never written a prompt before, the easiest way to think about it is precisely explaining what you want a technically skilled but naive human what you want. The key is clearly stating what you want, resolving any potential ambiguities, and providing a few examples. And indeed writing the prompt can often help you too, because it forces you to be explicit about what you want. You should expect to iterate multiple times before you get to a good prompt, but you'll learn a lot along the way. It's good practice to keep your prompt in Git (so you can record exactly how it's changing) and build up a small set of challenge examples that you can use to verify that the prompt does what you expect. (Eventually, you might want to formally __evaluate__ different prompts for the problem you're tackling, but that's currently outside the scope of elmer and this vignette).
+
+Because prompts can be quite long, we suggest writing them in markdown. That way you can use headers to divide up the prompt, and other tools like itemised lists to enumerate multiple options.
+
+* Shiny assistant prompt
+* Hadley recipe prompt
+* Sidebot
+* https://github.com/simonpcouch/pal/tree/main/inst/prompts
+
 
 It's also a good idea to read the advice for the specific model that you're using, as there may be specific tweaks that work well with just that model. Here are some pointers to the prompt engineering guides for a few popular models:
 
@@ -44,6 +52,18 @@ chat <- chat_openai(system_prompt = "
   Drop in extra historical information even when not asked for it.
 ")
 chat$chat("What's the capital of New Zealand?")
+```
+
+```{r}
+chat <- chat_openai(system_prompt = "
+  You are an expert R programmer.
+  Just give me the code; no explanation in text.
+  But include a few comments in line explaining particularly complex operations.
+")
+chat$chat("
+  How can I compute the mean and median of variables a, b, c, ...
+  grouped by age and sex
+")
 ```
 
 ### Be clear and specific

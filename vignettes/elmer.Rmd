@@ -20,10 +20,13 @@ library(elmer)
 
 The goal of this vignette is give you the key vocabulary you need in order to use LLMs effectively. In this package, we treat LLMs as black boxes, ignoring the details of the underlying models. This is because the details of the models aren't particuarly useful at the level at which you'll mostly want to work (in the same way that you need an extremely deep understaning of physics in order to inform your understand of chemistry), and it's best to start with a highly empirical approach.
 
-* Token:
-* Prompt:
-* Conversation:
-* Provider and model:
+* Token: the fundamental component of the underlying model, important for understanding how much your query will cost, and how much data you can send in the prompt.
+* Prompt: the text you send to the model.
+* Conversation: the sequence of conversational turns that alternate between the user and the assistant.
+* Provider: the service that provides predictions
+* Model: while some models are
+
+We'll then finish off with some examples of the types of thing that you can do with LLMs and elmer to help get your creative juices flowing.
 
 ## Vocabulary
 
