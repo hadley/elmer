@@ -8,6 +8,13 @@
 #' This function is a lightweight wrapper around [chat_openai()] with
 #' the defaults tweaked for ollama.
 #'
+#' ## Known limitations
+#'
+#' * Tool calling is not supported with streaming (i.e. when `echo` is
+#'   `"text"` or `"all"`)
+#' * Tool calling generally seems quite weak, at least with the models I have
+#'   tried it with.
+#'
 #' @inheritParams chat_openai
 #' @family chatbots
 #' @export
@@ -34,7 +41,7 @@ chat_ollama <- function(system_prompt = NULL,
     system_prompt = system_prompt,
     turns = turns,
     base_url = base_url,
-    api_key = "ollama", # ignore
+    api_key = "ollama", # ignored
     model = model,
     seed = seed,
     api_args = api_args,

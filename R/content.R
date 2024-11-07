@@ -134,7 +134,12 @@ ContentToolResult <- new_class(
   package = "elmer"
 )
 method(format, ContentToolResult) <- function(x, ...) {
-  cli::format_inline("[{.strong tool result}  ({x@id})]: {x@value}")
+  if (tool_errored(x)) {
+    value <- paste0(cli::col_red("Error: "), x@error)
+  } else {
+    value <- x@value
+  }
+  cli::format_inline("[{.strong tool result}  ({x@id})]: {value}")
 }
 
 tool_errored <- function(x) !is.null(x@error)

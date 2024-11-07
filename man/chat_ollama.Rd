@@ -55,6 +55,14 @@ e.g. with \verb{ollama pull llama3.1} or \verb{ollama pull gemma2}.
 
 This function is a lightweight wrapper around \code{\link[=chat_openai]{chat_openai()}} with
 the defaults tweaked for ollama.
+\subsection{Known limitations}{
+\itemize{
+\item Tool calling is not supported with streaming (i.e. when \code{echo} is
+\code{"text"} or \code{"all"})
+\item Tool calling generally seems quite weak, at least with the models I have
+tried it with.
+}
+}
 }
 \seealso{
 Other chatbots: 
