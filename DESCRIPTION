@@ -14,7 +14,7 @@ Imports:
     cli,
     coro,
     glue,
-    httr2 (>= 1.0.5.9000),
+    httr2 (>= 1.0.6),
     jsonlite,
     R6,
     rlang (>= 1.1.0),
@@ -37,8 +37,7 @@ Suggests:
 VignetteBuilder:
     knitr
 Remotes:
-    jcheng5/shinychat,
-    r-lib/httr2
+    jcheng5/shinychat
 Config/Needs/website: tidyverse/tidytemplate, rmarkdown
 Config/testthat/edition: 3
 Config/testthat/parallel: true
