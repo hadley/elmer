@@ -73,6 +73,7 @@ Collate:
     'provider-groq.R'
     'provider-ollama.R'
     'provider-perplexity.R'
+    'provider-vllm.R'
     'shiny.R'
     'tokens.R'
     'tools-def-auto.R'
