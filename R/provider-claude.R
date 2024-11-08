@@ -186,7 +186,7 @@ method(value_turn, ProviderClaude) <- function(provider, result, has_spec = FALS
       ContentText(content$text)
     } else if (content$type == "tool_use") {
       if (has_spec) {
-        ContentJson(content$input$data)
+        ContentJson(content$input$data, content$id)
       } else {
         if (is_string(content$input)) {
           content$input <- jsonlite::parse_json(content$input)

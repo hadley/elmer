@@ -125,6 +125,10 @@ test_data_extraction <- function(chat_fun) {
   chat <- chat_fun()
   data <- chat$extract_data(prompt, spec = article_summary)
   expect_mapequal(data, list(title = "Apples are tasty", author = "Hadley Wickham"))
+
+  # Check that we can do it again
+  data <- chat$extract_data(prompt, spec = article_summary)
+  expect_mapequal(data, list(title = "Apples are tasty", author = "Hadley Wickham"))
 }
 
 # Images -----------------------------------------------------------------

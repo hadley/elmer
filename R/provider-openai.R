@@ -268,10 +268,6 @@ method(as_json, list(ProviderOpenAI, ContentToolRequest)) <- function(provider, 
   )
 }
 
-method(as_json, list(ProviderOpenAI, ContentJson)) <- function(provider, x) {
-  list(type = "text", text = "")
-}
-
 method(as_json, list(ProviderOpenAI, ToolDef)) <- function(provider, x) {
   list(
     type = "function",
