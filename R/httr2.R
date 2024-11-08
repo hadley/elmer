@@ -35,7 +35,6 @@ chat_perform_value <- function(provider, req) {
 on_load(chat_perform_stream <- coro::generator(function(provider, req) {
   resp <- req_perform_connection(req)
   on.exit(close(resp))
-  reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
 
   repeat {
     event <- chat_resp_stream(provider, resp)
@@ -47,10 +46,6 @@ on_load(chat_perform_stream <- coro::generator(function(provider, req) {
     }
   }
 
-  # Work around https://github.com/r-lib/coro/issues/51
-  if (FALSE) {
-    yield(NULL)
-  }
 }))
 
 chat_perform_async_value <- function(provider, req) {
@@ -60,8 +55,6 @@ chat_perform_async_value <- function(provider, req) {
 on_load(chat_perform_async_stream <- coro::async_generator(function(provider, req, polling_interval_secs = 0.1) {
   resp <- req_perform_connection(req, blocking = FALSE)
   on.exit(close(resp))
-  # TODO: Investigate if this works with async generators
-  # reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
 
   repeat {
     event <- chat_resp_stream(provider, resp)
@@ -76,10 +69,5 @@ on_load(chat_perform_async_stream <- coro::async_generator(function(provider, re
     } else {
       yield(data)
     }
-  }
-
-  # Work around https://github.com/r-lib/coro/issues/51
-  if (FALSE) {
-    yield(NULL)
   }
 }))
