@@ -14,6 +14,9 @@ The goal of elmer is to provide a user friendly wrapper over the most
 common llm providers. Major design goals include support for streaming
 and making it easy to register and call R functions.
 
+(Looking for something similar to elmer for python? Check out
+[chatlas](https://github.com/cpsievert/chatlas)!)
+
 ## Installation
 
 You can install the development version of elmer from
