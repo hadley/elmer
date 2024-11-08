@@ -171,10 +171,10 @@ properties that are not explicitly listed? Only supported by Claude.</p></dd>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># An integer vector</span></span></span>
 <span class="r-in"><span><span class="fu">type_array</span><span class="op">(</span>items <span class="op">=</span> <span class="fu">type_integer</span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TypeArray&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;elmer::TypeArray&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ description: NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ required   : logi TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ items      : &lt;TypeBasic&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ items      : &lt;elmer::TypeBasic&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .. @ description: NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .. @ required   : logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .. @ type       : chr "integer"</span>
@@ -185,22 +185,22 @@ properties that are not explicitly listed? Only supported by Claude.</p></dd>
 <span class="r-in"><span>   y <span class="op">=</span> <span class="fu">type_string</span><span class="op">(</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>   z <span class="op">=</span> <span class="fu">type_number</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TypeArray&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;elmer::TypeArray&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ description: NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ required   : logi TRUE</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  @ items      : &lt;TypeObject&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ items      : &lt;elmer::TypeObject&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .. @ description          : NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .. @ required             : logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .. @ properties           :List of 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. $ x: &lt;TypeBasic&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. $ x: &lt;elmer::TypeBasic&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .. ..  ..@ description: NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .. ..  ..@ required   : logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .. ..  ..@ type       : chr "boolean"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. $ y: &lt;TypeBasic&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. $ y: &lt;elmer::TypeBasic&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .. ..  ..@ description: NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .. ..  ..@ required   : logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .. ..  ..@ type       : chr "string"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. $ z: &lt;TypeBasic&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. .. $ z: &lt;elmer::TypeBasic&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .. ..  ..@ description: NULL</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .. ..  ..@ required   : logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  .. ..  ..@ type       : chr "number"</span>
@@ -210,12 +210,12 @@ properties that are not explicitly listed? Only supported by Claude.</p></dd>
 <span class="r-in"><span><span class="co"># requested format in the description (it's not gauranteed that you'll</span></span></span>
 <span class="r-in"><span><span class="co"># get this format back, but you should most of the time)</span></span></span>
 <span class="r-in"><span><span class="fu">type_string</span><span class="op">(</span><span class="st">"The creation date, in YYYY-MM-DD format."</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TypeBasic&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;elmer::TypeBasic&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ description: chr "The creation date, in YYYY-MM-DD format."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ required   : logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ type       : chr "string"</span>
 <span class="r-in"><span><span class="fu">type_string</span><span class="op">(</span><span class="st">"The update date, in dd/mm/yyyy format."</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;TypeBasic&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;elmer::TypeBasic&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ description: chr "The update date, in dd/mm/yyyy format."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ required   : logi TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  @ type       : chr "string"</span>
