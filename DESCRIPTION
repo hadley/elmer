@@ -18,7 +18,7 @@ Imports:
     jsonlite,
     R6,
     rlang (>= 1.1.0),
-    S7
+    S7 (>= 0.2.0)
 Suggests:
     base64enc,
     bslib,

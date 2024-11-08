@@ -17,6 +17,6 @@
     Code
       . <- chat$chat("What's in this image?", image_remote)
     Condition
-      Error:
+      Error in `method(as_json, list(elmer::ProviderClaude, elmer::ContentImageRemote))`:
       ! Claude doesn't support remote images
 

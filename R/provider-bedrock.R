@@ -47,7 +47,6 @@ chat_bedrock <- function(system_prompt = NULL,
 ProviderBedrock <- new_class(
   "ProviderBedrock",
   parent = Provider,
-  package = "elmer",
   properties = list(
     model = prop_string(),
     profile = prop_string(allow_null = TRUE),
