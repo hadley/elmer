@@ -75,7 +75,7 @@ live_browser <- function(chat, quiet = FALSE) {
     )
   )
   server <- function(input, output, session) {
-    for (turn in chat$turns()) {
+    for (turn in chat$get_turns()) {
       shinychat::chat_append_message("chat", list(
         role = turn@role,
         content = turn@text

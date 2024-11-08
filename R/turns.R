@@ -88,8 +88,8 @@ is_system_prompt <- function(x) {
 }
 
 normalize_turns <- function(turns = NULL,
-                               system_prompt = NULL,
-                               error_call = caller_env()) {
+                            system_prompt = NULL,
+                            error_call = caller_env()) {
 
   check_string(system_prompt, allow_null = TRUE, call = error_call)
 

@@ -17,14 +17,9 @@ chat_ollama(
 \arguments{
 \item{system_prompt}{A system prompt to set the behavior of the assistant.}
 
-\item{turns}{A list of turns to start the chat with (i.e., continuing a
+\item{turns}{A list of \link{Turn}s to start the chat with (i.e., continuing a
 previous conversation). If not provided, the conversation begins from
-scratch. Do not provide non-\code{NULL} values for both \code{turns} and
-\code{system_prompt}.
-
-Each message in the list should be a named list with at least \code{role}
-(usually \code{system}, \code{user}, or \code{assistant}, but \code{tool} is also possible).
-Normally there is also a \code{content} field, which is a string.}
+scratch.}
 
 \item{base_url}{The base URL to the endpoint; the default uses OpenAI.}
 

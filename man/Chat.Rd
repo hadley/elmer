@@ -14,19 +14,14 @@ your behalf), it also takes care of the tool loop.
 You should generally not create this object yourself,
 but instead call \code{\link[=chat_openai]{chat_openai()}} or friends instead.
 }
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{system_prompt}}{The system prompt, if present, as a string.
-Otherwise, \code{NULL}.}
-}
-\if{html}{\out{</div>}}
-}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-Chat-new}{\code{Chat$new()}}
-\item \href{#method-Chat-turns}{\code{Chat$turns()}}
+\item \href{#method-Chat-get_turns}{\code{Chat$get_turns()}}
+\item \href{#method-Chat-set_turns}{\code{Chat$set_turns()}}
+\item \href{#method-Chat-get_system_prompt}{\code{Chat$get_system_prompt()}}
+\item \href{#method-Chat-set_system_prompt}{\code{Chat$set_system_prompt()}}
 \item \href{#method-Chat-tokens}{\code{Chat$tokens()}}
 \item \href{#method-Chat-last_turn}{\code{Chat$last_turn()}}
 \item \href{#method-Chat-chat}{\code{Chat$chat()}}
@@ -73,13 +68,13 @@ Note this only affects the \code{chat()} method.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Chat-turns"></a>}}
-\if{latex}{\out{\hypertarget{method-Chat-turns}{}}}
-\subsection{Method \code{turns()}}{
-The turns that have been sent and received so far
+\if{html}{\out{<a id="method-Chat-get_turns"></a>}}
+\if{latex}{\out{\hypertarget{method-Chat-get_turns}{}}}
+\subsection{Method \code{get_turns()}}{
+Retrive the turns that have been sent and received so far
 (optionally starting with the system prompt, if any).
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$turns(include_system_prompt = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Chat$get_turns(include_system_prompt = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -87,6 +82,50 @@ The turns that have been sent and received so far
 \describe{
 \item{\code{include_system_prompt}}{Whether to include the system prompt in the
 turns (if any exists).}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Chat-set_turns"></a>}}
+\if{latex}{\out{\hypertarget{method-Chat-set_turns}{}}}
+\subsection{Method \code{set_turns()}}{
+Replace existing turns with a new list.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Chat$set_turns(value)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{value}}{A list of \link{Turn}s.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Chat-get_system_prompt"></a>}}
+\if{latex}{\out{\hypertarget{method-Chat-get_system_prompt}{}}}
+\subsection{Method \code{get_system_prompt()}}{
+If set, the system prompt, it not, \code{NULL}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Chat$get_system_prompt()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Chat-set_system_prompt"></a>}}
+\if{latex}{\out{\hypertarget{method-Chat-set_system_prompt}{}}}
+\subsection{Method \code{set_system_prompt()}}{
+Update the system prompt
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Chat$set_system_prompt(value)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{value}}{A string giving the new system prompt}
 }
 \if{html}{\out{</div>}}
 }
