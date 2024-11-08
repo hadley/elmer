@@ -72,7 +72,6 @@ chat_cortex <- function(account = Sys.getenv("SNOWFLAKE_ACCOUNT"),
 ProviderCortex <- new_class(
   "ProviderCortex",
   parent = Provider,
-  package = "elmer",
   constructor = function(account, credentials, model_spec = NULL,
                          model_file = NULL, extra_args = list()) {
     base_url <- paste0("https://", account, ".snowflakecomputing.com")
@@ -267,8 +266,7 @@ method(as_json, list(ProviderCortex, ContentText)) <- function(provider, x) {
 ContentSuggestions <- new_class(
   "ContentSuggestions",
   parent = Content,
-  properties = list(suggestions = class_character),
-  package = "elmer"
+  properties = list(suggestions = class_character)
 )
 
 method(as_json, list(ProviderCortex, ContentSuggestions)) <- function(provider, x) {
@@ -299,8 +297,7 @@ method(format, ContentSuggestions) <- function(x, ...) {
 ContentSql <- new_class(
   "ContentSql",
   parent = Content,
-  properties = list(statement = prop_string()),
-  package = "elmer"
+  properties = list(statement = prop_string())
 )
 
 method(as_json, list(ProviderCortex, ContentSql)) <- function(provider, x) {
