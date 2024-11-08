@@ -77,3 +77,33 @@
       [1] "@my_db.my_schema.my_stage/model.yaml"
       
 
+# Cortex API requests with viewer-based credentials are generated correctly
+
+    Code
+      req
+    Message
+      <httr2_request>
+      POST
+      https://testorg-test_account.snowflakecomputing.com/api/v2/cortex/analyst/message
+      Headers:
+      * Authorization: '<REDACTED>'
+      * X-Snowflake-Authorization-Token-Type: 'OAUTH'
+      Body: json encoded data
+      Options:
+      * timeout_ms: 60000
+      * connecttimeout: 0
+      * useragent: 'r_elmer/0.0.0.9000'
+      Policies:
+      * retry_max_tries: 2
+      * retry_on_failure: FALSE
+      * error_body: a function
+
+# Cortex API requests ignore the session parameter when not applicable
+
+    Code
+      p <- ProviderCortex(connection = snowflakeauth::snowflake_connection(account = "testorg-test_account"),
+      session = list(request = list()), model_file = "@my_db.my_schema.my_stage/model.yaml")
+    Message
+      ! Ignoring the `sesssion` parameter.
+      i Viewer-based credentials are only available when running on Connect.
+

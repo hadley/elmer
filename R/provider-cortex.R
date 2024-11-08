@@ -34,6 +34,8 @@ NULL
 #' @param model_file Path to a semantic model file stored in a Snowflake Stage,
 #'   or `NULL` when using `model_spec` instead.
 #' @param ... Further arguments passed to [snowflakeauth::snowflake_connection()].
+#' @param session A Shiny session object, when using viewer-based credentials on
+#'   Posit Connect.
 #' @inheritParams chat_openai
 #' @inherit chat_openai return
 #' @family chatbots
@@ -57,12 +59,14 @@ chat_cortex <- function(model_spec = NULL,
                         model_file = NULL,
                         api_args = list(),
                         echo = c("none", "text", "all"),
-                        ...) {
+                        ...,
+                        session = NULL) {
   check_installed("snowflakeauth", "for Snowflake authentication")
   check_string(model_spec, allow_empty = FALSE, allow_null = TRUE)
   check_string(model_file, allow_empty = FALSE, allow_null = TRUE)
   check_exclusive(model_spec, model_file)
   echo <- check_echo(echo)
+  check_shiny_session(session, allow_null = TRUE, call = call)
 
   connection <- snowflakeauth::snowflake_connection(..., .call = current_env())
 
@@ -70,6 +74,7 @@ chat_cortex <- function(model_spec = NULL,
     connection = connection,
     model_spec = model_spec,
     model_file = model_file,
+    session = session,
     extra_args = api_args
   )
 
@@ -83,25 +88,54 @@ ProviderCortex <- new_class(
   constructor = function(connection,
                          model_spec = NULL,
                          model_file = NULL,
+                         session = NULL,
                          extra_args = list()) {
-    base_url <- paste0(
-      "https://", connection$account, ".snowflakecomputing.com"
-    )
     extra_args <- compact(list2(
       semantic_model = model_spec,
       semantic_model_file = model_file,
       !!!extra_args
     ))
+    if (!is.null(session)) {
+      # If viewer-based authentication is enabled, check whether we can actually
+      # get credentials. If we can, then make sure the authenticator is OAuth.
+      access_token <- connect_viewer_token(session, snowflake_url(connection))
+      if (!is.null(access_token)) {
+        connection$authenticator <- "oauth"
+        connection$user <- "placeholder"
+        connection$token <- access_token
+      } else {
+        session <- NULL
+      }
+    }
     new_object(
-      Provider(base_url = base_url, extra_args = extra_args),
-      connection = connection
+      Provider(base_url = snowflake_url(connection), extra_args = extra_args),
+      connection = connection,
+      session = session
     )
   },
   properties = list(
     connection = class_list,
+    session = class_list | NULL,
+    credentials = new_property(class_list, getter = function(self) {
+      if (!is.null(self@session)) {
+        # TODO: Right now we ask Connect for an up-to-date token before each
+        # Cortex request. Instead, we should request a new token only when the
+        # cached one has expired -- but right now there is no way to know when
+        # this occurs.
+        self@connection$token <- connect_viewer_token(
+          self@session,
+          snowflake_url(self@connection)
+        )
+      }
+      snowflakeauth::snowflake_credentials(self@connection)
+    }),
     extra_args = class_list
   )
 )
+
+snowflake_url <- function(connection) {
+  paste0("https://", connection$account, ".snowflakecomputing.com")
+}
 
 # See: https://docs.snowflake.com/en/developer-guide/snowflake-rest-api/reference/cortex-analyst
 #      https://docs.snowflake.com/en/user-guide/snowflake-cortex/cortex-analyst/tutorials/tutorial-1#step-3-create-a-streamlit-app-to-talk-to-your-data-through-cortex-analyst
@@ -121,8 +155,7 @@ method(chat_request, ProviderCortex) <- function(provider,
   req <- request(provider@base_url)
   req <- req_url_path_append(req, "/api/v2/cortex/analyst/message")
   req <- httr2::req_headers(req,
-    !!!snowflakeauth::snowflake_credentials(provider@connection),
-    .redact = "Authorization"
+    !!!provider@credentials, .redact = "Authorization"
   )
   req <- req_retry(req, max_tries = 2)
   req <- req_timeout(req, 60)

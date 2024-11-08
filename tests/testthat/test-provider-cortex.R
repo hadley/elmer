@@ -121,6 +121,46 @@ test_that("Cortex API requests are generated correctly", {
   expect_snapshot(req$body$data)
 })
 
+test_that("Cortex API requests with viewer-based credentials are generated correctly", {
+  skip_if_not_installed("snowflakeauth")
+  local_mocked_bindings(
+    connect_viewer_token = function(...) "obfuscated"
+  )
+  turn <- Turn(
+    role = "user",
+    contents = list(
+      ContentText("Tell me about my data.")
+    )
+  )
+  p <- ProviderCortex(
+    connection = snowflakeauth::snowflake_connection(
+      # Note: no non-viewer credentials to fall back on.
+      account = "testorg-test_account"
+    ),
+    session = list(request = list()),
+    model_file = "@my_db.my_schema.my_stage/model.yaml"
+  )
+  req <- chat_request(p, FALSE, list(turn))
+  expect_snapshot(req)
+})
+
+test_that("Cortex API requests ignore the session parameter when not applicable", {
+  skip_if_not_installed("snowflakeauth")
+  turn <- Turn(
+    role = "user",
+    contents = list(
+      ContentText("Tell me about my data.")
+    )
+  )
+  expect_snapshot(p <- ProviderCortex(
+    connection = snowflakeauth::snowflake_connection(
+      account = "testorg-test_account"
+    ),
+    session = list(request = list()),
+    model_file = "@my_db.my_schema.my_stage/model.yaml"
+  ))
+})
+
 test_that("a simple Cortex chatbot works", {
   skip_if(
     Sys.getenv("SNOWFLAKE_ACCOUNT") == "",

@@ -81,4 +81,5 @@ Collate:
     'utils-cat.R'
     'utils-merge.R'
     'utils.R'
+    'viewer-based-credentials.R'
     'zzz.R'

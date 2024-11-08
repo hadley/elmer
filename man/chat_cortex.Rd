@@ -9,7 +9,8 @@ chat_cortex(
   model_file = NULL,
   api_args = list(),
   echo = c("none", "text", "all"),
-  ...
+  ...,
+  session = NULL
 )
 }
 \arguments{
@@ -33,6 +34,9 @@ the console).
 Note this only affects the \code{chat()} method.}
 
 \item{...}{Further arguments passed to \code{\link[snowflakeauth:snowflake_connection]{snowflakeauth::snowflake_connection()}}.}
+
+\item{session}{A Shiny session object, when using viewer-based credentials on
+Posit Connect.}
 }
 \value{
 A \link{Chat} object.
