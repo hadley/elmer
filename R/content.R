@@ -148,10 +148,7 @@ tool_string <- function(x) {
 ContentJson <- new_class(
   "ContentJson",
   parent = Content,
-  properties = list(
-    value = class_any,
-    id = prop_string(allow_null = TRUE)
-  )
+  properties = list(value = class_any)
 )
 method(format, ContentJson) <- function(x, ...) {
   paste0(
