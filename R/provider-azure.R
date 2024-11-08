@@ -56,7 +56,6 @@ chat_azure <- function(endpoint = azure_endpoint(),
 ProviderAzure <- new_class(
   "ProviderAzure",
   parent = ProviderOpenAI,
-  package = "elmer",
   properties = list(
     api_key = prop_string(),
     token = prop_string(allow_null = TRUE),

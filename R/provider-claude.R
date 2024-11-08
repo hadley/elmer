@@ -51,7 +51,6 @@ chat_claude <- function(system_prompt = NULL,
 ProviderClaude <- new_class(
   "ProviderClaude",
   parent = Provider,
-  package = "elmer",
   properties = list(
     api_key = prop_string(),
     model = prop_string(),

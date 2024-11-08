@@ -19,6 +19,6 @@
     Code
       as_json(stub, type_object(.additional_properties = TRUE))
     Condition
-      Error:
+      Error in `method(as_json, list(elmer::ProviderOpenAI, elmer::TypeObject))`:
       ! `.additional_properties` not supported for OpenAI.
 

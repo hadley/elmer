@@ -81,7 +81,6 @@ chat_openai <- function(system_prompt = NULL,
 ProviderOpenAI <- new_class(
   "ProviderOpenAI",
   parent = Provider,
-  package = "elmer",
   properties = list(
     api_key = prop_string(),
     model = prop_string(),
