@@ -12,7 +12,7 @@ URL: https://elmer.tidyverse.org, https://github.com/tidyverse/elmer
 BugReports: https://github.com/tidyverse/elmer/issues
 Imports:
     cli,
-    coro,
+    coro (>= 1.1.0),
     glue,
     httr2 (>= 1.0.6),
     jsonlite,
