@@ -14,7 +14,6 @@
 #' @param extra_args Arbitrary extra arguments to be included in the request body.
 Provider <- new_class(
   "Provider",
-  package = "elmer",
   properties = list(
     base_url = prop_string(),
     extra_args = class_list

@@ -29,7 +29,6 @@ NULL
 #' @export
 Turn <- new_class(
   "Turn",
-  package = "elmer",
   properties = list(
     role = prop_string(),
     contents = prop_list_of(Content),
