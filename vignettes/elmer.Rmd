@@ -20,6 +20,8 @@ library(elmer)
 
 The goal of this vignette is give you the key vocabulary you need in order to use LLMs effectively. In this package, we treat LLMs as black boxes, ignoring the details of the underlying models. This is because the details of the models aren't particuarly useful at the level at which you'll mostly want to work (in the same way that you need an extremely deep understaning of physics in order to inform your understand of chemistry), and it's best to start with a highly empirical approach.
 
+(https://www.youtube.com/watch?v=sYliwvml9Es)
+
 * Token: the fundamental component of the underlying model, important for understanding how much your query will cost, and how much data you can send in the prompt.
 * Prompt: the text you send to the model.
 * Conversation: the sequence of conversational turns that alternate between the user and the assistant.
@@ -33,6 +35,8 @@ We'll then finish off with some examples of the types of thing that you can do w
 ### What is a token?
 
 A tokens are very important for the implementation of LLMs, because when combined with an embedding, they convert text to numbers, which are then used to train the model. Tokens are also important for you, because they are used to compute query cost and they how much information you can put in a prompt.
+
+If you want to learn more about tokens, I'd recommend watching the first 20-30 minutes of [Let's build the GPT Tokenizer](https://www.youtube.com/watch?v=zduSFxRajkE) by Andrej Karpathy. You certainly don't need to learn how to build your own tokenizer, but the intro will give you a bunch of useful background knowledge that will help improve your undersstanding of how LLM's work.
 
 Models are priced according to input and output tokens. Models are priced per million tokens and vary a lot based from model-to-model. Mid-tir models (e.g. gpt-4o or claude 3 haiku) might be around $0.25 per million input and $1 per million output tokens; state of the art models (like gpt-4o or claude 3 sonnet) might be more like $2.50 per million input tokens, and $10 per million output tokens.
 
