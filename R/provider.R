@@ -1,3 +1,6 @@
+#' @include content.R
+NULL
+
 #' A chatbot provider
 #'
 #' A Provider captures the details of one chatbot service/API. This captures
@@ -64,4 +67,8 @@ as_json <- new_generic("as_json", c("provider", "x"))
 
 method(as_json, list(Provider, class_list)) <- function(provider, x) {
   lapply(x, as_json, provider = provider)
+}
+
+method(as_json, list(Provider, ContentJson)) <- function(provider, x) {
+  as_json(provider, ContentText("<structured data/>"))
 }
