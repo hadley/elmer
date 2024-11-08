@@ -55,7 +55,6 @@ stream_merge_chunks <- new_generic("stream_merge_chunks", "provider",
     S7_dispatch()
   }
 )
-stream_turn <- new_generic("stream_turn", "provider")
 
 # Extract data from non-streaming results --------------------------------------
 

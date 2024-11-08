@@ -180,7 +180,8 @@ method(stream_merge_chunks, ProviderClaude) <- function(provider, result, chunk)
   }
   result
 }
-method(stream_turn, ProviderClaude) <- function(provider, result, has_spec = FALSE) {
+
+method(value_turn, ProviderClaude) <- function(provider, result, has_spec = FALSE) {
   contents <- lapply(result$content, function(content) {
     if (content$type == "text") {
       ContentText(content$text)
@@ -206,7 +207,6 @@ method(stream_turn, ProviderClaude) <- function(provider, result, has_spec = FAL
 
   Turn(result$role, contents, json = result, tokens = tokens)
 }
-method(value_turn, ProviderClaude) <- method(stream_turn, ProviderClaude)
 
 # elmer -> Claude --------------------------------------------------------------
 

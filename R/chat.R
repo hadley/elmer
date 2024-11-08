@@ -329,7 +329,7 @@ Chat <- R6::R6Class("Chat",
 
           result <- stream_merge_chunks(private$provider, result, chunk)
         }
-        turn <- stream_turn(private$provider, result, has_spec = !is.null(spec))
+        turn <- value_turn(private$provider, result, has_spec = !is.null(spec))
 
         # Ensure turns always end in a newline
         if (any_text) {
@@ -388,7 +388,7 @@ Chat <- R6::R6Class("Chat",
 
           result <- stream_merge_chunks(private$provider, result, chunk)
         }
-        turn <- stream_turn(private$provider, result, has_spec = !is.null(spec))
+        turn <- value_turn(private$provider, result, has_spec = !is.null(spec))
 
         # Ensure turns always end in a newline
         if (any_text) {

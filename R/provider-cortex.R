@@ -235,14 +235,43 @@ cortex_chunk_to_message <- function(x) {
   }
 }
 
-method(stream_turn, ProviderCortex) <- function(provider, result, has_spec = FALSE) {
-  # We somehow lose the role when streaming, so add it back.
-  cortex_message_to_turn(list(role = "assistant", content = result))
+method(value_turn, ProviderCortex) <- function(provider, result, has_spec = FALSE) {
+  if (!is_named(result)) { # streaming
+    role <- "assistant"
+    content <- result
+  } else {
+    role <- result$role
+    if (role == "analyst") {
+      role <- "assistant"
+    }
+    content <- result$content
+  }
+
+  Turn(
+    role = role,
+    contents = lapply(content, function(x) {
+      if (x$type == "text") {
+        if (!has_name(x, "text")) {
+          cli::cli_abort("'text'-type content must have a 'text' field.")
+        }
+        ContentText(x$text)
+      } else if (identical(x$type, "suggestions")) {
+        if (!has_name(x, "suggestions")) {
+          cli::cli_abort("'suggestions'-type content must have a 'suggestions' field.")
+        }
+        ContentSuggestions(unlist(x$suggestions))
+      } else if (identical(x$type, "sql")) {
+        if (!has_name(x, "statement")) {
+          cli::cli_abort("'sql'-type content must have a 'statement' field.")
+        }
+        ContentSql(x$statement)
+      } else {
+        cli::cli_abort("Unknown content type {.str {x$type}} in response.", .internal = TRUE)
+      }
+    })
+  )
 }
 
-method(value_turn, ProviderCortex) <- function(provider, result, has_spec = FALSE) {
-  cortex_message_to_turn(result$message)
-}
 
 # elmer -> Cortex --------------------------------------------------------------
 
@@ -314,46 +343,6 @@ method(contents_text, ContentSql) <- function(content) {
 
 method(format, ContentSql) <- function(x, ...) {
   cli::format_inline("{.strong SQL:} {.code {x@statement}}")
-}
-
-cortex_message_to_turn <- function(message, error_call = caller_env()) {
-  role <- message$role
-  if (role == "analyst") {
-    role <- "assistant"
-  }
-  Turn(
-    role = role,
-    contents = lapply(message$content, function(x) {
-      if (x$type == "text") {
-        if (!has_name(x, "text")) {
-          cli::cli_abort(
-            "'text'-type content must have a 'text' field.", call = error_call
-          )
-        }
-        ContentText(x$text)
-      } else if (identical(x$type, "suggestions")) {
-        if (!has_name(x, "suggestions")) {
-          cli::cli_abort(
-            "'suggestions'-type content must have a 'suggestions' field.",
-            call = error_call
-          )
-        }
-        ContentSuggestions(unlist(x$suggestions))
-      } else if (identical(x$type, "sql")) {
-        if (!has_name(x, "statement")) {
-          cli::cli_abort(
-            "'sql'-type content must have a 'statement' field.",
-            call = error_call
-          )
-        }
-        ContentSql(x$statement)
-      } else {
-        cli::cli_abort(
-          "Unknown content type {.str {x$type}} in response.", .internal = TRUE
-        )
-      }
-    })
-  )
 }
 
 # Credential handling ----------------------------------------------------------
