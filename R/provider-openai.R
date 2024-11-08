@@ -174,13 +174,13 @@ method(stream_merge_chunks, ProviderOpenAI) <- function(provider, result, chunk)
     merge_dicts(result, chunk)
   }
 }
-method(stream_turn, ProviderOpenAI) <- function(provider, result, has_spec = FALSE) {
-  openai_assistant_turn(provider, result$choices[[1]]$delta, result, has_spec)
-}
 method(value_turn, ProviderOpenAI) <- function(provider, result, has_spec = FALSE) {
-  openai_assistant_turn(provider, result$choices[[1]]$message, result, has_spec)
-}
-openai_assistant_turn <- function(provider, message, result, has_spec) {
+  if (has_name(result$choices[[1]], "delta")) { # streaming
+    message <- result$choices[[1]]$delta
+  } else {
+    message <- result$choices[[1]]$message
+  }
+
   if (has_spec) {
     json <- jsonlite::parse_json(message$content[[1]])
     content <- list(ContentJson(json))

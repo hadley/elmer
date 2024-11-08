@@ -188,7 +188,7 @@ method(stream_merge_chunks, ProviderBedrock) <- function(provider, result, chunk
   result
 }
 
-method(stream_turn, ProviderBedrock) <- function(provider, result, has_spec = FALSE) {
+method(value_turn, ProviderBedrock) <- function(provider, result, has_spec = FALSE) {
   contents <- lapply(result$output$message$content, function(content) {
     if (has_name(content, "text")) {
       ContentText(content$text)
@@ -215,7 +215,6 @@ method(stream_turn, ProviderBedrock) <- function(provider, result, has_spec = FA
 
   Turn(result$output$message$role, contents, json = result, tokens = tokens)
 }
-method(value_turn, ProviderBedrock) <- method(stream_turn, ProviderBedrock)
 
 # elmer -> Bedrock -------------------------------------------------------------
 

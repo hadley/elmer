@@ -129,7 +129,7 @@ method(stream_merge_chunks, ProviderGemini) <- function(provider, result, chunk)
     merge_dicts(result, chunk)
   }
 }
-method(stream_turn, ProviderGemini) <- function(provider, result, has_spec = FALSE) {
+method(value_turn, ProviderGemini) <- function(provider, result, has_spec = FALSE) {
   message <- result$candidates[[1]]$content
 
   contents <- lapply(message$parts, function(content) {
@@ -159,7 +159,6 @@ method(stream_turn, ProviderGemini) <- function(provider, result, has_spec = FAL
 
   Turn("assistant", contents, json = result, tokens = tokens)
 }
-method(value_turn, ProviderGemini) <- method(stream_turn, ProviderGemini)
 
 # elmer -> Gemini --------------------------------------------------------------
 
