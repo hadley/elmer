@@ -2,7 +2,7 @@
 title: "Prompt design"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Prompt engineering}
+  %\VignetteIndexEntry{Prompt design}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -19,6 +19,8 @@ library(elmer)
 ```
 
 ## General advice
+
+TODO: read https://www.cursor.com/blog/prompt-design
 
 If you've never written a prompt before, the easiest way to think about it is precisely explaining what you want a technically skilled but naive human what you want. The key is clearly stating what you want, resolving any potential ambiguities, and providing a few examples. And indeed writing the prompt can often help you too, because it forces you to be explicit about what you want. You should expect to iterate multiple times before you get to a good prompt, but you'll learn a lot along the way. It's good practice to keep your prompt in Git (so you can record exactly how it's changing) and build up a small set of challenge examples that you can use to verify that the prompt does what you expect. (Eventually, you might want to formally __evaluate__ different prompts for the problem you're tackling, but that's currently outside the scope of elmer and this vignette).
 
