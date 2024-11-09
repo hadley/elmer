@@ -1,6 +1,7 @@
 #' @include provider.R
 #' @include content.R
-#' @include types.R
+#' @include turns.R
+#' @include tools-def.R
 NULL
 
 #' Chat with a Google Gemini model
@@ -40,7 +41,6 @@ chat_gemini <- function(system_prompt = NULL,
 ProviderGemini <- new_class(
   "ProviderGemini",
   parent = Provider,
-  package = "elmer",
   properties = list(
     api_key = prop_string(),
     model = prop_string()
@@ -50,8 +50,6 @@ ProviderGemini <- new_class(
 gemini_key <- function() {
   key_get("GOOGLE_API_KEY")
 }
-
-# HTTP request and response handling -------------------------------------
 
 method(chat_request, ProviderGemini) <- function(provider,
                                                  stream = TRUE,
@@ -94,8 +92,15 @@ method(chat_request, ProviderGemini) <- function(provider,
     generation_config <- NULL
   }
 
-  contents <- gemini_contents(turns)
-  tools <- gemini_tools(provider, tools)
+  contents <- as_json(provider, turns)
+
+  # https://ai.google.dev/api/caching#Tool
+  if (length(tools) > 0) {
+    funs <- as_json(provider, unname(tools))
+    tools <- list(functionDeclarations = funs)
+  } else {
+    tools <- NULL
+  }
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
   body <- compact(list(
@@ -109,6 +114,8 @@ method(chat_request, ProviderGemini) <- function(provider,
 
   req
 }
+
+# Gemini -> elmer --------------------------------------------------------------
 
 method(stream_parse, ProviderGemini) <- function(provider, event) {
   if (is.null(event)) {
@@ -127,7 +134,7 @@ method(stream_merge_chunks, ProviderGemini) <- function(provider, result, chunk)
     merge_dicts(result, chunk)
   }
 }
-method(stream_turn, ProviderGemini) <- function(provider, result, has_spec = FALSE) {
+method(value_turn, ProviderGemini) <- function(provider, result, has_spec = FALSE) {
   message <- result$candidates[[1]]$content
 
   contents <- lapply(message$parts, function(content) {
@@ -157,78 +164,66 @@ method(stream_turn, ProviderGemini) <- function(provider, result, has_spec = FAL
 
   Turn("assistant", contents, json = result, tokens = tokens)
 }
-method(value_turn, ProviderGemini) <- method(stream_turn, ProviderGemini)
+
+# elmer -> Gemini --------------------------------------------------------------
 
 # https://ai.google.dev/api/caching#Content
-gemini_contents <- function(turns) {
-  compact(lapply(turns, function(turn) {
-    if (turn@role == "system") {
-      # System messages go in the top-level API parameter
-    } else if (turn@role == "user") {
-      parts <- lapply(turn@contents, gemini_content)
-      list(role = turn@role, parts = parts)
-    } else if (turn@role == "assistant") {
-      parts <- lapply(turn@contents, gemini_content)
-      list(role = "model", parts = parts)
-    } else {
-      cli::cli_abort("Unknown role {turn@role}", .internal = TRUE)
-    }
-  }))
-}
-
-# https://ai.google.dev/api/caching#Tool
-gemini_tools <- function(provider, tools) {
-  if (length(tools) == 0) {
-    return()
+method(as_json, list(ProviderGemini, Turn)) <- function(provider, x) {
+  if (x@role == "system") {
+    # System messages go in the top-level API parameter
+  } else if (x@role == "user") {
+    list(role = x@role, parts = as_json(provider, x@contents))
+  } else if (x@role == "assistant") {
+    list(role = "model", parts = as_json(provider, x@contents))
+  } else {
+    cli::cli_abort("Unknown role {turn@role}", .internal = TRUE)
   }
-
-  funs <- lapply(tools, function(tool) {
-    compact(list(
-      name = tool@name,
-      description = tool@description,
-      parameters = as_json(provider, tool@arguments)
-    ))
-  })
-  list(functionDeclarations = unname(funs))
 }
 
-gemini_content <- new_generic("gemini_content", "content")
 
-method(gemini_content, ContentText) <- function(content) {
-  list(text = content@text)
+method(as_json, list(ProviderGemini, ToolDef)) <- function(provider, x) {
+  compact(list(
+    name = x@name,
+    description = x@description,
+    parameters = as_json(provider, x@arguments)
+  ))
+}
+
+method(as_json, list(ProviderGemini, ContentText)) <- function(provider, x) {
+  list(text = x@text)
 }
 
 # https://ai.google.dev/api/caching#FileData
-method(gemini_content, ContentImageRemote) <- function(content) {
+method(as_json, list(ProviderGemini, ContentImageRemote)) <- function(provider, x) {
   cli::cli_abort("Gemini doesn't support remote images")
 }
 
 # https://ai.google.dev/api/caching#Blob
-method(gemini_content, ContentImageInline) <- function(content) {
+method(as_json, list(ProviderGemini, ContentImageInline)) <- function(provider, x) {
   list(
     inlineData = list(
-      mimeType = content@type,
-      data = content@data
+      mimeType = x@type,
+      data = x@data
     )
   )
 }
 
 # https://ai.google.dev/api/caching#FunctionCall
-method(gemini_content, ContentToolRequest) <- function(content) {
+method(as_json, list(ProviderGemini, ContentToolRequest)) <- function(provider, x) {
   list(
     functionCall = list(
-      name = content@id,
-      args = content@arguments
+      name = x@id,
+      args = x@arguments
     )
   )
 }
 
 # https://ai.google.dev/api/caching#FunctionResponse
-method(gemini_content, ContentToolResult) <- function(content) {
+method(as_json, list(ProviderGemini, ContentToolResult)) <- function(provider, x) {
   list(
     functionResponse = list(
-      name = content@id,
-      response = list(value = tool_string(content))
+      name = x@id,
+      response = list(value = tool_string(x))
     )
   )
 }
@@ -242,16 +237,12 @@ method(as_json, list(ProviderGemini, TypeObject)) <- function(provider, x) {
     return(list())
   }
 
-  names <- names2(x@properties)
   required <- map_lgl(x@properties, function(prop) prop@required)
-
-  properties <- lapply(x@properties, as_json, provider = provider)
-  names(properties) <- names
 
   compact(list(
     type = "object",
     description = x@description,
-    properties = properties,
-    required = as.list(names[required])
+    properties = as_json(provider, x@properties),
+    required = as.list(names2(x@properties)[required])
   ))
 }

@@ -1,6 +1,7 @@
-#' @include content.R
 #' @include provider.R
+#' @include content.R
 #' @include turns.R
+#' @include tools-def.R
 NULL
 
 #' Create a chatbot that speaks to the Snowflake Cortex Analyst
@@ -71,7 +72,6 @@ chat_cortex <- function(account = Sys.getenv("SNOWFLAKE_ACCOUNT"),
 ProviderCortex <- new_class(
   "ProviderCortex",
   parent = Provider,
-  package = "elmer",
   constructor = function(account, credentials, model_spec = NULL,
                          model_file = NULL, extra_args = list()) {
     base_url <- paste0("https://", account, ".snowflakecomputing.com")
@@ -140,7 +140,7 @@ method(chat_request, ProviderCortex) <- function(provider,
 
   # Cortex does not yet support multi-turn chats.
   turns <- tail(turns, n = 1)
-  messages <- lapply(turns, cortex_message)
+  messages <- as_json(provider, turns)
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
   data <- compact(list2(messages = messages, stream = stream, !!!extra_args))
@@ -149,7 +149,7 @@ method(chat_request, ProviderCortex) <- function(provider,
   req
 }
 
-# Streaming support ------------------------------------------------------------
+# Cortex -> elmer --------------------------------------------------------------
 
 method(stream_parse, ProviderCortex) <- function(provider, event) {
   # While undocumented, Cortex seems to mostly follow OpenAI API conventions for
@@ -221,7 +221,7 @@ cortex_chunk_to_message <- function(x) {
   if (x$type == "text") {
     list(type = x$type, text = x$text_delta)
   } else if (x$type == "sql") {
-    list(type = x$type, statement = x$statement)
+    list(type = x$type, statement = x$statement_delta)
   } else if (x$type == "suggestions") {
     list(
       type = x$type,
@@ -234,47 +234,71 @@ cortex_chunk_to_message <- function(x) {
   }
 }
 
-method(stream_turn, ProviderCortex) <- function(provider, result, has_spec = FALSE) {
-  # We somehow lose the role when streaming, so add it back.
-  cortex_message_to_turn(list(role = "assistant", content = result))
-}
-
-# Non-streaming support --------------------------------------------------------
-
 method(value_turn, ProviderCortex) <- function(provider, result, has_spec = FALSE) {
-  cortex_message_to_turn(result$message)
+  if (!is_named(result)) { # streaming
+    role <- "assistant"
+    content <- result
+  } else {
+    role <- result$role
+    if (role == "analyst") {
+      role <- "assistant"
+    }
+    content <- result$content
+  }
+
+  Turn(
+    role = role,
+    contents = lapply(content, function(x) {
+      if (x$type == "text") {
+        if (!has_name(x, "text")) {
+          cli::cli_abort("'text'-type content must have a 'text' field.")
+        }
+        ContentText(x$text)
+      } else if (identical(x$type, "suggestions")) {
+        if (!has_name(x, "suggestions")) {
+          cli::cli_abort("'suggestions'-type content must have a 'suggestions' field.")
+        }
+        ContentSuggestions(unlist(x$suggestions))
+      } else if (identical(x$type, "sql")) {
+        if (!has_name(x, "statement")) {
+          cli::cli_abort("'sql'-type content must have a 'statement' field.")
+        }
+        ContentSql(x$statement)
+      } else {
+        cli::cli_abort("Unknown content type {.str {x$type}} in response.", .internal = TRUE)
+      }
+    })
+  )
 }
 
-# Conversions ------------------------------------------------------------------
+
+# elmer -> Cortex --------------------------------------------------------------
 
 # Cortex supports not only "text" content, but also bespoke "suggestions" and
 # "sql" types.
 
-cortex_message <- new_generic("cortex_message", "x")
-
-method(cortex_message, Turn) <- function(x) {
+method(as_json, list(ProviderCortex, Turn)) <- function(provider, x) {
   role <- x@role
   if (role == "assistant") {
     role <- "analyst"
   }
   list(
     role = role,
-    content = lapply(x@contents, cortex_message)
+    content = as_json(provider, x@contents)
   )
 }
 
-method(cortex_message, ContentText) <- function(x) {
+method(as_json, list(ProviderCortex, ContentText)) <- function(provider, x) {
   list(type = "text", text = x@text)
 }
 
 ContentSuggestions <- new_class(
   "ContentSuggestions",
   parent = Content,
-  properties = list(suggestions = class_character),
-  package = "elmer"
+  properties = list(suggestions = class_character)
 )
 
-method(cortex_message, ContentSuggestions) <- function(x) {
+method(as_json, list(ProviderCortex, ContentSuggestions)) <- function(provider, x) {
   list(type = "suggestions", suggestions = as.list(x@suggestions))
 }
 
@@ -302,11 +326,10 @@ method(format, ContentSuggestions) <- function(x, ...) {
 ContentSql <- new_class(
   "ContentSql",
   parent = Content,
-  properties = list(statement = prop_string()),
-  package = "elmer"
+  properties = list(statement = prop_string())
 )
 
-method(cortex_message, ContentSql) <- function(x) {
+method(as_json, list(ProviderCortex, ContentSql)) <- function(provider, x) {
   list(type = "sql", statement = x@statement)
 }
 
@@ -317,46 +340,6 @@ method(contents_text, ContentSql) <- function(content) {
 
 method(format, ContentSql) <- function(x, ...) {
   cli::format_inline("{.strong SQL:} {.code {x@statement}}")
-}
-
-cortex_message_to_turn <- function(message, error_call = caller_env()) {
-  role <- message$role
-  if (role == "analyst") {
-    role <- "assistant"
-  }
-  Turn(
-    role = role,
-    contents = lapply(message$content, function(x) {
-      if (x$type == "text") {
-        if (!has_name(x, "text")) {
-          cli::cli_abort(
-            "'text'-type content must have a 'text' field.", call = error_call
-          )
-        }
-        ContentText(x$text)
-      } else if (identical(x$type, "suggestions")) {
-        if (!has_name(x, "suggestions")) {
-          cli::cli_abort(
-            "'suggestions'-type content must have a 'suggestions' field.",
-            call = error_call
-          )
-        }
-        ContentSuggestions(unlist(x$suggestions))
-      } else if (identical(x$type, "sql")) {
-        if (!has_name(x, "statement")) {
-          cli::cli_abort(
-            "'sql'-type content must have a 'statement' field.",
-            call = error_call
-          )
-        }
-        ContentSql(x$statement)
-      } else {
-        cli::cli_abort(
-          "Unknown content type {.str {x$type}} in response.", .internal = TRUE
-        )
-      }
-    })
-  )
 }
 
 # Credential handling ----------------------------------------------------------

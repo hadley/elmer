@@ -236,7 +236,7 @@ Chat <- R6::R6Class("Chat",
 
     .turns = NULL,
     echo = NULL,
-    tools = NULL,
+    tools = list(),
 
     add_turn = function(x) {
       if (!S7_inherits(x, Turn)) {
@@ -272,11 +272,6 @@ Chat <- R6::R6Class("Chat",
         }
         user_turn <- private$invoke_tools()
       }
-
-      # Work around https://github.com/r-lib/coro/issues/51
-      if (FALSE) {
-        yield(NULL)
-      }
     }),
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
@@ -290,11 +285,6 @@ Chat <- R6::R6Class("Chat",
         if (echo == "all") {
           cat(format(user_turn))
         }
-      }
-
-      # Work around https://github.com/r-lib/coro/issues/51
-      if (FALSE) {
-        yield(NULL)
       }
     }),
 
@@ -329,7 +319,7 @@ Chat <- R6::R6Class("Chat",
 
           result <- stream_merge_chunks(private$provider, result, chunk)
         }
-        turn <- stream_turn(private$provider, result, has_spec = !is.null(spec))
+        turn <- value_turn(private$provider, result, has_spec = !is.null(spec))
 
         # Ensure turns always end in a newline
         if (any_text) {
@@ -357,10 +347,7 @@ Chat <- R6::R6Class("Chat",
       private$add_turn(user_turn)
       private$add_turn(turn)
 
-      # Work around https://github.com/r-lib/coro/issues/51
-      if (FALSE) {
-        yield(NULL)
-      }
+      coro::exhausted()
     }),
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
@@ -388,7 +375,7 @@ Chat <- R6::R6Class("Chat",
 
           result <- stream_merge_chunks(private$provider, result, chunk)
         }
-        turn <- stream_turn(private$provider, result, has_spec = !is.null(spec))
+        turn <- value_turn(private$provider, result, has_spec = !is.null(spec))
 
         # Ensure turns always end in a newline
         if (any_text) {
@@ -408,11 +395,7 @@ Chat <- R6::R6Class("Chat",
       }
       private$add_turn(user_turn)
       private$add_turn(turn)
-
-      # Work around https://github.com/r-lib/coro/issues/51
-      if (FALSE) {
-        yield(NULL)
-      }
+      coro::exhausted()
     }),
 
     invoke_tools = function() {

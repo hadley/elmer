@@ -8,17 +8,17 @@ Authors@R: c(
 Description: A consistent interface for calling LLM APIs. Includes support
     for streaming.
 License: MIT + file LICENSE
-URL: https://github.com/hadley/elmer, https://hadley.github.io/elmer/
-BugReports: https://github.com/hadley/elmer/issues
+URL: https://elmer.tidyverse.org, https://github.com/tidyverse/elmer
+BugReports: https://github.com/tidyverse/elmer/issues
 Imports:
     cli,
-    coro,
+    coro (>= 1.1.0),
     glue,
-    httr2 (>= 1.0.5.9000),
+    httr2 (>= 1.0.6),
     jsonlite,
     R6,
     rlang (>= 1.1.0),
-    S7
+    S7 (>= 0.2.0)
 Suggests:
     base64enc,
     bslib,
@@ -37,8 +37,7 @@ Suggests:
 VignetteBuilder:
     knitr
 Remotes:
-    jcheng5/shinychat,
-    r-lib/httr2
+    jcheng5/shinychat
 Config/Needs/website: tidyverse/tidytemplate, rmarkdown
 Config/testthat/edition: 3
 Config/testthat/parallel: true
@@ -49,24 +48,25 @@ RoxygenNote: 7.3.2
 Collate:
     'utils-S7.R'
     'types.R'
+    'content.R'
     'provider.R'
     'as-json.R'
     'utils-coro.R'
     'chat.R'
     'content-image.R'
     'content-tools.R'
-    'content.R'
     'elmer-package.R'
     'httr2.R'
     'import-standalone-obj-type.R'
     'import-standalone-purrr.R'
     'import-standalone-types-check.R'
     'interpolate.R'
+    'tools-def.R'
+    'turns.R'
     'provider-openai.R'
     'provider-azure.R'
     'provider-bedrock.R'
     'provider-claude.R'
-    'turns.R'
     'provider-cortex.R'
     'provider-gemini.R'
     'provider-github.R'
@@ -76,7 +76,6 @@ Collate:
     'shiny.R'
     'tokens.R'
     'tools-def-auto.R'
-    'tools-def.R'
     'utils-cat.R'
     'utils-merge.R'
     'utils.R'

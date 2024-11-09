@@ -22,7 +22,7 @@ NULL
 #' * `ContentToolResult`: the result of calling the tool (sent by the user).
 #'
 #' @export
-Content <- new_class("Content", package = "elmer")
+Content <- new_class("Content")
 
 #' @rdname Content
 #' @export
@@ -31,7 +31,6 @@ ContentText <- new_class(
   "ContentText",
   parent = Content,
   properties = list(text = prop_string()),
-  package = "elmer"
 )
 method(format, ContentText) <- function(x, ...) {
   paste0(unlist(strwrap(x@text, width = getOption("width"))), collapse = "\n")
@@ -54,8 +53,7 @@ method(contents_text, ContentText) <- function(content) {
 #' @export
 ContentImage <- new_class(
   "ContentImage",
-  parent = Content,
-  package = "elmer"
+  parent = Content
 )
 
 #' @rdname Content
@@ -68,8 +66,7 @@ ContentImageRemote <- new_class(
   properties = list(
     url = prop_string(),
     detail = prop_string()
-  ),
-  package = "elmer"
+  )
 )
 method(format, ContentImageRemote) <- function(x, ...) {
   cli::format_inline("[{.strong remote image}]: {.url {x@url}}")
@@ -85,8 +82,7 @@ ContentImageInline <- new_class(
   properties = list(
     type = prop_string(),
     data = prop_string(allow_null = TRUE)
-  ),
-  package = "elmer"
+  )
 )
 method(format, ContentImageInline) <- function(x, ...) {
   cli::format_inline("[{.strong inline image}]")
@@ -106,8 +102,7 @@ ContentToolRequest <- new_class(
     id = prop_string(),
     name = prop_string(),
     arguments = class_list
-  ),
-  package = "elmer"
+  )
 )
 method(format, ContentToolRequest) <- function(x, ...) {
   if (length(x@arguments) == 0) {
@@ -130,11 +125,15 @@ ContentToolResult <- new_class(
     id = prop_string(),
     value = class_any,
     error = prop_string(allow_null = TRUE)
-  ),
-  package = "elmer"
+  )
 )
 method(format, ContentToolResult) <- function(x, ...) {
-  cli::format_inline("[{.strong tool result}  ({x@id})]: {x@value}")
+  if (tool_errored(x)) {
+    value <- paste0(cli::col_red("Error: "), x@error)
+  } else {
+    value <- x@value
+  }
+  cli::format_inline("[{.strong tool result}  ({x@id})]: {value}")
 }
 
 tool_errored <- function(x) !is.null(x@error)
@@ -149,8 +148,7 @@ tool_string <- function(x) {
 ContentJson <- new_class(
   "ContentJson",
   parent = Content,
-  properties = list(value = class_any),
-  package = "elmer"
+  properties = list(value = class_any)
 )
 method(format, ContentJson) <- function(x, ...) {
   paste0(

@@ -75,3 +75,8 @@ dots_named <- function(...) {
 `paste<-` <- function(x, value) {
   paste0(x, value)
 }
+
+`append<-` <- function(x, value) {
+  x[[length(x) + 1]] <- value
+  x
+}

@@ -1,3 +1,6 @@
+#' @include content.R
+NULL
+
 #' A chatbot provider
 #'
 #' A Provider captures the details of one chatbot service/API. This captures
@@ -14,7 +17,6 @@
 #' @param extra_args Arbitrary extra arguments to be included in the request body.
 Provider <- new_class(
   "Provider",
-  package = "elmer",
   properties = list(
     base_url = prop_string(),
     extra_args = class_list
@@ -55,7 +57,6 @@ stream_merge_chunks <- new_generic("stream_merge_chunks", "provider",
     S7_dispatch()
   }
 )
-stream_turn <- new_generic("stream_turn", "provider")
 
 # Extract data from non-streaming results --------------------------------------
 
@@ -63,3 +64,11 @@ value_turn <- new_generic("value_turn", "provider")
 
 # Convert to JSON
 as_json <- new_generic("as_json", c("provider", "x"))
+
+method(as_json, list(Provider, class_list)) <- function(provider, x) {
+  lapply(x, as_json, provider = provider)
+}
+
+method(as_json, list(Provider, ContentJson)) <- function(provider, x) {
+  as_json(provider, ContentText("<structured data/>"))
+}
