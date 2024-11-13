@@ -22,6 +22,7 @@ Imports:
 Suggests:
     base64enc,
     bslib,
+    curl (>= 6.0.1),
     gitcreds,
     knitr,
     later (>= 1.3.2.9001),
@@ -37,6 +38,7 @@ Suggests:
 VignetteBuilder:
     knitr
 Remotes:
+    jeroen/curl,
     r-lib/later,
     jcheng5/shinychat
 Config/Needs/website: tidyverse/tidytemplate, rmarkdown
