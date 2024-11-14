@@ -38,7 +38,6 @@ Suggests:
 VignetteBuilder:
     knitr
 Remotes:
-    jeroen/curl,
     r-lib/later,
     jcheng5/shinychat
 Config/Needs/website: tidyverse/tidytemplate, rmarkdown
