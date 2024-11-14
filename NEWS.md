@@ -1,5 +1,7 @@
 # elmer (development version)
 
+* Async and streaming async chat are now event-driven and use `later::later_fd()` to wait efficiently on curl socket activity (#157).
+
 * New `chat_bedrock()` to chat with AWS bedrock models (#50).
 
 * New `chat$extract_data()` uses the structured data API where available (and tool calling otherwise) to extract data structured according to a known type specification. You can create specs with functions `type_boolean()`, `type_integer()`, `type_number()`, `type_string()`, `type_enum()`, `type_array()`, and `type_object()` (#31).
