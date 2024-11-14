@@ -83,13 +83,9 @@ you can use with this package.</p>
 
 
 <dt id="arg-turns">turns<a class="anchor" aria-label="anchor" href="#arg-turns"></a></dt>
-<dd><p>A list of turns to start the chat with (i.e., continuing a
+<dd><p>A list of <a href="Turn.html">Turn</a>s to start the chat with (i.e., continuing a
 previous conversation). If not provided, the conversation begins from
-scratch. Do not provide non-<code>NULL</code> values for both <code>turns</code> and
-<code>system_prompt</code>.</p>
-<p>Each message in the list should be a named list with at least <code>role</code>
-(usually <code>system</code>, <code>user</code>, or <code>assistant</code>, but <code>tool</code> is also possible).
-Normally there is also a <code>content</code> field, which is a string.</p></dd>
+scratch.</p></dd>
 
 
 <dt id="arg-base-url">base_url<a class="anchor" aria-label="anchor" href="#arg-base-url"></a></dt>
