@@ -34,11 +34,11 @@ Chat <- R6::R6Class("Chat",
       private$echo <- echo
     },
 
-    #' @description The turns that have been sent and received so far
+    #' @description Retrieve the turns that have been sent and received so far
     #'   (optionally starting with the system prompt, if any).
     #' @param include_system_prompt Whether to include the system prompt in the
     #'   turns (if any exists).
-    turns = function(include_system_prompt = FALSE) {
+    get_turns = function(include_system_prompt = FALSE) {
       if (length(private$.turns) == 0) {
         return(private$.turns)
       }
@@ -48,6 +48,41 @@ Chat <- R6::R6Class("Chat",
       } else {
         private$.turns
       }
+    },
+
+    #' @description Replace existing turns with a new list.
+    #' @param value A list of [Turn]s.
+    set_turns = function(value) {
+      private$.turns <- normalize_turns(
+        value,
+        self$get_system_prompt(),
+        overwrite = TRUE
+      )
+      invisible(self)
+    },
+
+    #' @description If set, the system prompt, it not, `NULL`.
+    get_system_prompt = function() {
+      if (private$has_system_prompt()) {
+        private$.turns[[1]]@text
+      } else {
+        NULL
+      }
+    },
+
+    #' @description Update the system prompt
+    #' @param value A string giving the new system prompt
+    set_system_prompt = function(value) {
+      check_string(value, allow_null = TRUE)
+      # Remove prompt, if present
+      if (private$has_system_prompt()) {
+        private$.turns <- private$.turns[-1]
+      }
+      # Add prompt, if new
+      if (is.character(value)) {
+        private$.turns <- c(list(Turn("system", value)), private$.turns)
+      }
+      invisible(self)
     },
 
     #' @description List the number of tokens consumed by each assistant turn.
@@ -206,29 +241,6 @@ Chat <- R6::R6Class("Chat",
 
       private$tools[[tool_def@name]] <- tool_def
       invisible(self)
-    }
-  ),
-  active = list(
-    #' @field system_prompt The system prompt, if present, as a string.
-    #'   Otherwise, `NULL`.
-    system_prompt = function(value) {
-      if (!missing(value)) {
-        check_string(value, allow_null = TRUE)
-        # Remove prompt, if present
-        if (private$has_system_prompt()) {
-          private$.turns <- private$.turns[-1]
-        }
-        # Add prompt, if new
-        if (is.character(value)) {
-          private$.turns <- c(list(Turn("system", value)), private$.turns)
-        }
-      } else {
-        if (private$has_system_prompt()) {
-          private$.turns[[1]]@text
-        } else {
-          NULL
-        }
-      }
     }
   ),
   private = list(
@@ -422,7 +434,7 @@ Chat <- R6::R6Class("Chat",
 
 #' @export
 print.Chat <- function(x, ...) {
-  turns <- x$turns(include_system_prompt = TRUE)
+  turns <- x$get_turns(include_system_prompt = TRUE)
   tokens <- colSums(x$tokens())
   cat(paste0("<Chat turns=", length(turns), " tokens=", tokens[1], "/", tokens[2], ">\n"))
   for (turn in turns) {

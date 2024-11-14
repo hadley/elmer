@@ -17,14 +17,9 @@ NULL
 #' you can use with this package.
 #'
 #' @param system_prompt A system prompt to set the behavior of the assistant.
-#' @param turns A list of turns to start the chat with (i.e., continuing a
+#' @param turns A list of [Turn]s to start the chat with (i.e., continuing a
 #'   previous conversation). If not provided, the conversation begins from
-#'   scratch. Do not provide non-`NULL` values for both `turns` and
-#'   `system_prompt`.
-#'
-#'   Each message in the list should be a named list with at least `role`
-#'   (usually `system`, `user`, or `assistant`, but `tool` is also possible).
-#'   Normally there is also a `content` field, which is a string.
+#'   scratch.
 #' @param base_url The base URL to the endpoint; the default uses OpenAI.
 #' @param api_key The API key to use for authentication. You generally should
 #'   not supply this directly, but instead set the `OPENAI_API_KEY` environment
