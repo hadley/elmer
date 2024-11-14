@@ -89,6 +89,7 @@ is_system_prompt <- function(x) {
 
 normalize_turns <- function(turns = NULL,
                             system_prompt = NULL,
+                            overwrite = FALSE,
                             error_call = caller_env()) {
 
   check_string(system_prompt, allow_null = TRUE, call = error_call)
@@ -118,7 +119,7 @@ normalize_turns <- function(turns = NULL,
       turns <- list(system_turn)
     } else if (turns[[1]]@role != "system") {
       turns <- c(list(system_turn), turns)
-    } else if (identical(turns[[1]], system_turn)) {
+    } else if (overwrite || identical(turns[[1]], system_turn)) {
       # Duplicate system prompt; don't need to do anything
     } else {
       cli::cli_abort(

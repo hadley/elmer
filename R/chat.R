@@ -53,7 +53,11 @@ Chat <- R6::R6Class("Chat",
     #' @description Replace existing turns with a new list.
     #' @param value A list of [Turn]s.
     set_turns = function(value) {
-      private$.turns <- normalize_turns(value, self$system_prompt)
+      private$.turns <- normalize_turns(
+        value,
+        self$get_system_prompt(),
+        overwrite = TRUE
+      )
       invisible(self)
     },
 

@@ -38,8 +38,11 @@ test_that("can get and set turns", {
   expect_equal(chat$get_turns(), list(Turn("user"), Turn("assistant")))
 })
 
-test_that("setting turns can set system prompt", {
-  chat <- chat_openai()
+test_that("setting turns usually preserves, but can set system prompt", {
+  chat <- chat_openai(system_prompt = "You're a funny guy")
+  chat$set_turns(list())
+  expect_equal(chat$get_system_prompt(), "You're a funny guy")
+
   chat$set_turns(list(Turn("system", list(ContentText("You're a cool guy")))))
   expect_equal(chat$get_system_prompt(), "You're a cool guy")
 })
