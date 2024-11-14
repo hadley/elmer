@@ -14,15 +14,23 @@ knitr::opts_chunk$set(
 )
 ```
 
+If you've never written an LLM prompt before, this vignette is going to give you the basics to
+
+If you've never written a prompt before, the easiest way to think about it is precisely explaining what you want a technically skilled but naive human what you want. The key is clearly stating what you want, resolving any potential ambiguities, and providing a few examples. And indeed writing the prompt can often help you too, because it forces you to be explicit about what you want. You should expect to iterate multiple times before you get to a good prompt, but you'll learn a lot along the way. It's good practice to keep your prompt in Git (so you can record exactly how it's changing) and build up a small set of challenge examples that you can use to verify that the prompt does what you expect. (Eventually, you might want to formally __evaluate__ different prompts for the problem you're tackling, but that's currently outside the scope of elmer and this vignette).
+
+Time-constrained human. Clarity and concision help in the same way that they help humans.
+
+It's also a good idea to read the advice for the specific model that you're using, as there may be specific tweaks that work well with just that model. Here are some pointers to the prompt engineering guides for a few popular models:
+
+* [Claude](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview)
+* [OpenAI](https://platform.openai.com/docs/guides/prompt-engineering)
+* [Gemini](https://ai.google.dev/gemini-api/docs/prompting-intro)
+
 ```{r setup}
 library(elmer)
 ```
 
-## General advice
-
-TODO: read https://www.cursor.com/blog/prompt-design
-
-If you've never written a prompt before, the easiest way to think about it is precisely explaining what you want a technically skilled but naive human what you want. The key is clearly stating what you want, resolving any potential ambiguities, and providing a few examples. And indeed writing the prompt can often help you too, because it forces you to be explicit about what you want. You should expect to iterate multiple times before you get to a good prompt, but you'll learn a lot along the way. It's good practice to keep your prompt in Git (so you can record exactly how it's changing) and build up a small set of challenge examples that you can use to verify that the prompt does what you expect. (Eventually, you might want to formally __evaluate__ different prompts for the problem you're tackling, but that's currently outside the scope of elmer and this vignette).
+## Prompt examples
 
 Because prompts can be quite long, we suggest writing them in markdown. That way you can use headers to divide up the prompt, and other tools like itemised lists to enumerate multiple options.
 
@@ -30,13 +38,6 @@ Because prompts can be quite long, we suggest writing them in markdown. That way
 * Hadley recipe prompt
 * Sidebot
 * https://github.com/simonpcouch/pal/tree/main/inst/prompts
-
-
-It's also a good idea to read the advice for the specific model that you're using, as there may be specific tweaks that work well with just that model. Here are some pointers to the prompt engineering guides for a few popular models:
-
-* [Claude](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview)
-* [OpenAI](https://platform.openai.com/docs/guides/prompt-engineering)
-* [Gemini](https://ai.google.dev/gemini-api/docs/prompting-intro)
 
 ## Directing behavior/output
 
@@ -128,6 +129,12 @@ chat$chat("
 ```
 
 Examples are a powerful technique that we'll discuss in more detail below.
+
+## Mixing in data
+
+`interpolate()` uses glue syntax, but instead of single braces it uses double braces. This more closes matches example you'll see elsewhere in the world and make it a bit easier to use it with JSON.
+
+## Specific techniques
 
 ### Chain of thought
 

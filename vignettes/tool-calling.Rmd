@@ -1,8 +1,8 @@
 ---
-title: "Tool calling (a.k.a. function calling)"
+title: "Tool/function calling"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Tool calling (a.k.a. function calling)}
+  %\VignetteIndexEntry{Tool/function calling}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
