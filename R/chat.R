@@ -34,7 +34,7 @@ Chat <- R6::R6Class("Chat",
       private$echo <- echo
     },
 
-    #' @description Retrive the turns that have been sent and received so far
+    #' @description Retrieve the turns that have been sent and received so far
     #'   (optionally starting with the system prompt, if any).
     #' @param include_system_prompt Whether to include the system prompt in the
     #'   turns (if any exists).
