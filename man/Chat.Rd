@@ -71,7 +71,7 @@ Note this only affects the \code{chat()} method.}
 \if{html}{\out{<a id="method-Chat-get_turns"></a>}}
 \if{latex}{\out{\hypertarget{method-Chat-get_turns}{}}}
 \subsection{Method \code{get_turns()}}{
-Retrive the turns that have been sent and received so far
+Retrieve the turns that have been sent and received so far
 (optionally starting with the system prompt, if any).
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Chat$get_turns(include_system_prompt = FALSE)}\if{html}{\out{</div>}}
