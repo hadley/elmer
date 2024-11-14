@@ -35,7 +35,6 @@ chat_perform_value <- function(provider, req) {
 on_load(chat_perform_stream <- coro::generator(function(provider, req) {
   resp <- req_perform_connection(req)
   on.exit(close(resp))
-  reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
 
   repeat {
     event <- chat_resp_stream(provider, resp)
@@ -47,26 +46,23 @@ on_load(chat_perform_stream <- coro::generator(function(provider, req) {
     }
   }
 
-  # Work around https://github.com/r-lib/coro/issues/51
-  if (FALSE) {
-    yield(NULL)
-  }
 }))
 
 chat_perform_async_value <- function(provider, req) {
   promises::then(req_perform_promise(req), resp_body_json)
 }
 
-on_load(chat_perform_async_stream <- coro::async_generator(function(provider, req, polling_interval_secs = 0.1) {
+on_load(chat_perform_async_stream <- coro::async_generator(function(provider, req) {
   resp <- req_perform_connection(req, blocking = FALSE)
   on.exit(close(resp))
-  # TODO: Investigate if this works with async generators
-  # reg.finalizer(environment(), function(e) { close(resp) }, onexit = FALSE)
 
   repeat {
     event <- chat_resp_stream(provider, resp)
     if (is.null(event) && isIncomplete(resp$body)) {
-      await(coro::async_sleep(polling_interval_secs))
+      fds <- curl::multi_fdset(resp$body)
+      await(promises::promise(function(resolve, reject) {
+        later::later_fd(resolve, fds$reads, fds$writes, fds$exceptions, fds$timeout)
+      }))
       next
     }
 
@@ -76,10 +72,5 @@ on_load(chat_perform_async_stream <- coro::async_generator(function(provider, re
     } else {
       yield(data)
     }
-  }
-
-  # Work around https://github.com/r-lib/coro/issues/51
-  if (FALSE) {
-    yield(NULL)
   }
 }))
