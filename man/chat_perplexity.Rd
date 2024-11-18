@@ -54,8 +54,13 @@ A \link{Chat} object.
 \description{
 Sign up at \url{https://www.perplexity.ai}.
 
+Perplexity AI is a platform for running LLMs that are capable of
+searching the web in real-time to help them answer questions with
+information that may not have been available when the model was
+trained.
+
 This function is a lightweight wrapper around \code{\link[=chat_openai]{chat_openai()}} with
-the defaults tweaked for groq.
+the defaults tweaked for Perplexity AI.
 }
 \seealso{
 Other chatbots: 
