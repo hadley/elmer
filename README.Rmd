@@ -50,17 +50,19 @@ elmer supports a number of model providers:
 
 ### Model choice
 
-If you're usi ng elmer inside your organisation, you'll typically need to use whatever you're allowed to. If you're using elmer for your own personal exploration, we recommend starting with:
+If you're using elmer inside your organisation, you'll be limited to what your org allows, which is likely to be one of `chat_databricks()`, `chat_bedrock()`, or `chat_azure()`.
 
-- `chat_openai()`, which defaults to **GPT-4o-mini**. You might want to try `model = "gpt-4o"` for more demanding task and if you want to force complex reasoning, `model = "o1-mini"`.
+If you're using elmer for your own personal exploration, we recommend starting with:
+
+- `chat_openai()`, which defaults to **GPT-4o-mini**. You might want to try `model = "gpt-4o"` for more demanding tasks, or `model = "o1-mini"` if you want to force complex reasoning.
 
 - `chat_claude()`, which defaults to **Claude 3.5 Sonnet**. This currently appears to be the best model for code generation.
 
-- If you want to put a lot of data in the prompt, try `chat_gemini()` which defaults to **Gemini 1.5 Flash** and supports 1 million tokens, compared to 200k for Claude 3.5 Sonnet and 128k for GPT 4o mini.
+- Try `chat_gemini()` if you want to put a lot of data in the prompt. This provider defaults to the **Gemini 1.5 Flash** model which supports 1 million tokens, compared to 200k for Claude 3.5 Sonnet and 128k for GPT 4o mini.
 
 ## Using elmer
 
-You chat with elmer in several different ways, depending on whether you are working interactively or programmatically. They all start with creating a new chat object:
+You can work with elmer in several different ways, depending on whether you are working interactively or programmatically. They all start with creating a new chat object:
 
 ```r
 library(elmer)
@@ -68,7 +70,6 @@ library(elmer)
 chat <- chat_openai(
   model = "gpt-4o-mini",
   system_prompt = "You are a friendly but terse assistant.",
-  echo = TRUE
 )
 ```
 
@@ -93,9 +94,9 @@ live_console(chat)
 #> in the early 1990s.
 ```
 
-The chat console is useful for quickly exploring the capabilities of the model, especially when you've customized the chat object with tool integrations (see below).
+Keep in mind that the chat object retains state, so when you enter the chat console, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist even after you exit back to the R prompt.
 
-Again, keep in mind that the chat object retains state, so when you enter the chat console, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist even after you exit back to the R prompt.
+Interactive chat is useful for quickly exploring the capabilities of the model, especially when you've customized the chat object with tool integrations (see below).
 
 ### Interactive method call
 
@@ -108,11 +109,7 @@ chat$chat("What preceding languages most influenced R?")
 #> languages.
 ```
 
-If you initialize the chat object with `echo = TRUE`, as we did above, the `chat` method streams the response to the console as it arrives. When the entire response is received, it is returned as a character vector (invisibly, so it's not printed twice).
-
-This mode is useful when you want to see the response as it arrives, but you don't want to enter the chat console.
-
-#### Vision (image input)
+If you initialize the chat object in the global environment, the `chat` method streams the response to the console as it arrives. When the entire response is received, it is returned as a character vector (invisibly, so it's not printed twice).
 
 If you want to ask a question about an image, you can pass one or more additional input arguments using `content_image_file()` and/or `content_image_url()`.
 
@@ -127,25 +124,31 @@ chat$chat(
 #> with R's role in data science.
 ```
 
-The `content_image_url` function takes a URL to an image file and sends that URL directly to the API. The `content_image_file` function takes a path to a local image file and encodes it as a base64 string to send to the API. Note that by default, `content_image_file` automatically resizes the image to fit within 512x512 pixels; set the `resize` parameter to `"high"` if higher resolution is needed.
+This mode is useful when you want to see the response as it arrives, but you don't want to enter the chat console.
 
 ### Programmatic chat
 
-If you don't want to see the response as it arrives, you can turn off echoing by leaving off the `echo = TRUE` argument to `chat_openai()`.
+If you create the chat object inside a function, live streaming is automatically suppressed and `$chat()` returns the result as a string:
 
 ```{r eval=FALSE}
-chat <- chat_openai(
-  model = "gpt-4o-mini",
-  system_prompt = "You are a friendly but terse assistant."
-)
-chat$chat("Is R a functional programming language?")
+my_function <- function() {
+  chat <- chat_openai(
+    model = "gpt-4o-mini",
+    system_prompt = "You are a friendly but terse assistant.",
+  )
+  chat$chat("Is R a functional programming language?")
+}
+my_function()
 #> [1] "Yes, R supports functional programming concepts. It allows functions to be first-class objects, supports higher-order functions, and encourages the use of functions as core components of code. However, it also supports procedural and object-oriented programming styles."
 ```
 
-This mode is useful for programming using elmer, when the result is either not intended for human consumption or when you want to process the response before displaying it.
+You can manually control this behaviour with the `echo` argument.
+
+This mode is useful for programming using elmer , when the result is either not intended for human consumption or when you want to process the response before displaying it.
 
 ## Learning more
 
+* Learn how to design your prompt in `vignette("prompt-design")`.
+* Learn more about tool/function calling in `vignette("tool-calling")`.
 * Learn more about streaming and async APIs in `vignette("streaming-async")`.
-* Learn more about tool calling (aka function calling) in `vignette("tool-calling")`.
 * Learn how to extract structured data in `vignette("structured-data")`.
