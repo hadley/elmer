@@ -27,14 +27,9 @@ value of the \code{AZURE_OPENAI_ENDPOINT} envinronment variable.}
 
 \item{system_prompt}{A system prompt to set the behavior of the assistant.}
 
-\item{turns}{A list of turns to start the chat with (i.e., continuing a
+\item{turns}{A list of \link{Turn}s to start the chat with (i.e., continuing a
 previous conversation). If not provided, the conversation begins from
-scratch. Do not provide non-\code{NULL} values for both \code{turns} and
-\code{system_prompt}.
-
-Each message in the list should be a named list with at least \code{role}
-(usually \code{system}, \code{user}, or \code{assistant}, but \code{tool} is also possible).
-Normally there is also a \code{content} field, which is a string.}
+scratch.}
 
 \item{api_key}{The API key to use for authentication. You generally should
 not supply this directly, but instead set the \code{AZURE_OPENAI_API_KEY} environment
