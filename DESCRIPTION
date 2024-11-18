@@ -70,6 +70,7 @@ Collate:
     'provider-bedrock.R'
     'provider-claude.R'
     'provider-cortex.R'
+    'provider-databricks.R'
     'provider-gemini.R'
     'provider-github.R'
     'provider-groq.R'

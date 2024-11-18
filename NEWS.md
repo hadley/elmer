@@ -31,3 +31,5 @@
 * Claude and Gemini are now supported via `chat_claude()` and `chat_gemini()`.
 
 * The Snowflake Cortex Analyst is now supported via `chat_cortex()` (#56).
+
+* Databricks is now supported via `chat_databricks()` (#152).

@@ -52,6 +52,7 @@ org uses AWS SSO, you'll need to run \verb{aws sso login} at the terminal.
 Other chatbots: 
 \code{\link{chat_claude}()},
 \code{\link{chat_cortex}()},
+\code{\link{chat_databricks}()},
 \code{\link{chat_gemini}()},
 \code{\link{chat_github}()},
 \code{\link{chat_groq}()},
