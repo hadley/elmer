@@ -1,8 +1,8 @@
 ---
-title: "elmer"
+title: "Getting started with elmer"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{elmer}
+  %\VignetteIndexEntry{Getting started with elmer}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -81,6 +81,8 @@ An even more complicated chat bot is [shiny assistant](https://shiny.posit.co/bl
 
 Another direction is to give the chat bot additional context about your current environment. For example, [aidea](https://github.com/cpsievert/aidea) allows the user to interactively explore a dataset with the help of the LLM. It adds summary statistics about the dataset to the [prompt](https://github.com/cpsievert/aidea/blob/main/inst/app/prompt.md) so that the LLM has context about the dataset. If you were working on a chatbot to help the user read in data, you could imagine include all the files in the current directory along with their first few lines.
 
+Generally, there's a surprising amount of value to creating a chatbot that has a prompt containing data that's already freely available on the internet. At best, search often only gets to you the correct page, whereas a chat bot can answer a specific narrowly scoped question. If you have more context than can be stuffed in a prompt, you'll need to use some other technique like RAG (retrieval-augmented generation). I'm planning to work on an R package to make that easier shortly.
+
 ### Structured data extraction
 
 LLMs can be very good at extracting structured data from unstructured text. Do you have any raw data that you've struggled to analyse in the past because it's just big wodges of plain text? Read `vignette("structure-data")` to learn about how you can use it.
@@ -99,10 +101,14 @@ Create a long hand written prompt that teaches the LLM about something it wouldn
 
 You can also explore automatically adding addition context to the prompt. For example, you could automatically look up the documentation for an R function, and include it in the prompt.
 
-You can ask to convert between programming languages or data structures. Not always correct, but typically gets you to a good starting point.
-
-### Getting
-
-https://posit-dev.github.io/brand-yml/articles/llm-brand-yml-prompt/
-
 You can use LLMs to explain code, or even ask them to [generate a diagram](https://bsky.app/profile/daviddiviny.bsky.social/post/3lb6kjaen4c2u).
+
+### First pass
+
+For more complicated problems, you may find that an LLM rarely generates a 100% correct solution. That can be ok, if you adopt the mindset of using the LLM to get started, solving the "blank page problem":
+
+* Use your existing company style guide to generate a [brand.yaml](https://posit-dev.github.io/brand-yml/articles/llm-brand-yml-prompt/) specification to automatically style your reports, apps, dashboards, plots to match your corporate style guide. Using a prompt here is unlikely to give you perfect results, but it's likely to get you close and then you can manually iterate.
+
+* I sometimes find it useful to have an LLM document a function for me, even knowing that it's likely to be mostly incorrect. It can often be much easier to react to some existing text than having to start completely from scratch.
+
+* If you're workign with code or data from another programming language, you ask an LLM to convert it to R code for you. Even if it's not perfect, it's still typically much faster than doing everything yourself.

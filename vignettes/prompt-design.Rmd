@@ -11,147 +11,158 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = elmer:::openai_key_exists()
+  eval = elmer:::openai_key_exists() && elmer:::anthropic_key_exists()
 )
+options(elmer_seed = 1337)
 ```
 
-If you've never written an LLM prompt before, this vignette is going to give you the basics to
+In this vignette, you'll learn the bascis of writing an LLM prompt, i.e. the text that you send to an LLM asking it to do a job for you. If you've never written a prompt before, a good to way to think about it is as writing a set of instructions for a technically skilled but busy human. You'll need to clearly and concisely state what you want, resolve any potential ambiguities that are likely to arise, and provide a few examples. Don't expect to write the perfect prompt on your first attemp. You'll need to iterate a few times, but in my experience, this iteration is very worthwhile because it forces you to clarify your understanding of the problem.
 
-If you've never written a prompt before, the easiest way to think about it is precisely explaining what you want a technically skilled but naive human what you want. The key is clearly stating what you want, resolving any potential ambiguities, and providing a few examples. And indeed writing the prompt can often help you too, because it forces you to be explicit about what you want. You should expect to iterate multiple times before you get to a good prompt, but you'll learn a lot along the way. It's good practice to keep your prompt in Git (so you can record exactly how it's changing) and build up a small set of challenge examples that you can use to verify that the prompt does what you expect. (Eventually, you might want to formally __evaluate__ different prompts for the problem you're tackling, but that's currently outside the scope of elmer and this vignette).
-
-Time-constrained human. Clarity and concision help in the same way that they help humans.
-
-It's also a good idea to read the advice for the specific model that you're using, as there may be specific tweaks that work well with just that model. Here are some pointers to the prompt engineering guides for a few popular models:
+As well as the general advice in this vignette, it's also a good idea to read the specific advice for the model that you're using. Here are some pointers to the prompt engineering guides for a few popular models:
 
 * [Claude](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview)
 * [OpenAI](https://platform.openai.com/docs/guides/prompt-engineering)
 * [Gemini](https://ai.google.dev/gemini-api/docs/prompting-intro)
 
+If you have a claude account, you can use its <https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/prompt-generator>. This prompt generator has been specifically tailored for Claude, but I suspect it will help many other LLMs, or at least give you some ideas as to what else you might want to include in your prompt.
+
 ```{r setup}
 library(elmer)
 ```
 
-## Prompt examples
+## Mechanics
 
-Because prompts can be quite long, we suggest writing them in markdown. That way you can use headers to divide up the prompt, and other tools like itemised lists to enumerate multiple options.
+Store in a separate file using markdown. Because prompts can be quite long, we suggest writing them in markdown. LLMs, like humans, appear to find markdown to be quite readable. That way you can use headers to divide up the prompt, and other tools like itemised lists to enumerate multiple options.
+
+Store them in git.
+
+`prompt.md` is a good name if you only have one. If you have multiple, give them informative names. If you're writing a package, put it in `inst/prompts`.
+
+Use glue syntax (but with `{{ }}`) to interpolate in data.
+
+Supported by `interpolate_file()` that makes it easy to read in file.
+
+ and build up a small set of challenge examples that you can use to verify that the prompt does what you expect. (Eventually, you might want to formally __evaluate__ different prompts for the problem you're tackling, but that's currently outside the scope of elmer.)
 
 * Shiny assistant prompt
 * Hadley recipe prompt
 * Sidebot
 * https://github.com/simonpcouch/pal/tree/main/inst/prompts
 
-## Directing behavior/output
+However, for the purposes of this vignette, we'll keep the prompts fairly short and just use a string so you can more easily read them.
+
+## Code generation
+
+Let's explore prompt design for a simple code generation task:
+
+```{r}
+question <- "
+  How can I compute the mean and median of variables a, b, c, and so on,
+  all the way up to z, grouped by age and sex.
+"
+```
+
+I'll use
 
 ### Basic flavour
 
-```{r}
-chat <- chat_openai(system_prompt = "Be extremely terse. Don't even use punctuation.")
-chat$chat("What's the capital of New Zealand?")
-```
+When I don't provide any context, I get answers in a couple of languages:
 
 ```{r}
-chat <- chat_openai(system_prompt = "
-  Be loquacious.
-  Enjoy using florid turns of phrase.
-  Drop in extra historical information even when not asked for it.
-")
-chat$chat("What's the capital of New Zealand?")
+chat <- chat_claude()
+chat$chat(question)
 ```
+
+So I can specify that I want the LLM to be an R programmer:
+
+```{r}
+chat <- chat_claude(system_prompt = "
+  You are an expert R programmer.
+")
+chat$chat(question)
+```
+
+Since I'm mostly interested in the code, I ask it to drop the explanation and the sample data:
 
 ```{r}
 chat <- chat_openai(system_prompt = "
   You are an expert R programmer.
-  Just give me the code; no explanation in text.
-  But include a few comments in line explaining particularly complex operations.
+  Just give me the code without any text explanation.
+  Don't generate any sample data.
 ")
-chat$chat("
-  How can I compute the mean and median of variables a, b, c, ...
-  grouped by age and sex
-")
+chat$chat(question)
 ```
 
-### Be clear and specific
+In this case, I seem to mostly get tidyverse code. But if you want a different style, you can ask for it:
 
-If you're not getting the results that you're looking for, you might need to provide more context.
+```{r}
+chat <- chat_claude(system_prompt = "
+  You are an expert R programmer who prefers data.table.
+  Just give me the code. I don't want any explanation or sample data.
+")
+chat$chat(question)
+```
+
+```{r}
+chat <- chat_claude(system_prompt = "
+  You are an expert R programmer who prefers base R.
+  Just give me the code. I don't want any explanation or sample data.
+")
+chat$chat(question)
+```
+
+### Be explicit
 
 ```{r}
 chat <- chat_openai(system_prompt = "
   You are an expert R programmer.
-  You prefer to use the tidyverse when you can.
-  You follow the tidyverse style guide.
-  Use the base pipe, not magittr.
-  Just give me the code; no explanation.
+  Just give me the code. I don't want any explanation or sample data.
+  Follow the tidyverse style guide:
+  * Spread long function calls across multiple lines.
+  * Where needed, always indent function calls with two spaces.
+  * Always use double quotes for strings.
+  Use the base pipe, `|>`, not the magrittr pipe `%>%`.
 ")
-chat$chat("
-  How can I compute the mean and median of variables a, b, c, ...
-  grouped by age and sex
-")
-chat$chat("Can you use across?")
+chat$chat(question)
 ```
 
 ```{r}
 chat <- chat_openai(system_prompt = "
-  You are an expert R programmer.
-  You prefer to use base R. Don't use the tidyverse.
-  Just give me the code; no explanation.
+  You are an an expert R programmer and a warm and supportive teacher.
+  Help me understand the code you produce by explaining each function call with
+  a brief comment. Add more details for more complicated calls.
+  Just give me the code. I don't want any explanation or sample data.
 ")
-chat$chat("
-  How can I compute the mean and median of variables a, b, c, ...
-  grouped by age and sex. Return the results in a single data frame.
-")
+chat$chat(question)
 ```
 
 ### Teach it about new features
 
 ```{r}
 chat <- chat_openai(system_prompt = "
+  You are an expert R programmer.
+  Just give me the code; no explanation in text.
+  Use the `.by` argument rather than `group_by()`.
   dplyr 1.1.0 introduced per-operation grouping with the `.by` argument.
-  You job is to convert code that uses group_by() to code that uses `.by`.
+  e.g., instead of:
 
-  Some examples:
-
-  # Before
   transactions |>
     group_by(company, year) |>
     mutate(total = sum(revenue))
 
-  # After
+  write this:
   transactions |>
     mutate(
       total = sum(revenue),
       .by = c(company, year)
     )
 ")
-chat$chat("
-  How can I compute the mean and median of variables a, b, c, ...
-  grouped by age and sex. Just show me the code.
-")
-
+chat$chat(question)
 ```
 
-Examples are a powerful technique that we'll discuss in more detail below.
+Note, however, there is a cost to too many examples: the LLM can get fixated on them, and fail to incorrectly generalise to new problems.
 
-## Mixing in data
-
-`interpolate()` uses glue syntax, but instead of single braces it uses double braces. This more closes matches example you'll see elsewhere in the world and make it a bit easier to use it with JSON.
-
-## Specific techniques
-
-### Chain of thought
-
-You can often get better responses if you ask the LLM to explain it's work, or begin by asking it to come up with a plan of attack. Because these answers are included in the chat history, and resent to the model on each turn, the assistant can use it's own explanations to improve future answers.
-
-### Uncertainty
-
-
-- "Be careful to only provide answers that you are sure about. If you are uncertain about an answer, say so."
-
-### Other tools
-
-If you have a claude account, you can use its <https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/prompt-generator>. This prompt generator has been specifically tailored for Claude, but I suspect it will help many other LLMs, or at least give you some ideas as to what else you might want to include in your prompt.
-
-
-## Using examples to guide behavior
+## Structured data
 
 You'll also hear this called single-shot or multi-shot prompting.
 
@@ -164,7 +175,6 @@ Note, however, there are some
   ```
   In a large bowl, cream together 1 cup of softened unsalted butter and ½ cup of white sugar until smooth. Beat in 1 egg and 1 teaspoon of vanilla extract. Gradually stir in 2 cups of all-purpose flour until the dough forms. Finally, fold in 1 cup of semisweet chocolate chips. Drop spoonfuls of dough onto an ungreased baking sheet and bake at 350°F (175°C) for 10-12 minutes, or until the edges are lightly browned. Let the cookies cool on the baking sheet for a few minutes before transferring to a wire rack to cool completely. Enjoy!
   ```
-
 
 ### System prompt 1: just instructions
 
@@ -234,13 +244,3 @@ Assistant response:
     { "ingredient": "Semisweet chocolate chips", "quantity": 1, "unit": "cup" }
 ]
 ```
-
-## Adding context/knowledge to prompt
-
-- Add documentation files to prompt
-- Add positive examples (negative examples don't work well)
-- Docs must fit in context window
-- Examples
-  - [Elmer assistant](https://github.com/jcheng5/elmer-assistant/blob/main/prompt.generated.md) uses README files in prompt
-  - [Sidebot](https://github.com/jcheng5/py-sidebot/blob/main/prompt.md)
-  - [FastHTML LLM prompt](https://docs.fastht.ml/llms-ctx.txt)
