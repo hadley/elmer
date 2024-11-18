@@ -90,7 +90,7 @@ method(chat_request, ProviderClaude) <- function(provider,
   req <- req_retry(
     req,
     max_tries = 2,
-    is_transient = function(x) resp_status(resp) %in% c(429, 503, 529)
+    is_transient = function(resp) resp_status(resp) %in% c(429, 503, 529)
   )
 
   # <https://docs.anthropic.com/en/api/errors>
