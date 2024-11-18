@@ -33,7 +33,8 @@ test_that("all tool variations work", {
 
   # Fails occassionally returning "" instead of Susan
   retry_test(
-    test_tools_sequential(chat_fun, total_calls = 6)
+    test_tools_sequential(chat_fun, total_calls = 6),
+    retries = 2
   )
 })
 

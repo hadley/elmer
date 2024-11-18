@@ -29,9 +29,10 @@ test_that("respects turns interface", {
 test_that("all tool variations work", {
   chat_fun <- chat_gemini
 
-  test_tools_simple(chat_fun)
-  test_tools_async(chat_fun)
-  test_tools_parallel(chat_fun)
+  # These fail stochastically
+  retry_test(test_tools_simple(chat_fun))
+  retry_test(test_tools_async(chat_fun))
+  retry_test(test_tools_parallel(chat_fun))
 
   # <10% of the time, it uses only 6 calls, suggesting that it's made a poor
   # choice. Running it twice (i.e. retrying 1) should reduce failure rate to <1%

@@ -10,6 +10,7 @@ retry_test <- function(code, retries = 1) {
       },
       expectation_failure = function(cnd) NULL
     )
+    cli::cli_inform(i = "Retry {i}")
     i <- i + 1
   }
 
