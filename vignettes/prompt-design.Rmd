@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 options(elmer_seed = 1337)
 ```
 
-In this vignette, you'll learn the bascis of writing an LLM prompt, i.e. the text that you send to an LLM asking it to do a job for you. If you've never written a prompt before, a good to way to think about it is as writing a set of instructions for a technically skilled but busy human. You'll need to clearly and concisely state what you want, resolve any potential ambiguities that are likely to arise, and provide a few examples. Don't expect to write the perfect prompt on your first attemp. You'll need to iterate a few times, but in my experience, this iteration is very worthwhile because it forces you to clarify your understanding of the problem.
+In this vignette, you'll learn the basics of writing an LLM prompt, i.e. the text that you send to an LLM asking it to do a job for you. If you've never written a prompt before, a good to way to think about it is as writing a set of instructions for a technically skilled but busy human. You'll need to clearly and concisely state what you want, resolve any potential ambiguities that are likely to arise, and provide a few examples. Don't expect to write the perfect prompt on your first attempt. You'll need to iterate a few times, but in my experience, this iteration is very worthwhile because it forces you to clarify your understanding of the problem.
 
 As well as the general advice in this vignette, it's also a good idea to read the specific advice for the model that you're using. Here are some pointers to the prompt engineering guides for a few popular models:
 
@@ -62,7 +62,7 @@ question <- "
 "
 ```
 
-I'll use
+I'll use `chat_claude()` for this problem because in our experience it does the best job of generating code.
 
 ### Basic flavour
 
@@ -87,13 +87,12 @@ Since I'm mostly interested in the code, I ask it to drop the explanation and th
 ```{r}
 chat <- chat_openai(system_prompt = "
   You are an expert R programmer.
-  Just give me the code without any text explanation.
-  Don't generate any sample data.
+  Just give me the code. I don't want any explanation or sample data.
 ")
 chat$chat(question)
 ```
 
-In this case, I seem to mostly get tidyverse code. But if you want a different style, you can ask for it:
+With this prompt, I seem to mostly get tidyverse code. So if you want a different style of R code, you should ask for it:
 
 ```{r}
 chat <- chat_claude(system_prompt = "
@@ -111,24 +110,34 @@ chat <- chat_claude(system_prompt = "
 chat$chat(question)
 ```
 
+(I also suspect that in general you'll get a mix of styles depending on what problem you apply the prompt to, so I'd recommend that you be explicit and ask for tidyverse code, if that's what you want.)
+
 ### Be explicit
+
+If there's something about the output that you don't like, you can try being more explicit about it. For example, the code isn't styled quite how I like, so I can be a bit more explicit:
 
 ```{r}
 chat <- chat_openai(system_prompt = "
-  You are an expert R programmer.
+  You are an expert R programmer who prefers the tidyverse.
   Just give me the code. I don't want any explanation or sample data.
+
   Follow the tidyverse style guide:
   * Spread long function calls across multiple lines.
   * Where needed, always indent function calls with two spaces.
   * Always use double quotes for strings.
-  Use the base pipe, `|>`, not the magrittr pipe `%>%`.
+  * Use the base pipe, `|>`, not the magrittr pipe `%>%`.
 ")
 chat$chat(question)
 ```
 
+Note that the LLM doesn't follow these instructions exactly, but it does seem to lead to code that looks a bit more the way that I want. If you were investing more time into this, you might provide more specific examples of how you're looking for code to be formatted.
+
+Or maybe you're looking for more explanation of the code:
+
 ```{r}
 chat <- chat_openai(system_prompt = "
   You are an an expert R programmer and a warm and supportive teacher.
+  I am a new R user who wants to improve my programming skills.
   Help me understand the code you produce by explaining each function call with
   a brief comment. Add more details for more complicated calls.
   Just give me the code. I don't want any explanation or sample data.
@@ -137,6 +146,8 @@ chat$chat(question)
 ```
 
 ### Teach it about new features
+
+You can imagine LLMs as being a sort of an average of the internet at a given point in time. That means they will provide popular answers, which will tend to reflect older coding styles (either because the new features aren't in their index, or the older features are so much more popular). So if you want your code to use specific features that are relatively recent, you might need to provide the examples yourself:
 
 ```{r}
 chat <- chat_openai(system_prompt = "
@@ -160,87 +171,172 @@ chat <- chat_openai(system_prompt = "
 chat$chat(question)
 ```
 
-Note, however, there is a cost to too many examples: the LLM can get fixated on them, and fail to incorrectly generalise to new problems.
-
 ## Structured data
 
-You'll also hear this called single-shot or multi-shot prompting.
+Providing a rich set of examples is a great way to encourage the output to produce exactly what you want. This is also known as **multi-shot prompting**. Here we'll work through a prompt that I designed to extract structured data from recipes, but the same ideas apply in many other situations.
 
-Note, however, there are some
+### Getting started
 
-- **Goal:** Extract ingredient list from recipe and return in a structured format.
+My overall goal is to turn a list of ingredients, like the following, into a nicely structured JSON that I can then analyse in R (e.g. to compute the total weight, scale the recipe up or down, or to convert the units from volumes to weights).
 
-- Example user input:
-
-  ```
-  In a large bowl, cream together 1 cup of softened unsalted butter and ½ cup of white sugar until smooth. Beat in 1 egg and 1 teaspoon of vanilla extract. Gradually stir in 2 cups of all-purpose flour until the dough forms. Finally, fold in 1 cup of semisweet chocolate chips. Drop spoonfuls of dough onto an ungreased baking sheet and bake at 350°F (175°C) for 10-12 minutes, or until the edges are lightly browned. Let the cookies cool on the baking sheet for a few minutes before transferring to a wire rack to cool completely. Enjoy!
-  ```
-
-### System prompt 1: just instructions
-
+```{r}
+ingredients <- "
+  ¾ cup (150g) dark brown sugar
+  2 large eggs
+  ¾ cup (165g) sour cream
+  ½ cup (113g) unsalted butter, melted
+  1 teaspoon vanilla extract
+  ¾ teaspoon kosher salt
+  ⅓ cup (80ml) neutral oil
+  1½ cups (190g) all-purpose flour
+  150g plus 1½ teaspoons sugar
+"
 ```
-The user input contains a recipe. Extract a list of ingredients and return it in JSON format.
+
+(This isn't the ingredient list for a real recipe but it includes a sampling of styles that I encountered in my project.)
+
+If you don't have strong feelings about what the data structure should look like, you can start with a very loose prompt and see what you get back. I find this a useful pattern for underspecified problems where a big part of the problem is just defining precisely what problem you want to solve. Seeing the LLMs attempt at coming up with a data structure gives me something to immediately react to, rather than having to start from a blank page.
+
+```{r}
+instruct_json <- "
+  Convert the following ingredients to nicely structured JSON.
+  Just return the JSON.
+"
+
+chat <- chat_openai("You're an expert baker")
+chat$chat(c(instruct_json, ingredients))
 ```
 
-Assistant response:
+### Provide examples
 
-```{.json}
-{
-  "ingredients": [
-    "1 cup of softened unsalted butter",
-    "½ cup of white sugar",
-    "1 egg",
-    "1 teaspoon of vanilla extract",
-    "2 cups of all-purpose flour",
-    "1 cup of semisweet chocolate chips"
+This isn't a bad start, but I prefer to cook with weight, so I only want to see volumes if weight isn't available. So I provide a couple of examples of what I'm looking for. I was pleasantly suprised that I can provide the input and output examples in such a loose format.
+
+```{r}
+instruct_weight <- r"(
+  Here are some examples of what I'm looking for:
+
+  ¾ cup (150g) dark brown sugar
+  {"name": "dark brown sugar", "quantity": 150, "unit": "g"}
+
+  ⅓ cup (80ml) neutral oil
+  {"name": "neutral oil", "quantity": 80, "unit": "ml"}
+
+  2 t ground cinnamon
+  {"name": "ground cinnamon", "quantity": 2, "unit": "teaspoon"}
+)"
+
+chat <- chat_openai("You're an expert baker")
+chat$chat(c(instruct_json, instruct_weight, ingredients))
+```
+
+Just providing the examples seems to work remarkably well. But I found it useful to also include description of what the examples are trying to accomplish. I'm not sure if this helps the LLM or not, but it certainly makes it easier for me to understand the organisation and check that I've covered the key pieces that I'm interested in.
+
+```{r}
+instruct_weight <- r"(
+  * If an ingredient has both weight and volume, extract only the weight:
+
+  ¾ cup (150g) dark brown sugar
+  [
+    {"name": "dark brown sugar", "quantity": 150, "unit": "g"}
   ]
-}
+
+* If an ingredient only lists a volume, extract that.
+
+  2 t ground cinnamon
+  ⅓ cup (80ml) neutral oil
+  [
+    {"name": "ground cinnamon", "quantity": 2, "unit": "teaspoon"},
+    {"name": "neutral oil", "quantity": 80, "unit": "ml"}
+  ]
+")
 ```
 
-### System prompt 2: detailed description of output
+This structure also allows me to give the LLMs a hint about how I want multiple ingredients to be stored, i.e. as an JSON array.
 
+I then just iterated on this task, looking at the results from different recipes to get a sense of what the LLM was getting wrong. Much of this felt like I waws iterating on my understanding of the problem as I didn't start by knowing exactly how I wanted the data. For example, when I started out I didn't really think about all the various ways that ingredients are specified. For later analysis, I always want quantities to be number, even if they were originally fractions, or the if the units aren't precise (like a pinch). It also forced me to realise that some ingredients are unitless.
+
+```{r}
+instruct_unit <- r"(
+* If the unit uses a fraction, convert it to a decimal.
+
+  ⅓ cup sugar
+  ½ teaspoon salt
+  [
+    {"name": "dark brown sugar", "quantity": 0.33, "unit": "cup"},
+    {"name": "salt", "quantity": 0.5, "unit": "teaspoon"}
+  ]
+
+* Quantities are always numbers
+
+  pinch of kosher salt
+  [
+    {"name": "kosher salt", "quantity": 1, "unit": "pinch"}
+  ]
+
+* Some ingredients don't have a unit.
+  2 eggs
+  1 lime
+  1 apple
+  [
+    {"name": "egg", "quantity": 2},
+    {"name": "lime", "quantity": 1},
+    {"name", "apple", "quantity": 1}
+  ]
+")
 ```
-The user input contains a recipe. Extract a list of ingredients and return it in JSON format. It should be an array of objects, where each object has keys `ingredient`, `quantity`, and `unit`. Put each object on one line of output.
+
+You might want to take a look at the [full prompt](https://gist.github.com/hadley/7688b4dd1e5e97b800c6d7d79e437b48) to see what I ended up with.
+
+### Structured data
+
+Now that I've iterated to get a data structure that I like, it seems useful to formalise it and tell the LLM exactly what I'm looking for using structured data. This guarantees that the LLM will only return JSON, the JSON will have the fields that you expect, and then elmer will automatically convert it into an R data structure for you. In this case, elmer recognises that an array of objects is equivalent to a data frame.
+
+```{r}
+type_ingredient <- type_object(
+  name = type_string("Ingredient name",
+  quantity = type_number(),
+  unit = type_string("Unit of measurement", required = FALSE))
+)
+type_ingredients <- type_array(items = type_ingredient)
+
+chat <- chat_openai("You're an expert baker")
+chat$extract_data(
+  c(instruct_json, instruct_weight, ingredients),
+  spec = type_ingredients
+)
 ```
 
-Assistant response:
+### Capturing raw input
 
-```{.json}
-[
-    {"ingredient": "unsalted butter", "quantity": 1, "unit": "cup"},
-    {"ingredient": "white sugar", "quantity": 1/2, "unit": "cup"},
-    {"ingredient": "egg", "quantity": 1, "unit": "large"},
-    {"ingredient": "vanilla extract", "quantity": 1, "unit": "teaspoon"},
-    {"ingredient": "all-purpose flour", "quantity": 2, "unit": "cups"},
-    {"ingredient": "semisweet chocolate chips", "quantity": 1, "unit": "cup"}
-]
+One thing that I'd do next time would also be to include the raw ingredient name in the output. This doesn't make much difference here, in this simple example, but it makes it much easier to align the input and the output and start to develop automated measures of how well my prompt is doing.
+
+```{r}
+instruct_weight_input <- r"(
+  * If an ingredient has both weight and volume, extract only the weight:
+
+  ¾ cup (150g) dark brown sugar
+  [
+    {"name": "dark brown sugar", "quantity": 150, "unit": "g", "input": "¾ cup (150g) dark brown sugar"}
+  ]
+
+* If an ingredient only lists a volume, extract that.
+
+  2 t ground cinnamon
+  ⅓ cup (80ml) neutral oil
+  [
+    {"name": "ground cinnamon", "quantity": 2, "unit": "teaspoon", "input": "2 t ground cinnamon"},
+    {"name": "neutral oil", "quantity": 80, "unit": "ml", "input": "⅓ cup (80ml) neutral oil"}
+  ]
+")
 ```
 
-### System prompt 3: one-shot example
+I think this is particularly important if you're working with even less structured text. For example, imagine you had this text:
 
-````
-The user input contains a recipe. Extract a list of ingredients and return it in JSON format.
+```{r}
+recipe <- r("
+  In a large bowl, cream together one cup of softened unsalted butter and a quarter cup of white sugar until smooth. Beat in an egg and 1 teaspoon of vanilla extract. Gradually stir in 2 cups of all-purpose flour until the dough forms. Finally, fold in 1 cup of semisweet chocolate chips. Drop spoonfuls of dough onto an ungreased baking sheet and bake at 350°F (175°C) for 10-12 minutes, or until the edges are lightly browned. Let the cookies cool on the baking sheet for a few minutes before transferring to a wire rack to cool completely. Enjoy!
+")
 
-Example Output:
-
-```json
-[
-    { "ingredient": "Flour", "quantity": 1, "unit": "cup" },
-    { "ingredient": "Vegetable oil", "quantity": 0.5, "unit": "tsp" },
-    { "ingredient": "Onion", "quantity": 1, "unit": null },
-]
-```
-````
-
-Assistant response:
-
-```{.json}
-[
-    { "ingredient": "Unsalted butter", "quantity": 1, "unit": "cup" },
-    { "ingredient": "White sugar", "quantity": 0.5, "unit": "cup" },
-    { "ingredient": "Egg", "quantity": 1, "unit": null },
-    { "ingredient": "Vanilla extract", "quantity": 1, "unit": "teaspoon" },
-    { "ingredient": "All-purpose flour", "quantity": 2, "unit": "cups" },
-    { "ingredient": "Semisweet chocolate chips", "quantity": 1, "unit": "cup" }
-]
+chat <- chat_openai("You're an expert baker")
+chat$chat(c(instruct_json, instruct_weight_input, ingredients))
 ```
