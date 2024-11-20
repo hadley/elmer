@@ -66,7 +66,7 @@ I'll use `chat_claude()` for this problem because in our experience it does the 
 
 ### Basic flavour
 
-When I don't provide any context, I get answers in a couple of languages:
+When I don't provide a system prompt, I get answers in a couple of languages:
 
 ```{r}
 chat <- chat_claude()
@@ -81,6 +81,8 @@ chat <- chat_claude(system_prompt = "
 ")
 chat$chat(question)
 ```
+
+Note that I've partioned my prompt in two pieces: the system prompt which defines the general behaviour and the user prompt which askes the specific question. You could put all of the content in the user prompt and get similar results, but I think it's helpful to split into two to divide the general framing of the response from the specific questions that you want to ask.
 
 Since I'm mostly interested in the code, I ask it to drop the explanation and the sample data:
 
@@ -199,13 +201,16 @@ If you don't have strong feelings about what the data structure should look like
 
 ```{r}
 instruct_json <- "
-  Convert the following ingredients to nicely structured JSON.
-  Just return the JSON.
+  You're an expert baker who also loves JSON. I am going to give you a list of
+  ingredients and your job is to return nicely structured JSON.
 "
+# Just return the JSON and no other commentary.
 
-chat <- chat_openai("You're an expert baker")
-chat$chat(c(instruct_json, ingredients))
+chat <- chat_openai(instruct_json)
+chat$chat(ingredients)
 ```
+
+(I don't know if the colour text, "You're an expert baker who also loves JSON", does anything, but I like to think this helps the LLM get into the right mindset of a very nerdy baker.)
 
 ### Provide examples
 
@@ -213,7 +218,7 @@ This isn't a bad start, but I prefer to cook with weight, so I only want to see 
 
 ```{r}
 instruct_weight <- r"(
-  Here are some examples of what I'm looking for:
+  Here are some examples of the sort of output I'm looking for:
 
   ¾ cup (150g) dark brown sugar
   {"name": "dark brown sugar", "quantity": 150, "unit": "g"}
@@ -225,8 +230,8 @@ instruct_weight <- r"(
   {"name": "ground cinnamon", "quantity": 2, "unit": "teaspoon"}
 )"
 
-chat <- chat_openai("You're an expert baker")
-chat$chat(c(instruct_json, instruct_weight, ingredients))
+chat <- chat_openai(c(instruct_json, instruct_weight))
+chat$chat(ingredients)
 ```
 
 Just providing the examples seems to work remarkably well. But I found it useful to also include description of what the examples are trying to accomplish. I'm not sure if this helps the LLM or not, but it certainly makes it easier for me to understand the organisation and check that I've covered the key pieces that I'm interested in.
@@ -289,7 +294,7 @@ You might want to take a look at the [full prompt](https://gist.github.com/hadle
 
 ### Structured data
 
-Now that I've iterated to get a data structure that I like, it seems useful to formalise it and tell the LLM exactly what I'm looking for using structured data. This guarantees that the LLM will only return JSON, the JSON will have the fields that you expect, and then elmer will automatically convert it into an R data structure for you. In this case, elmer recognises that an array of objects is equivalent to a data frame.
+Now that I've iterated to get a data structure that I like, it seems useful to formalise it and tell the LLM exactly what I'm looking for using structured data. This guarantees that the LLM will only return JSON, the JSON will have the fields that you expect, and then elmer will automatically convert it into an R data structure for you.
 
 ```{r}
 type_ingredient <- type_object(
@@ -299,11 +304,9 @@ type_ingredient <- type_object(
 )
 type_ingredients <- type_array(items = type_ingredient)
 
-chat <- chat_openai("You're an expert baker")
-chat$extract_data(
-  c(instruct_json, instruct_weight, ingredients),
-  spec = type_ingredients
-)
+chat <- chat_openai(c(instruct_json, instruct_weight))
+data <- chat$extract_data(ingredients, spec = type_ingredients)
+str(data)
 ```
 
 ### Capturing raw input
@@ -314,19 +317,19 @@ One thing that I'd do next time would also be to include the raw ingredient name
 instruct_weight_input <- r"(
   * If an ingredient has both weight and volume, extract only the weight:
 
-  ¾ cup (150g) dark brown sugar
-  [
-    {"name": "dark brown sugar", "quantity": 150, "unit": "g", "input": "¾ cup (150g) dark brown sugar"}
-  ]
+    ¾ cup (150g) dark brown sugar
+    [
+      {"name": "dark brown sugar", "quantity": 150, "unit": "g", "input": "¾ cup (150g) dark brown sugar"}
+    ]
 
-* If an ingredient only lists a volume, extract that.
+  * If an ingredient only lists a volume, extract that.
 
-  2 t ground cinnamon
-  ⅓ cup (80ml) neutral oil
-  [
-    {"name": "ground cinnamon", "quantity": 2, "unit": "teaspoon", "input": "2 t ground cinnamon"},
-    {"name": "neutral oil", "quantity": 80, "unit": "ml", "input": "⅓ cup (80ml) neutral oil"}
-  ]
+    2 t ground cinnamon
+    ⅓ cup (80ml) neutral oil
+    [
+      {"name": "ground cinnamon", "quantity": 2, "unit": "teaspoon", "input": "2 t ground cinnamon"},
+      {"name": "neutral oil", "quantity": 80, "unit": "ml", "input": "⅓ cup (80ml) neutral oil"}
+    ]
 ")
 ```
 
@@ -334,9 +337,20 @@ I think this is particularly important if you're working with even less structur
 
 ```{r}
 recipe <- r("
-  In a large bowl, cream together one cup of softened unsalted butter and a quarter cup of white sugar until smooth. Beat in an egg and 1 teaspoon of vanilla extract. Gradually stir in 2 cups of all-purpose flour until the dough forms. Finally, fold in 1 cup of semisweet chocolate chips. Drop spoonfuls of dough onto an ungreased baking sheet and bake at 350°F (175°C) for 10-12 minutes, or until the edges are lightly browned. Let the cookies cool on the baking sheet for a few minutes before transferring to a wire rack to cool completely. Enjoy!
+  In a large bowl, cream together one cup of softened unsalted butter and a
+  quarter cup of white sugar until smooth. Beat in an egg and 1 teaspoon of
+  vanilla extract. Gradually stir in 2 cups of all-purpose flour until the
+  dough forms. Finally, fold in 1 cup of semisweet chocolate chips. Drop
+  spoonfuls of dough onto an ungreased baking sheet and bake at 350°F (175°C)
+  for 10-12 minutes, or until the edges are lightly browned. Let the cookies
+  cool on the baking sheet for a few minutes before transferring to a wire
+  rack to cool completely. Enjoy!
 ")
+```
 
-chat <- chat_openai("You're an expert baker")
-chat$chat(c(instruct_json, instruct_weight_input, ingredients))
+Including the input text in the output makes it easier to see if it's doing a good job:
+
+```{r}
+chat <- chat_openai(c(instruct_json, instruct_weight_input))
+chat$chat(ingredients)
 ```
