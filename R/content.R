@@ -80,6 +80,11 @@ method(contents_text, Content) <- function(content) {
   NULL
 }
 
+method(contents_markdown, Content) <- function(content) {
+  # Fall back to text representation in markdown
+  contents_text(content)
+}
+
 method(contents_html, Content) <- function(content) {
   NULL
 }
