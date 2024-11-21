@@ -4,7 +4,7 @@
 \alias{contents_text}
 \alias{contents_html}
 \alias{contents_markdown}
-\title{Format contents into a textual representation.}
+\title{Format contents into a textual representation}
 \usage{
 contents_text(content, ...)
 
@@ -13,10 +13,12 @@ contents_html(content, ...)
 contents_markdown(content, ...)
 }
 \arguments{
-\item{content}{The \link{Turn} or \link{Content} object to be converted into text.}
+\item{content}{The \link{Turn} or \link{Content} object to be converted into text.
+\code{contents_markdown()} also accepts \link{Chat} instances to turn the entire
+conversation history into markdown text.}
 }
 \value{
-A character string of text, markdown or HTML.
+A string of text, markdown or HTML.
 }
 \description{
 These generic functions can be use to convert \link{Turn} contents or \link{Content}

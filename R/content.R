@@ -29,6 +29,8 @@ NULL
 #' }
 #' 
 #' @param content The [Turn] or [Content] object to be converted into text.
+#'   `contents_markdown()` also accepts [Chat] instances to turn the entire
+#'   conversation history into markdown text.
 #' @return A string of text, markdown or HTML.
 #' @export
 contents_text <- new_generic("contents_text", "content")
