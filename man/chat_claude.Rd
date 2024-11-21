@@ -66,6 +66,7 @@ the \code{ANTHROPIC_API_KEY} env var in your \code{.Renviron}
 Other chatbots: 
 \code{\link{chat_bedrock}()},
 \code{\link{chat_cortex}()},
+\code{\link{chat_databricks}()},
 \code{\link{chat_gemini}()},
 \code{\link{chat_github}()},
 \code{\link{chat_groq}()},

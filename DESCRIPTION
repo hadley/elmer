@@ -14,7 +14,7 @@ Imports:
     cli,
     coro (>= 1.1.0),
     glue,
-    httr2 (>= 1.0.6),
+    httr2 (>= 1.0.6.9000),
     jsonlite,
     R6,
     rlang (>= 1.1.0),
@@ -39,6 +39,7 @@ VignetteBuilder:
     knitr
 Remotes:
     r-lib/later,
+    r-lib/httr2,
     jcheng5/shinychat
 Config/Needs/website: tidyverse/tidytemplate, rmarkdown
 Config/testthat/edition: 3
@@ -70,6 +71,7 @@ Collate:
     'provider-bedrock.R'
     'provider-claude.R'
     'provider-cortex.R'
+    'provider-databricks.R'
     'provider-gemini.R'
     'provider-github.R'
     'provider-groq.R'
