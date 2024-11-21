@@ -18,7 +18,10 @@ NULL
 #' 
 #' @examples
 #' turns <- list(
-#'   user_turn("What's this image?", content_image_url("https://placehold.co/200x200")),
+#'   Turn("user", contents = list(
+#'     "What's this image?",
+#'     content_image_url("https://placehold.co/200x200"),
+#'   )),
 #'   Turn("assistant", "It's a placeholder image.")
 #' )
 #'
@@ -31,6 +34,8 @@ NULL
 #' @param content The [Turn] or [Content] object to be converted into text.
 #'   `contents_markdown()` also accepts [Chat] instances to turn the entire
 #'   conversation history into markdown text.
+#' @param ... Additional arguments passed to methods.
+#' 
 #' @return A string of text, markdown or HTML.
 #' @export
 contents_text <- new_generic("contents_text", "content")

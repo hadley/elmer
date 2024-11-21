@@ -16,6 +16,8 @@ contents_markdown(content, ...)
 \item{content}{The \link{Turn} or \link{Content} object to be converted into text.
 \code{contents_markdown()} also accepts \link{Chat} instances to turn the entire
 conversation history into markdown text.}
+
+\item{...}{Additional arguments passed to methods.}
 }
 \value{
 A string of text, markdown or HTML.
@@ -36,7 +38,10 @@ images and other content types.
 }
 \examples{
 turns <- list(
-  user_turn("What's this image?", content_image_url("https://placehold.co/200x200")),
+  Turn("user", contents = list(
+    "What's this image?",
+    content_image_url("https://placehold.co/200x200"),
+  )),
   Turn("assistant", "It's a placeholder image.")
 )
 
