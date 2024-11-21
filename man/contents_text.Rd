@@ -39,7 +39,7 @@ images and other content types.
 \examples{
 turns <- list(
   Turn("user", contents = list(
-    "What's this image?",
+    ContentText("What's this image?"),
     content_image_url("https://placehold.co/200x200")
   )),
   Turn("assistant", "It's a placeholder image.")
