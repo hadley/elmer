@@ -38,26 +38,24 @@ If you have a claude account, you can use its <https://docs.anthropic.com/en/doc
 library(elmer)
 ```
 
-## Mechanics
+## Logistics
 
-Store in a separate file using markdown. Because prompts can be quite long, we suggest writing them in markdown. LLMs, like humans, appear to find markdown to be quite readable. That way you can use headers to divide up the prompt, and other tools like itemised lists to enumerate multiple options.
+There are a few logistics to discuss first. It's highly likely that you will end up writing long, possibly multi-page prompts, so we want to ensure that you're set up for success. So we recommend that you put them in their own file, and write them using markdown. LLMs, like humans, appear to find markdown to be quite readable and markdown allows you to (e.g.) use headers to divide up the prompt into esection, and other tools like itemised lists to enumerate multiple options. You can see some a few examples of this style of prompt at the following urls:
 
-Store them in git.
+* <https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_python.md>
+* <https://github.com/jcheng5/py-sidebot/blob/main/prompt.md>
+* <https://github.com/simonpcouch/pal/tree/main/inst/prompts>
+* <https://github.com/cpsievert/aidea/blob/main/inst/app/prompt.md>
 
-`prompt.md` is a good name if you only have one. If you have multiple, give them informative names. If you're writing a package, put it in `inst/prompts`.
+If you only have one prompt in your project, call it `prompt.md`. If you have multiple prompts, give them informative names like `prompt-extract-metadata.md` or `prompt-summarize-text.md`. If you're writing a package, put your prompt(s) in `inst/prompts`, otherwise it's fine to put them in the root directory of your project.
 
-Use glue syntax (but with `{{ }}`) to interpolate in data.
+Your prompts are going to change over time, so we highly recommend using them with git. That will ensure that you can easily see what has changed, and if you accidentally make a mistake you can easily roll back to a known good verison.
 
-Supported by `interpolate_file()` that makes it easy to read in file.
+If your prompt includes dynamic data, `elmer::interpolate_file()` to interpolate it into your prompt. `interpolate_file()` works like [glue](https://glue.tidyverse.org), but uses `{{ }}` instead of `{ }` to make it easier to work with JSON.
 
- and build up a small set of challenge examples that you can use to verify that the prompt does what you expect. (Eventually, you might want to formally __evaluate__ different prompts for the problem you're tackling, but that's currently outside the scope of elmer.)
+As you iterate on the prompt, it's a good idea to build up a small set of challenging examples that you can regularly re-check with your latest version of the prompt. Currently you'll need to do this by hand, but we hope to eventually also provide tools that help you do this a little more formally.
 
-* Shiny assistant prompt
-* Hadley recipe prompt
-* Sidebot
-* https://github.com/simonpcouch/pal/tree/main/inst/prompts
-
-However, for the purposes of this vignette, we'll keep the prompts fairly short and just use a string so you can more easily read them.
+Unforunatey you won't see these logistics in action in this vignette, since we're keeping the prompts short and inline to make it easier for you to grok what's going on.
 
 ## Code generation
 
