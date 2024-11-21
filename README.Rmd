@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/tidyverse/elmer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/tidyverse/elmer/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of elmer is to provide a user friendly wrapper over the most common llm providers. Major design goals include support for streaming and making it easy to register and call R functions.
+The goal of elmer is to provide a user friendly wrapper around the APIs for large lanuage model (LLM) providers, making it easy to use LLMs from R. elmer provides a rich set of features including support for streaming outputs, tool/function calling, structured data output and more.
 
 (Looking for something similar to elmer for python? Check out [chatlas](https://github.com/cpsievert/chatlas)!)
 
@@ -49,7 +49,7 @@ elmer supports a number of model providers:
 * perplexity.ai: `chat_perplexity()`.
 * Snowflake Cortex: `chat_cortex()`.
 
-### Model choice
+## Model choice
 
 If you're using elmer inside your organisation, you'll be limited to what your org allows, which is likely to be one provided by a big cloud provider, e.g. `chat_azure()`, `chat_bedrock()`, `chat_databricks()`, or `chat_snowflake()`. If you're using elmer for your own personal exploration, you have a lot more freedom, so we recommend starting with one of the following:
 

@@ -10,9 +10,10 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 [![R-CMD-check](https://github.com/tidyverse/elmer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/tidyverse/elmer/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of elmer is to provide a user friendly wrapper over the most
-common llm providers. Major design goals include support for streaming
-and making it easy to register and call R functions.
+The goal of elmer is to provide a user friendly wrapper around the APIs
+for large lanuage model (LLM) providers, making it easy to use LLMs from
+R. elmer provides a rich set of features including support for streaming
+outputs, tool/function calling, structured data output and more.
 
 (Looking for something similar to elmer for python? Check out
 [chatlas](https://github.com/cpsievert/chatlas)!)
@@ -34,6 +35,7 @@ elmer supports a number of model providers:
 - Anthropic’s Claude: `chat_claude()`.
 - AWS Bedrock: `chat_bedrock()`.
 - Azure OpenAI: `chat_azure()`.
+- DataBricks: `chat_databricks()`.
 - GitHub model marketplace: `chat_github()`.
 - Google Gemini: `chat_gemini()`.
 - Groq: `chat_groq()`.
@@ -42,26 +44,32 @@ elmer supports a number of model providers:
 - perplexity.ai: `chat_perplexity()`.
 - Snowflake Cortex: `chat_cortex()`.
 
-### Model choice
+## Model choice
 
 If you’re using elmer inside your organisation, you’ll be limited to
-what your org allows, which is likely to be one of `chat_databricks()`,
-`chat_bedrock()`, or `chat_azure()`.
+what your org allows, which is likely to be one provided by a big cloud
+provider, e.g. `chat_azure()`, `chat_bedrock()`, `chat_databricks()`, or
+`chat_snowflake()`. If you’re using elmer for your own personal
+exploration, you have a lot more freedom, so we recommend starting with
+one of the following:
 
-If you’re using elmer for your own personal exploration, we recommend
-starting with:
-
-- `chat_openai()`, which defaults to **GPT-4o-mini**. You might want to
-  try `model = "gpt-4o"` for more demanding tasks, or
-  `model = "o1-mini"` if you want to force complex reasoning.
-
-- `chat_claude()`, which defaults to **Claude 3.5 Sonnet**. This
-  currently appears to be the best model for code generation.
+- I’d recommend starting with either `chat_openai()` or `chat_claude()`.
+  `chat_openai()` defaults to **GPT-4o-mini**, which is good and
+  relatively cheap. You might want to try `model = "gpt-4o"` for more
+  demanding tasks, or `model = "o1-mini"` if you want to force complex
+  reasoning. `chat_claude()` is similarly good and well priced. It
+  defaults to **Claude 3.5 Sonnet** which we have found to the be the
+  best for writing code.
 
 - Try `chat_gemini()` if you want to put a lot of data in the prompt.
   This provider defaults to the **Gemini 1.5 Flash** model which
   supports 1 million tokens, compared to 200k for Claude 3.5 Sonnet and
   128k for GPT 4o mini.
+
+- Use [Ollama](https://ollama.com) with `chat_ollama()` to run models on
+  your own computer. The biggest models you can run locally aren’t as
+  good as the state of the art hosted models, but they also don’t share
+  your data and and are effectively free.
 
 ## Using elmer
 
@@ -84,9 +92,9 @@ regardless of which of the various ways of chatting you use.
 
 ### Interactive chat console
 
-The most interactive, least programmatic way of using elmer is to chat
-with it directly in your R console with `live_console(chat)` or in your
-browser with `live_browser()`.
+The most interactive and least programmatic way of using elmer is to
+chat directly in your R console or browser with `live_console(chat)` or
+`live_browser()`.
 
 ``` r
 live_console(chat)
@@ -138,10 +146,11 @@ chat$chat(
   content_image_url("https://www.r-project.org/Rlogo.png"),
   "Can you explain this logo?"
 )
-#> The logo of R features a stylized letter "R" in blue, enclosed in an oval shape that resembles the letter "O,"
-#> signifying the programming language's name. The design conveys a modern and professional look, reflecting its use
-#> in statistical computing and data analysis. The blue color often represents trust and reliability, which aligns
-#> with R's role in data science.
+#> The logo of R features a stylized letter "R" in blue, enclosed in an oval
+#> shape that resembles the letter "O," signifying the programming language's
+#> name. The design conveys a modern and professional look, reflecting its use
+#> in statistical computing and data analysis. The blue color often represents
+#> trust and reliability, which aligns with R's role in data science.
 ```
 
 This mode is useful when you want to see the response as it arrives, but
@@ -161,7 +170,10 @@ my_function <- function() {
   chat$chat("Is R a functional programming language?")
 }
 my_function()
-#> [1] "Yes, R supports functional programming concepts. It allows functions to be first-class objects, supports higher-order functions, and encourages the use of functions as core components of code. However, it also supports procedural and object-oriented programming styles."
+#> [1] "Yes, R supports functional programming concepts. It allows functions to
+#> be first-class objects, supports higher-order functions, and encourages the
+#> use of functions as core components of code. However, it also supports
+#> procedural and object-oriented programming styles."
 ```
 
 You can manually control this behaviour with the `echo` argument.

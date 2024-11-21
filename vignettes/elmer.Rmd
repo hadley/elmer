@@ -18,54 +18,47 @@ knitr::opts_chunk$set(
 library(elmer)
 ```
 
-The goal of elmer is to make it easier to access to the wealth of large language models from R. But what can you do with those models once you have them? The goal of this vignette is to give you the basic vocabulary you need in order to use them effectively, and show a bunch of examples of the types of thing that you can do with them to help get your creative juices flowing.
+The goal of elmer is to make it easy to access to the wealth of large language models (LLMs) from R. But what can you do with those models once you have them? The goal of this vignette is to give you the basic vocabulary you need use an LLM effectively and show a bunch of interesting examples to get your creative juices flowing.
 
-Here we'll ignore how LLMs actually work, focussing on them as useful black boxes. If you want to get a sense of how they work, we recommend watching Jeremy Howard's posit::conf(2023) keynote: [A hackers guide to open source LLMs](https://www.youtube.com/watch?v=sYliwvml9Es).
+Here we'll ignore how LLMs actually work, using them as convenient black boxes. If you want to get a sense of how they actually work, we recommend watching Jeremy Howard's posit::conf(2023) keynote: [A hackers guide to open source LLMs](https://www.youtube.com/watch?v=sYliwvml9Es).
 
 ## Vocabulary
 
-We'll start by laying out some key vocab that you'll need to understand LLMs. Unfortunately the vocab is all a little entangled, so to understand one term you have to know a little about some of the others. So we'll start with some simple definitions of the most important terms and then iteratively go a little deeper.
+We'll start by laying out some key vocab that you'll need to understand LLMs. Unfortunately the vocab is all a little entangled, so to understand one term you have to know a little about some of the others. So we'll start with some simple definitions of the most important terms then iteratively go a little deeper.
 
-It all starts with a **prompt**, the text that you send to the LLM. This kicks off the **conversation**, which consistst of turns that alternate between your prompts and the model's responses. Behind the scenes, the request and response are represented by a sequence of **tokens**, which represent either individual words or components of each word. The tokens are used to compute the cost of using a model and the size of the **context window**, which is the total request and responses used to generate the response.
+It all starts with a **prompt**, which is the text (typically a question) that you send to the LLM. This starts a **conversation**, a sequence of turns that alternate between user (i.e. your) prompts and model responses. Inside the model, the prompt and response are represented by a sequence of **tokens**, which represent either individual words or components of each word. The tokens are used to compute the cost of using a model and are used to measure the size of the **context**, the combination of the current prompt and any previous prompts and response used to generate the next response.
+
+It's also useful to make the distinction between providers and models. A **provider** is a web API that provides access to one or more **model**. The distinction is a bit subtle because providers are synonynous with a model, like OpenAI and chatGPT, Anthropic and Claude, and Google and Gemini. But other providers, like Ollama, can host many different models, typically open source models like LLaMa and mistral. Still other providers do both, typically by partnering with a company that provides a popular closed model. For example, Azure OpenAI offers both open source models and OpenAI's chatGPT, while AWS Bedrock offers both open source models and Anthropic's Claude.
 
 ### What is a token?
 
-An LLM is a model that predicts the most likely next word given a sequence of words. While much more complicated that a linear model, they still have the same fundamental underlying representation: a numeric matrix. That means we need some way to convert words to numbers, which is the goal of the **tokenizer**.
+An LLM is a _model_, and like all models needs some way to represent its inputs numerically. For LLMs, that means we  need some way to convert words to numbers, which is the goal of the **tokenizer**. For example, using the GPT 4o tokenizer, the string "When was R created?" is converted to the seqeuence of numbers .... (You can see how various strings are tokenized using <http://tiktokenizer.vercel.app/>). If you want to learn more about tokens and tokenizers, I'd recommend watching the first 20-30 minutes of [Let's build the GPT Tokenizer](https://www.youtube.com/watch?v=zduSFxRajkE) by Andrej Karpathy. You certainly don't need to learn how to build your own tokenizer, but the intro will give you a bunch of useful background knowledge that will help improve your undersstanding of how LLM's work.
 
-The tokenizer is inextricably tied to the model, so varies from model to model however. Fortunately, however, the details aren't too important, except that you should know that on average, an English word requires around 1.5 tokens (common words will be represented by a single token; rarer words will require multiple). A page might be 375-400 tokens. A complete book might be 75,000 to 150,000 tokens. Other languages will typically require more tokens, because LLMs are trained on data from the internet, which is primarily in English. With elmer, you can see how many tokens a conversations has used when you print it, or you can see total usage for a session with `token_usage()`.
+It's important to have a rough sense of how text is converted to tokens because tokens are used to determine the cost of a model and how much context can be used to predict the next response. On average an English word needs ~1.5 tokens (common words will be represented by a single token; rarer words will require multiple) so a page might be 375-400 tokens and a complete book might be 75,000 to 150,000 tokens. Other languages will typically require more tokens, because LLMs are trained on data from the internet, which is primarily in English.
 
-Models are priced according to input and output tokens. Models are priced per million tokens and vary based on how much computation a model requires. Mid-teir models (e.g. gpt-4o or claude 3 haiku) might be around $0.25 per million input and $1 per million output tokens; state of the art models (like gpt-4o or claude 3 sonnet) might be more like $2.50 per million input tokens, and $10 per million output tokens. Certainly, at the time of writing, even $10 of API credit will give you a lot of room for experimenting when using mid-tier models. And prices are likely to continue to decline as model performance improves.
+LLMs are priced per million tokens based on how much computation a model requires. Mid-tier models (e.g. gpt-4o or claude 3 haiku) cost be around $0.25 per million input and $1 per million output tokens; state of the art models (like gpt-4o or claude 3.5 sonnet) are more like $2.50 per million input tokens, and $10 per million output tokens. Certainly even $10 of API credit will give you a lot of room for experimentation with using mid-tier models, and prices are likely to decline as model performance improves. In elmer, you can see how many tokens a conversations has used when you print it and you can see total usage for a session with `token_usage()`.
 
-Tokens are also used to measure the "context length", which is how much data the LLM can use to predict the next response. As we'll discuss shortly, the context length includes the full state of your conversation so far (both your prompts and the model's responses), which means that costs grow quadratically with the length of conversation.
-
-If you want to learn more about tokens and tokenizers, I'd recommend watching the first 20-30 minutes of [Let's build the GPT Tokenizer](https://www.youtube.com/watch?v=zduSFxRajkE) by Andrej Karpathy. You certainly don't need to learn how to build your own tokenizer, but the intro will give you a bunch of useful background knowledge that will help improve your undersstanding of how LLM's work.
+Tokens also used to measure the context window, which is how much text the LLM can use to generate the next response. As we'll discuss shortly, the context length includes the full state of your conversation so far (both your prompts and the model's responses), which means that cost grow rapidly with the number of conversational turns.
 
 ### What is a conversation?
 
-A conversation with an LLM takes place through a series of HTTP requests and responses: you send your question to the LLM in a HTTP request, and it sends its reply back in a HTTP response. A conversation always consists of a sequence of a pair turns: you send a prompt and then the model returns a response.
+A conversation with an LLM takes place through a series of HTTP requests and responses: you send your question to the LLM in a HTTP request, and it sends its reply back in a HTTP response. In other words, a conversation consists of a sequence of a paired turns: you send a prompt then the model returns a response. To generate that response, the model will use the entire converational history, both the prompts and the response. In other words, every time that elmer send a prompt to an LLM, it actually sends the entire conversation history. This is important to understand because:
 
-Depsite the fact that conversations are inherently stateful (i.e. your response to a question depends on the complete history of the conversation), LLM APIs are stateless. That means every time you send an question to an LLM, you have to actually send the entire conversation history. This is important to understand because:
+* It affects pricing. You are charged per token, so each question in a conversation is going to include all the previous questions and answers, meaning that the cost is going to grow quadratically with the number of turns. In other words: to save money, keep your conversations short.
 
-* It affects pricing. You are charged per token, so each question in a conversation is going to include all the previous questions and answers, meaning that the cost is going to grow rapidly with the number of turns. In other words: to save money, keep your conversations short.
+* Every response is affected by all previous questions and responses. This can make a converstion get stuck in a local optima, so generally it's better to iterate by starting new conversations with improved prompts rather than having a long conversation with the model.
 
-* You have full control over the conversational history. For example, this means that you can start a conversation with one model then send it to another. Or you can even make up responses that no model actually generated.
-
-* Every response is affected by all previous questions and responses. This can make a converstion get stuck in a local optima, so in general, it's typically better to iterate by starting a new conversation with an improved prompt rather than iterating by having a long conversation with the model.
+* elmer has full control over the conversational history, because it's elmer's responsibility to send the previous conversation turns. That makes it possible to start a conversation with one model and finish it with another.
 
 ### What is a prompt?
 
-As you've learned, the prompt is the text that you send to the model. But there's actually a layered sequence of prompts, starting with the **core system prompt**. These unchangeable, set by the model provider, and affect every conversation. You can these look like from Anthropic, who [publishes their core system prompts](https://docs.anthropic.com/en/release-notes/system-prompts).
+The user prompt is the question that you send to the model. There are two other important prompts the underlying the user prompt:
 
-The next layer is the **system prompt** that you set when creating a new conversation. This is a set of instructions that you provide to the model that will affect every turn in the conversation. For example, you might tell the model to always respond in Spanish or encourage it to use dependency-free base R whenever it writes R code.
+* The **core system prompt** is unchangeable, set by the model provider, and affects every conversation. You can these look like from Anthropic, who [publishes their core system prompts](https://docs.anthropic.com/en/release-notes/system-prompts).
 
-Finally, we have the **user prompt** which is the text that's sent in each turn of the conversation.
+* The **system prompt** is set when you create a new conversation, and will affect every response. It's used to provide additional context for the responses, shaping the output to your needs. For example, you might use the system prompt to ask the model to always respond in Spanish or to write dependency-free base R code.
 
-Writing good prompts is called __prompt design__ and is key to effective use of LLMs. You can learn more about it `vignette("prompt-design")`.
-Depending on what sort of tool you might focus your prompt design energy on either the system prompt or the user prompt. For example, if you're developing an app, then you'll work on the user prompt that helps frame the answers generated by your user's prompts. If you're working on structured data extraction, there's little difference between using the system prompt or the user prompt.
-
-### Providers and models
-
-A provider is web API that provides access to one or more models. Some providers are synonynous with a model: for example, OpenAI and chatGPT, Anthropic and Claude, and Google and Gemini. But other providers host many different models, typically the open source models like LLaMa and mistral. Still other providers do both, typically by partnering with a company that provides a popular closed model. For example, Azure OpenAI offers both open source models and OpenAI's chatGPT, and AWS Bedrock offers both open source models and Anthropic's Claude models.
+Writing good prompts is called __prompt design__, is key to effective use of LLMs, and is discussed in more detail in  `vignette("prompt-design")`. When you use a chat app like ChatGPT or Claude.AI you can only iterate on the user prompt. But generally when you're programming with LLMs, you'll iterate on the system prompt. For example, if you're developing an app that helps a user write tidyverse code, you'd work with the system prompt to ensure that you get the style of code that you want.
 
 ## Example uses
 
@@ -81,7 +74,7 @@ An even more complicated chat bot is [shiny assistant](https://shiny.posit.co/bl
 
 Another direction is to give the chat bot additional context about your current environment. For example, [aidea](https://github.com/cpsievert/aidea) allows the user to interactively explore a dataset with the help of the LLM. It adds summary statistics about the dataset to the [prompt](https://github.com/cpsievert/aidea/blob/main/inst/app/prompt.md) so that the LLM has context about the dataset. If you were working on a chatbot to help the user read in data, you could imagine include all the files in the current directory along with their first few lines.
 
-Generally, there's a surprising amount of value to creating a chatbot that has a prompt containing data that's already freely available on the internet. At best, search often only gets to you the correct page, whereas a chat bot can answer a specific narrowly scoped question. If you have more context than can be stuffed in a prompt, you'll need to use some other technique like RAG (retrieval-augmented generation). I'm planning to work on an R package to make that easier shortly.
+Generally, there's a surprising amount of value to creating a chatbot that has a prompt stuffed with data that's already available on the internet. At best, search often only gets to you the correct page, whereas a chat bot can answer a specific narrowly scoped question. If you have more context than can be stuffed in a prompt, you'll need to use some other technique like RAG (retrieval-augmented generation). I'm planning to work on an R package to make that easier shortly.
 
 ### Structured data extraction
 
