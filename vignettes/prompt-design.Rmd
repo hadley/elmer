@@ -15,6 +15,12 @@ knitr::opts_chunk$set(
   cache = TRUE
 )
 options(elmer_seed = 1337)
+
+# Manually ratchet claude variability way down to hopefully make generated
+# code better match my prose.
+chat_claude <- function(...) {
+  elmer::chat_claude(..., api_args = list(temperature = 0))
+}
 ```
 
 In this vignette, you'll learn the basics of writing an LLM prompt, i.e. the text that you send to an LLM asking it to do a job for you. If you've never written a prompt before, a good to way to think about it is as writing a set of instructions for a technically skilled but busy human. You'll need to clearly and concisely state what you want, resolve any potential ambiguities that are likely to arise, and provide a few examples. Don't expect to write the perfect prompt on your first attempt. You'll need to iterate a few times, but in my experience, this iteration is very worthwhile because it forces you to clarify your understanding of the problem.
@@ -69,7 +75,7 @@ I'll use `chat_claude()` for this problem because in our experience it does the 
 
 ### Basic flavour
 
-When I don't provide a system prompt, I sometimes get answers in a different languages:
+When I don't provide a system prompt, I sometimes get answers in a different languages or different styles of R code:
 
 ```{r}
 #| label: code-basic
@@ -77,12 +83,12 @@ chat <- chat_claude()
 chat$chat(question)
 ```
 
-I can ensure that I always get R code by providing a system prompt:
+I can ensure that I always get R code in a given by providing a system prompt:
 
 ```{r}
 #| label: code-r
 chat <- chat_claude(system_prompt = "
-  You are an expert R programmer.
+  You are an expert R programmer who prefers the tidyverse.
 ")
 chat$chat(question)
 ```
@@ -94,13 +100,13 @@ Since I'm mostly interested in the code, I ask it to drop the explanation and th
 ```{r}
 #| label: code-r-minimal
 chat <- chat_claude(system_prompt = "
-  You are an expert R programmer.
+  You are an expert R programmer who prefers the tidyverse.
   Just give me the code. I don't want any explanation or sample data.
 ")
 chat$chat(question)
 ```
 
-With this prompt, I seem to mostly get tidyverse code. So if you want a different style of R code, you should ask for it:
+If you want a different style of R code, you can of course ask for it:
 
 ```{r}
 #| label: code-styles
@@ -116,8 +122,6 @@ chat <- chat_claude(system_prompt = "
 ")
 chat$chat(question)
 ```
-
-(I suspect that in general you'll get a mix of styles depending on what problem you apply the prompt to, so if you do want tidyverse code, I'd recommend that you be explicit about it.)
 
 ### Be explicit
 
