@@ -51,4 +51,8 @@ if (rlang::is_installed("commonmark")) {
   contents_html(turns[[1]])
 }
 
+# Get the entire chat history as markdown
+chat <- Chat$new(Provider("https://example.com"), turns = turns)
+cat(contents_markdown(chat))
+
 }

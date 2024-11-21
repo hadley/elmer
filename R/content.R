@@ -31,6 +31,10 @@ NULL
 #'   contents_html(turns[[1]])
 #' }
 #' 
+#' # Get the entire chat history as markdown
+#' chat <- Chat$new(Provider("https://example.com"), turns = turns)
+#' cat(contents_markdown(chat))
+#' 
 #' @param content The [Turn] or [Content] object to be converted into text.
 #'   `contents_markdown()` also accepts [Chat] instances to turn the entire
 #'   conversation history into markdown text.
