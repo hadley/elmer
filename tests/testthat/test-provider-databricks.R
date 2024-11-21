@@ -53,3 +53,30 @@ test_that("can use images", {
   # test_images_inline(chat_databricks)
   # test_images_remote(chat_databricks)
 })
+
+# Auth --------------------------------------------------------------------
+
+test_that("Databricks PATs are detected correctly", {
+  withr::local_envvar(
+    DATABRICKS_HOST = "https://example.cloud.databricks.com",
+    DATABRICKS_TOKEN = "token"
+  )
+  expect_equal(databricks_token(), "token")
+  expect_equal(databricks_token(token = "another token"), "another token")
+})
+
+test_that("M2M authentication requests look correct", {
+  withr::local_envvar(
+    DATABRICKS_HOST = "https://example.cloud.databricks.com",
+    DATABRICKS_CLIENT_ID = "id",
+    DATABRICKS_CLIENT_SECRET = "secret"
+  )
+  local_mocked_responses(function(req) {
+    # Snapshot relevant fields of the outgoing request.
+    expect_snapshot(
+      list(url = req$url, headers = req$headers, body = req$body$data)
+    )
+    response_json(body = list(access_token = "token"))
+  })
+  expect_equal(databricks_token(), "token")
+})

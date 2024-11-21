@@ -9,6 +9,17 @@
 #' outputs. Tool calling support is also very limited at present; too limited
 #' for `elmer`'s tool calling features to work properly at all.
 #'
+#' `chat_databricks()` picks up on ambient Databricks credentials for a subset
+#' of the [Databricks client unified
+#' authentication](https://docs.databricks.com/en/dev-tools/auth/unified-auth.html)
+#' model. Specifically, it supports:
+#'
+#' - Personal access tokens
+#' - Service principals via OAuth (OAuth M2M)
+#' - User account via OAuth (OAuth U2M)
+#' - Authentication via the Databricks CLI
+#' - Posit Workbench-managed credentials
+#'
 #' @family chatbots
 #' @param workspace The URL of a Databricks workspace, e.g.
 #'   `"https://example.cloud.databricks.com"`. Will use the value of the
@@ -22,7 +33,8 @@
 #'   - `databricks-mixtral-8x7b-instruct`
 #'   - `databricks-meta-llama-3-1-70b-instruct`
 #'   - `databricks-meta-llama-3-1-405b-instruct`
-#' @param token An authentication token for the Databricks workspace.
+#' @param token An authentication token for the Databricks workspace, or
+#'   `NULL` to use ambient credentials.
 #' @inheritParams chat_openai
 #' @inherit chat_openai return
 #' @export
@@ -30,10 +42,11 @@ chat_databricks <- function(workspace = databricks_workspace(),
                             system_prompt = NULL,
                             turns = NULL,
                             model = NULL,
-                            token = databricks_token(workspace),
+                            token = NULL,
                             api_args = list(),
                             echo = c("none", "text", "all")) {
   check_string(workspace, allow_empty = FALSE)
+  check_string(token, allow_empty = FALSE, allow_null = TRUE)
   model <- set_default(model, "databricks-dbrx-instruct")
   turns <- normalize_turns(turns, system_prompt)
   echo <- check_echo(echo)
@@ -41,14 +54,15 @@ chat_databricks <- function(workspace = databricks_workspace(),
     base_url = workspace,
     model = model,
     extra_args = api_args,
-    api_key = token
+    token = token
   )
   Chat$new(provider = provider, turns = turns, echo = echo)
 }
 
 ProviderDatabricks <- new_class(
   "ProviderDatabricks",
-  parent = ProviderOpenAI
+  parent = ProviderOpenAI,
+  properties = list(token = prop_string(allow_null = TRUE))
 )
 
 method(chat_request, ProviderDatabricks) <- function(provider,
@@ -62,8 +76,9 @@ method(chat_request, ProviderDatabricks) <- function(provider,
   # compatibility with the OpenAI Python SDK. The documented endpoint is
   # `/serving-endpoints/<model>/invocations`.
   req <- req_url_path_append(req, "/serving-endpoints/chat/completions")
-  # TODO: Support refreshing tokens when needed.
-  req <- req_auth_bearer_token(req, provider@api_key)
+  req <- req_auth_bearer_token(req,
+    databricks_token(provider@base_url, provider@token)
+  )
   req <- req_retry(req, max_tries = 2)
   req <- req_error(req, body = function(resp) {
     if (resp_content_type(resp) == "application/json") {
@@ -147,11 +162,12 @@ databricks_workspace <- function() {
 
 # Try various ways to get Databricks credentials. This implements a subset of
 # the "Databricks client unified authentication" model.
-databricks_token <- function(workspace) {
+databricks_token <- function(workspace = databricks_workspace(), token = NULL) {
   host <- gsub("https://|/$", "", workspace)
 
-  # An explicit PAT takes precedence over everything else.
-  if (nchar(token <- Sys.getenv("DATABRICKS_TOKEN"))) {
+  # An explicit bearer token takes precedence over everything else.
+  token <- token %||% Sys.getenv("DATABRICKS_TOKEN")
+  if (nchar(token)) {
     return(token)
   }
 
@@ -159,8 +175,22 @@ databricks_token <- function(workspace) {
   client_id <- Sys.getenv("DATABRICKS_CLIENT_ID")
   client_secret <- Sys.getenv("DATABRICKS_CLIENT_SECRET")
   if (nchar(client_id) && nchar(client_secret)) {
-    # FIXME: Do the client credentials flow.
-    cli::cli_warn("Databricks OAuth M2M credentials are not yet implemented.")
+    # M2M credentials use an OAuth client credentials flow. We cache the token
+    # so we don't need to perform this flow before each turn.
+    token <- oauth_token_cached(
+      oauth_client(
+        client_id,
+        paste0("https://", host, "/oidc/v1/token"),
+        secret = client_secret,
+        auth = "header",
+        name = "elmer-databricks-m2m"
+      ),
+      oauth_flow_client_credentials,
+      # The "all-apis" scope translates to "everything this service principal
+      # has access to", not "all Databricks APIs".
+      flow_params = list(scope = "all-apis")
+    )
+    return(token$access_token)
   }
 
   # Check for Workbench-provided credentials.
@@ -190,6 +220,31 @@ databricks_token <- function(workspace) {
       token <- gsub(".*access_token\":\\s?\"([^\"]+).*", "\\1", output)
       return(token)
     }
+  }
+
+  # Fall back to OAuth U2M, masquerading as the Databricks CLI. Again, this
+  # only works on desktop.
+  if (is_interactive() && !is_hosted_session()) {
+    # U2M credentials use an OAuth authorization code flow. We cache the token
+    # so we don't need to perform this flow before each turn.
+    token <- oauth_token_cached(
+      oauth_client(
+        "databricks-cli",
+        paste0("https://", host, "/oidc/v1/token"),
+        auth = "body",
+        name = "elmer-databricks-u2m"
+      ),
+      oauth_flow_auth_code,
+      flow_params = list(
+        auth_url = paste0("https://", host, "/oidc/v1/authorize"),
+        # The "all-apis" scope translates to "everything this user has access
+        # to", not "all Databricks APIs".
+        scope = "all-apis offline_access",
+        # This is the registered redirect URI for the Databricks CLI.
+        redirect_uri = "http://localhost:8020"
+      )
+    )
+    return(token$access_token)
   }
 
   if (is_testing()) {
