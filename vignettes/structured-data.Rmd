@@ -11,14 +11,16 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = elmer:::openai_key_exists()
+  eval = elmer:::openai_key_exists(),
+  cache = TRUE
 )
 ```
 
 When using an LLM to extract data from text or images, you can ask the chatbot to nicely format it, in JSON or any other format that you like. This will generally work well most of the time, but there's no gaurantee that you'll actually get the exact format that you want. In particular, if you're trying to get JSON, find that it's typically surrounded in ```` ```json ````, and you'll occassionally get text that isn't actually valid JSON. To avoid these challenges you can use a recent LLM feature: **structured data** (aka structured output). With structured data, you supply a type specification that exactly defines the object structure that you want and the LLM will guarantee that's what you get back.
 
 ```{r setup}
-library(elmer)
+#| cache: false
+library(elmer)#|
 ```
 
 ## Structured data basics
@@ -26,6 +28,7 @@ library(elmer)
 To extract structured data you call the `$extract_data()` method instead of the `$chat()` method. You'll also need to define a type specification that describes the structure of the data that you want (more on that shortly). Here's a simple example that extracts two specific values from a string:
 
 ```{r}
+#| label: basics-text
 chat <- chat_openai()
 chat$extract_data(
   "My name is Susan and I'm 13 years old",
@@ -39,6 +42,7 @@ chat$extract_data(
 The same basic idea works with images too:
 
 ```{r}
+#| label: basics-image
 chat$extract_data(
   content_image_url("https://www.r-project.org/Rlogo.png"),
   spec = type_object(
@@ -58,6 +62,7 @@ To define your desired type specification (also known as a **schema**), you use 
 * **Arrays** represent any number of values of the same type and are created with `type_array()`. You must always supply the `item` argument which specifies the type of each individual element. Arrays of scalars are very similar to R's atomic vectors:
 
   ```{r}
+  #| cache: false
   type_logical_vector <- type_array(items = type_boolean())
   type_integer_vector <- type_array(items = type_integer())
   type_double_vector <- type_array(items = type_number())
@@ -67,12 +72,14 @@ To define your desired type specification (also known as a **schema**), you use 
   You can also have arrays of arrays and arrays of objects, which more closely resemble lists with well defined structures:
 
   ```{r}
+  #| cache: false
   list_of_integers <- type_array(items = type_integer_vector)
   ```
 
 * **Objects** represent a collection of named values and are created with `type_object()`. Objects can contain any number of scalars, arrays, and other objects. They are similar to named lists in R.
 
   ```{r}
+  #| cache: false
   type_person <- type_object(
     name = type_string(),
     age = type_integer(),
@@ -83,6 +90,7 @@ To define your desired type specification (also known as a **schema**), you use 
 As well as the definition of the types, you need to provide the LLM with some information about what you actually want. This is the purpose of the first argument, `description`, which is a string that describes the data that you want. This is a good place to ask nicely for other attributes you'll like the value to possess (e.g. minimum or maximum values, date formats, ...). You aren't guaranteed that these requests will be honoured, but the LLM will usually make a best effort to do so.
 
 ```{r}
+#| cache: false
 type_person <- type_object(
   "A person",
   name = type_string("Name"),
@@ -100,6 +108,7 @@ The following examples are [closely inspired by the Claude documentation](https:
 ### Example 1: Article summarisation
 
 ```{r}
+#| label: examples-summarisation
 text <- readLines(system.file("examples/third-party-testing.txt", package = "elmer"))
 # url <- "https://www.anthropic.com/news/third-party-testing"
 # html <- rvest::read_html(url)
@@ -127,6 +136,7 @@ str(data)
 ### Example 2: Named entity recognition
 
 ```{r}
+#| label: examples-named-entity
 text <- "
   John works at Google in New York. He met with Sarah, the CEO of
   Acme Inc., last week in San Francisco.
@@ -151,6 +161,7 @@ str(chat$extract_data(text, spec = named_entities))
 ### Example 3: Sentiment analysis
 
 ```{r}
+#| label: examples-sentiment
 text <- "
   The product was okay, but the customer service was terrible. I probably
   won't buy from them again.
@@ -172,6 +183,7 @@ Note that we've asked nicely for the scores to sum 1, and they do in this exampl
 ### Example 4: Text classification
 
 ```{r}
+#| label: examples-classification
 text <- "The new quantum computing breakthrough could revolutionize the tech industry."
 
 classification <- type_array(
@@ -213,6 +225,7 @@ do.call(rbind, lapply(data, as.data.frame))
 ### Example 5: Working with unknown keys
 
 ```{r, eval = elmer:::anthropic_key_exists()}
+#| label: examples-unknown-keys
 characteristics <- type_object(
   "All characteristics",
   .additional_properties = TRUE
@@ -242,6 +255,7 @@ This example comes from [Dan Nguyen](https://gist.github.com/dannguyen/faaa56ceb
 Even without any descriptions, ChatGPT does pretty well:
 
 ```{r}
+#| label: examples-image
 asset <- type_object(
   assert_name = type_string(),
   owner = type_string(),
@@ -274,6 +288,7 @@ By default, all components of an object are required. If you want to make some o
 For example, here the LLM hallucinates a date even though there isn't one in the text:
 
 ```{r}
+#| label: type-required
 article_spec <- type_object(
   "Information about an article written in markdown",
   title = type_string("Article title"),
@@ -302,6 +317,7 @@ Note that I've used more of an explict prompt here. For this example, I found th
 If let the LLM know that the fields are all optional, it'll instead return `NULL` for the missing fields:
 
 ```{r}
+#| label: type-optional
 article_spec <- type_object(
   "Information about an article written in markdown",
   title = type_string("Article title", required = FALSE),
@@ -316,6 +332,7 @@ chat$extract_data(prompt, spec = article_spec)
 If you want to define a data frame like object, you might be tempted to create a definition similar to what R uses: an object (i.e. a named list) containing multiple vectors (i.e. arrays):
 
 ```{r}
+#| cache: false
 my_df_type <- type_object(
   name = type_array(items = type_string()),
   age = type_array(items = type_integer()),
@@ -327,6 +344,7 @@ my_df_type <- type_object(
 This however, is not quite right becuase there's no way to specify that each array should have the same length. Instead you need to turn the data structure "inside out", and instead create an array of objects:
 
 ```{r}
+#| cache: false
 my_df_type <- type_array(
   items = type_object(
     name = type_string(),
@@ -344,6 +362,7 @@ If you're working with OpenAI, you'll need to wrap this in a dummy object becaus
 ## Token usage
 
 ```{r}
+#| label: usage
 #| type: asis
 #| echo: false
 knitr::kable(token_usage())

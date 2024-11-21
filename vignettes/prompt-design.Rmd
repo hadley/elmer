@@ -11,7 +11,8 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = elmer:::openai_key_exists() && elmer:::anthropic_key_exists()
+  eval = elmer:::openai_key_exists() && elmer:::anthropic_key_exists(),
+  cache = TRUE
 )
 options(elmer_seed = 1337)
 ```
@@ -27,6 +28,7 @@ As well as the general advice in this vignette, it's also a good idea to read th
 If you have a claude account, you can use its <https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/prompt-generator>. This prompt generator has been specifically tailored for Claude, but I suspect it will help many other LLMs, or at least give you some ideas as to what else you might want to include in your prompt.
 
 ```{r setup}
+#| cache: false
 library(elmer)
 ```
 
@@ -56,6 +58,7 @@ However, for the purposes of this vignette, we'll keep the prompts fairly short 
 Let's explore prompt design for a simple code generation task:
 
 ```{r}
+#| cache: false
 question <- "
   How can I compute the mean and median of variables a, b, c, and so on,
   all the way up to z, grouped by age and sex.
@@ -69,6 +72,7 @@ I'll use `chat_claude()` for this problem because in our experience it does the 
 When I don't provide a system prompt, I sometimes get answers in a different languages:
 
 ```{r}
+#| label: code-basic
 chat <- chat_claude()
 chat$chat(question)
 ```
@@ -76,6 +80,7 @@ chat$chat(question)
 I can ensure that I always get R code by providing a system prompt:
 
 ```{r}
+#| label: code-r
 chat <- chat_claude(system_prompt = "
   You are an expert R programmer.
 ")
@@ -87,6 +92,7 @@ Note that I'm using both a system prompt (which defines the general behaviour) a
 Since I'm mostly interested in the code, I ask it to drop the explanation and the sample data:
 
 ```{r}
+#| label: code-r-minimal
 chat <- chat_claude(system_prompt = "
   You are an expert R programmer.
   Just give me the code. I don't want any explanation or sample data.
@@ -97,6 +103,7 @@ chat$chat(question)
 With this prompt, I seem to mostly get tidyverse code. So if you want a different style of R code, you should ask for it:
 
 ```{r}
+#| label: code-styles
 chat <- chat_claude(system_prompt = "
   You are an expert R programmer who prefers data.table.
   Just give me the code. I don't want any explanation or sample data.
@@ -117,6 +124,7 @@ chat$chat(question)
 If there's something about the output that you don't like, you can try being more explicit about it. For example, the code isn't styled quite how I like, so I provide more details about what I do want:
 
 ```{r}
+#| label: code-explicit
 chat <- chat_claude(system_prompt = "
   You are an expert R programmer who prefers the tidyverse.
   Just give me the code. I don't want any explanation or sample data.
@@ -136,6 +144,7 @@ This still doesn't yield exactly the code that I'd write, but it's prety close.
 You could provide a different prompt if you were looking for more explanation of the code:
 
 ```{r}
+#| label: code-teacher
 chat <- chat_claude(system_prompt = "
   You are an expert R teacher.
   I am a new R user who wants to improve my programming skills.
@@ -151,6 +160,7 @@ chat$chat(question)
 You can imagine LLMs as being a sort of an average of the internet at a given point in time. That means they will provide popular answers, which will tend to reflect older coding styles (either because the new features aren't in their index, or the older features are so much more popular). So if you want your code to use specific features that are relatively recent, you might need to provide the examples yourself:
 
 ```{r}
+#| label: code-new-feature
 chat <- chat_claude(system_prompt = "
   You are an expert R programmer.
   Just give me the code; no explanation in text.
@@ -181,6 +191,7 @@ Providing a rich set of examples is a great way to encourage the output to produ
 My overall goal is to turn a list of ingredients, like the following, into a nicely structured JSON that I can then analyse in R (e.g. to compute the total weight, scale the recipe up or down, or to convert the units from volumes to weights).
 
 ```{r}
+#| cache: false
 ingredients <- "
   ¾ cup (150g) dark brown sugar
   2 large eggs
@@ -199,6 +210,7 @@ ingredients <- "
 If you don't have strong feelings about what the data structure should look like, you can start with a very loose prompt and see what you get back. I find this a useful pattern for underspecified problems where a big part of the problem is just defining precisely what problem you want to solve. Seeing the LLMs attempt at coming up with a data structure gives me something to immediately react to, rather than having to start from a blank page.
 
 ```{r}
+#| label: data-loose
 instruct_json <- "
   You're an expert baker who also loves JSON. I am going to give you a list of
   ingredients and your job is to return nicely structured JSON. Just return the
@@ -216,6 +228,7 @@ chat$chat(ingredients)
 This isn't a bad start, but I prefer to cook with weight, so I only want to see volumes if weight isn't available. So I provide a couple of examples of what I'm looking for. I was pleasantly suprised that I can provide the input and output examples in such a loose format.
 
 ```{r}
+#| label: data-examples
 instruct_weight <- r"(
   Here are some examples of the sort of output I'm looking for:
 
@@ -236,6 +249,7 @@ chat$chat(ingredients)
 Just providing the examples seems to work remarkably well. But I found it useful to also include description of what the examples are trying to accomplish. I'm not sure if this helps the LLM or not, but it certainly makes it easier for me to understand the organisation and check that I've covered the key pieces that I'm interested in.
 
 ```{r}
+#| cacahe: false
 instruct_weight <- r"(
   * If an ingredient has both weight and volume, extract only the weight:
 
@@ -260,6 +274,7 @@ This structure also allows me to give the LLMs a hint about how I want multiple 
 I then just iterated on this task, looking at the results from different recipes to get a sense of what the LLM was getting wrong. Much of this felt like I waws iterating on my understanding of the problem as I didn't start by knowing exactly how I wanted the data. For example, when I started out I didn't really think about all the various ways that ingredients are specified. For later analysis, I always want quantities to be number, even if they were originally fractions, or the if the units aren't precise (like a pinch). It also forced me to realise that some ingredients are unitless.
 
 ```{r}
+#| cache: false
 instruct_unit <- r"(
 * If the unit uses a fraction, convert it to a decimal.
 
@@ -296,6 +311,7 @@ You might want to take a look at the [full prompt](https://gist.github.com/hadle
 Now that I've iterated to get a data structure that I like, it seems useful to formalise it and tell the LLM exactly what I'm looking for using structured data. This guarantees that the LLM will only return JSON, the JSON will have the fields that you expect, and then elmer will automatically convert it into an R data structure for you.
 
 ```{r}
+#| label: data-structured
 type_ingredient <- type_object(
   name = type_string("Ingredient name"),
   quantity = type_number(),
@@ -314,6 +330,7 @@ do.call(rbind, lapply(data$ingredients, as.data.frame))
 One thing that I'd do next time would also be to include the raw ingredient name in the output. This doesn't make much difference here, in this simple example, but it makes it much easier to align the input and the output and start to develop automated measures of how well my prompt is doing.
 
 ```{r}
+#| cache: false
 instruct_weight_input <- r"(
   * If an ingredient has both weight and volume, extract only the weight:
 
@@ -336,6 +353,7 @@ instruct_weight_input <- r"(
 I think this is particularly important if you're working with even less structured text. For example, imagine you had this text:
 
 ```{r}
+#| cache: false
 recipe <- r"(
   In a large bowl, cream together one cup of softened unsalted butter and a
   quarter cup of white sugar until smooth. Beat in an egg and 1 teaspoon of
@@ -351,6 +369,7 @@ recipe <- r"(
 Including the input text in the output makes it easier to see if it's doing a good job:
 
 ```{r}
+#| label: data-unstructured-input
 chat <- chat_openai(c(instruct_json, instruct_weight_input))
 chat$chat(recipe)
 ```
@@ -360,6 +379,7 @@ When I ran it while writing this vignette, it seems to be working out the weight
 ## Token usage
 
 ```{r}
+#| label: usage
 #| type: asis
 #| echo: false
 knitr::kable(token_usage())
