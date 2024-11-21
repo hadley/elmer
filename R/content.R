@@ -1,7 +1,7 @@
 #' @include utils-S7.R
 NULL
 
-#' Format contents into a textual representation.
+#' Format contents into a textual representation
 #' 
 #' @description
 #' These generic functions can be use to convert [Turn] contents or [Content]
@@ -29,7 +29,7 @@ NULL
 #' }
 #' 
 #' @param content The [Turn] or [Content] object to be converted into text.
-#' @return A character string of text, markdown or HTML.
+#' @return A string of text, markdown or HTML.
 #' @export
 contents_text <- new_generic("contents_text", "content")
 
