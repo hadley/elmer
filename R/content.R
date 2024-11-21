@@ -20,7 +20,7 @@ NULL
 #' turns <- list(
 #'   Turn("user", contents = list(
 #'     "What's this image?",
-#'     content_image_url("https://placehold.co/200x200"),
+#'     content_image_url("https://placehold.co/200x200")
 #'   )),
 #'   Turn("assistant", "It's a placeholder image.")
 #' )
