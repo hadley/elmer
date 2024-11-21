@@ -66,14 +66,14 @@ I'll use `chat_claude()` for this problem because in our experience it does the 
 
 ### Basic flavour
 
-When I don't provide a system prompt, I get answers in a couple of languages:
+When I don't provide a system prompt, I sometimes get answers in a different languages:
 
 ```{r}
 chat <- chat_claude()
 chat$chat(question)
 ```
 
-So I can specify that I want the LLM to be an R programmer:
+I can ensure that I always get R code by providing a system prompt:
 
 ```{r}
 chat <- chat_claude(system_prompt = "
@@ -82,12 +82,12 @@ chat <- chat_claude(system_prompt = "
 chat$chat(question)
 ```
 
-Note that I've partioned my prompt in two pieces: the system prompt which defines the general behaviour and the user prompt which askes the specific question. You could put all of the content in the user prompt and get similar results, but I think it's helpful to split into two to divide the general framing of the response from the specific questions that you want to ask.
+Note that I'm using both a system prompt (which defines the general behaviour) and a user prompt (which askes the specific question). You could put all of the content in the user prompt and get similar results, but I think it's helpful to use both to cleanly divide the general framing of the response from the specific questions that you want to ask.
 
 Since I'm mostly interested in the code, I ask it to drop the explanation and the sample data:
 
 ```{r}
-chat <- chat_openai(system_prompt = "
+chat <- chat_claude(system_prompt = "
   You are an expert R programmer.
   Just give me the code. I don't want any explanation or sample data.
 ")
@@ -102,9 +102,7 @@ chat <- chat_claude(system_prompt = "
   Just give me the code. I don't want any explanation or sample data.
 ")
 chat$chat(question)
-```
 
-```{r}
 chat <- chat_claude(system_prompt = "
   You are an expert R programmer who prefers base R.
   Just give me the code. I don't want any explanation or sample data.
@@ -112,37 +110,38 @@ chat <- chat_claude(system_prompt = "
 chat$chat(question)
 ```
 
-(I also suspect that in general you'll get a mix of styles depending on what problem you apply the prompt to, so I'd recommend that you be explicit and ask for tidyverse code, if that's what you want.)
+(I suspect that in general you'll get a mix of styles depending on what problem you apply the prompt to, so if you do want tidyverse code, I'd recommend that you be explicit about it.)
 
 ### Be explicit
 
-If there's something about the output that you don't like, you can try being more explicit about it. For example, the code isn't styled quite how I like, so I can be a bit more explicit:
+If there's something about the output that you don't like, you can try being more explicit about it. For example, the code isn't styled quite how I like, so I provide more details about what I do want:
 
 ```{r}
-chat <- chat_openai(system_prompt = "
+chat <- chat_claude(system_prompt = "
   You are an expert R programmer who prefers the tidyverse.
   Just give me the code. I don't want any explanation or sample data.
 
   Follow the tidyverse style guide:
   * Spread long function calls across multiple lines.
   * Where needed, always indent function calls with two spaces.
+  * Only name arguments that are less commonly used.
   * Always use double quotes for strings.
   * Use the base pipe, `|>`, not the magrittr pipe `%>%`.
 ")
 chat$chat(question)
 ```
 
-Note that the LLM doesn't follow these instructions exactly, but it does seem to lead to code that looks a bit more the way that I want. If you were investing more time into this, you might provide more specific examples of how you're looking for code to be formatted.
+This still doesn't yield exactly the code that I'd write, but it's prety close.
 
-Or maybe you're looking for more explanation of the code:
+You could provide a different prompt if you were looking for more explanation of the code:
 
 ```{r}
-chat <- chat_openai(system_prompt = "
-  You are an an expert R programmer and a warm and supportive teacher.
+chat <- chat_claude(system_prompt = "
+  You are an expert R teacher.
   I am a new R user who wants to improve my programming skills.
   Help me understand the code you produce by explaining each function call with
-  a brief comment. Add more details for more complicated calls.
-  Just give me the code. I don't want any explanation or sample data.
+  a brief comment. For more complicated calls, add documentation to each
+  argument. Just give me the code. I don't want any explanation or sample data.
 ")
 chat$chat(question)
 ```
@@ -152,7 +151,7 @@ chat$chat(question)
 You can imagine LLMs as being a sort of an average of the internet at a given point in time. That means they will provide popular answers, which will tend to reflect older coding styles (either because the new features aren't in their index, or the older features are so much more popular). So if you want your code to use specific features that are relatively recent, you might need to provide the examples yourself:
 
 ```{r}
-chat <- chat_openai(system_prompt = "
+chat <- chat_claude(system_prompt = "
   You are an expert R programmer.
   Just give me the code; no explanation in text.
   Use the `.by` argument rather than `group_by()`.
@@ -202,9 +201,9 @@ If you don't have strong feelings about what the data structure should look like
 ```{r}
 instruct_json <- "
   You're an expert baker who also loves JSON. I am going to give you a list of
-  ingredients and your job is to return nicely structured JSON.
+  ingredients and your job is to return nicely structured JSON. Just return the
+  JSON and no other commentary.
 "
-# Just return the JSON and no other commentary.
 
 chat <- chat_openai(instruct_json)
 chat$chat(ingredients)
@@ -253,7 +252,7 @@ instruct_weight <- r"(
     {"name": "ground cinnamon", "quantity": 2, "unit": "teaspoon"},
     {"name": "neutral oil", "quantity": 80, "unit": "ml"}
   ]
-")
+)"
 ```
 
 This structure also allows me to give the LLMs a hint about how I want multiple ingredients to be stored, i.e. as an JSON array.
@@ -287,7 +286,7 @@ instruct_unit <- r"(
     {"name": "lime", "quantity": 1},
     {"name", "apple", "quantity": 1}
   ]
-")
+)"
 ```
 
 You might want to take a look at the [full prompt](https://gist.github.com/hadley/7688b4dd1e5e97b800c6d7d79e437b48) to see what I ended up with.
@@ -298,15 +297,16 @@ Now that I've iterated to get a data structure that I like, it seems useful to f
 
 ```{r}
 type_ingredient <- type_object(
-  name = type_string("Ingredient name",
+  name = type_string("Ingredient name"),
   quantity = type_number(),
-  unit = type_string("Unit of measurement", required = FALSE))
+  unit = type_string("Unit of measurement", required = FALSE)
 )
+
 type_ingredients <- type_array(items = type_ingredient)
 
 chat <- chat_openai(c(instruct_json, instruct_weight))
-data <- chat$extract_data(ingredients, spec = type_ingredients)
-str(data)
+data <- chat$extract_data(ingredients, spec = type_object(ingredients = type_ingredients))
+do.call(rbind, lapply(data$ingredients, as.data.frame))
 ```
 
 ### Capturing raw input
@@ -330,13 +330,13 @@ instruct_weight_input <- r"(
       {"name": "ground cinnamon", "quantity": 2, "unit": "teaspoon", "input": "2 t ground cinnamon"},
       {"name": "neutral oil", "quantity": 80, "unit": "ml", "input": "⅓ cup (80ml) neutral oil"}
     ]
-")
+)"
 ```
 
 I think this is particularly important if you're working with even less structured text. For example, imagine you had this text:
 
 ```{r}
-recipe <- r("
+recipe <- r"(
   In a large bowl, cream together one cup of softened unsalted butter and a
   quarter cup of white sugar until smooth. Beat in an egg and 1 teaspoon of
   vanilla extract. Gradually stir in 2 cups of all-purpose flour until the
@@ -345,12 +345,22 @@ recipe <- r("
   for 10-12 minutes, or until the edges are lightly browned. Let the cookies
   cool on the baking sheet for a few minutes before transferring to a wire
   rack to cool completely. Enjoy!
-")
+)"
 ```
 
 Including the input text in the output makes it easier to see if it's doing a good job:
 
 ```{r}
 chat <- chat_openai(c(instruct_json, instruct_weight_input))
-chat$chat(ingredients)
+chat$chat(recipe)
+```
+
+When I ran it while writing this vignette, it seems to be working out the weight of the ingredients specified in volume, even though the prompt specifically asks it not to do that. This may suggest I need to broaden my examples.
+
+## Token usage
+
+```{r}
+#| type: asis
+#| echo: false
+knitr::kable(token_usage())
 ```

@@ -35,7 +35,7 @@ elmer supports a number of model providers:
 - Anthropic’s Claude: `chat_claude()`.
 - AWS Bedrock: `chat_bedrock()`.
 - Azure OpenAI: `chat_azure()`.
-- DataBricks: `chat_databricks()`.
+- Databricks: `chat_databricks()`.
 - GitHub model marketplace: `chat_github()`.
 - Google Gemini: `chat_gemini()`.
 - Groq: `chat_groq()`.
