@@ -188,7 +188,9 @@ databricks_token <- function(workspace = databricks_workspace(), token = NULL) {
       oauth_flow_client_credentials,
       # The "all-apis" scope translates to "everything this service principal
       # has access to", not "all Databricks APIs".
-      flow_params = list(scope = "all-apis")
+      flow_params = list(scope = "all-apis"),
+      # Don't use the cached token when testing.
+      reauth = is_testing()
     )
     return(token$access_token)
   }
