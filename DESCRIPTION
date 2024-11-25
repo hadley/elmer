@@ -16,6 +16,7 @@ Imports:
     glue,
     httr2 (>= 1.0.6.9000),
     jsonlite,
+    later (>= 1.3.2.9001),
     R6,
     rlang (>= 1.1.0),
     S7 (>= 0.2.0)
@@ -25,7 +26,6 @@ Suggests:
     curl (>= 6.0.1),
     gitcreds,
     knitr,
-    later (>= 1.3.2.9001),
     magick,
     openssl,
     paws.common,
