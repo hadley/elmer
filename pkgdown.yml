@@ -5,7 +5,7 @@ articles:
   streaming-async: streaming-async.html
   structured-data: structured-data.html
   tool-calling: tool-calling.html
-last_built: 2024-11-25T16:48Z
+last_built: 2024-11-25T16:50Z
 urls:
   reference: https://elmer.tidyverse.org/reference
   article: https://elmer.tidyverse.org/articles
