@@ -20,6 +20,9 @@ test_that("can make simple streaming request", {
 # Common provider interface -----------------------------------------------
 
 test_that("defaults are reported", {
+  # Setting a dummy host ensures we don't skip this test, even if there are no
+  # Databricks credentials available.
+  withr::local_envvar(DATABRICKS_HOST = "https://example.cloud.databricks.com")
   expect_snapshot(. <- chat_databricks())
 })
 
