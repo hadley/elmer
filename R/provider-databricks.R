@@ -54,7 +54,10 @@ chat_databricks <- function(workspace = databricks_workspace(),
     base_url = workspace,
     model = model,
     extra_args = api_args,
-    token = token
+    token = token,
+    # Databricks APIs use bearer tokens, not API keys, but we need to pass an
+    # empty string here anyway to make S7::validate() happy.
+    api_key = ""
   )
   Chat$new(provider = provider, turns = turns, echo = echo)
 }
