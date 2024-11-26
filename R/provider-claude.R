@@ -85,7 +85,12 @@ method(chat_request, ProviderClaude) <- function(provider,
   )
 
   # <https://docs.anthropic.com/en/api/rate-limits>
-  req <- req_retry(req, max_tries = 2)
+  # 529 is not documented, but we see it fairly frequently in tests
+  req <- req_retry(
+    req,
+    max_tries = 2,
+    is_transient = function(resp) resp_status(resp) %in% c(429, 503, 529)
+  )
 
   # <https://docs.anthropic.com/en/api/errors>
   req <- req_error(req, body = function(resp) {
