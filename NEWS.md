@@ -1,5 +1,7 @@
 # elmer (development version)
 
+* The default `chat_openai()` model is now GPT-4o.
+
 * New `Chat$set_turns()` to set turns. `Chat$turns()` is now `Chat$get_turns()`. `Chat$system_prompt()` is replaced with `Chat$set_system_prompt()` and `Chat$get_system_prompt()`.
 
 * Async and streaming async chat are now event-driven and use `later::later_fd()` to wait efficiently on curl socket activity (#157).

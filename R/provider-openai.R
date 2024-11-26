@@ -58,7 +58,7 @@ chat_openai <- function(system_prompt = NULL,
                             api_args = list(),
                             echo = c("none", "text", "all")) {
   turns <- normalize_turns(turns, system_prompt)
-  model <- set_default(model, "gpt-4o-mini")
+  model <- set_default(model, "gpt-4o")
   echo <- check_echo(echo)
 
   if (is_testing() && is.null(seed)) {

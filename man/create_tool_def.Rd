@@ -11,7 +11,7 @@ create_tool_def(topic, model = "gpt-4o", echo = interactive(), verbose = FALSE)
 metadata for. Can also be an expression of the form \code{pkg::fun}.}
 
 \item{model}{The OpenAI model to use for generating the metadata. Defaults to
-"gpt-4o", which is highly recommended over "gpt-4o-mini".}
+"gpt-4o".}
 
 \item{echo}{Emit the registration code to the console. Defaults to \code{TRUE} in
 interactive sessions.}

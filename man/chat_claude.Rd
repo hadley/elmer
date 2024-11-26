@@ -54,7 +54,7 @@ A \link{Chat} object.
 \href{https://www.anthropic.com}{Anthropic} provides a number of chat based
 models under the \href{https://www.anthropic.com/claude}{Claude} moniker.
 Note that a Claude Pro membership does not give you the ability to call
-models via the API and will need to sign up (and pay for) a
+models via the API; instead, you will need to sign up (and pay for) a
 \href{https://console.anthropic.com/}{developer account}
 
 To authenticate, we recommend saving your

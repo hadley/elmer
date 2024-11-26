@@ -6,3 +6,5 @@
 .quarto
 docs
 inst/doc
+
+/.quarto/

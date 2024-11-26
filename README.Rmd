@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 [![R-CMD-check](https://github.com/tidyverse/elmer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/tidyverse/elmer/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of elmer is to provide a user friendly wrapper around the APIs for large lanuage model (LLM) providers, making it easy to use LLMs from R. elmer provides a rich set of features including support for streaming outputs, tool/function calling, structured data output and more.
+elmer makes it easy to use large language models (LLM) from R. It supports a wider variety of LLM providers and implements a rich set of features including streaming outputs, tool/function calling, structured data extration, and more.
 
 (Looking for something similar to elmer for python? Check out [chatlas](https://github.com/cpsievert/chatlas)!)
 
@@ -28,14 +28,15 @@ The goal of elmer is to provide a user friendly wrapper around the APIs for larg
 
 You can install the development version of elmer from [GitHub](https://github.com/) with:
 
-``` r
+```{r}
+#| eval: false
 # install.packages("pak")
 pak::pak("tidyverse/elmer")
 ```
 
 ## Providers
 
-elmer supports a number of model providers:
+elmer supports a wide variety of model providers:
 
 * Anthropic's Claude: `chat_claude()`.
 * AWS Bedrock: `chat_bedrock()`.
@@ -44,20 +45,20 @@ elmer supports a number of model providers:
 * GitHub model marketplace: `chat_github()`.
 * Google Gemini: `chat_gemini()`.
 * Groq: `chat_groq()`.
-* Ollama local models: `chat_ollama()`.
+* Ollama: `chat_ollama()`.
 * OpenAI: `chat_openai()`.
 * perplexity.ai: `chat_perplexity()`.
 * Snowflake Cortex: `chat_cortex()`.
 
 ## Model choice
 
-If you're using elmer inside your organisation, you'll be limited to what your org allows, which is likely to be one provided by a big cloud provider, e.g. `chat_azure()`, `chat_bedrock()`, `chat_databricks()`, or `chat_snowflake()`. If you're using elmer for your own personal exploration, you have a lot more freedom, so we recommend starting with one of the following:
+If you're using elmer inside your organisation, you'll be limited to what your org allows, which is likely to be one provided by a big cloud provider, e.g. `chat_azure()`, `chat_bedrock()`, `chat_databricks()`, or `chat_snowflake()`. If you're using elmer for your own personal exploration, you have a lot more freedom so we have a few recommendations to help you get started:
 
-- I'd recommend starting with either `chat_openai()` or `chat_claude()`. `chat_openai()` defaults to **GPT-4o-mini**, which is good and relatively cheap. You might want to try `model = "gpt-4o"` for more demanding tasks, or `model = "o1-mini"` if you want to force complex reasoning. `chat_claude()` is similarly good and well priced. It defaults to **Claude 3.5 Sonnet** which we have found to the be the best for writing code.
+- `chat_openai()` or `chat_claude()` are both good places to start. `chat_openai()` defaults to **GPT-4o**, but you can use `model = "gpt-4o-mini"` for a cheaper lower-quality model, or `model = "o1-mini"` for more complex reasoning. `chat_claude()` is similarly good; it defaults to **Claude 3.5 Sonnet** which we have found to be particularly code at writing code.
 
-- Try `chat_gemini()` if you want to put a lot of data in the prompt. This provider defaults to the **Gemini 1.5 Flash** model which supports 1 million tokens, compared to 200k for Claude 3.5 Sonnet and 128k for GPT 4o mini.
+- `chat_gemini()` is great for large prompt, because it has a much larger context window than other models. It allows up to 1 million tokens, compared to Claude 3.5 Sonnet's 200k and GPT-4o's 128k.
 
-- Use [Ollama](https://ollama.com) with `chat_ollama()` to run models on your own computer. The biggest models you can run locally aren't as good as the state of the art hosted models, but they also don't share your data and are effectively free.
+- `chat_ollama()`, which uses [Ollama](https://ollama.com), allows you to run models on your own computer. The biggest models you can run locally aren't as good as the state of the art hosted models, but they also don't share your data and are effectively free.
 
 ## Using elmer
 
@@ -72,11 +73,11 @@ chat <- chat_openai(
 )
 ```
 
-Chat objects are stateful: they retain the context of the conversation, so each new query can build on the previous ones. This is true regardless of which of the various ways of chatting you use.
+Chat objects are stateful [R6 objects](https://r6.r-lib.org): they retain the context of the conversation, so each new query can build on the previous ones, and you call their methods with `$`.
 
 ### Interactive chat console
 
-The most interactive and least programmatic way of using elmer is to chat directly in your R console or browser with  `live_console(chat)` or `live_browser()`.
+The most interactive and least programmatic way of using elmer is to chat directly in your R console or browser with  `live_console(chat)` or `live_browser()`:
 
 ```{r}
 #| eval: false
@@ -95,13 +96,11 @@ live_console(chat)
 #> in the early 1990s.
 ```
 
-Keep in mind that the chat object retains state, so when you enter the chat console, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist even after you exit back to the R prompt.
-
-Interactive chat is useful for quickly exploring the capabilities of the model, especially when you've customized the chat object with tool integrations (see below).
+Keep in mind that the chat object retains state, so when you enter the chat console, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist after you exit back to the R prompt. This is true regardless of which of the various chat functions you use.
 
 ### Interactive method call
 
-The second most interactive way to chat using elmer is to call the `chat()` method.
+The second most interactive way to chat is to call the `chat()` method:
 
 ```{r}
 #| eval: false
@@ -112,9 +111,9 @@ chat$chat("What preceding languages most influenced R?")
 #> languages.
 ```
 
-If you initialize the chat object in the global environment, the `chat` method streams the response to the console as it arrives. When the entire response is received, it is returned as a character vector (invisibly, so it's not printed twice).
+If you initialize the chat object in the global environment, the `chat` method will stream the response to the console as it arrives. When the entire response is received, it is also returned as a character vector (but invisibly, so it's not printed twice). This mode is useful when you want to see the response as it arrives, but you don't want to enter the chat console.
 
-If you want to ask a question about an image, you can pass one or more additional input arguments using `content_image_file()` and/or `content_image_url()`.
+If you want to ask a question about an image, you can pass one or more additional input arguments using `content_image_file()` and/or `content_image_url()`:
 
 ```{r}
 #| eval: false
@@ -130,11 +129,9 @@ chat$chat(
 #> trust and reliability, which aligns with R's role in data science.
 ```
 
-This mode is useful when you want to see the response as it arrives, but you don't want to enter the chat console.
-
 ### Programmatic chat
 
-If you create the chat object inside a function, live streaming is automatically suppressed and `$chat()` returns the result as a string:
+The most programmataic way to chat is to create the chat object inside a function, where live streaming is automatically suppressed and `$chat()` returns the result as a string:
 
 ```{r}
 #| eval: false
@@ -153,13 +150,16 @@ my_function()
 #> procedural and object-oriented programming styles."
 ```
 
-You can manually control this behaviour with the `echo` argument.
+If needed, you can manually control this behaviour with the `echo` argument.
 
-This mode is useful for programming using elmer , when the result is either not intended for human consumption or when you want to process the response before displaying it.
+This mode is useful for programming with elmer, when the result is either not intended for human consumption or when you want to process the response before displaying it.
 
 ## Learning more
 
+elmer comes with a bunch of vignettes to help you learn more:
+
+* Learn key vocabulary and see example use cases in `vignette("elmer")`.
 * Learn how to design your prompt in `vignette("prompt-design")`.
-* Learn more about tool/function calling in `vignette("tool-calling")`.
-* Learn more about streaming and async APIs in `vignette("streaming-async")`.
+* Learn about tool/function calling in `vignette("tool-calling")`.
 * Learn how to extract structured data in `vignette("structured-data")`.
+* Learn about streaming and async APIs in `vignette("streaming-async")`.
