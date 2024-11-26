@@ -9,7 +9,7 @@ chat_databricks(
   system_prompt = NULL,
   turns = NULL,
   model = NULL,
-  token = databricks_token(workspace),
+  token = NULL,
   api_args = list(),
   echo = c("none", "text", "all")
 )
@@ -36,7 +36,8 @@ models include:
 \item \verb{databricks-meta-llama-3-1-405b-instruct}
 }}
 
-\item{token}{An authentication token for the Databricks workspace.}
+\item{token}{An authentication token for the Databricks workspace, or
+\code{NULL} to use ambient credentials.}
 
 \item{api_args}{Named list of arbitrary extra arguments appended to the body
 of every chat API call.}
@@ -61,6 +62,17 @@ and can also serve as a gateway for external models hosted by a third party.
 Databricks models do not support images, but they do support structured
 outputs. Tool calling support is also very limited at present; too limited
 for \code{elmer}'s tool calling features to work properly at all.
+
+\code{chat_databricks()} picks up on ambient Databricks credentials for a subset
+of the \href{https://docs.databricks.com/en/dev-tools/auth/unified-auth.html}{Databricks client unified authentication}
+model. Specifically, it supports:
+\itemize{
+\item Personal access tokens
+\item Service principals via OAuth (OAuth M2M)
+\item User account via OAuth (OAuth U2M)
+\item Authentication via the Databricks CLI
+\item Posit Workbench-managed credentials
+}
 }
 \seealso{
 Other chatbots: 
