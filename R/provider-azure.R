@@ -78,7 +78,7 @@ method(chat_request, ProviderAzure) <- function(provider,
                                                 stream = TRUE,
                                                 turns = list(),
                                                 tools = list(),
-                                                spec = NULL,
+                                                type = NULL,
                                                 extra_args = list()) {
 
   req <- request(provider@base_url)
@@ -95,12 +95,12 @@ method(chat_request, ProviderAzure) <- function(provider,
   tools <- as_json(provider, unname(tools))
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
-  if (!is.null(spec)) {
+  if (!is.null(type)) {
     response_format <- list(
       type = "json_schema",
       json_schema = list(
         name = "structured_data",
-        schema = as_json(provider, spec),
+        schema = as_json(provider, type),
         strict = TRUE
       )
     )
