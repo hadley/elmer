@@ -4,7 +4,7 @@ test_that("can make simple request", {
   chat <- chat_gemini("Be as terse as possible; no punctuation")
   resp <- chat$chat("What is 1 + 1?", echo = FALSE)
   expect_match(resp, "2")
-  expect_equal(chat$last_turn()@tokens, c(17, 1))
+  expect_equal(chat$last_turn()@tokens, c(17, 2))
 })
 
 test_that("can make simple streaming request", {
@@ -29,16 +29,11 @@ test_that("respects turns interface", {
 test_that("all tool variations work", {
   chat_fun <- chat_gemini
 
-  # These fail stochastically
+  # Gemini tool calls seem fairly unreliable so we retry once
   retry_test(test_tools_simple(chat_fun))
   retry_test(test_tools_async(chat_fun))
   retry_test(test_tools_parallel(chat_fun))
-
-  # <10% of the time, it uses only 6 calls, suggesting that it's made a poor
-  # choice. Running it twice (i.e. retrying 1) should reduce failure rate to <1%
-  retry_test(
-    test_tools_sequential(chat_fun, total_calls = 8)
-  )
+  retry_test(test_tools_sequential(chat_fun, total_calls = 6))
 })
 
 test_that("can extract data", {

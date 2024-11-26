@@ -50,7 +50,7 @@ test_turns_existing <- function(chat_fun) {
 
 test_tools_simple <- function(chat_fun) {
   chat <- chat_fun(system_prompt = "Be very terse, not even punctuation.")
-  chat$register_tool(tool(function() "2024-01-01", "Gets the current date"))
+  chat$register_tool(tool(function() "2024-01-01", "Return the current date"))
 
   result <- chat$chat("What's the current date in YMD format?")
   expect_match(result, "2024-01-01")
@@ -61,7 +61,7 @@ test_tools_simple <- function(chat_fun) {
 
 test_tools_async <- function(chat_fun) {
   chat <- chat_fun(system_prompt = "Be very terse, not even punctuation.")
-  chat$register_tool(tool(coro::async(function() "2024-01-01"), "Gets the current date"))
+  chat$register_tool(tool(coro::async(function() "2024-01-01"), "Return the current date"))
 
   result <- sync(chat$chat_async("What's the current date in YMD format?"))
   expect_match(result, "2024-01-01")
@@ -92,17 +92,21 @@ test_tools_parallel <- function(chat_fun) {
 test_tools_sequential <- function(chat_fun, total_calls) {
   chat <- chat_fun(system_prompt = "Be very terse, not even punctuation.")
 
-  current_year <- function() 2024
-  popular_name <- function(year) if (year == 2024) "Susan" else "I don't know"
-  chat$register_tool(tool(current_year, "Get the current year"))
+  forecast <- function(city) if (city == "New York") "rainy" else "sunny"
+  equipment <- function(weather) if (weather == "rainy") "umbrella" else "sunscreen"
   chat$register_tool(tool(
-    popular_name,
-    "Gets the most popular name for a year",
-    year = type_integer("Year")
+    forecast,
+    "Gets the weather forecast for a city",
+    city = type_string("City name")
+  ))
+  chat$register_tool(tool(
+    equipment,
+    "Gets the equipment needed for a weather condition",
+    weather = type_string("Weather condition")
   ))
 
-  result <- chat$chat("What was the most popular name this year.")
-  expect_match(result, "Susan")
+  result <- chat$chat("What should I pack for New York this weekend?")
+  expect_match(result, "umbrella", ignore.case = TRUE)
   expect_length(chat$get_turns(), total_calls)
 }
 

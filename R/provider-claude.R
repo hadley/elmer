@@ -87,6 +87,7 @@ method(chat_request, ProviderClaude) <- function(provider,
   )
 
   # <https://docs.anthropic.com/en/api/rate-limits>
+  # 529 is not documented, but we see it fairly frequently in tests
   req <- req_retry(
     req,
     max_tries = 2,
