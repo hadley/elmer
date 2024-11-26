@@ -67,7 +67,7 @@ To define your desired type specification (also known as a **schema**), you use 
   You can also have arrays of arrays and arrays of objects, which more closely resemble lists with well defined structures:
 
   ```{r}
-  list_of_intergers <- type_array(items = type_array(items = type_integer()))
+  list_of_integers <- type_array(items = type_array(items = type_integer()))
   ```
 
 * **Objects** represent a collection of named values and are created with `type_object()`. Objects can contain any number of scalars, arrays, and other objects. They are similar to named lists in R.
