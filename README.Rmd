@@ -57,7 +57,7 @@ If you're using elmer inside your organisation, you'll be limited to what your o
 
 - Try `chat_gemini()` if you want to put a lot of data in the prompt. This provider defaults to the **Gemini 1.5 Flash** model which supports 1 million tokens, compared to 200k for Claude 3.5 Sonnet and 128k for GPT 4o mini.
 
-- Use [Ollama](https://ollama.com) with `chat_ollama()` to run models on your own computer. The biggest models you can run locally aren't as good as the state of the art hosted models, but they also don't share your data and and are effectively free.
+- Use [Ollama](https://ollama.com) with `chat_ollama()` to run models on your own computer. The biggest models you can run locally aren't as good as the state of the art hosted models, but they also don't share your data and are effectively free.
 
 ## Using elmer
 

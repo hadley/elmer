@@ -10,7 +10,7 @@ NULL
 #' [Anthropic](https://www.anthropic.com) provides a number of chat based
 #' models under the [Claude](https://www.anthropic.com/claude) moniker.
 #' Note that a Claude Pro membership does not give you the ability to call
-#' models via the API and will need to sign up (and pay for) a
+#' models via the API; instead, you will need to sign up (and pay for) a
 #' [developer account](https://console.anthropic.com/)
 #'
 #' To authenticate, we recommend saving your
