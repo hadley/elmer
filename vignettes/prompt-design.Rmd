@@ -25,6 +25,8 @@ chat_claude <- function(...) {
 
 In this vignette, you'll learn the basics of writing an LLM prompt, i.e. the text that you send to an LLM asking it to do a job for you. If you've never written a prompt before, a good to way to think about it is as writing a set of instructions for a technically skilled but busy human. You'll need to clearly and concisely state what you want, resolve any potential ambiguities that are likely to arise, and provide a few examples. Don't expect to write the perfect prompt on your first attempt. You'll need to iterate a few times, but in my experience, this iteration is very worthwhile because it forces you to clarify your understanding of the problem.
 
+https://www.oneusefulthing.org/p/getting-started-with-ai-good-enough
+
 As well as the general advice in this vignette, it's also a good idea to read the specific advice for the model that you're using. Here are some pointers to the prompt engineering guides for a few popular models:
 
 * [Claude](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview)

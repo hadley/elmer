@@ -64,44 +64,59 @@ Writing good prompts is called __prompt design__, is key to effective use of LLM
 
 Now that you've got the basic vocab under your belt, I'm going to just fire a bunch of interesting potential use cases at you. For many of these examples there are often special purpose tools that will be faster and cheaper. But using an LLM allows you to rapidly prototype an idea on a small subset of the full problem to determine if it's worth investing more time and effort.
 
+For many problems you'll find that an LLM rarely generates a totally correct solution. But that can be ok, as there are many cases where an 80% correct solution might still save you a bunch of time. It can also be useful to get started tackling a problem, as having a not-so-good solution to react to can make it easier to get started than a blank page. In general, I would be very cautious about using an LLM for solutions that require very high accuracy.
+
 ### Chatbots
 
-Great place to start is building a chatbot with a custom prompt. Chatbots are familiar interface and easy to create in R with [shinychat](https://github.com/jcheng5/shinychat).
+A great place to start is building a chatbot with a custom prompt. Chatbots are a familiar interface and easy to create in R with [shinychat](https://github.com/jcheng5/shinychat). And there's often a surprising amount of value to creating a chatbot that has a prompt stuffed with data that's already available on the internet. For example:
 
-You could create a chat bot to answer questions on a specific topic by   filling the prompt with related content. For example, maybe you want to help people use your new package. The default prompt won't work because LLMs don't know anything about your package. You can get surprisingly far by preloading the prompt with your README and other vignettes. This is how the [elmer assistant](https://github.com/jcheng5/elmer-assistant) works.
+* Maybe you want to help people use your new package. The default prompt won't work because LLMs don't know anything about your package. You can get surprisingly far by preloading the prompt with your README and other vignettes. This is how the [elmer assistant](https://github.com/jcheng5/elmer-assistant) works.
 
-An even more complicated chat bot is [shiny assistant](https://shiny.posit.co/blog/posts/shiny-assistant/) which helps you build shiny apps (either in R or python). It combines a [prompt](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt.md) that gives general advice with a language specific prompt for [R](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_r.md) or [python](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_python.md). The python prompt is very detailed because there's much less information about shiny for Python on the internet because it's a much newer package.
+* [Shiny assistant](https://shiny.posit.co/blog/posts/shiny-assistant/) helps you build shiny apps (either in R or python) by combining a [prompt](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt.md) that gives general advice with a language specific prompt for [R](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_r.md) or [python](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_python.md). The python prompt is very detailed because there's much less information about shiny for Python on the internet because it's a much newer package.
 
-Another direction is to give the chat bot additional context about your current environment. For example, [aidea](https://github.com/cpsievert/aidea) allows the user to interactively explore a dataset with the help of the LLM. It adds summary statistics about the dataset to the [prompt](https://github.com/cpsievert/aidea/blob/main/inst/app/prompt.md) so that the LLM has context about the dataset. If you were working on a chatbot to help the user read in data, you could imagine include all the files in the current directory along with their first few lines.
+* If you've written a bunch of documentation for something you find that you still get a bunch of questions about it because folks can't easily find exactly the bit of info you're looking for. You can reduce the need to answer these questions by creating a chatbot with a prompt that contains your documentation. For example, if you're a teacher, you could create a chatbot that includes your syllabus in the prompt. This saves you a bunch of time answering student questions that they could answer themselves.
 
-Generally, there's a surprising amount of value to creating a chatbot that has a prompt stuffed with data that's already available on the internet. At best, search often only gets to you the correct page, whereas a chat bot can answer a specific narrowly scoped question. If you have more context than can be stuffed in a prompt, you'll need to use some other technique like RAG (retrieval-augmented generation). I'm planning to work on an R package to make that easier shortly.
+Another direction is to give the chatbot additional context about your current environment. For example, [aidea](https://github.com/cpsievert/aidea) allows the user to interactively explore a dataset with the help of the LLM. It adds summary statistics about the dataset to the [prompt](https://github.com/cpsievert/aidea/blob/main/inst/app/prompt.md) so that the LLM has context about the dataset. If you were working on a chatbot to help the user read in data, you could imagine include all the files in the current directory along with their first few lines.
 
 ### Structured data extraction
 
-LLMs can be very good at extracting structured data from unstructured text. Do you have any raw data that you've struggled to analyse in the past because it's just big wodges of plain text? Read `vignette("structure-data")` to learn about how you can use it.
-
-Some examples:
+LLMs are often very at extracting structured data from unstructured text. Some examples:
 
 * I've extracted structured recipe data from baking and cocktail recipes. Once you have the data in a structured form you can use your R skills to better understand how (e.g.) recipes vary within a cookbook. Or you could look for recipes that use the ingredients that you currently have in your kitchen.
 
 * Extract key details from customer tickets or GitHub issues. You can use LLMs for quick and dirty sentiment analysis, extract any specific products mentioned, and summarise the discussion into a few bullet points.
 
-* Structured data extraction also work works with images. It's not the fastest or cheapest way to extract data but it makes it really easy to prototype ideas. For example, maybe you have a bunch of scanned documents that you want to index. You can convert PDFs to images (e.g. using {imagemagick}) then use structured data extraction to pull out key details.
+* Perform geocoding, to extract addresses or the latitute/longitude of cities. There are specialised tools that do this better, but using an LLM makes it easy to get started.
+
+Structured data extraction also works well with images. It's not the fastest or cheapest way to extract data but it makes it really easy to prototype ideas. For example, maybe you have a bunch of scanned documents that you want to index. You can convert PDFs to images (e.g. using {imagemagick}) then use structured data extraction to pull out key details.
+
+Learn more in `vignette("structure-data")`.
 
 ### Programming
 
-Create a long hand written prompt that teaches the LLM about something it wouldn't otherwise know about. For example, you might write a guide to updating code to use a new version of a package. You could combine this with the rstudioapi package to allow the user to select code, transform it, and then replace the existing text. A comprehensive example of this sort of app is [pal](https://simonpcouch.github.io/pal/). It includes prompts for automatically generating a roxygen documentation block, updating testthat code to the 3rd edition, and converting `stop()` and `abort()` to use `cli::cli_abort()`.
+LLMs can also be useful to solve general programming problems. For example:
 
-You can also explore automatically adding addition context to the prompt. For example, you could automatically look up the documentation for an R function, and include it in the prompt.
+* Create a long hand written prompt that teaches the LLM about something it wouldn't otherwise know about. For example, you might write a guide to updating code to use a new version of a package. You could combine this with the rstudioapi package to allow the user to select code, transform it, and then replace the existing text. A comprehensive example of this sort of app is [pal](https://simonpcouch.github.io/pal/). It includes prompts for automatically generating a roxygen documentation block, updating testthat code to the 3rd edition, and converting `stop()` and `abort()` to use `cli::cli_abort()`.
 
-You can use LLMs to explain code, or even ask them to [generate a diagram](https://bsky.app/profile/daviddiviny.bsky.social/post/3lb6kjaen4c2u).
+* You can also explore automatically adding additional context to the prompt. For example, you could automatically look up the documentation for an R function, and include it in the prompt.
 
-### First pass
+* You can use LLMs to explain code, or even ask them to [generate a diagram](https://bsky.app/profile/daviddiviny.bsky.social/post/3lb6kjaen4c2u).
 
-For more complicated problems, you may find that an LLM rarely generates a 100% correct solution. That can be ok, if you adopt the mindset of using the LLM to get started, solving the "blank page problem":
+* Look for potential security issues in your code by sending an entire package worth of code in the prompt.
 
-* Use your existing company style guide to generate a [brand.yaml](https://posit-dev.github.io/brand-yml/articles/llm-brand-yml-prompt/) specification to automatically style your reports, apps, dashboards, plots to match your corporate style guide. Using a prompt here is unlikely to give you perfect results, but it's likely to get you close and then you can manually iterate.
+* Figure out what labels new github issues should get.
 
-* I sometimes find it useful to have an LLM document a function for me, even knowing that it's likely to be mostly incorrect. It can often be much easier to react to some existing text than having to start completely from scratch.
+* I find it useful to have an LLM document a function for me, even knowing that it's likely to be mostly incorrect. Having something to react to make it much easier for me to get started.
 
 * If you're workign with code or data from another programming language, you ask an LLM to convert it to R code for you. Even if it's not perfect, it's still typically much faster than doing everything yourself.
+
+## Misc
+
+* Automatically generate alt text for plots, using `content_image_plot()`.
+
+
+* Create random sample data given a basic specification of the desired outcome.
+
+* Could analyse the text of your statistical report and look for flaws in your reasoning. (e.g. misinterpreting p-values or assuming causation where only correlation exists.)
+
+* Use your existing company style guide to generate a [brand.yaml](https://posit-dev.github.io/brand-yml/articles/llm-brand-yml-prompt/) specification to automatically style your reports, apps, dashboards, plots to match your corporate style guide. Using a prompt here is unlikely to give you perfect results, but it's likely to get you close and then you can manually iterate.
