@@ -3,7 +3,7 @@ Title: Call LLM APIs from R
 Version: 0.0.0.9000
 Authors@R: c(
     person("Hadley", "Wickham", , "hadley@posit.co", role = c("aut", "cre")),
-    person("Joe", "Cheng", type = "aut"),
+    person("Joe", "Cheng", role = "aut"),
     person("Posit Software, PBC", role = c("cph", "fnd"))
   )
 Description: A consistent interface for calling LLM APIs. Includes support
