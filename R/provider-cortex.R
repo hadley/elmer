@@ -20,6 +20,16 @@ NULL
 #' previous messages. Nor does it support registering tools, and attempting to
 #' do so will result in an error.
 #'
+#' `chat_cortex()` picks up the following ambient Snowflake credentials:
+#'
+#' - A static OAuth token defined via the `SNOWFLAKE_TOKEN` environment
+#'   variable.
+#' - Key-pair authentication credentials defined via the `SNOWFLAKE_USER` and
+#'   `SNOWFLAKE_PRIVATE_KEY` (which can be a PEM-encoded private key or a path
+#'   to one) environment variables.
+#' - Posit Workbench-managed Snowflake credentials for the corresponding
+#'   `account`.
+#'
 #' @param account A Snowflake [account identifier](https://docs.snowflake.com/en/user-guide/admin-account-identifier),
 #'   e.g. `"testorg-test_account"`.
 #' @param credentials A list of authentication headers to pass into
@@ -32,6 +42,7 @@ NULL
 #' @param model_file Path to a semantic model file stored in a Snowflake Stage,
 #'   or `NULL` when using `model_spec` instead.
 #' @inheritParams chat_openai
+#' @inheritParams chat_databricks
 #' @inherit chat_openai return
 #' @family chatbots
 #' @examplesIf elmer:::cortex_credentials_exist()
@@ -41,40 +52,53 @@ NULL
 #' chat$chat("What questions can I ask?")
 #' @export
 chat_cortex <- function(account = Sys.getenv("SNOWFLAKE_ACCOUNT"),
-                        credentials = cortex_credentials,
+                        credentials = NULL,
                         model_spec = NULL,
                         model_file = NULL,
                         api_args = list(),
-                        echo = c("none", "text", "all")) {
+                        echo = c("none", "text", "all"),
+                        session = NULL) {
   check_string(account, allow_empty = FALSE)
   check_string(model_spec, allow_empty = FALSE, allow_null = TRUE)
   check_string(model_file, allow_empty = FALSE, allow_null = TRUE)
   check_exclusive(model_spec, model_file)
   echo <- check_echo(echo)
+  if (!is.null(session)) {
+    check_installed("connectcreds", "for viewer-based authentication")
+    if (!connectcreds::has_viewer_token(session, snowflake_url(account))) {
+      session <- NULL
+    }
+  }
 
   if (is_list(credentials)) {
     static_credentials <- force(credentials)
     credentials <- function(account) static_credentials
   }
-  check_function(credentials)
+  check_function(credentials, allow_null = TRUE)
 
   provider <- ProviderCortex(
     account = account,
     credentials = credentials,
     model_spec = model_spec,
     model_file = model_file,
-    extra_args = api_args
+    extra_args = api_args,
+    session = session
   )
 
   Chat$new(provider = provider, turns = NULL, echo = echo)
+}
+
+snowflake_url <- function(account) {
+  paste0("https://", account, ".snowflakecomputing.com")
 }
 
 ProviderCortex <- new_class(
   "ProviderCortex",
   parent = Provider,
   constructor = function(account, credentials, model_spec = NULL,
-                         model_file = NULL, extra_args = list()) {
-    base_url <- paste0("https://", account, ".snowflakecomputing.com")
+                         model_file = NULL, extra_args = list(),
+                         session = NULL) {
+    base_url <- snowflake_url(account)
     extra_args <- compact(list2(
       semantic_model = model_spec,
       semantic_model_file = model_file,
@@ -88,8 +112,9 @@ ProviderCortex <- new_class(
   },
   properties = list(
     account = prop_string(),
-    credentials = class_function,
-    extra_args = class_list
+    credentials = class_function | NULL,
+    extra_args = class_list,
+    session = class_list | NULL
   )
 )
 
@@ -110,9 +135,12 @@ method(chat_request, ProviderCortex) <- function(provider,
 
   req <- request(provider@base_url)
   req <- req_url_path_append(req, "/api/v2/cortex/analyst/message")
-  req <- httr2::req_headers(req,
-    !!!provider@credentials(provider@account), .redact = "Authorization"
+  creds <- cortex_credentials(
+    provider@account,
+    provider@credentials,
+    provider@session
   )
+  req <- httr2::req_headers(req, !!!creds, .redact = "Authorization")
   req <- req_retry(req, max_tries = 2)
   req <- req_timeout(req, 60)
 
@@ -348,21 +376,19 @@ cortex_credentials_exist <- function(...) {
   tryCatch(is_list(cortex_credentials(...)), error = function(e) FALSE)
 }
 
-#' @details
-#' `cortex_credentials()` picks up the following ambient Snowflake credentials:
-#'
-#' - A static OAuth token defined via the `SNOWFLAKE_TOKEN` environment
-#'   variable.
-#' - Key-pair authentication credentials defined via the `SNOWFLAKE_USER` and
-#'   `SNOWFLAKE_PRIVATE_KEY` (which can be a PEM-encoded private key or a path
-#'   to one) environment variables.
-#' - Posit Workbench-managed Snowflake credentials for the corresponding
-#'   `account`.
-#'
-#' @inheritParams chat_cortex
-#' @export
-#' @rdname chat_cortex
-cortex_credentials <- function(account = Sys.getenv("SNOWFLAKE_ACCOUNT")) {
+cortex_credentials <- function(account = Sys.getenv("SNOWFLAKE_ACCOUNT"),
+                               credentials = NULL,
+                               session = NULL) {
+  # Session credentials take precedence over static credentials.
+  if (!is.null(session)) {
+    return(connectcreds::connect_viewer_token(session, snowflake_url(account)))
+  }
+
+  # User-supplied credentials.
+  if (!is.null(credentials)) {
+    return(credentials(account))
+  }
+
   token <- Sys.getenv("SNOWFLAKE_TOKEN")
   if (nchar(token) != 0) {
     return(

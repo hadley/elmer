@@ -35,6 +35,8 @@
 #'   - `databricks-meta-llama-3-1-405b-instruct`
 #' @param token An authentication token for the Databricks workspace, or
 #'   `NULL` to use ambient credentials.
+#' @param session A Shiny session object, when using viewer-based credentials on
+#'   Posit Connect.
 #' @inheritParams chat_openai
 #' @inherit chat_openai return
 #' @export
@@ -44,12 +46,19 @@ chat_databricks <- function(workspace = databricks_workspace(),
                             model = NULL,
                             token = NULL,
                             api_args = list(),
-                            echo = c("none", "text", "all")) {
+                            echo = c("none", "text", "all"),
+                            session = NULL) {
   check_string(workspace, allow_empty = FALSE)
   check_string(token, allow_empty = FALSE, allow_null = TRUE)
   model <- set_default(model, "databricks-dbrx-instruct")
   turns <- normalize_turns(turns, system_prompt)
   echo <- check_echo(echo)
+  if (!is.null(session)) {
+    check_installed("connectcreds", "for viewer-based authentication")
+    if (!connectcreds::has_viewer_token(session, workspace)) {
+      session <- NULL
+    }
+  }
   provider <- ProviderDatabricks(
     base_url = workspace,
     model = model,
@@ -57,7 +66,8 @@ chat_databricks <- function(workspace = databricks_workspace(),
     token = token,
     # Databricks APIs use bearer tokens, not API keys, but we need to pass an
     # empty string here anyway to make S7::validate() happy.
-    api_key = ""
+    api_key = "",
+    session = session
   )
   Chat$new(provider = provider, turns = turns, echo = echo)
 }
@@ -65,7 +75,10 @@ chat_databricks <- function(workspace = databricks_workspace(),
 ProviderDatabricks <- new_class(
   "ProviderDatabricks",
   parent = ProviderOpenAI,
-  properties = list(token = prop_string(allow_null = TRUE))
+  properties = list(
+    token = prop_string(allow_null = TRUE),
+    session = class_list | NULL
+  )
 )
 
 method(chat_request, ProviderDatabricks) <- function(provider,
@@ -80,7 +93,7 @@ method(chat_request, ProviderDatabricks) <- function(provider,
   # `/serving-endpoints/<model>/invocations`.
   req <- req_url_path_append(req, "/serving-endpoints/chat/completions")
   req <- req_auth_bearer_token(req,
-    databricks_token(provider@base_url, provider@token)
+    databricks_token(provider@base_url, provider@token, provider@session)
   )
   req <- req_retry(req, max_tries = 2)
   req <- req_error(req, body = function(resp) {
@@ -165,8 +178,15 @@ databricks_workspace <- function() {
 
 # Try various ways to get Databricks credentials. This implements a subset of
 # the "Databricks client unified authentication" model.
-databricks_token <- function(workspace = databricks_workspace(), token = NULL) {
+databricks_token <- function(workspace = databricks_workspace(),
+                             token = NULL,
+                             session = NULL) {
   host <- gsub("https://|/$", "", workspace)
+
+  # Session credentials take precedence over static credentials.
+  if (!is.null(session)) {
+    return(connectcreds::connect_viewer_token(session, workspace))
+  }
 
   # An explicit bearer token takes precedence over everything else.
   token <- token %||% Sys.getenv("DATABRICKS_TOKEN")

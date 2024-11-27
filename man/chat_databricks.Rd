@@ -11,7 +11,8 @@ chat_databricks(
   model = NULL,
   token = NULL,
   api_args = list(),
-  echo = c("none", "text", "all")
+  echo = c("none", "text", "all"),
+  session = NULL
 )
 }
 \arguments{
@@ -51,6 +52,9 @@ the console).
 }
 
 Note this only affects the \code{chat()} method.}
+
+\item{session}{A Shiny session object, when using viewer-based credentials on
+Posit Connect.}
 }
 \value{
 A \link{Chat} object.

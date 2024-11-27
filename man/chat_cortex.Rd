@@ -2,19 +2,17 @@
 % Please edit documentation in R/provider-cortex.R
 \name{chat_cortex}
 \alias{chat_cortex}
-\alias{cortex_credentials}
 \title{Create a chatbot that speaks to the Snowflake Cortex Analyst}
 \usage{
 chat_cortex(
   account = Sys.getenv("SNOWFLAKE_ACCOUNT"),
-  credentials = cortex_credentials,
+  credentials = NULL,
   model_spec = NULL,
   model_file = NULL,
   api_args = list(),
-  echo = c("none", "text", "all")
+  echo = c("none", "text", "all"),
+  session = NULL
 )
-
-cortex_credentials(account = Sys.getenv("SNOWFLAKE_ACCOUNT"))
 }
 \arguments{
 \item{account}{A Snowflake \href{https://docs.snowflake.com/en/user-guide/admin-account-identifier}{account identifier},
@@ -44,6 +42,9 @@ the console).
 }
 
 Note this only affects the \code{chat()} method.}
+
+\item{session}{A Shiny session object, when using viewer-based credentials on
+Posit Connect.}
 }
 \value{
 A \link{Chat} object.
@@ -60,9 +61,8 @@ reference to an existing file in a Snowflake Stage.
 Note that Cortex does not support multi-turn, so it will not remember
 previous messages. Nor does it support registering tools, and attempting to
 do so will result in an error.
-}
-\details{
-\code{cortex_credentials()} picks up the following ambient Snowflake credentials:
+
+\code{chat_cortex()} picks up the following ambient Snowflake credentials:
 \itemize{
 \item A static OAuth token defined via the \code{SNOWFLAKE_TOKEN} environment
 variable.
