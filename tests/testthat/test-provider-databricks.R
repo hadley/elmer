@@ -83,3 +83,41 @@ test_that("M2M authentication requests look correct", {
   })
   expect_equal(databricks_token(), "token")
 })
+
+test_that("the session parameter is ignored when not on Connect", {
+  withr::local_envvar(DATABRICKS_HOST = "https://example.cloud.databricks.com")
+  session <- structure(list(request = list()), class = "ShinySession")
+  expect_snapshot(. <- chat_databricks(session = session))
+})
+
+test_that("missing viewer credentials generate errors on Connect", {
+  # Mock a Connect environment that *does not* support viewer-based credentials.
+  withr::local_envvar(
+    DATABRICKS_HOST = "https://example.cloud.databricks.com",
+    RSTUDIO_PRODUCT = "CONNECT"
+  )
+  session <- structure(list(request = list()), class = "ShinySession")
+  expect_snapshot(. <- chat_databricks(session = session), error = TRUE)
+})
+
+test_that("token exchange requests to Connect look correct", {
+  # Mock a Connect environment that supports viewer-based credentials.
+  withr::local_envvar(
+    DATABRICKS_HOST = "https://example.cloud.databricks.com",
+    RSTUDIO_PRODUCT = "CONNECT",
+    CONNECT_SERVER = "localhost:3030",
+    CONNECT_API_KEY = "key"
+  )
+  local_mocked_responses(function(req) {
+    # Snapshot relevant fields of the outgoing request.
+    expect_snapshot(
+      list(url = req$url, headers = req$headers, body = req$body$data)
+    )
+    response_json(body = list(access_token = "token"))
+  })
+  session <- structure(
+    list(request = list(HTTP_POSIT_CONNECT_USER_SESSION_TOKEN = "user-token")),
+    class = "ShinySession"
+  )
+  expect_equal(databricks_token(session = session), "token")
+})

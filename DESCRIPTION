@@ -24,6 +24,7 @@ Imports:
 Suggests:
     base64enc,
     bslib,
+    connectcreds,
     curl (>= 6.0.1),
     gitcreds,
     knitr,
@@ -39,7 +40,8 @@ VignetteBuilder:
     knitr
 Remotes:
     r-lib/httr2,
-    jcheng5/shinychat
+    jcheng5/shinychat,
+    posit-dev/connectcreds
 Config/Needs/website: tidyverse/tidytemplate, rmarkdown
 Config/testthat/edition: 3
 Config/testthat/parallel: true
