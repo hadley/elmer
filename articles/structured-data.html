@@ -100,7 +100,7 @@ extracts two specific values from a string:</p>
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_openai.html">chat_openai</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span></span>
 <span>  <span class="st">"My name is Susan and I'm 13 years old"</span>,</span>
-<span>  spec <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
 <span>    age <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_number</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>    name <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
@@ -109,7 +109,7 @@ extracts two specific values from a string:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="../reference/content_image_url.html">content_image_url</a></span><span class="op">(</span><span class="st">"https://www.r-project.org/Rlogo.png"</span><span class="op">)</span>,</span>
-<span>  spec <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
 <span>    primary_shape <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>    primary_colour <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
@@ -168,11 +168,14 @@ maximum values, date formats, …). You aren’t guaranteed that these
 requests will be honoured, but the LLM will usually make a best effort
 to do so.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">person</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">type_person</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
 <span>  <span class="st">"A person"</span>,</span>
 <span>  name <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="st">"Name"</span><span class="op">)</span>,</span>
 <span>  age <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_integer</a></span><span class="op">(</span><span class="st">"Age, in years."</span><span class="op">)</span>,</span>
-<span>  hobbies <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_array</a></span><span class="op">(</span><span class="st">"List of hobbies. Should be exclusive and brief."</span>, <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span>
+<span>  hobbies <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_array</a></span><span class="op">(</span></span>
+<span>    <span class="st">"List of hobbies. Should be exclusive and brief."</span>,</span>
+<span>    items <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Now we’ll dive into some examples before coming back to talk more
 data types details.</p>
@@ -192,7 +195,7 @@ you can use structured data extraction.</p>
 <span><span class="co"># html &lt;- rvest::read_html(url)</span></span>
 <span><span class="co"># text &lt;- rvest::html_text2(rvest::html_element(html, "article"))</span></span>
 <span></span>
-<span><span class="va">article_summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
+<span><span class="va">type_summary</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Summary of the article."</span>,</span>
 <span>  author <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="st">"Name of the article author"</span><span class="op">)</span>,</span>
 <span>  topics <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_array</a></span><span class="op">(</span></span>
@@ -205,7 +208,7 @@ you can use structured data extraction.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_openai.html">chat_openai</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">text</span>, spec <span class="op">=</span> <span class="va">article_summary</span><span class="op">)</span></span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">text</span>, type <span class="op">=</span> <span class="va">type_summary</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">summary</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span></code></pre></div>
@@ -216,20 +219,18 @@ you can use structured data extraction.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">text</span> <span class="op">&lt;-</span> <span class="st">"John works at Google in New York. He met with Sarah, the CEO of Acme Inc., last week in San Francisco."</span></span>
 <span></span>
-<span><span class="va">named_entities</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
-<span>  <span class="st">"named entities"</span>,</span>
-<span>  entities <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_array</a></span><span class="op">(</span></span>
-<span>    <span class="st">"Array of named entities"</span>,</span>
-<span>    <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
-<span>      name <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="st">"The extracted entity name."</span><span class="op">)</span>,</span>
-<span>      type <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_enum</a></span><span class="op">(</span><span class="st">"The entity type"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"person"</span>, <span class="st">"location"</span>, <span class="st">"organization"</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>      context <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="st">"The context in which the entity appears in the text."</span><span class="op">)</span></span>
-<span>    <span class="op">)</span></span>
-<span>  <span class="op">)</span></span>
+<span><span class="va">type_named_entity</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
+<span>  name <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="st">"The extracted entity name."</span><span class="op">)</span>,</span>
+<span>  type <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_enum</a></span><span class="op">(</span><span class="st">"The entity type"</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"person"</span>, <span class="st">"location"</span>, <span class="st">"organization"</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>  context <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="st">"The context in which the entity appears in the text."</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">type_named_entities</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
+<span>  entities <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_array</a></span><span class="op">(</span>items <span class="op">=</span> <span class="va">type_named_entity</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_openai.html">chat_openai</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">text</span>, spec <span class="op">=</span> <span class="va">named_entities</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">text</span>, type <span class="op">=</span> <span class="va">type_named_entities</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="example-3-sentiment-analysis">Example 3: Sentiment analysis<a class="anchor" aria-label="anchor" href="#example-3-sentiment-analysis"></a>
@@ -237,7 +238,7 @@ you can use structured data extraction.</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">text</span> <span class="op">&lt;-</span> <span class="st">"The product was okay, but the customer service was terrible. I probably won't buy from them again."</span></span>
 <span></span>
-<span><span class="va">sentiment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
+<span><span class="va">type_sentiment</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Extract the sentiment scores of a given text. Sentiment scores should sum to 1."</span>,</span>
 <span>  positive_score <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_number</a></span><span class="op">(</span><span class="st">"Positive sentiment score, ranging from 0.0 to 1.0."</span><span class="op">)</span>,</span>
 <span>  negative_score <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_number</a></span><span class="op">(</span><span class="st">"Negative sentiment score, ranging from 0.0 to 1.0."</span><span class="op">)</span>,</span>
@@ -245,7 +246,7 @@ you can use structured data extraction.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_openai.html">chat_openai</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">text</span>, spec <span class="op">=</span> <span class="va">sentiment</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">text</span>, type <span class="op">=</span> <span class="va">type_sentiment</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Note that we’ve asked nicely for the scores to sum 1, and they do in
 this example (at least when I ran the code), but it’s not
 guaranteed.</p>
@@ -256,7 +257,7 @@ guaranteed.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">text</span> <span class="op">&lt;-</span> <span class="st">"The new quantum computing breakthrough could revolutionize the tech industry."</span></span>
 <span></span>
-<span><span class="va">classification</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_array</a></span><span class="op">(</span></span>
+<span><span class="va">type_classification</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_array</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Array of classification results. The scores should sum to 1."</span>,</span>
 <span>  <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
 <span>    name <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_enum</a></span><span class="op">(</span></span>
@@ -276,25 +277,25 @@ guaranteed.</p>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="va">wrapper</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
-<span>  classification <span class="op">=</span> <span class="va">classification</span></span>
+<span>  classification <span class="op">=</span> <span class="va">type_classification</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_openai.html">chat_openai</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">text</span>, spec <span class="op">=</span> <span class="va">wrapper</span><span class="op">)</span></span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">text</span>, type <span class="op">=</span> <span class="va">wrapper</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">classification</span>, <span class="va">as.data.frame</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Here we created a wrapper object because the OpenAI API requires all
 structured data to use an object. If you’re working with Claude or
 Gemini, the code is a little simpler:</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_claude.html">chat_claude</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">text</span>, spec <span class="op">=</span> <span class="va">classification</span><span class="op">)</span></span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">text</span>, type <span class="op">=</span> <span class="va">type_classification</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">as.data.frame</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="example-5-working-with-unknown-keys">Example 5: Working with unknown keys<a class="anchor" aria-label="anchor" href="#example-5-working-with-unknown-keys"></a>
 </h3>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">characteristics</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">type_characteristics</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
 <span>  <span class="st">"All characteristics"</span>,</span>
 <span>  .additional_properties <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
@@ -308,7 +309,7 @@ Gemini, the code is a little simpler:</p>
 <span><span class="st">"</span></span>
 <span></span>
 <span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_claude.html">chat_claude</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">prompt</span>, spec <span class="op">=</span> <span class="va">characteristics</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">prompt</span>, type <span class="op">=</span> <span class="va">type_characteristics</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>This examples only works with Claude, not GPT or Gemini, because only
 Claude supports adding arbitrary additional properties.</p>
 </div>
@@ -325,7 +326,7 @@ assets and “unearned” income</div>
 </div>
 <p>Even without any descriptions, ChatGPT does pretty well:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">asset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">type_asset</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
 <span>  assert_name <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  owner <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  location <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -336,13 +337,13 @@ assets and “unearned” income</div>
 <span>  income_high <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_integer</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  tx_gt_1000 <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_boolean</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">disclosure_report</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
-<span>  assets <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_array</a></span><span class="op">(</span>items <span class="op">=</span> <span class="va">asset</span><span class="op">)</span></span>
+<span><span class="va">type_disclosure_report</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
+<span>  assets <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_array</a></span><span class="op">(</span>items <span class="op">=</span> <span class="va">type_asset</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_openai.html">chat_openai</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">image</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/content_image_url.html">content_image_file</a></span><span class="op">(</span><span class="st">"congressional-assets.png"</span><span class="op">)</span></span>
-<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">image</span>, spec <span class="op">=</span> <span class="va">disclosure_report</span><span class="op">)</span></span>
+<span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">image</span>, type <span class="op">=</span> <span class="va">type_disclosure_report</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span></code></pre></div>
 </div>
 </div>
@@ -361,7 +362,7 @@ fields as LLMs may hallucinate data in order to fulfill your spec.</p>
 <p>For example, here the LLM hallucinates a date even though there isn’t
 one in the text:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">article_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">type_article</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Information about an article written in markdown"</span>,</span>
 <span>  title <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="st">"Article title"</span><span class="op">)</span>,</span>
 <span>  author <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="st">"Name of the author"</span><span class="op">)</span>,</span>
@@ -380,7 +381,7 @@ one in the text:</p>
 <span><span class="st">"</span></span>
 <span></span>
 <span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_openai.html">chat_openai</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">prompt</span>, spec <span class="op">=</span> <span class="va">article_spec</span><span class="op">)</span></span>
+<span><span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">prompt</span>, type <span class="op">=</span> <span class="va">type_article</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span></code></pre></div>
 <p>Note that I’ve used more of an explict prompt here. For this example,
 I found that this generated better results, and it’s a useful place to
@@ -388,13 +389,13 @@ put additional instructions.</p>
 <p>If let the LLM know that the fields are all optional, it’ll instead
 return <code>NULL</code> for the missing fields:</p>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">article_spec</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">type_article</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
 <span>  <span class="st">"Information about an article written in markdown"</span>,</span>
 <span>  title <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="st">"Article title"</span>, required <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
 <span>  author <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="st">"Name of the author"</span>, required <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
 <span>  date <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="st">"Date written in YYYY-MM-DD format."</span>, required <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">prompt</span>, spec <span class="op">=</span> <span class="va">article_spec</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">prompt</span>, type <span class="op">=</span> <span class="va">type_article</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="data-frames">Data frames<a class="anchor" aria-label="anchor" href="#data-frames"></a>
@@ -403,7 +404,7 @@ return <code>NULL</code> for the missing fields:</p>
 to create a definition similar to what R uses: an object (i.e. a named
 list) containing multiple vectors (i.e. arrays):</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">my_df_type</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">type_my_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
 <span>  name <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_array</a></span><span class="op">(</span>items <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  age <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_array</a></span><span class="op">(</span>items <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_integer</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  height <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_array</a></span><span class="op">(</span>items <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_number</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -414,7 +415,7 @@ that each array should have the same length. Instead you need to turn
 the data structure “inside out”, and instead create an array of
 objects:</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">my_df_type</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_array</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">type_my_df</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_array</a></span><span class="op">(</span></span>
 <span>  items <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
 <span>    name <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>    age <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_integer</a></span><span class="op">(</span><span class="op">)</span>,</span>
