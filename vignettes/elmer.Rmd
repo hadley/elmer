@@ -18,105 +18,120 @@ knitr::opts_chunk$set(
 library(elmer)
 ```
 
-The goal of elmer is to make it easy to access to the wealth of large language models (LLMs) from R. But what can you do with those models once you have them? The goal of this vignette is to give you the basic vocabulary you need use an LLM effectively and show a bunch of interesting examples to get your creative juices flowing.
+elmer makes it easy to access to the wealth of large language models (LLMs) from R. But what can you do with those models once you have access to them? This vignette will give you the basic vocabulary you need use an LLM effectively and show a bunch of examples to ignite your creativity.
 
-Here we'll ignore how LLMs actually work, using them as convenient black boxes. If you want to get a sense of how they actually work, we recommend watching Jeremy Howard's posit::conf(2023) keynote: [A hacker's guide to open source LLMs](https://www.youtube.com/watch?v=sYliwvml9Es).
+In this vignette we'll most ignore how LLMs work, using them as convenient black boxes. If you want to get a sense of how they actually work, we recommend watching Jeremy Howard's posit::conf(2023) keynote: [A hacker's guide to open source LLMs](https://www.youtube.com/watch?v=sYliwvml9Es).
 
 ## Vocabulary
 
-We'll start by laying out some key vocab that you'll need to understand LLMs. Unfortunately the vocab is all a little entangled, so to understand one term you have to know a little about some of the others. So we'll start with some simple definitions of the most important terms then iteratively go a little deeper.
+We'll start by laying out the key vocab that you'll need to understand LLMs. Unfortunately the vocab is all a little entangled: to understand one term you often have to know a little about some of the others. So we'll start with some simple definitions of the most important terms then iteratively go a little deeper.
 
-It all starts with a **prompt**, which is the text (typically a question) that you send to the LLM. This starts a **conversation**, a sequence of turns that alternate between user (i.e. your) prompts and model responses. Inside the model, the prompt and response are represented by a sequence of **tokens**, which represent either individual words or components of each word. The tokens are used to compute the cost of using a model and are used to measure the size of the **context**, the combination of the current prompt and any previous prompts and response used to generate the next response.
+It all starts with a **prompt**, which is the text (typically a question or a request) that you send to the LLM. This starts a **conversation**, a sequence of turns that alternate between user prompts and model responses. Inside the model, both the prompt and response are represented by a sequence of **tokens**, which represent either individual words or subcomponents of a word. The tokens are used to compute the cost of using a model and are used to measure the size of the **context**, the combination of the current prompt and any previous prompts and responses used to generate the next response.
 
-It's also useful to make the distinction between providers and models. A **provider** is a web API that provides access to one or more **model**. The distinction is a bit subtle because providers are often synonymous with a model, like OpenAI and GPT, Anthropic and Claude, and Google and Gemini. But other providers, like Ollama, can host many different models, typically open source models like LLaMa and Mistral. Still other providers do both, typically by partnering with a company that provides a popular closed model. For example, Azure OpenAI offers both open source models and OpenAI's GPT, while AWS Bedrock offers both open source models and Anthropic's Claude.
+It's useful to make the distinction between providers and models. A **provider** is a web API that gives access to one or more **model**. The distinction is a bit subtle because providers are often synonymous with a model, like OpenAI and GPT, Anthropic and Claude, and Google and Gemini. But other providers, like Ollama, can host many different models, typically open source models like LLaMa and Mistral. Still other providers support both closed and open models, typically by partnering with a company that provides a popular closed model. For example, Azure OpenAI offers both open source models and OpenAI's GPT, while AWS Bedrock offers both open source models and Anthropic's Claude.
 
 ### What is a token?
 
-An LLM is a _model_, and like all models needs some way to represent its inputs numerically. For LLMs, that means we  need some way to convert words to numbers, which is the goal of the **tokenizer**. For example, using the GPT 4o tokenizer, the string "When was R created?" is converted to the seqeuence of numbers .... (You can see how various strings are tokenized using <http://tiktokenizer.vercel.app/>). If you want to learn more about tokens and tokenizers, I'd recommend watching the first 20-30 minutes of [Let's build the GPT Tokenizer](https://www.youtube.com/watch?v=zduSFxRajkE) by Andrej Karpathy. You certainly don't need to learn how to build your own tokenizer, but the intro will give you a bunch of useful background knowledge that will help improve your undersstanding of how LLM's work.
+An LLM is a _model_, and like all models needs some way to represent its inputs numerically. For LLMs, that means we need some way to convert words to numbers, which is the goal of the **tokenizer**. For example, using the GPT 4o tokenizer, the string "When was R created?" is converted to 5 tokens: 5958 ("When"), 673 (" was"), 460 (" R"), 5371 (" created"), 30 ("?"). As you can see, many simple strings can be represented by a single token. But more complex strings require multiple tokens. For example, the string "counterrevolutionary" is requires 4 tokens: 32128 ("counter"), 264 ("re"), 9477 ("volution"), 815 ("ary"). (You can see how various strings are tokenized at <http://tiktokenizer.vercel.app/>).
 
-It's important to have a rough sense of how text is converted to tokens because tokens are used to determine the cost of a model and how much context can be used to predict the next response. On average an English word needs ~1.5 tokens (common words will be represented by a single token; rarer words will require multiple) so a page might be 375-400 tokens and a complete book might be 75,000 to 150,000 tokens. Other languages will typically require more tokens, because LLMs are trained on data from the internet, which is primarily in English.
+It's important to have a rough sense of how text is converted to tokens because tokens are used to determine the cost of a model and how much context can be used to predict the next response. On average an English word needs ~1.5 tokens so a page might require 375-400 tokens and a complete book might require 75,000 to 150,000 tokens. Other languages will typically require more tokens, because (in brief) LLMs are trained on data from the internet, which is primarily in English.
 
-LLMs are priced per million tokens based on how much computation a model requires. Mid-tier models (e.g. gpt-4o or claude 3 haiku) cost be around $0.25 per million input and $1 per million output tokens; state of the art models (like gpt-4o or claude 3.5 sonnet) are more like $2.50 per million input tokens, and $10 per million output tokens. Certainly even $10 of API credit will give you a lot of room for experimentation with using mid-tier models, and prices are likely to decline as model performance improves. In elmer, you can see how many tokens a conversations has used when you print it and you can see total usage for a session with `token_usage()`.
+LLMs are priced per million tokens. State of the art models (like GPT-4o or Claude 3.5 sonnet) cost $2-3 per million input tokens, and $10-15 per million output tokens. Cheaper models can cost much less, e.g. GPT-4o mini costs $0.15 per million input tokens and $0.60 per million output tokens. Even $10 of API credit will give you a lot of room for experimentation, particularly with cheaper models, and prices are likely to decline as model performance improves.
 
 Tokens also used to measure the context window, which is how much text the LLM can use to generate the next response. As we'll discuss shortly, the context length includes the full state of your conversation so far (both your prompts and the model's responses), which means that cost grow rapidly with the number of conversational turns.
 
+In elmer, you can see how many tokens a conversations has used by printing it, and you can see total usage for a session with `token_usage()`.
+
+```{r}
+chat <- chat_openai(model = "gpt-4o")
+. <- chat$chat("Who created R?", echo = FALSE)
+chat
+
+token_usage()
+```
+
+If you want to learn more about tokens and tokenizers, I'd recommend watching the first 20-30 minutes of [Let's build the GPT Tokenizer](https://www.youtube.com/watch?v=zduSFxRajkE) by Andrej Karpathy. You certainly don't need to learn how to build your own tokenizer, but the intro will give you a bunch of useful background knowledge that will help improve your undersstanding of how LLM's work.
+
 ### What is a conversation?
 
-A conversation with an LLM takes place through a series of HTTP requests and responses: you send your question to the LLM in a HTTP request, and it sends its reply back in a HTTP response. In other words, a conversation consists of a sequence of a paired turns: you send a prompt then the model returns a response. To generate that response, the model will use the entire conversation history, both the prompts and the responses. In other words, every time that elmer sends a prompt to an LLM, it actually sends the entire conversation history. This is important to understand because:
+A conversation with an LLM takes place through a series of HTTP requests and responses: you send your question to the LLM in a HTTP request, and it sends its reply back in a HTTP response. In other words, a conversation consists of a sequence of a paired turns: you send a prompt then the model returns a response.
 
-* It affects pricing. You are charged per token, so each question in a conversation is going to include all the previous questions and answers, meaning that the cost is going to grow quadratically with the number of turns. In other words: to save money, keep your conversations short.
+It's important to note that a request includes not only the current user prompt, but every previous user prompt and model response. This means that:
 
-* Every response is affected by all previous questions and responses. This can make a converstion get stuck in a local optimum, so generally it's better to iterate by starting new conversations with improved prompts rather than having a long conversation with the model.
+* The cost of a conversation will grow quadratically with the number of turns: if you want to save money, keep your conversations short.
 
-* elmer has full control over the conversational history, because it's elmer's responsibility to send the previous conversation turns. That makes it possible to start a conversation with one model and finish it with another.
+* Each response is affected by all previous prompts and responses. This can make a converstion get stuck in a local optimum, so it's generally better to iterate by starting a new conversation with a better prompt rather than having a long back-and-forth.
+
+* elmer has full control over the conversational history, because it's elmer's responsibility to send the previous turns of the conversation. That makes it possible to start a conversation with one model and finish it with another.
 
 ### What is a prompt?
 
-The user prompt is the question that you send to the model. There are two other important prompts the underlying the user prompt:
+The user prompt is the question that you send to the model. There are two other important prompts that underlie the user prompt:
 
 * The **core system prompt** is unchangeable, set by the model provider, and affects every conversation. You can see what these look like from Anthropic, who [publishes their core system prompts](https://docs.anthropic.com/en/release-notes/system-prompts).
 
-* The **system prompt** is set when you create a new conversation, and will affect every response. It's used to provide additional instructions for the model, shaping its responses to your needs. For example, you might use the system prompt to ask the model to always respond in Spanish or to write dependency-free base R code. You can also use the system prompt to provide the model with information it wouldn't otherwise know about, like the details of your database schema, or the ggplot2 theme and color palette you strongly prefer.
+* The **system prompt** is set when you create a new conversation, and affects every response. It's used to provide additional instructions for the model, shaping its responses to your needs. For example, you might use the system prompt to ask the model to always respond in Spanish or to write dependency-free base R code. You can also use the system prompt to provide the model with information it wouldn't otherwise know about, like the details of your database schema, or the ggplot2 theme and color palette that you most prefer.
 
-Writing good prompts is called __prompt design__, is key to effective use of LLMs, and is discussed in more detail in  `vignette("prompt-design")`. When you use a chat app like ChatGPT or Claude.AI you can only iterate on the user prompt. But generally when you're programming with LLMs, you'll iterate on the system prompt. For example, if you're developing an app that helps a user write tidyverse code, you'd work with the system prompt to ensure that you get the style of code that you want.
+When you use a chat app like ChatGPT or claude.ai you can only iterate on the user prompt. But when you're programming with LLMs, you'll primarily iterate on the system prompt. For example, if you're developing an app that helps a user write tidyverse code, you'd work with the system prompt to ensure that user gets the style of code that you want.
+
+Writing good prompts is called __prompt design__, is key to effective use of LLMs, and is discussed in more detail in  `vignette("prompt-design")`.
 
 ## Example uses
 
-Now that you've got the basic vocab under your belt, I'm going to just fire a bunch of interesting potential use cases at you. For many of these examples there are often special purpose tools that will be faster and cheaper. But using an LLM allows you to rapidly prototype an idea on a small subset of the full problem to determine if it's worth investing more time and effort.
+Now that you've got the basic vocab under your belt, I'm going to fire a bunch of interesting potential use cases at you. Many of these use cases have existing special purpose tools that might be faster, or cheaper, or both. But using an LLM allows you to rapidly prototype an idea, and this is extremely valuable, even if you end up using a more specialised tool for the final product.
 
-For many problems you'll find that an LLM rarely generates a totally correct solution. But that can be ok, as there are many cases where an 80% correct solution might still save you a bunch of time. It can also be useful to get started tackling a problem, as having a not-so-good solution to react to can make it easier to get started than a blank page. In general, I would be very cautious about using an LLM for solutions that require very high accuracy.
+In general, we recommend avoiding LLMs where accuracy is critically important. But that still allows for a wide variety of uses. For example, there are plenty of cases where an 80% correct solution which always requires some manual fiddling might still save you a bunch of time. In other cases, a not-so-good solution can still make it much easier to get started: it's easier to react to something existing rather than starting from scratch with a blank page.
 
 ### Chatbots
 
-A great place to start is building a chatbot with a custom prompt. Chatbots are a familiar interface and easy to create in R with [shinychat](https://github.com/jcheng5/shinychat). And there's often a surprising amount of value to creating a chatbot that has a prompt stuffed with data that's already available on the internet. For example:
+A great place to start with elmer and LLMs to build a chatbot with a custom prompt. Chatbots are a familiar interface to LLMs and easy to create in R with [shinychat](https://github.com/jcheng5/shinychat). And there's surprising amount of value to creating a custom chatbot that has a prompt stuffed with useful knowledge. For example:
 
-* Maybe you want to help people use your new package. The default prompt won't work because LLMs don't know anything about your package. You can get surprisingly far by preloading the prompt with your README and other vignettes. This is how the [elmer assistant](https://github.com/jcheng5/elmer-assistant) works.
+* Maybe you want to help people use your new package. You need a custom prompt because LLMs were trained on data before your package exists. You can create a surprisingly useful tool just by preloading the prompt with your README and other vignettes. This is how the [elmer assistant](https://github.com/jcheng5/elmer-assistant) works.
 
-* [Shiny assistant](https://shiny.posit.co/blog/posts/shiny-assistant/) helps you build shiny apps (either in R or python) by combining a [prompt](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt.md) that gives general advice with a language specific prompt for [R](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_r.md) or [python](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_python.md). The python prompt is very detailed because there's much less information about shiny for Python on the internet because it's a much newer package.
+* [Shiny assistant](https://shiny.posit.co/blog/posts/shiny-assistant/) helps you build shiny apps (either in R or python) by combining a [prompt](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt.md) that gives general advice on building apps with a language specific prompt for [R](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_r.md) or [python](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_python.md). The python prompt is very detailed because there's much less information about Shiny for Python in the existing LLM knowledgebases.
 
-* If you've written a bunch of documentation for something you find that you still get a bunch of questions about it because folks can't easily find exactly the bit of info you're looking for. You can reduce the need to answer these questions by creating a chatbot with a prompt that contains your documentation. For example, if you're a teacher, you could create a chatbot that includes your syllabus in the prompt. This saves you a bunch of time answering student questions that they could answer themselves.
+* If you've written a bunch of documentation for something, you might find that you still get a bunch of questions about it because folks can't easily find exactly what they're looking for. You can reduce the need to answer these questions by creating a chatbot with a prompt that contains your documentation. For example, if you're a teacher, you could create a chatbot that includes your syllabus in the prompt. This eliminates a common class of question where the data necessary to answer the question is already available, but hard to find.
 
-Another direction is to give the chatbot additional context about your current environment. For example, [aidea](https://github.com/cpsievert/aidea) allows the user to interactively explore a dataset with the help of the LLM. It adds summary statistics about the dataset to the [prompt](https://github.com/cpsievert/aidea/blob/main/inst/app/prompt.md) so that the LLM has context about the dataset. If you were working on a chatbot to help the user read in data, you could imagine include all the files in the current directory along with their first few lines.
+Another direction is to give the chatbot additional context about your current environment. For example, [aidea](https://github.com/cpsievert/aidea) allows the user to interactively explore a dataset with the help of the LLM. It adds summary statistics about the dataset to the [prompt](https://github.com/cpsievert/aidea/blob/main/inst/app/prompt.md) so that the LLM knows something about your data. Along the same lines, you could imagine writing a chatbot to help with data import that has a prompt which include all the files in the current directory along with their first few lines.
 
 ### Structured data extraction
 
-LLMs are often very at extracting structured data from unstructured text. Some examples:
+LLMs are often very good at extracting structured data from unstructured text, which can give you traction to analyse data that was previously unaccessible. For example:
 
-* I've extracted structured recipe data from baking and cocktail recipes. Once you have the data in a structured form you can use your R skills to better understand how (e.g.) recipes vary within a cookbook. Or you could look for recipes that use the ingredients that you currently have in your kitchen.
+* Customer tickets and GitHub issues: you can use LLMs for quick and dirty sentiment analysis, extract any specific products mentioned, and summarise the discussion into a few bullet points.
 
-* Extract key details from customer tickets or GitHub issues. You can use LLMs for quick and dirty sentiment analysis, extract any specific products mentioned, and summarise the discussion into a few bullet points.
+* Geocoding: LLMs do a surprisingly good job at geocoding, especially to extract addresses or find the latitute/longitude of cities. There are specialised tools that do this better, but using an LLM makes it easy to get started.
 
-* Perform geocoding, to extract addresses or the latitute/longitude of cities. There are specialised tools that do this better, but using an LLM makes it easy to get started.
+* Recipes: I've extracted structured data from baking and cocktail recipes. Once you have the data in a structured form you can use your R skills to better understand how recipes vary within a cookbook or you could look for recipes that use the ingredients that you currently have in your kitchen. Or you could use shiny assistant to help make those techniques available to anyone, not just R users.
 
 Structured data extraction also works well with images. It's not the fastest or cheapest way to extract data but it makes it really easy to prototype ideas. For example, maybe you have a bunch of scanned documents that you want to index. You can convert PDFs to images (e.g. using {imagemagick}) then use structured data extraction to pull out key details.
 
-Learn more in `vignette("structure-data")`.
+Learn more about structured data extractio in `vignette("structure-data")`.
 
 ### Programming
 
 LLMs can also be useful to solve general programming problems. For example:
 
-* Create a long hand written prompt that teaches the LLM about something it wouldn't otherwise know about. For example, you might write a guide to updating code to use a new version of a package. You could combine this with the rstudioapi package to allow the user to select code, transform it, and then replace the existing text. A comprehensive example of this sort of app is [pal](https://simonpcouch.github.io/pal/). It includes prompts for automatically generating a roxygen documentation block, updating testthat code to the 3rd edition, and converting `stop()` and `abort()` to use `cli::cli_abort()`.
+* Write a detailed prompt that explains how update code to use a new version of a package. You could combine this with the rstudioapi package to allow the user to select code, transform it, and then replace the existing text. A comprehensive example of this sort of app is [pal](https://simonpcouch.github.io/pal/), which includes prompts for automatically generating roxygen documentation blocks, updating testthat code to the 3rd edition, and converting `stop()` and `abort()` to use `cli::cli_abort()`.
 
-* You can also explore automatically adding additional context to the prompt. For example, you could automatically look up the documentation for an R function, and include it in the prompt.
+* You could automatically look up the documentation for an R function, and include it in the prompt to make it easier to figure out how to use a specific function.
 
 * You can use LLMs to explain code, or even ask them to [generate a diagram](https://bsky.app/profile/daviddiviny.bsky.social/post/3lb6kjaen4c2u).
 
-* Look for potential security issues in your code by sending an entire package worth of code in the prompt.
+* You can ask an LLM to analyse your code for potential code smells or security issues. You can do this a function at a time, or explore including the entire source code for your package or script in the prompt.
 
-* Figure out what labels new github issues should get.
+* You could use [gh](https://gh.r-lib.org) to find unlabelled issues, extract the text, and ask the LLM to figure out what labels might be most appropriate. Or maybe an LLM might be able to help people create better reprexes, or simplify reprexes that are too complicated?
 
 * I find it useful to have an LLM document a function for me, even knowing that it's likely to be mostly incorrect. Having something to react to make it much easier for me to get started.
 
-* If you're workign with code or data from another programming language, you ask an LLM to convert it to R code for you. Even if it's not perfect, it's still typically much faster than doing everything yourself.
+* If you're working with code or data from another programming language, you ask an LLM to convert it to R code for you. Even if it's not perfect, it's still typically much faster than doing everything yourself.
 
-## Misc
+## Miscellaneous
+
+To finsish up here are a few other ideas that seem cool but didn't seem to fit in the other categories:
 
 * Automatically generate alt text for plots, using `content_image_plot()`.
 
+* Try analysing the text of your statistical report and look for flaws in your statistical reasoning. (e.g. misinterpreting p-values or assuming causation where only correlation exists.)
 
-* Create random sample data given a basic specification of the desired outcome.
-
-* Could analyse the text of your statistical report and look for flaws in your reasoning. (e.g. misinterpreting p-values or assuming causation where only correlation exists.)
-
-* Use your existing company style guide to generate a [brand.yaml](https://posit-dev.github.io/brand-yml/articles/llm-brand-yml-prompt/) specification to automatically style your reports, apps, dashboards, plots to match your corporate style guide. Using a prompt here is unlikely to give you perfect results, but it's likely to get you close and then you can manually iterate.
+* Use your existing company style guide to generate a [brand.yaml](https://posit-dev.github.io/brand-yml/articles/llm-brand-yml-prompt/) specification to automatically style your reports, apps, dashboards, plots to match your corporate style guide.
