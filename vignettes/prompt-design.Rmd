@@ -23,11 +23,11 @@ chat_claude <- function(...) {
 }
 ```
 
-In this vignette, you'll learn the basics of writing an LLM prompt, i.e. the text that you send to an LLM asking it to do a job for you. If you've never written a prompt before, a good to way to think about it is as writing a set of instructions for a technically skilled but busy human. You'll need to clearly and concisely state what you want, resolve any potential ambiguities that are likely to arise, and provide a few examples. Don't expect to write the perfect prompt on your first attempt. You'll need to iterate a few times, but in my experience, this iteration is very worthwhile because it forces you to clarify your understanding of the problem.
+This vignette will give you some advice about the logistics of writing prompts with elmer, and then work through two hopefully relevant examples showing how you might write a prompt when generating code and when extracting structured data. If you've never written a prompt before, I'd highly recommend reading [Getting started with AI: Good enough prompting](https://www.oneusefulthing.org/p/getting-started-with-ai-good-enough) by Ethan Mollick. I think his motivating analogy does a really good job of getting you started:
 
-https://www.oneusefulthing.org/p/getting-started-with-ai-good-enough
+> Treat AI like an infinitely patient new coworker who forgets everything you tell them each new conversation, one that comes highly recommended but whose actual abilities are not that clear. ... Two parts of this are analogous to working with humans (being new on the job and being a coworker) and two of them are very alien (forgetting everything and being infinitely patient). We should start with where AIs are closest to humans, because that is the key to good-enough prompting
 
-As well as the general advice in this vignette, it's also a good idea to read the specific advice for the model that you're using. Here are some pointers to the prompt engineering guides for a few popular models:
+As well as learning general prompt design skills, it's also a good idea to read any specific advice for the model that you're using. Here are some pointers to the prompt design guides some of the most popular models:
 
 * [Claude](https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview)
 * [OpenAI](https://platform.openai.com/docs/guides/prompt-engineering)
@@ -42,22 +42,22 @@ library(elmer)
 
 ## Logistics
 
-There are a few logistics to discuss first. It's highly likely that you will end up writing long, possibly multi-page prompts, so we want to ensure that you're set up for success. So we recommend that you put them in their own file, and write them using markdown. LLMs, like humans, appear to find markdown to be quite readable and markdown allows you to (e.g.) use headers to divide up the prompt into esection, and other tools like itemised lists to enumerate multiple options. You can see some a few examples of this style of prompt at the following urls:
+There are a few logistics to discuss first. It's highly likely that you will end up writing long, possibly multi-page prompts, so we want to ensure that you're set up for success. We recommend that you put each prompt in its own file, and write them using markdown. LLMs, like humans, appear to find markdown to be quite readable and markdown allows you to (e.g.) use headers to divide up the prompt into esection, and other tools like itemised lists to enumerate multiple options. You can see some a few examples of this style of prompt here:
 
 * <https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_python.md>
 * <https://github.com/jcheng5/py-sidebot/blob/main/prompt.md>
 * <https://github.com/simonpcouch/pal/tree/main/inst/prompts>
 * <https://github.com/cpsievert/aidea/blob/main/inst/app/prompt.md>
 
-If you only have one prompt in your project, call it `prompt.md`. If you have multiple prompts, give them informative names like `prompt-extract-metadata.md` or `prompt-summarize-text.md`. If you're writing a package, put your prompt(s) in `inst/prompts`, otherwise it's fine to put them in the root directory of your project.
+In terms of file names, if you only have one prompt in your project, call it `prompt.md`. If you have multiple prompts, give them informative names like `prompt-extract-metadata.md` or `prompt-summarize-text.md`. If you're writing a package, put your prompt(s) in `inst/prompts`, otherwise it's fine to put them in the root directory of your project.
 
-Your prompts are going to change over time, so we highly recommend using them with git. That will ensure that you can easily see what has changed, and if you accidentally make a mistake you can easily roll back to a known good verison.
+Your prompts are going to change over time, so we highly recommend commiting them to a git repo. That will ensure that you can easily see what has changed, and if you accidentally make a mistake you can easily roll back to a known good verison.
 
-If your prompt includes dynamic data, `elmer::interpolate_file()` to interpolate it into your prompt. `interpolate_file()` works like [glue](https://glue.tidyverse.org), but uses `{{ }}` instead of `{ }` to make it easier to work with JSON.
+If your prompt includes dynamic data, use `elmer::interpolate_file()` to interpolate it into your prompt. `interpolate_file()` works like [glue](https://glue.tidyverse.org), but uses `{{ }}` instead of `{ }` to make it easier to work with JSON.
 
 As you iterate on the prompt, it's a good idea to build up a small set of challenging examples that you can regularly re-check with your latest version of the prompt. Currently you'll need to do this by hand, but we hope to eventually also provide tools that help you do this a little more formally.
 
-Unforunatey you won't see these logistics in action in this vignette, since we're keeping the prompts short and inline to make it easier for you to grok what's going on.
+Unfortunately, however, you won't see these logistics in action in this vignette, since we're keeping the prompts short and inline to make it easier for you to grok what's going on.
 
 ## Code generation
 
@@ -83,7 +83,7 @@ chat <- chat_claude()
 chat$chat(question)
 ```
 
-I can ensure that I always get R code in a given by providing a system prompt:
+I can ensure that I always get R code in a given style by providing a system prompt:
 
 ```{r}
 #| label: code-r
@@ -106,7 +106,7 @@ chat <- chat_claude(system_prompt = "
 chat$chat(question)
 ```
 
-If you want a different style of R code, you can of course ask for it:
+And of course, if you want a different style of R code, you can of course ask for it:
 
 ```{r}
 #| label: code-styles
@@ -211,7 +211,7 @@ ingredients <- "
 
 (This isn't the ingredient list for a real recipe but it includes a sampling of styles that I encountered in my project.)
 
-If you don't have strong feelings about what the data structure should look like, you can start with a very loose prompt and see what you get back. I find this a useful pattern for underspecified problems where a big part of the problem is just defining precisely what problem you want to solve. Seeing the LLMs attempt at coming up with a data structure gives me something to immediately react to, rather than having to start from a blank page.
+If you don't have strong feelings about what the data structure should look like, you can start with a very loose prompt and see what you get back. I find this a useful pattern for underspecified problems where a big part of the problem is just defining precisely what problem you want to solve. Seeing the LLM's attempt at a data structure gives me something to immediately react to, rather than having to start from a blank page.
 
 ```{r}
 #| label: data-loose
@@ -229,7 +229,7 @@ chat$chat(ingredients)
 
 ### Provide examples
 
-This isn't a bad start, but I prefer to cook with weight, so I only want to see volumes if weight isn't available. So I provide a couple of examples of what I'm looking for. I was pleasantly suprised that I can provide the input and output examples in such a loose format.
+This isn't a bad start, but I prefer to cook with weight and I only want to see volumes if weight isn't available so I provide a couple of examples of what I'm looking for. I was pleasantly suprised that I can provide the input and output examples in such a loose format.
 
 ```{r}
 #| label: data-examples
@@ -250,7 +250,7 @@ chat <- chat_openai(c(instruct_json, instruct_weight))
 chat$chat(ingredients)
 ```
 
-Just providing the examples seems to work remarkably well. But I found it useful to also include description of what the examples are trying to accomplish. I'm not sure if this helps the LLM or not, but it certainly makes it easier for me to understand the organisation and check that I've covered the key pieces that I'm interested in.
+Just providing the examples seems to work remarkably well. But I found it useful to also include description of what the examples are trying to accomplish. I'm not sure if this helps the LLM or not, but it certainly makes it easier for me to understand the organisation of the whole prompt and check that I've covered the key pieces that I'm interested in.
 
 ```{r}
 #| cacahe: false
@@ -275,7 +275,7 @@ instruct_weight <- r"(
 
 This structure also allows me to give the LLMs a hint about how I want multiple ingredients to be stored, i.e. as an JSON array.
 
-I then just iterated on this task, looking at the results from different recipes to get a sense of what the LLM was getting wrong. Much of this felt like I waws iterating on my understanding of the problem as I didn't start by knowing exactly how I wanted the data. For example, when I started out I didn't really think about all the various ways that ingredients are specified. For later analysis, I always want quantities to be number, even if they were originally fractions, or the if the units aren't precise (like a pinch). It also forced me to realise that some ingredients are unitless.
+I then iterated on the prompt, looking at the results from different recipes to get a sense of what the LLM was getting wrong. Much of this felt like I waws iterating on my understanding of the problem as I didn't start by knowing exactly how I wanted the data. For example, when I started out I didn't really think about all the various ways that ingredients are specified. For later analysis, I always want quantities to be number, even if they were originally fractions, or the if the units aren't precise (like a pinch). It made me realise that some ingredients are unitless.
 
 ```{r}
 #| cache: false
@@ -312,7 +312,7 @@ You might want to take a look at the [full prompt](https://gist.github.com/hadle
 
 ### Structured data
 
-Now that I've iterated to get a data structure that I like, it seems useful to formalise it and tell the LLM exactly what I'm looking for using structured data. This guarantees that the LLM will only return JSON, the JSON will have the fields that you expect, and then elmer will automatically convert it into an R data structure for you.
+Now that I've iterated to get a data structure that I like, it seems useful to formalise it and tell the LLM exactly what I'm looking for using structured data. This guarantees that the LLM will only return JSON, the JSON will have the fields that you expect, and that elmer will convert it into an R data structure for you.
 
 ```{r}
 #| label: data-structured
