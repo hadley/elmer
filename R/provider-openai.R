@@ -98,7 +98,7 @@ method(chat_request, ProviderOpenAI) <- function(provider,
                                                  stream = TRUE,
                                                  turns = list(),
                                                  tools = list(),
-                                                 spec = NULL,
+                                                 type = NULL,
                                                  extra_args = list()) {
 
   req <- request(provider@base_url)
@@ -115,12 +115,12 @@ method(chat_request, ProviderOpenAI) <- function(provider,
   tools <- as_json(provider, unname(tools))
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
-  if (!is.null(spec)) {
+  if (!is.null(type)) {
     response_format <- list(
       type = "json_schema",
       json_schema = list(
         name = "structured_data",
-        schema = as_json(provider, spec),
+        schema = as_json(provider, type),
         strict = TRUE
       )
     )
@@ -171,14 +171,14 @@ method(stream_merge_chunks, ProviderOpenAI) <- function(provider, result, chunk)
     merge_dicts(result, chunk)
   }
 }
-method(value_turn, ProviderOpenAI) <- function(provider, result, has_spec = FALSE) {
+method(value_turn, ProviderOpenAI) <- function(provider, result, has_type = FALSE) {
   if (has_name(result$choices[[1]], "delta")) { # streaming
     message <- result$choices[[1]]$delta
   } else {
     message <- result$choices[[1]]$message
   }
 
-  if (has_spec) {
+  if (has_type) {
     json <- jsonlite::parse_json(message$content[[1]])
     content <- list(ContentJson(json))
   } else {

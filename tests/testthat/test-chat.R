@@ -100,7 +100,7 @@ test_that("can extract structured data", {
   person <- type_object(name = type_string(), age = type_integer())
 
   chat <- chat_openai()
-  data <- chat$extract_data("John, age 15, won first prize", spec = person)
+  data <- chat$extract_data("John, age 15, won first prize", type = person)
   expect_equal(data, list(name = "John", age = 15))
 })
 
@@ -108,7 +108,7 @@ test_that("can extract structured data (async)", {
   person <- type_object(name = type_string(), age = type_integer())
 
   chat <- chat_openai()
-  data <- sync(chat$extract_data_async("John, age 15, won first prize", spec = person))
+  data <- sync(chat$extract_data_async("John, age 15, won first prize", type = person))
   expect_equal(data, list(name = "John", age = 15))
 })
 

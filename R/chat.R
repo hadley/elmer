@@ -133,18 +133,18 @@ Chat <- R6::R6Class("Chat",
     #' @description Extract structured data
     #' @param ... The input to send to the chatbot. Will typically include
     #'   the phrase "extract structured data".
-    #' @param spec A type specification for the extracted data. Should be
+    #' @param type A type specification for the extracted data. Should be
     #'   created with a [`type_()`][type_boolean] function.
     #' @param echo Whether to emit the response to stdout as it is received.
     #'   Set to "text" to stream JSON data as it's generated (not supported by
     #'  all providers).
-    extract_data = function(..., spec, echo = "none") {
+    extract_data = function(..., type, echo = "none") {
       turn <- user_turn(...)
       echo <- check_echo(echo %||% private$echo)
 
       coro::collect(private$submit_turns(
         turn,
-        spec = spec,
+        type = type,
         stream = echo != "none",
         echo = echo
       ))
@@ -164,18 +164,18 @@ Chat <- R6::R6Class("Chat",
     #'   that resolves to an object matching the type specification.
     #' @param ... The input to send to the chatbot. Will typically include
     #'   the phrase "extract structured data".
-    #' @param spec A type specification for the extracted data. Should be
+    #' @param type A type specification for the extracted data. Should be
     #'   created with a [`type_()`][type_boolean] function.
     #' @param echo Whether to emit the response to stdout as it is received.
     #'   Set to "text" to stream JSON data as it's generated (not supported by
     #'  all providers).
-    extract_data_async = function(..., spec, echo = "none") {
+    extract_data_async = function(..., type, echo = "none") {
       turn <- user_turn(...)
       echo <- check_echo(echo %||% private$echo)
 
       done <- coro::async_collect(private$submit_turns_async(
         turn,
-        spec = spec,
+        type = type,
         stream = echo != "none",
         echo = echo
       ))
@@ -302,7 +302,7 @@ Chat <- R6::R6Class("Chat",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant turns.
-    submit_turns = generator_method(function(self, private, user_turn, stream, echo, spec = NULL) {
+    submit_turns = generator_method(function(self, private, user_turn, stream, echo, type = NULL) {
 
       if (echo == "all") {
         cat_line(format(user_turn), prefix = "> ")
@@ -313,7 +313,7 @@ Chat <- R6::R6Class("Chat",
         mode = if (stream) "stream" else "value",
         turns = c(private$.turns, list(user_turn)),
         tools = private$tools,
-        spec = spec
+        type = type
       )
       emit <- emitter(echo)
 
@@ -331,7 +331,7 @@ Chat <- R6::R6Class("Chat",
 
           result <- stream_merge_chunks(private$provider, result, chunk)
         }
-        turn <- value_turn(private$provider, result, has_spec = !is.null(spec))
+        turn <- value_turn(private$provider, result, has_type = !is.null(type))
 
         # Ensure turns always end in a newline
         if (any_text) {
@@ -345,7 +345,7 @@ Chat <- R6::R6Class("Chat",
           cat_line(formatted, prefix = "< ")
         }
       } else {
-        turn <- value_turn(private$provider, response, has_spec = !is.null(spec))
+        turn <- value_turn(private$provider, response, has_type = !is.null(type))
         text <- turn@text
         if (!is.null(text)) {
           text <- paste0(text, "\n")
@@ -364,13 +364,13 @@ Chat <- R6::R6Class("Chat",
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant turns.
-    submit_turns_async = async_generator_method(function(self, private, user_turn, stream, echo, spec = NULL) {
+    submit_turns_async = async_generator_method(function(self, private, user_turn, stream, echo, type = NULL) {
       response <- chat_perform(
         provider = private$provider,
         mode = if (stream) "async-stream" else "async-value",
         turns = c(private$.turns, list(user_turn)),
         tools = private$tools,
-        spec = spec
+        type = type
       )
       emit <- emitter(echo)
 
@@ -387,7 +387,7 @@ Chat <- R6::R6Class("Chat",
 
           result <- stream_merge_chunks(private$provider, result, chunk)
         }
-        turn <- value_turn(private$provider, result, has_spec = !is.null(spec))
+        turn <- value_turn(private$provider, result, has_type = !is.null(type))
 
         # Ensure turns always end in a newline
         if (any_text) {
@@ -397,7 +397,7 @@ Chat <- R6::R6Class("Chat",
       } else {
         result <- await(response)
 
-        turn <- value_turn(private$provider, result, has_spec = !is.null(spec))
+        turn <- value_turn(private$provider, result, has_type = !is.null(type))
         text <- turn@text
         if (!is.null(text)) {
           text <- paste0(text, "\n")

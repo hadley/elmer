@@ -319,13 +319,13 @@ Now that I've iterated to get a data structure that I like, it seems useful to f
 type_ingredient <- type_object(
   name = type_string("Ingredient name"),
   quantity = type_number(),
-  unit = type_string("Unit of measurement", required = FALSE)
+  unit = type_string("Unit of measurement")
 )
 
 type_ingredients <- type_array(items = type_ingredient)
 
 chat <- chat_openai(c(instruct_json, instruct_weight))
-data <- chat$extract_data(ingredients, spec = type_object(ingredients = type_ingredients))
+data <- chat$extract_data(ingredients, type = type_object(ingredients = type_ingredients))
 do.call(rbind, lapply(data$ingredients, as.data.frame))
 ```
 
