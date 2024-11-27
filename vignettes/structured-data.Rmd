@@ -29,7 +29,7 @@ To extract structured data you call the `$extract_data()` method instead of the 
 chat <- chat_openai()
 chat$extract_data(
   "My name is Susan and I'm 13 years old",
-  spec = type_object(
+  type = type_object(
     age = type_number(),
     name = type_string()
   )
@@ -41,13 +41,12 @@ The same basic idea works with images too:
 ```{r}
 chat$extract_data(
   content_image_url("https://www.r-project.org/Rlogo.png"),
-  spec = type_object(
+  type = type_object(
     primary_shape = type_string(),
     primary_colour = type_string()
   )
 )
 ```
-
 
 ## Data types basics
 
@@ -83,11 +82,14 @@ To define your desired type specification (also known as a **schema**), you use 
 As well as the definition of the types, you need to provide the LLM with some information about what you actually want. This is the purpose of the first argument, `description`, which is a string that describes the data that you want. This is a good place to ask nicely for other attributes you'll like the value to possess (e.g. minimum or maximum values, date formats, ...). You aren't guaranteed that these requests will be honoured, but the LLM will usually make a best effort to do so.
 
 ```{r}
-person <- type_object(
+type_person <- type_object(
   "A person",
   name = type_string("Name"),
   age = type_integer("Age, in years."),
-  hobbies = type_array("List of hobbies. Should be exclusive and brief.", type_string())
+  hobbies = type_array(
+    "List of hobbies. Should be exclusive and brief.",
+    items = type_string()
+  )
 )
 ```
 
@@ -105,7 +107,7 @@ text <- readLines(system.file("examples/third-party-testing.txt", package = "elm
 # html <- rvest::read_html(url)
 # text <- rvest::html_text2(rvest::html_element(html, "article"))
 
-article_summary <- type_object(
+type_summary <- type_object(
   "Summary of the article.",
   author = type_string("Name of the article author"),
   topics = type_array(
@@ -118,7 +120,7 @@ article_summary <- type_object(
 )
 
 chat <- chat_openai()
-data <- chat$extract_data(text, spec = article_summary)
+data <- chat$extract_data(text, type = type_summary)
 cat(data$summary)
 
 str(data)
@@ -129,20 +131,18 @@ str(data)
 ```{r}
 text <- "John works at Google in New York. He met with Sarah, the CEO of Acme Inc., last week in San Francisco."
 
-named_entities <- type_object(
-  "named entities",
-  entities = type_array(
-    "Array of named entities",
-    type_object(
-      name = type_string("The extracted entity name."),
-      type = type_enum("The entity type", c("person", "location", "organization")),
-      context = type_string("The context in which the entity appears in the text.")
-    )
-  )
+type_named_entity <- type_object(
+  name = type_string("The extracted entity name."),
+  type = type_enum("The entity type", c("person", "location", "organization")),
+  context = type_string("The context in which the entity appears in the text.")
+)
+
+type_named_entities <- type_object(
+  entities = type_array(items = type_named_entity)
 )
 
 chat <- chat_openai()
-str(chat$extract_data(text, spec = named_entities))
+str(chat$extract_data(text, type = type_named_entities))
 ```
 
 ### Example 3: Sentiment analysis
@@ -150,7 +150,7 @@ str(chat$extract_data(text, spec = named_entities))
 ```{r}
 text <- "The product was okay, but the customer service was terrible. I probably won't buy from them again."
 
-sentiment <- type_object(
+type_sentiment <- type_object(
   "Extract the sentiment scores of a given text. Sentiment scores should sum to 1.",
   positive_score = type_number("Positive sentiment score, ranging from 0.0 to 1.0."),
   negative_score = type_number("Negative sentiment score, ranging from 0.0 to 1.0."),
@@ -158,7 +158,7 @@ sentiment <- type_object(
 )
 
 chat <- chat_openai()
-str(chat$extract_data(text, spec = sentiment))
+str(chat$extract_data(text, type = type_sentiment))
 ```
 
 Note that we've asked nicely for the scores to sum 1, and they do in this example (at least when I ran the code), but it's not guaranteed.
@@ -168,7 +168,7 @@ Note that we've asked nicely for the scores to sum 1, and they do in this exampl
 ```{r}
 text <- "The new quantum computing breakthrough could revolutionize the tech industry."
 
-classification <- type_array(
+type_classification <- type_array(
   "Array of classification results. The scores should sum to 1.",
   type_object(
     name = type_enum(
@@ -188,11 +188,11 @@ classification <- type_array(
   )
 )
 wrapper <- type_object(
-  classification = classification
+  classification = type_classification
 )
 
 chat <- chat_openai()
-data <- chat$extract_data(text, spec = wrapper)
+data <- chat$extract_data(text, type = wrapper)
 do.call(rbind, lapply(data$classification, as.data.frame))
 ```
 
@@ -200,14 +200,14 @@ Here we created a wrapper object because the OpenAI API requires all structured 
 
 ```{r, eval = elmer:::anthropic_key_exists()}
 chat <- chat_claude()
-data <- chat$extract_data(text, spec = classification)
+data <- chat$extract_data(text, type = type_classification)
 do.call(rbind, lapply(data, as.data.frame))
 ```
 
 ### Example 5: Working with unknown keys
 
 ```{r, eval = elmer:::anthropic_key_exists()}
-characteristics <- type_object(
+type_characteristics <- type_object(
   "All characteristics",
   .additional_properties = TRUE
 )
@@ -221,7 +221,7 @@ prompt <- "
 "
 
 chat <- chat_claude()
-str(chat$extract_data(prompt, spec = characteristics))
+str(chat$extract_data(prompt, type = type_characteristics))
 ```
 
 This examples only works with Claude, not GPT or Gemini, because only Claude
@@ -238,7 +238,7 @@ The goal is to extract structured data from this screenshot:
 Even without any descriptions, ChatGPT does pretty well:
 
 ```{r}
-asset <- type_object(
+type_asset <- type_object(
   assert_name = type_string(),
   owner = type_string(),
   location = type_string(),
@@ -249,13 +249,13 @@ asset <- type_object(
   income_high = type_integer(),
   tx_gt_1000 = type_boolean()
 )
-disclosure_report <- type_object(
-  assets = type_array(items = asset)
+type_disclosure_report <- type_object(
+  assets = type_array(items = type_asset)
 )
 
 chat <- chat_openai()
 image <- content_image_file("congressional-assets.png")
-data <- chat$extract_data(image, spec = disclosure_report)
+data <- chat$extract_data(image, type = type_disclosure_report)
 str(data)
 ```
 
@@ -270,7 +270,7 @@ By default, all components of an object are required. If you want to make some o
 For example, here the LLM hallucinates a date even though there isn't one in the text:
 
 ```{r}
-article_spec <- type_object(
+type_article <- type_object(
   "Information about an article written in markdown",
   title = type_string("Article title"),
   author = type_string("Name of the author"),
@@ -289,7 +289,7 @@ prompt <- "
 "
 
 chat <- chat_openai()
-chat$extract_data(prompt, spec = article_spec)
+chat$extract_data(prompt, type = type_article)
 str(data)
 ```
 
@@ -298,13 +298,13 @@ Note that I've used more of an explict prompt here. For this example, I found th
 If let the LLM know that the fields are all optional, it'll instead return `NULL` for the missing fields:
 
 ```{r}
-article_spec <- type_object(
+type_article <- type_object(
   "Information about an article written in markdown",
   title = type_string("Article title", required = FALSE),
   author = type_string("Name of the author", required = FALSE),
   date = type_string("Date written in YYYY-MM-DD format.", required = FALSE)
 )
-chat$extract_data(prompt, spec = article_spec)
+chat$extract_data(prompt, type = type_article)
 ```
 
 ### Data frames
@@ -312,7 +312,7 @@ chat$extract_data(prompt, spec = article_spec)
 If you want to define a data frame like object, you might be tempted to create a definition similar to what R uses: an object (i.e. a named list) containing multiple vectors (i.e. arrays):
 
 ```{r}
-my_df_type <- type_object(
+type_my_df <- type_object(
   name = type_array(items = type_string()),
   age = type_array(items = type_integer()),
   height = type_array(items = type_number()),
@@ -323,7 +323,7 @@ my_df_type <- type_object(
 This however, is not quite right becuase there's no way to specify that each array should have the same length. Instead you need to turn the data structure "inside out", and instead create an array of objects:
 
 ```{r}
-my_df_type <- type_array(
+type_my_df <- type_array(
   items = type_object(
     name = type_string(),
     age = type_integer(),

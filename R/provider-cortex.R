@@ -99,12 +99,12 @@ method(chat_request, ProviderCortex) <- function(provider,
                                                  stream = TRUE,
                                                  turns = list(),
                                                  tools = list(),
-                                                 spec = NULL,
+                                                 type = NULL,
                                                  extra_args = list()) {
   if (length(tools) != 0) {
     cli::cli_abort("Tools are not supported by Cortex.")
   }
-  if (!is.null(spec) != 0) {
+  if (!is.null(type) != 0) {
     cli::cli_abort("Structured data extraction is not supported by Cortex.")
   }
 
@@ -234,7 +234,7 @@ cortex_chunk_to_message <- function(x) {
   }
 }
 
-method(value_turn, ProviderCortex) <- function(provider, result, has_spec = FALSE) {
+method(value_turn, ProviderCortex) <- function(provider, result, has_type = FALSE) {
   if (!is_named(result)) { # streaming
     role <- "assistant"
     content <- result

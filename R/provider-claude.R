@@ -69,7 +69,7 @@ method(chat_request, ProviderClaude) <- function(provider,
                                                   stream = TRUE,
                                                   turns = list(),
                                                   tools = list(),
-                                                  spec = NULL,
+                                                  type = NULL,
                                                   extra_args = list()) {
 
   req <- request(provider@base_url)
@@ -106,12 +106,12 @@ method(chat_request, ProviderClaude) <- function(provider,
 
   messages <- compact(as_json(provider, turns))
 
-  if (!is.null(spec)) {
+  if (!is.null(type)) {
     tool_def <- ToolDef(
       fun = function(...) {},
       name = "_structured_tool_call",
       description = "Extract structured data",
-      arguments = type_object(data = spec)
+      arguments = type_object(data = type)
     )
     tools[[tool_def@name]] <- tool_def
     tool_choice <- list(type = "tool", name = tool_def@name)
@@ -185,12 +185,12 @@ method(stream_merge_chunks, ProviderClaude) <- function(provider, result, chunk)
   result
 }
 
-method(value_turn, ProviderClaude) <- function(provider, result, has_spec = FALSE) {
+method(value_turn, ProviderClaude) <- function(provider, result, has_type = FALSE) {
   contents <- lapply(result$content, function(content) {
     if (content$type == "text") {
       ContentText(content$text)
     } else if (content$type == "tool_use") {
-      if (has_spec) {
+      if (has_type) {
         ContentJson(content$input$data)
       } else {
         if (is_string(content$input)) {
