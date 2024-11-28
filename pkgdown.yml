@@ -2,10 +2,12 @@ pandoc: 3.1.11
 pkgdown: 2.1.1
 pkgdown_sha: ~
 articles:
+  elmer: elmer.html
+  prompt-design: prompt-design.html
   streaming-async: streaming-async.html
   structured-data: structured-data.html
   tool-calling: tool-calling.html
-last_built: 2024-11-28T17:08Z
+last_built: 2024-11-28T21:15Z
 urls:
   reference: https://elmer.tidyverse.org/reference
   article: https://elmer.tidyverse.org/articles

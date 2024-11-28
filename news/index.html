@@ -15,12 +15,14 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/elmer.html">Get started</a></li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/streaming-async.html">Streaming and async APIs</a></li>
-    <li><a class="dropdown-item" href="../articles/structured-data.html">Structured Data</a></li>
-    <li><a class="dropdown-item" href="../articles/tool-calling.html">Tool calling (a.k.a. function calling)</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/prompt-design.html">Prompt design</a></li>
+    <li><a class="dropdown-item" href="../articles/streaming-async.html">Streaming and async APIs</a></li>
+    <li><a class="dropdown-item" href="../articles/structured-data.html">Structured data</a></li>
+    <li><a class="dropdown-item" href="../articles/tool-calling.html">Tool/function calling</a></li>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
@@ -39,7 +41,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="elmer-development-version">elmer (development version)<a class="anchor" aria-label="anchor" href="#elmer-development-version"></a></h2>
-<ul><li><p>New <code>Chat$set_turns()</code> to set turns. <code>Chat$turns()</code> is now <code>Chat$get_turns()</code>. <code>Chat$system_prompt()</code> is replaced with <code>Chat$set_system_prompt()</code> and <code>Chat$get_system_prompt()</code>.</p></li>
+<ul><li><p>The default <code><a href="../reference/chat_openai.html">chat_openai()</a></code> model is now GPT-4o.</p></li>
+<li><p>New <code>Chat$set_turns()</code> to set turns. <code>Chat$turns()</code> is now <code>Chat$get_turns()</code>. <code>Chat$system_prompt()</code> is replaced with <code>Chat$set_system_prompt()</code> and <code>Chat$get_system_prompt()</code>.</p></li>
 <li><p>Async and streaming async chat are now event-driven and use <code><a href="https://r-lib.github.io/later/reference/later_fd.html" class="external-link">later::later_fd()</a></code> to wait efficiently on curl socket activity (<a href="https://github.com/tidyverse/elmer/issues/157" class="external-link">#157</a>).</p></li>
 <li><p>New <code><a href="../reference/chat_bedrock.html">chat_bedrock()</a></code> to chat with AWS bedrock models (<a href="https://github.com/tidyverse/elmer/issues/50" class="external-link">#50</a>).</p></li>
 <li><p>New <code>chat$extract_data()</code> uses the structured data API where available (and tool calling otherwise) to extract data structured according to a known type specification. You can create specs with functions <code><a href="../reference/type_boolean.html">type_boolean()</a></code>, <code><a href="../reference/type_boolean.html">type_integer()</a></code>, <code><a href="../reference/type_boolean.html">type_number()</a></code>, <code><a href="../reference/type_boolean.html">type_string()</a></code>, <code><a href="../reference/type_boolean.html">type_enum()</a></code>, <code><a href="../reference/type_boolean.html">type_array()</a></code>, and <code><a href="../reference/type_boolean.html">type_object()</a></code> (<a href="https://github.com/tidyverse/elmer/issues/31" class="external-link">#31</a>).</p></li>

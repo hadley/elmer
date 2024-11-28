@@ -41,13 +41,15 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="articles/elmer.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/streaming-async.html">Streaming and async APIs</a></li>
-    <li><a class="dropdown-item" href="articles/structured-data.html">Structured Data</a></li>
-    <li><a class="dropdown-item" href="articles/tool-calling.html">Tool calling (a.k.a. function calling)</a></li>
+<li><a class="dropdown-item" href="articles/prompt-design.html">Prompt design</a></li>
+    <li><a class="dropdown-item" href="articles/streaming-async.html">Streaming and async APIs</a></li>
+    <li><a class="dropdown-item" href="articles/structured-data.html">Structured data</a></li>
+    <li><a class="dropdown-item" href="articles/tool-calling.html">Tool/function calling</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="news/index.html">Changelog</a></li>
@@ -72,7 +74,7 @@
 </div>
 <!-- badges: start -->
 
-<p>The goal of elmer is to provide a user friendly wrapper over the most common llm providers. Major design goals include support for streaming and making it easy to register and call R functions.</p>
+<p>elmer makes it easy to use large language models (LLM) from R. It supports a wider variety of LLM providers and implements a rich set of features including streaming outputs, tool/function calling, structured data extration, and more.</p>
 <p>(Looking for something similar to elmer for python? Check out <a href="https://github.com/cpsievert/chatlas" class="external-link">chatlas</a>!)</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -83,32 +85,49 @@
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pak.html" class="external-link">pak</a></span><span class="op">(</span><span class="st">"tidyverse/elmer"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="prerequisites">Prerequisites<a class="anchor" aria-label="anchor" href="#prerequisites"></a>
+<h2 id="providers">Providers<a class="anchor" aria-label="anchor" href="#providers"></a>
 </h2>
-<p>Depending on which backend you use, you’ll need to set the appropriate environment variable in your <code>~/.Renviron</code> (an easy way to open that file is to call <code>usethis::edit_r_environ()</code>):</p>
+<p>elmer supports a wide variety of model providers:</p>
 <ul>
-<li>For <code><a href="reference/chat_claude.html">chat_claude()</a></code>, set <code>ANTHROPIC_API_KEY</code> using the key from <a href="https://console.anthropic.com/account/keys" class="external-link uri">https://console.anthropic.com/account/keys</a>.</li>
-<li>For <code><a href="reference/chat_gemini.html">chat_gemini()</a></code>, set <code>GOOGLE_API_KEY</code> using the key from <a href="https://aistudio.google.com/app/apikey" class="external-link uri">https://aistudio.google.com/app/apikey</a>.</li>
-<li>For <code><a href="reference/chat_openai.html">chat_openai()</a></code> set <code>OPENAI_API_KEY</code> using the key from <a href="https://platform.openai.com/account/api-keys" class="external-link uri">https://platform.openai.com/account/api-keys</a>.</li>
+<li>Anthropic’s Claude: <code><a href="reference/chat_claude.html">chat_claude()</a></code>.</li>
+<li>AWS Bedrock: <code><a href="reference/chat_bedrock.html">chat_bedrock()</a></code>.</li>
+<li>Azure OpenAI: <code><a href="reference/chat_azure.html">chat_azure()</a></code>.</li>
+<li>Databricks: <code><a href="reference/chat_databricks.html">chat_databricks()</a></code>.</li>
+<li>GitHub model marketplace: <code><a href="reference/chat_github.html">chat_github()</a></code>.</li>
+<li>Google Gemini: <code><a href="reference/chat_gemini.html">chat_gemini()</a></code>.</li>
+<li>Groq: <code><a href="reference/chat_groq.html">chat_groq()</a></code>.</li>
+<li>Ollama: <code><a href="reference/chat_ollama.html">chat_ollama()</a></code>.</li>
+<li>OpenAI: <code><a href="reference/chat_openai.html">chat_openai()</a></code>.</li>
+<li>perplexity.ai: <code><a href="reference/chat_perplexity.html">chat_perplexity()</a></code>.</li>
+<li>Snowflake Cortex: <code><a href="reference/chat_cortex.html">chat_cortex()</a></code>.</li>
+</ul>
+</div>
+<div class="section level2">
+<h2 id="model-choice">Model choice<a class="anchor" aria-label="anchor" href="#model-choice"></a>
+</h2>
+<p>If you’re using elmer inside your organisation, you’ll be limited to what your org allows, which is likely to be one provided by a big cloud provider, e.g. <code><a href="reference/chat_azure.html">chat_azure()</a></code>, <code><a href="reference/chat_bedrock.html">chat_bedrock()</a></code>, <code><a href="reference/chat_databricks.html">chat_databricks()</a></code>, or <code>chat_snowflake()</code>. If you’re using elmer for your own personal exploration, you have a lot more freedom so we have a few recommendations to help you get started:</p>
+<ul>
+<li><p><code><a href="reference/chat_openai.html">chat_openai()</a></code> or <code><a href="reference/chat_claude.html">chat_claude()</a></code> are both good places to start. <code><a href="reference/chat_openai.html">chat_openai()</a></code> defaults to <strong>GPT-4o</strong>, but you can use <code>model = "gpt-4o-mini"</code> for a cheaper lower-quality model, or <code>model = "o1-mini"</code> for more complex reasoning. <code><a href="reference/chat_claude.html">chat_claude()</a></code> is similarly good; it defaults to <strong>Claude 3.5 Sonnet</strong> which we have found to be particularly code at writing code.</p></li>
+<li><p><code><a href="reference/chat_gemini.html">chat_gemini()</a></code> is great for large prompt, because it has a much larger context window than other models. It allows up to 1 million tokens, compared to Claude 3.5 Sonnet’s 200k and GPT-4o’s 128k.</p></li>
+<li><p><code><a href="reference/chat_ollama.html">chat_ollama()</a></code>, which uses <a href="https://ollama.com" class="external-link">Ollama</a>, allows you to run models on your own computer. The biggest models you can run locally aren’t as good as the state of the art hosted models, but they also don’t share your data and are effectively free.</p></li>
 </ul>
 </div>
 <div class="section level2">
 <h2 id="using-elmer">Using elmer<a class="anchor" aria-label="anchor" href="#using-elmer"></a>
 </h2>
-<p>You chat with elmer in several different ways, depending on whether you are working interactively or programmatically. They all start with creating a new chat object:</p>
+<p>You can work with elmer in several different ways, depending on whether you are working interactively or programmatically. They all start with creating a new chat object:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://elmer.tidyverse.org">elmer</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/chat_openai.html">chat_openai</a></span><span class="op">(</span></span>
 <span>  model <span class="op">=</span> <span class="st">"gpt-4o-mini"</span>,</span>
 <span>  system_prompt <span class="op">=</span> <span class="st">"You are a friendly but terse assistant."</span>,</span>
-<span>  echo <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>Chat objects are stateful: they retain the context of the conversation, so each new query can build on the previous ones. This is true regardless of which of the various ways of chatting you use.</p>
+<p>Chat objects are stateful <a href="https://r6.r-lib.org" class="external-link">R6 objects</a>: they retain the context of the conversation, so each new query can build on the previous ones, and you call their methods with <code>$</code>.</p>
 <div class="section level3">
 <h3 id="interactive-chat-console">Interactive chat console<a class="anchor" aria-label="anchor" href="#interactive-chat-console"></a>
 </h3>
-<p>The most interactive, least programmatic way of using elmer is to chat with it directly in your R console with <code>live_console(chat)</code> or in your browser with <code><a href="reference/live_console.html">live_browser()</a></code>.</p>
+<p>The most interactive and least programmatic way of using elmer is to chat directly in your R console or browser with <code>live_console(chat)</code> or <code><a href="reference/live_console.html">live_browser()</a></code>:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="reference/live_console.html">live_console</a></span><span class="op">(</span><span class="va">chat</span><span class="op">)</span></span>
 <span><span class="co">#&gt; ╔════════════════════════════════════════════════════════╗</span></span>
@@ -122,57 +141,61 @@
 <span><span class="co">#&gt; &gt;&gt;&gt; When was that?</span></span>
 <span><span class="co">#&gt; R was initially released in 1995. Development began a few years prior to that,</span></span>
 <span><span class="co">#&gt; in the early 1990s.</span></span></code></pre></div>
-<p>The chat console is useful for quickly exploring the capabilities of the model, especially when you’ve customized the chat object with tool integrations (see below).</p>
-<p>Again, keep in mind that the chat object retains state, so when you enter the chat console, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist even after you exit back to the R prompt.</p>
+<p>Keep in mind that the chat object retains state, so when you enter the chat console, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist after you exit back to the R prompt. This is true regardless of which of the various chat functions you use.</p>
 </div>
 <div class="section level3">
 <h3 id="interactive-method-call">Interactive method call<a class="anchor" aria-label="anchor" href="#interactive-method-call"></a>
 </h3>
-<p>The second most interactive way to chat using elmer is to call the <code>chat()</code> method.</p>
+<p>The second most interactive way to chat is to call the <code>chat()</code> method:</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="st">"What preceding languages most influenced R?"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; R was primarily influenced by the S programming language, particularly S-PLUS.</span></span>
 <span><span class="co">#&gt; Other languages that had an impact include Scheme and various data analysis</span></span>
 <span><span class="co">#&gt; languages.</span></span></code></pre></div>
-<p>If you initialize the chat object with <code>echo = TRUE</code>, as we did above, the <code>chat</code> method streams the response to the console as it arrives. When the entire response is received, it is returned as a character vector (invisibly, so it’s not printed twice).</p>
-<p>This mode is useful when you want to see the response as it arrives, but you don’t want to enter the chat console.</p>
-<div class="section level4">
-<h4 id="vision-image-input">Vision (image input)<a class="anchor" aria-label="anchor" href="#vision-image-input"></a>
-</h4>
-<p>If you want to ask a question about an image, you can pass one or more additional input arguments using <code><a href="reference/content_image_url.html">content_image_file()</a></code> and/or <code><a href="reference/content_image_url.html">content_image_url()</a></code>.</p>
+<p>If you initialize the chat object in the global environment, the <code>chat</code> method will stream the response to the console as it arrives. When the entire response is received, it is also returned as a character vector (but invisibly, so it’s not printed twice). This mode is useful when you want to see the response as it arrives, but you don’t want to enter the chat console.</p>
+<p>If you want to ask a question about an image, you can pass one or more additional input arguments using <code><a href="reference/content_image_url.html">content_image_file()</a></code> and/or <code><a href="reference/content_image_url.html">content_image_url()</a></code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="reference/content_image_url.html">content_image_url</a></span><span class="op">(</span><span class="st">"https://www.r-project.org/Rlogo.png"</span><span class="op">)</span>,</span>
 <span>  <span class="st">"Can you explain this logo?"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; The logo of R features a stylized letter "R" in blue, enclosed in an oval shape that resembles the letter "O,"</span></span>
-<span><span class="co">#&gt; signifying the programming language's name. The design conveys a modern and professional look, reflecting its use</span></span>
-<span><span class="co">#&gt; in statistical computing and data analysis. The blue color often represents trust and reliability, which aligns</span></span>
-<span><span class="co">#&gt; with R's role in data science.</span></span></code></pre></div>
-<p>The <code>content_image_url</code> function takes a URL to an image file and sends that URL directly to the API. The <code>content_image_file</code> function takes a path to a local image file and encodes it as a base64 string to send to the API. Note that by default, <code>content_image_file</code> automatically resizes the image to fit within 512x512 pixels; set the <code>resize</code> parameter to <code>"high"</code> if higher resolution is needed.</p>
-</div>
+<span><span class="co">#&gt; The logo of R features a stylized letter "R" in blue, enclosed in an oval</span></span>
+<span><span class="co">#&gt; shape that resembles the letter "O," signifying the programming language's</span></span>
+<span><span class="co">#&gt; name. The design conveys a modern and professional look, reflecting its use</span></span>
+<span><span class="co">#&gt; in statistical computing and data analysis. The blue color often represents</span></span>
+<span><span class="co">#&gt; trust and reliability, which aligns with R's role in data science.</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="programmatic-chat">Programmatic chat<a class="anchor" aria-label="anchor" href="#programmatic-chat"></a>
 </h3>
-<p>If you don’t want to see the response as it arrives, you can turn off echoing by leaving off the <code>echo = TRUE</code> argument to <code><a href="reference/chat_openai.html">chat_openai()</a></code>.</p>
+<p>The most programmataic way to chat is to create the chat object inside a function, where live streaming is automatically suppressed and <code>$chat()</code> returns the result as a string:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/chat_openai.html">chat_openai</a></span><span class="op">(</span></span>
-<span>  model <span class="op">=</span> <span class="st">"gpt-4o-mini"</span>,</span>
-<span>  system_prompt <span class="op">=</span> <span class="st">"You are a friendly but terse assistant."</span></span>
-<span><span class="op">)</span></span>
-<span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="st">"Is R a functional programming language?"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "Yes, R supports functional programming concepts. It allows functions to be first-class objects, supports higher-order functions, and encourages the use of functions as core components of code. However, it also supports procedural and object-oriented programming styles."</span></span></code></pre></div>
-<p>This mode is useful for programming using elmer, when the result is either not intended for human consumption or when you want to process the response before displaying it.</p>
+<code class="sourceCode R"><span><span class="va">my_function</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/chat_openai.html">chat_openai</a></span><span class="op">(</span></span>
+<span>    model <span class="op">=</span> <span class="st">"gpt-4o-mini"</span>,</span>
+<span>    system_prompt <span class="op">=</span> <span class="st">"You are a friendly but terse assistant."</span>,</span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="st">"Is R a functional programming language?"</span><span class="op">)</span></span>
+<span><span class="op">}</span></span>
+<span><span class="fu">my_function</span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "Yes, R supports functional programming concepts. It allows functions to</span></span>
+<span><span class="co">#&gt; be first-class objects, supports higher-order functions, and encourages the</span></span>
+<span><span class="co">#&gt; use of functions as core components of code. However, it also supports</span></span>
+<span><span class="co">#&gt; procedural and object-oriented programming styles."</span></span></code></pre></div>
+<p>If needed, you can manually control this behaviour with the <code>echo</code> argument.</p>
+<p>This mode is useful for programming with elmer, when the result is either not intended for human consumption or when you want to process the response before displaying it.</p>
 </div>
 </div>
 <div class="section level2">
 <h2 id="learning-more">Learning more<a class="anchor" aria-label="anchor" href="#learning-more"></a>
 </h2>
+<p>elmer comes with a bunch of vignettes to help you learn more:</p>
 <ul>
-<li>Learn more about streaming and async APIs in <code><a href="articles/streaming-async.html">vignette("streaming-async")</a></code>.</li>
-<li>Learn more about tool calling (aka function calling) in <code><a href="articles/tool-calling.html">vignette("tool-calling")</a></code>.</li>
+<li>Learn key vocabulary and see example use cases in <code><a href="articles/elmer.html">vignette("elmer")</a></code>.</li>
+<li>Learn how to design your prompt in <code><a href="articles/prompt-design.html">vignette("prompt-design")</a></code>.</li>
+<li>Learn about tool/function calling in <code><a href="articles/tool-calling.html">vignette("tool-calling")</a></code>.</li>
 <li>Learn how to extract structured data in <code><a href="articles/structured-data.html">vignette("structured-data")</a></code>.</li>
+<li>Learn about streaming and async APIs in <code><a href="articles/streaming-async.html">vignette("streaming-async")</a></code>.</li>
 </ul>
 </div>
 </div>

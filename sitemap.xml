@@ -2,7 +2,9 @@
 <url><loc>https://elmer.tidyverse.org/404.html</loc></url>
 <url><loc>https://elmer.tidyverse.org/LICENSE-text.html</loc></url>
 <url><loc>https://elmer.tidyverse.org/LICENSE.html</loc></url>
+<url><loc>https://elmer.tidyverse.org/articles/elmer.html</loc></url>
 <url><loc>https://elmer.tidyverse.org/articles/index.html</loc></url>
+<url><loc>https://elmer.tidyverse.org/articles/prompt-design.html</loc></url>
 <url><loc>https://elmer.tidyverse.org/articles/streaming-async.html</loc></url>
 <url><loc>https://elmer.tidyverse.org/articles/structured-data.html</loc></url>
 <url><loc>https://elmer.tidyverse.org/articles/tool-calling.html</loc></url>
