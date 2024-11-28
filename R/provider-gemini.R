@@ -6,6 +6,11 @@ NULL
 
 #' Chat with a Google Gemini model
 #'
+#' To authenticate, we recommend saving your
+#' [API key](https://aistudio.google.com/app/apikey) to
+#' the `GOOGLE_API_KEY` env var in your `.Renviron`
+#' (which you can easily edit by calling `usethis::edit_r_environ()`).
+#'
 #' @param api_key The API key to use for authentication. You generally should
 #'   not supply this directly, but instead set the `GOOGLE_API_KEY` environment
 #'   variable.

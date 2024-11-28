@@ -2,7 +2,7 @@
 % Please edit documentation in R/provider-ollama.R
 \name{chat_ollama}
 \alias{chat_ollama}
-\title{Chat with a local ollama model}
+\title{Chat with a local Ollama model}
 \usage{
 chat_ollama(
   system_prompt = NULL,
@@ -45,7 +45,7 @@ Note this only affects the \code{chat()} method.}
 }
 \description{
 To use \code{chat_ollama()} first download and install
-\href{https://ollama.com}{ollama}. Then install some models from the command line,
+\href{https://ollama.com}{Ollama}. Then install some models from the command line,
 e.g. with \verb{ollama pull llama3.1} or \verb{ollama pull gemma2}.
 
 This function is a lightweight wrapper around \code{\link[=chat_openai]{chat_openai()}} with

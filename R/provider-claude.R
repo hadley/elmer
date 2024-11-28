@@ -9,12 +9,14 @@ NULL
 #' @description
 #' [Anthropic](https://www.anthropic.com) provides a number of chat based
 #' models under the [Claude](https://www.anthropic.com/claude) moniker.
+#' Note that a Claude Pro membership does not give you the ability to call
+#' models via the API; instead, you will need to sign up (and pay for) a
+#' [developer account](https://console.anthropic.com/)
 #'
-#' Note that a Claude Prop membership does not give you the ability to call
-#' models via the API. You will need to go to the
-#' [developer console](https://console.anthropic.com/account/keys) to sign up
-#' (and pay for) a developer account that will give you an API key that
-#' you can use with this package.
+#' To authenticate, we recommend saving your
+#' [API key](https://console.anthropic.com/account/keys) to
+#' the `ANTHROPIC_API_KEY` env var in your `.Renviron`
+#' (which you can easily edit by calling `usethis::edit_r_environ()`).
 #'
 #' @inheritParams chat_openai
 #' @inherit chat_openai return

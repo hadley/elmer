@@ -48,7 +48,10 @@ Note this only affects the \code{chat()} method.}
 A \link{Chat} object.
 }
 \description{
-Chat with a Google Gemini model
+To authenticate, we recommend saving your
+\href{https://aistudio.google.com/app/apikey}{API key} to
+the \code{GOOGLE_API_KEY} env var in your \code{.Renviron}
+(which you can easily edit by calling \code{usethis::edit_r_environ()}).
 }
 \seealso{
 Other chatbots: 

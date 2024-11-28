@@ -163,7 +163,7 @@ as_content <- function(x, error_call = caller_env()) {
   if (is.null(x)) {
     list()
   } else if (is.character(x)) {
-    ContentText(paste0(x, collapse = "\n"))
+    ContentText(paste0(x, collapse = "\n\n"))
   } else if (S7_inherits(x, Content)) {
     x
   } else {

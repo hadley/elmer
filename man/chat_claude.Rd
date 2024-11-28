@@ -53,12 +53,14 @@ A \link{Chat} object.
 \description{
 \href{https://www.anthropic.com}{Anthropic} provides a number of chat based
 models under the \href{https://www.anthropic.com/claude}{Claude} moniker.
+Note that a Claude Pro membership does not give you the ability to call
+models via the API; instead, you will need to sign up (and pay for) a
+\href{https://console.anthropic.com/}{developer account}
 
-Note that a Claude Prop membership does not give you the ability to call
-models via the API. You will need to go to the
-\href{https://console.anthropic.com/account/keys}{developer console} to sign up
-(and pay for) a developer account that will give you an API key that
-you can use with this package.
+To authenticate, we recommend saving your
+\href{https://console.anthropic.com/account/keys}{API key} to
+the \code{ANTHROPIC_API_KEY} env var in your \code{.Renviron}
+(which you can easily edit by calling \code{usethis::edit_r_environ()}).
 }
 \seealso{
 Other chatbots: 

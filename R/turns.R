@@ -92,7 +92,10 @@ normalize_turns <- function(turns = NULL,
                             overwrite = FALSE,
                             error_call = caller_env()) {
 
-  check_string(system_prompt, allow_null = TRUE, call = error_call)
+  check_character(system_prompt, allow_null = TRUE, call = error_call)
+  if (length(system_prompt) > 1) {
+    system_prompt <- paste(system_prompt, collapse = "\n\n")
+  }
 
   if (!is.null(turns)) {
     if (!is.list(turns) || is_named(turns)) {

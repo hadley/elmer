@@ -1,8 +1,8 @@
-#' Chat with a local ollama model
+#' Chat with a local Ollama model
 #'
 #' @description
 #' To use `chat_ollama()` first download and install
-#' [ollama](https://ollama.com). Then install some models from the command line,
+#' [Ollama](https://ollama.com). Then install some models from the command line,
 #' e.g. with `ollama pull llama3.1` or `ollama pull gemma2`.
 #'
 #' This function is a lightweight wrapper around [chat_openai()] with

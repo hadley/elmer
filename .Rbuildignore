@@ -8,3 +8,4 @@
 ^docs$
 ^pkgdown$
 ^vignettes/articles$
+_cache/
