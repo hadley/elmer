@@ -10,6 +10,7 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+  eval = elmer:::openai_key_exists(),
   comment = "#>"
 )
 ```
