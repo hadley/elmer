@@ -58,7 +58,7 @@ recommendations to help you get started:
   `model = "gpt-4o-mini"` for a cheaper lower-quality model, or
   `model = "o1-mini"` for more complex reasoning. `chat_claude()` is
   similarly good; it defaults to **Claude 3.5 Sonnet** which we have
-  found to be particularly code at writing code.
+  found to be particularly good at writing code.
 
 - `chat_gemini()` is great for large prompt, because it has a much
   larger context window than other models. It allows up to 1 million
