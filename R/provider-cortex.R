@@ -335,7 +335,15 @@ method(as_json, list(ProviderCortex, ContentSql)) <- function(provider, x) {
 
 method(contents_text, ContentSql) <- function(content) {
   # Emit a Markdown-formatted SQL code block as the textual representation.
+  contents_markdown(content)
+}
+
+method(contents_markdown, ContentSql) <- function(content) {
   paste0("\n\n```sql\n", content@statement, "\n```")
+}
+
+method(contents_html, ContentSql) <- function(content) {
+  sprintf('<pre><code>%s</code></pre>\n', content@statement)
 }
 
 method(format, ContentSql) <- function(x, ...) {

@@ -1,6 +1,54 @@
 #' @include utils-S7.R
 NULL
 
+#' Format contents into a textual representation
+#' 
+#' @description
+#' These generic functions can be use to convert [Turn] contents or [Content]
+#' objects into textual representations. 
+#' 
+#' * `contents_text()` is the most minimal and only includes [ContentText]
+#'   objects in the output.
+#' * `contents_markdown()` returns the text content (which it assumes to be
+#'   markdown and does not convert it) plus markdown representations of images
+#'   and other content types.
+#' * `contents_html()` returns the text content, converted from markdown to
+#'   HTML with [commonmark::markdown_html()], plus HTML representations of
+#'   images and other content types.
+#' 
+#' @examples
+#' turns <- list(
+#'   Turn("user", contents = list(
+#'     ContentText("What's this image?"),
+#'     content_image_url("https://placehold.co/200x200")
+#'   )),
+#'   Turn("assistant", "It's a placeholder image.")
+#' )
+#'
+#' lapply(turns, contents_text)
+#' lapply(turns, contents_markdown)
+#' if (rlang::is_installed("commonmark")) {
+#'   contents_html(turns[[1]])
+#' }
+#' 
+#' @param content The [Turn] or [Content] object to be converted into text.
+#'   `contents_markdown()` also accepts [Chat] instances to turn the entire
+#'   conversation history into markdown text.
+#' @param ... Additional arguments passed to methods.
+#' 
+#' @return A string of text, markdown or HTML.
+#' @export
+contents_text <- new_generic("contents_text", "content")
+
+#' @rdname contents_text
+#' @export
+contents_html <- new_generic("contents_html", "content")
+
+#' @rdname contents_text
+#' @export
+contents_markdown <- new_generic("contents_markdown", "content")
+
+
 #' Content types received from and sent to a chatbot
 #'
 #' @description
@@ -24,6 +72,19 @@ NULL
 #' @export
 Content <- new_class("Content")
 
+method(contents_text, Content) <- function(content) {
+  NULL
+}
+
+method(contents_markdown, Content) <- function(content) {
+  # Fall back to text representation in markdown
+  contents_text(content)
+}
+
+method(contents_html, Content) <- function(content) {
+  NULL
+}
+
 #' @rdname Content
 #' @export
 #' @param text A single string.
@@ -36,14 +97,16 @@ method(format, ContentText) <- function(x, ...) {
   paste0(unlist(strwrap(x@text, width = getOption("width"))), collapse = "\n")
 }
 
-# Internal generic for content that has a textual representation.
-contents_text <- new_generic("contents_text", "content")
-
-method(contents_text, Content) <- function(content) {
-  NULL
+method(contents_text, ContentText) <- function(content) {
+  content@text
 }
 
-method(contents_text, ContentText) <- function(content) {
+method(contents_html, ContentText) <- function(content) {
+  check_installed("commonmark")
+  commonmark::markdown_html(content@text)
+}
+
+method(contents_markdown, ContentText) <- function(content) {
   content@text
 }
 
@@ -71,6 +134,12 @@ ContentImageRemote <- new_class(
 method(format, ContentImageRemote) <- function(x, ...) {
   cli::format_inline("[{.strong remote image}]: {.url {x@url}}")
 }
+method(contents_html, ContentImageRemote) <- function(content) {
+  sprintf('<img src="%s">', content@url)
+}
+method(contents_markdown, ContentImageRemote) <- function(content) {
+  sprintf('![](%s)', content@url)
+}
 
 #' @rdname Content
 #' @export
@@ -86,6 +155,12 @@ ContentImageInline <- new_class(
 )
 method(format, ContentImageInline) <- function(x, ...) {
   cli::format_inline("[{.strong inline image}]")
+}
+method(contents_html, ContentImageInline) <- function(content) {
+  sprintf('<img src="data:%s;base64,%s">', content@type, content@data)
+}
+method(contents_markdown, ContentImageInline) <- function(content) {
+  sprintf('![](data:%s;base64,%s)', content@type, content@data)
 }
 
 # Tools ------------------------------------------------------------------
@@ -155,6 +230,12 @@ method(format, ContentJson) <- function(x, ...) {
     cli::format_inline("[{.strong data}] "),
     pretty_json(x@value)
   )
+}
+method(contents_html, ContentJson) <- function(content) {
+  sprintf('<pre><code>%s</code></pre>\n', pretty_json(content@value))
+}
+method(contents_markdown, ContentJson) <- function(content) {
+  sprintf('```json\n%s\n```\n', pretty_json(content@value))
 }
 
 # Helpers ----------------------------------------------------------------------

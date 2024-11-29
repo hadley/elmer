@@ -44,9 +44,7 @@ Turn <- new_class(
     ),
     text = new_property(
       class = class_character,
-      getter = function(self) {
-        paste0(unlist(lapply(self@contents, contents_text)), collapse = "")
-      }
+      getter = function(self) contents_text(self)
     )
   ),
   constructor = function(role,
@@ -69,6 +67,15 @@ Turn <- new_class(
 method(format, Turn) <- function(x, ...) {
   contents <- map_chr(x@contents, format, ...)
   paste0(contents, "\n", collapse = "")
+}
+method(contents_text, Turn) <- function(content) {
+  paste0(unlist(lapply(content@contents, contents_text)), collapse = "")
+}
+method(contents_html, Turn) <- function(content) {
+  paste0(unlist(lapply(content@contents, contents_html)), collapse = "\n")
+}
+method(contents_markdown, Turn) <- function(content) {
+  paste0(unlist(lapply(content@contents, contents_markdown)), collapse = "\n\n")
 }
 
 user_turn <- function(..., .error_call = caller_env()) {
