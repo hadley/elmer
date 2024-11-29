@@ -82,9 +82,9 @@
 <p>elmer makes it easy to access to the wealth of large language models
 (LLMs) from R. But what can you do with those models once you have
 access to them? This vignette will give you the basic vocabulary you
-need use an LLM effectively and show a bunch of examples to ignite your
-creativity.</p>
-<p>In this vignette we’ll most ignore how LLMs work, using them as
+need to use an LLM effectively and will show you some examples to ignite
+your creativity.</p>
+<p>In this vignette we’ll mostly ignore how LLMs work, using them as
 convenient black boxes. If you want to get a sense of how they actually
 work, we recommend watching Jeremy Howard’s posit::conf(2023) keynote:
 <a href="https://www.youtube.com/watch?v=sYliwvml9Es" class="external-link">A hacker’s guide
@@ -94,7 +94,7 @@ to open source LLMs</a>.</p>
 </h2>
 <p>We’ll start by laying out the key vocab that you’ll need to
 understand LLMs. Unfortunately the vocab is all a little entangled: to
-understand one term you often have to know a little about some of the
+understand one term you’ll often have to know a little about some of the
 others. So we’ll start with some simple definitions of the most
 important terms then iteratively go a little deeper.</p>
 <p>It all starts with a <strong>prompt</strong>, which is the text
@@ -104,17 +104,17 @@ alternate between user prompts and model responses. Inside the model,
 both the prompt and response are represented by a sequence of
 <strong>tokens</strong>, which represent either individual words or
 subcomponents of a word. The tokens are used to compute the cost of
-using a model and are used to measure the size of the
-<strong>context</strong>, the combination of the current prompt and any
-previous prompts and responses used to generate the next response.</p>
+using a model and to measure the size of the <strong>context</strong>,
+the combination of the current prompt and any previous prompts and
+responses used to generate the next response.</p>
 <p>It’s useful to make the distinction between providers and models. A
 <strong>provider</strong> is a web API that gives access to one or more
-<strong>model</strong>. The distinction is a bit subtle because
+<strong>models</strong>. The distinction is a bit subtle because
 providers are often synonymous with a model, like OpenAI and GPT,
 Anthropic and Claude, and Google and Gemini. But other providers, like
 Ollama, can host many different models, typically open source models
-like LLaMa and Mistral. Still other providers support both closed and
-open models, typically by partnering with a company that provides a
+like LLaMa and Mistral. Still other providers support both open and
+closed models, typically by partnering with a company that provides a
 popular closed model. For example, Azure OpenAI offers both open source
 models and OpenAI’s GPT, while AWS Bedrock offers both open source
 models and Anthropic’s Claude.</p>
@@ -123,7 +123,7 @@ models and Anthropic’s Claude.</p>
 </h3>
 <p>An LLM is a <em>model</em>, and like all models needs some way to
 represent its inputs numerically. For LLMs, that means we need some way
-to convert words to numbers, which is the goal of the
+to convert words to numbers. This is the goal of the
 <strong>tokenizer</strong>. For example, using the GPT 4o tokenizer, the
 string “When was R created?” is converted to 5 tokens: 5958 (“When”),
 673 (” was”), 460 (” R”), 5371 (” created”), 30 (“?”). As you can see,
@@ -172,25 +172,25 @@ of how LLM’s work.</p>
 <h3 id="what-is-a-conversation">What is a conversation?<a class="anchor" aria-label="anchor" href="#what-is-a-conversation"></a>
 </h3>
 <p>A conversation with an LLM takes place through a series of HTTP
-requests and responses: you send your question to the LLM in a HTTP
-request, and it sends its reply back in a HTTP response. In other words,
-a conversation consists of a sequence of a paired turns: you send a
-prompt then the model returns a response.</p>
+requests and responses: you send your question to the LLM as an HTTP
+request, and it sends back its reply as an HTTP response. In other
+words, a conversation consists of a sequence of a paired turns: a sent
+prompt and a returned response.</p>
 <p>It’s important to note that a request includes not only the current
 user prompt, but every previous user prompt and model response. This
 means that:</p>
 <ul>
-<li><p>The cost of a conversation will grow quadratically with the
-number of turns: if you want to save money, keep your conversations
+<li><p>The cost of a conversation grows quadratically with the number of
+turns: if you want to save money, keep your conversations
 short.</p></li>
 <li><p>Each response is affected by all previous prompts and responses.
 This can make a converstion get stuck in a local optimum, so it’s
 generally better to iterate by starting a new conversation with a better
 prompt rather than having a long back-and-forth.</p></li>
-<li><p>elmer has full control over the conversational history, because
+<li><p>elmer has full control over the conversational history. Because
 it’s elmer’s responsibility to send the previous turns of the
-conversation. That makes it possible to start a conversation with one
-model and finish it with another.</p></li>
+conversation, it’s possible to start a conversation with one model and
+finish it with another.</p></li>
 </ul>
 </div>
 <div class="section level3">
@@ -199,28 +199,28 @@ model and finish it with another.</p></li>
 <p>The user prompt is the question that you send to the model. There are
 two other important prompts that underlie the user prompt:</p>
 <ul>
-<li><p>The <strong>core system prompt</strong> is unchangeable, set by
-the model provider, and affects every conversation. You can see what
-these look like from Anthropic, who <a href="https://docs.anthropic.com/en/release-notes/system-prompts" class="external-link">publishes
+<li><p>The <strong>core system prompt</strong>, which is unchangeable,
+set by the model provider, and affects every conversation. You can see
+what these look like from Anthropic, who <a href="https://docs.anthropic.com/en/release-notes/system-prompts" class="external-link">publishes
 their core system prompts</a>.</p></li>
-<li><p>The <strong>system prompt</strong> is set when you create a new
-conversation, and affects every response. It’s used to provide
-additional instructions for the model, shaping its responses to your
+<li><p>The <strong>system prompt</strong>, which is set when you create
+a new conversation, and affects every response. It’s used to provide
+additional instructions to the model, shaping its responses to your
 needs. For example, you might use the system prompt to ask the model to
 always respond in Spanish or to write dependency-free base R code. You
 can also use the system prompt to provide the model with information it
-wouldn’t otherwise know about, like the details of your database schema,
-or the ggplot2 theme and color palette that you most prefer.</p></li>
+wouldn’t otherwise know, like the details of your database schema, or
+your preferred ggplot2 theme and color palette.</p></li>
 </ul>
 <p>When you use a chat app like ChatGPT or claude.ai you can only
 iterate on the user prompt. But when you’re programming with LLMs,
 you’ll primarily iterate on the system prompt. For example, if you’re
 developing an app that helps a user write tidyverse code, you’d work
-with the system prompt to ensure that user gets the style of code that
-you want.</p>
-<p>Writing good prompts is called <strong>prompt design</strong>, is key
-to effective use of LLMs, and is discussed in more detail in
-<code><a href="../articles/prompt-design.html">vignette("prompt-design")</a></code>.</p>
+with the system prompt to ensure that user gets the style of code they
+want.</p>
+<p>Writing a good prompt, which is called <strong>prompt
+design</strong>, is key to effective use of LLMs. It is discussed in
+more detail in <code><a href="../articles/prompt-design.html">vignette("prompt-design")</a></code>.</p>
 </div>
 </div>
 <div class="section level2">
