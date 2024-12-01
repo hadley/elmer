@@ -79,7 +79,7 @@ Writing a good prompt, which is called __prompt design__, is key to effective us
 
 ## Example uses
 
-Now that you've got the basic vocab under your belt, I'm going to fire a bunch of interesting potential use cases at you. While many of these have existing special purpose tools that might be faster, cheaper or both, using an LLM allows you to do rapid prototyping, which is extremely valuable even if you do end up using one of those more specialised tools in the final product.
+Now that you've got the basic vocab under your belt, I'm going to fire a bunch of interesting potential use cases at you. While many of these might be solved with special purpose tools that might be faster, cheaper or both, using an LLM allows you to do rapid prototyping, which is extremely valuable even if you do end up using one of those more specialised tools in the final product.
 
 In general, we recommend avoiding LLMs where accuracy is critical. That said, there are still many cases for their use. For example, even though they always requires some manual fiddling, you might save a bunch of time evern with an 80% correct solution. In fact, even a not-so-good solution can still be useful because it makes it easier to get started: it's easier to react to something rather than to have to start from scratch with a blank page.
 
