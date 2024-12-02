@@ -61,7 +61,45 @@ chat$chat_async("How's your day going?") %...>% print()
 #> I'm just a computer program, so I don't have feelings, but I'm here to help you with any questions you have.
 ```
 
-TODO: Shiny example
+#### Shiny example
+
+The following shiny app uses `chat_async` to query the OpenAI API. The server function shows a loading element (spinner) while it is waiting for the API to return the answer. Then the recent response is displayed.
+The `%...>%` operator from the `promises` package is used to push the asynchronous chat response and render it, once it is ready. It also hides the loading element.
+
+```
+library(shiny)
+library(bslib)
+library(elmer)
+library(promises)
+
+ui <- page_sidebar(
+  title = "Interactive chat with async",
+  sidebar = sidebar(
+    title = "Controls",
+    textInput("user_query", "Enter query:"),
+    input_task_button("ask_chat", label = "Ask the chat")
+  ),
+  card(
+    card_header("The chat's response"),
+    uiOutput("chat_response")
+  )
+)
+
+server <- function(input, output) {
+  output$chat_response <- renderUI({
+    # Start the chat fresh each time, as the UI is not a multi-turn conversation
+    chat <- chat_openai(
+      system_prompt = "You like chatting about star trek, mostly TNG and onwards (not TOS). Answers should be concise and star trek inspired."
+    )
+    # Asynchronously get the (Markdown) results and render to HTML
+    chat$chat_async("Answer this question:", input$user_query) %...>% markdown()
+  }) |> bindEvent(input$ask_chat)
+}
+
+shinyApp(ui = ui, server = server)
+```
+
+TODO: Extend example to stream_async, simplify example.
 
 ### Asynchronous streaming
 
