@@ -227,78 +227,78 @@ more detail in <code><a href="../articles/prompt-design.html">vignette("prompt-d
 <h2 id="example-uses">Example uses<a class="anchor" aria-label="anchor" href="#example-uses"></a>
 </h2>
 <p>Now that you’ve got the basic vocab under your belt, I’m going to
-fire a bunch of interesting potential use cases at you. Many of these
-use cases have existing special purpose tools that might be faster, or
-cheaper, or both. But using an LLM allows you to rapidly prototype an
-idea, and this is extremely valuable, even if you end up using a more
-specialised tool for the final product.</p>
-<p>In general, we recommend avoiding LLMs where accuracy is critically
-important. But that still allows for a wide variety of uses. For
-example, there are plenty of cases where an 80% correct solution which
-always requires some manual fiddling might still save you a bunch of
-time. In other cases, a not-so-good solution can still make it much
-easier to get started: it’s easier to react to something existing rather
-than starting from scratch with a blank page.</p>
+fire a bunch of interesting potential use cases at you. While there are
+special purpose tools that might solve these cases faster and/or
+cheaper, an LLM allows you to rapidly prototype a solution. This can be
+extremely valuable even if you end up using those more specialised tools
+in your final product.</p>
+<p>In general, we recommend avoiding LLMs where accuracy is critical.
+That said, there are still many cases for their use. For example, even
+though they always requires some manual fiddling, you might save a bunch
+of time evern with an 80% correct solution. In fact, even a not-so-good
+solution can still be useful because it makes it easier to get started:
+it’s easier to react to something rather than to have to start from
+scratch with a blank page.</p>
 <div class="section level3">
 <h3 id="chatbots">Chatbots<a class="anchor" aria-label="anchor" href="#chatbots"></a>
 </h3>
-<p>A great place to start with elmer and LLMs to build a chatbot with a
-custom prompt. Chatbots are a familiar interface to LLMs and easy to
-create in R with <a href="https://github.com/jcheng5/shinychat" class="external-link">shinychat</a>. And there’s
+<p>A great place to start with elmer and LLMs is to build a chatbot with
+a custom prompt. Chatbots are a familiar interface to LLMs and are easy
+to create in R with <a href="https://github.com/jcheng5/shinychat" class="external-link">shinychat</a>. And there’s a
 surprising amount of value to creating a custom chatbot that has a
 prompt stuffed with useful knowledge. For example:</p>
 <ul>
-<li><p>Maybe you want to help people use your new package. You need a
-custom prompt because LLMs were trained on data before your package
-exists. You can create a surprisingly useful tool just by preloading the
-prompt with your README and other vignettes. This is how the <a href="https://github.com/jcheng5/elmer-assistant" class="external-link">elmer assistant</a>
+<li><p>Help people use your new package. To do so, you need a custom
+prompt because LLMs were trained on data prior to your package’s
+existence. You can create a surprisingly useful tool just by preloading
+the prompt with your README and vignettes. This is how the <a href="https://github.com/jcheng5/elmer-assistant" class="external-link">elmer assistant</a>
 works.</p></li>
-<li><p><a href="https://shiny.posit.co/blog/posts/shiny-assistant/" class="external-link">Shiny
+<li><p>Build language specific prompts for R and/or python. <a href="https://shiny.posit.co/blog/posts/shiny-assistant/" class="external-link">Shiny
 assistant</a> helps you build shiny apps (either in R or python) by
 combining a <a href="https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt.md" class="external-link">prompt</a>
-that gives general advice on building apps with a language specific
-prompt for <a href="https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_r.md" class="external-link">R</a>
+that gives general advice on building apps with a prompt for <a href="https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_r.md" class="external-link">R</a>
 or <a href="https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_python.md" class="external-link">python</a>.
 The python prompt is very detailed because there’s much less information
 about Shiny for Python in the existing LLM knowledgebases.</p></li>
-<li><p>If you’ve written a bunch of documentation for something, you
-might find that you still get a bunch of questions about it because
-folks can’t easily find exactly what they’re looking for. You can reduce
-the need to answer these questions by creating a chatbot with a prompt
-that contains your documentation. For example, if you’re a teacher, you
-could create a chatbot that includes your syllabus in the prompt. This
-eliminates a common class of question where the data necessary to answer
-the question is already available, but hard to find.</p></li>
+<li><p>Help people find the answers to their questions. Even if you’ve
+written a bunch of documentation for something, you might find that you
+still get questions because folks can’t easily find exactly what they’re
+looking for. You can reduce the need to answer these questions by
+creating a chatbot with a prompt that contains your documentation. For
+example, if you’re a teacher, you could create a chatbot that includes
+your syllabus in the prompt. This eliminates a common class of question
+where the data necessary to answer the question is available, but hard
+to find.</p></li>
 </ul>
 <p>Another direction is to give the chatbot additional context about
 your current environment. For example, <a href="https://github.com/cpsievert/aidea" class="external-link">aidea</a> allows the user to
 interactively explore a dataset with the help of the LLM. It adds
 summary statistics about the dataset to the <a href="https://github.com/cpsievert/aidea/blob/main/inst/app/prompt.md" class="external-link">prompt</a>
-so that the LLM knows something about your data. Along the same lines,
-you could imagine writing a chatbot to help with data import that has a
-prompt which include all the files in the current directory along with
-their first few lines.</p>
+so that the LLM knows something about your data. Along these lines,
+imagine writing a chatbot to help with data import that has a prompt
+which include all the files in the current directory along with their
+first few lines.</p>
 </div>
 <div class="section level3">
 <h3 id="structured-data-extraction">Structured data extraction<a class="anchor" aria-label="anchor" href="#structured-data-extraction"></a>
 </h3>
 <p>LLMs are often very good at extracting structured data from
-unstructured text, which can give you traction to analyse data that was
+unstructured text. This can give you traction to analyse data that was
 previously unaccessible. For example:</p>
 <ul>
 <li><p>Customer tickets and GitHub issues: you can use LLMs for quick
-and dirty sentiment analysis, extract any specific products mentioned,
-and summarise the discussion into a few bullet points.</p></li>
+and dirty sentiment analysis by extracting any specifically mentioned
+products and summarising the discussion as a few bullet points.</p></li>
 <li><p>Geocoding: LLMs do a surprisingly good job at geocoding,
-especially to extract addresses or find the latitute/longitude of
+especially extracting addresses or finding the latitute/longitude of
 cities. There are specialised tools that do this better, but using an
 LLM makes it easy to get started.</p></li>
 <li><p>Recipes: I’ve extracted structured data from baking and cocktail
 recipes. Once you have the data in a structured form you can use your R
-skills to better understand how recipes vary within a cookbook or you
-could look for recipes that use the ingredients that you currently have
-in your kitchen. Or you could use shiny assistant to help make those
-techniques available to anyone, not just R users.</p></li>
+skills to better understand how recipes vary within a cookbook or to
+look for recipes that use the ingredients currently in your kitchen. You
+could even use shiny assistant to help make those techniques available
+to anyone, not just R users.</p></li>
 </ul>
 <p>Structured data extraction also works well with images. It’s not the
 fastest or cheapest way to extract data but it makes it really easy to
@@ -306,7 +306,7 @@ prototype ideas. For example, maybe you have a bunch of scanned
 documents that you want to index. You can convert PDFs to images
 (e.g. using {imagemagick}) then use structured data extraction to pull
 out key details.</p>
-<p>Learn more about structured data extractio in
+<p>Learn more about structured data extraction in
 <code>vignette("structure-data")</code>.</p>
 </div>
 <div class="section level3">
@@ -315,10 +315,10 @@ out key details.</p>
 <p>LLMs can also be useful to solve general programming problems. For
 example:</p>
 <ul>
-<li><p>Write a detailed prompt that explains how update code to use a
+<li><p>Write a detailed prompt that explains how to update code to use a
 new version of a package. You could combine this with the rstudioapi
-package to allow the user to select code, transform it, and then replace
-the existing text. A comprehensive example of this sort of app is <a href="https://simonpcouch.github.io/pal/" class="external-link">pal</a>, which includes
+package to allow the user to select code, transform it, and replace it
+in the existing text. A comprehensive example of this sort of app is <a href="https://simonpcouch.github.io/pal/" class="external-link">pal</a>, which includes
 prompts for automatically generating roxygen documentation blocks,
 updating testthat code to the 3rd edition, and converting
 <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code> and <code>abort()</code> to use
@@ -329,9 +329,8 @@ how to use a specific function.</p></li>
 <li><p>You can use LLMs to explain code, or even ask them to <a href="https://bsky.app/profile/daviddiviny.bsky.social/post/3lb6kjaen4c2u" class="external-link">generate
 a diagram</a>.</p></li>
 <li><p>You can ask an LLM to analyse your code for potential code smells
-or security issues. You can do this a function at a time, or explore
-including the entire source code for your package or script in the
-prompt.</p></li>
+or security issues. You can do this a function at a time, or explore the
+entire source code of your package or script in the prompt.</p></li>
 <li><p>You could use <a href="https://gh.r-lib.org" class="external-link">gh</a> to find
 unlabelled issues, extract the text, and ask the LLM to figure out what
 labels might be most appropriate. Or maybe an LLM might be able to help
@@ -341,8 +340,8 @@ complicated?</p></li>
 knowing that it’s likely to be mostly incorrect. Having something to
 react to make it much easier for me to get started.</p></li>
 <li><p>If you’re working with code or data from another programming
-language, you ask an LLM to convert it to R code for you. Even if it’s
-not perfect, it’s still typically much faster than doing everything
+language, you can ask an LLM to convert it to R code for you. Even if
+it’s not perfect, it’s still typically much faster than doing everything
 yourself.</p></li>
 </ul>
 </div>
@@ -350,16 +349,16 @@ yourself.</p></li>
 <div class="section level2">
 <h2 id="miscellaneous">Miscellaneous<a class="anchor" aria-label="anchor" href="#miscellaneous"></a>
 </h2>
-<p>To finsish up here are a few other ideas that seem cool but didn’t
-seem to fit in the other categories:</p>
+<p>To finish up here are a few other ideas that seem cool but didn’t
+seem to fit the above categories:</p>
 <ul>
 <li><p>Automatically generate alt text for plots, using
 <code><a href="../reference/content_image_url.html">content_image_plot()</a></code>.</p></li>
-<li><p>Try analysing the text of your statistical report and look for
-flaws in your statistical reasoning. (e.g. misinterpreting p-values or
-assuming causation where only correlation exists.)</p></li>
+<li><p>Analyse the text of your statistical report to look for flaws in
+your statistical reasoning (e.g. misinterpreting p-values or assuming
+causation where only correlation exists).</p></li>
 <li><p>Use your existing company style guide to generate a <a href="https://posit-dev.github.io/brand-yml/articles/llm-brand-yml-prompt/" class="external-link">brand.yaml</a>
-specification to automatically style your reports, apps, dashboards,
+specification to automatically style your reports, apps, dashboards and
 plots to match your corporate style guide.</p></li>
 </ul>
 </div>
