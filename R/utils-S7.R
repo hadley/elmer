@@ -94,3 +94,25 @@ prop_number_whole <- function(default = NULL, min = NULL, max = NULL, allow_null
     }
   )
 }
+
+prop_azure_token <- function(allow_null = FALSE) {
+  force(allow_null)
+  ## The call to AzureAuth ensures that the class name of the Azure Token does not change
+  class_name = AzureAuth::AzureToken$self$classname
+  ## The returned token object is R6 - not currently supported by the S7::as_class()
+  ## so I made a new S3 class to use validator
+  AzureToken_class <- new_S3_class(class_name)
+
+  new_property(
+    class = if (allow_null) NULL | AzureToken_class else AzureToken_class,
+    validator = function(value) {
+      if (allow_null && is.null(value)) {
+        return()
+      }
+
+      if (!inherits(value, class_name)) {
+        paste0("must be an object of class <", class_name, ">, not ", obj_type_friendly(value), ".")
+      }
+    }
+  )
+}

@@ -19,8 +19,8 @@ NULL
 #' @param api_key The API key to use for authentication. You generally should
 #'   not supply this directly, but instead set the `AZURE_OPENAI_API_KEY` environment
 #'   variable.
-#' @param token Azure token for authentication. This is typically not required for
-#' Azure OpenAI API calls, but can be used if your setup requires it.
+#' @param token Azure token object of class AzureToken for authentication. This is typically not required for
+#' Azure OpenAI API calls, but can be used if your setup requires it. The token object is retrieved using the AzureAuth package.#' Using the token object ensures a refresh method is available for the token.
 #' @inheritParams chat_openai
 #' @inherit chat_openai return
 #' @export
@@ -58,7 +58,7 @@ ProviderAzure <- new_class(
   parent = ProviderOpenAI,
   properties = list(
     api_key = prop_string(),
-    token = prop_string(allow_null = TRUE),
+    token = prop_azure_token(),
     endpoint = prop_string(),
     api_version = prop_string()
   )
@@ -86,8 +86,18 @@ method(chat_request, ProviderAzure) <- function(provider,
   req <- req_url_query(req, `api-version` = provider@api_version)
   req <- req_headers(req, `api-key` = provider@api_key, .redact = "api-key")
   if (!is.null(provider@token)) {
-    req <- req_auth_bearer_token(req, provider@token)
-  }
+    ## uses the token object method to validate the token (for example if it expired)
+    valid = provider@token$validate()
+    if(!valid ) {
+      # uses the token object method to refresh the token
+      token = provider@token$refresh()
+      access_token = token$credentials$access_token
+    }
+    ## retrieves the actual access token from the object for further use.
+    access_token = provider@token$credentials$access_token
+
+    req <- req_auth_bearer_token(req, access_token)
+    }
   req <- req_retry(req, max_tries = 2)
   req <- req_error(req, body = function(resp) resp_body_json(resp)$message)
 

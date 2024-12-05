@@ -35,8 +35,8 @@ scratch.}
 not supply this directly, but instead set the \code{AZURE_OPENAI_API_KEY} environment
 variable.}
 
-\item{token}{Azure token for authentication. This is typically not required for
-Azure OpenAI API calls, but can be used if your setup requires it.}
+\item{token}{Azure token object of class AzureToken for authentication. This is typically not required for
+Azure OpenAI API calls, but can be used if your setup requires it. The token object is retrieved using the AzureAuth package.#' Using the token object ensures a refresh method is available for the token.}
 
 \item{api_args}{Named list of arbitrary extra arguments appended to the body
 of every chat API call.}
