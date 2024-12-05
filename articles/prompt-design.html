@@ -77,13 +77,12 @@
 
     
     
-<p>This vignette will give you some advice about the logistics of
-writing prompts with elmer, and then work through two hopefully relevant
-examples showing how you might write a prompt when generating code and
-when extracting structured data. If you’ve never written a prompt
-before, I’d highly recommend reading <a href="https://www.oneusefulthing.org/p/getting-started-with-ai-good-enough" class="external-link">Getting
-started with AI: Good enough prompting</a> by Ethan Mollick. I think his
-motivating analogy does a really good job of getting you started:</p>
+<p>This vignette gives you some advice about how to use elmer to write
+prompts. We’ll work through two hopefully relevant examples: a prompt
+that generates code and another that extracts structured data. If you’ve
+never written a prompt, I’d highly recommend reading Ethan Mollick’s <a href="https://www.oneusefulthing.org/p/getting-started-with-ai-good-enough" class="external-link">Getting
+started with AI: Good enough prompting</a>. I think understanding his
+analogy about how AI works will really help you get started:</p>
 <blockquote>
 <p>Treat AI like an infinitely patient new coworker who forgets
 everything you tell them each new conversation, one that comes highly
@@ -95,30 +94,28 @@ closest to humans, because that is the key to good-enough prompting</p>
 </blockquote>
 <p>As well as learning general prompt design skills, it’s also a good
 idea to read any specific advice for the model that you’re using. Here
-are some pointers to the prompt design guides some of the most popular
-models:</p>
+are some pointers to the prompt design guides of some of the most
+popular models:</p>
 <ul>
 <li><a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/overview" class="external-link">Claude</a></li>
 <li><a href="https://platform.openai.com/docs/guides/prompt-engineering" class="external-link">OpenAI</a></li>
 <li><a href="https://ai.google.dev/gemini-api/docs/prompting-intro" class="external-link">Gemini</a></li>
 </ul>
-<p>If you have a claude account, you can use its <a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/prompt-generator" class="external-link uri">https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/prompt-generator</a>.
-This prompt generator has been specifically tailored for Claude, but I
-suspect it will help many other LLMs, or at least give you some ideas as
-to what else you might want to include in your prompt.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://elmer.tidyverse.org">elmer</a></span><span class="op">)</span></span></code></pre></div>
+<p>If you have a claude account, you can use its <a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/prompt-generator" class="external-link">prompt-generator</a>.
+It’s specifically tailored for Claude, but I suspect it will help you
+with many other LLMs, or at least give you some ideas as to what else to
+include in your prompt.</p>
 <div class="section level2">
-<h2 id="logistics">Logistics<a class="anchor" aria-label="anchor" href="#logistics"></a>
+<h2 id="best-practices">Best practices<a class="anchor" aria-label="anchor" href="#best-practices"></a>
 </h2>
-<p>There are a few logistics to discuss first. It’s highly likely that
-you will end up writing long, possibly multi-page prompts, so we want to
-ensure that you’re set up for success. We recommend that you put each
-prompt in its own file, and write them using markdown. LLMs, like
-humans, appear to find markdown to be quite readable and markdown allows
-you to (e.g.) use headers to divide up the prompt into esection, and
-other tools like itemised lists to enumerate multiple options. You can
-see some a few examples of this style of prompt here:</p>
+<p>It’s highly likely that you’ll end up writing long, possibly
+multi-page prompts. To ensure your success with this task, we have two
+recommendations. First, put each prompt its own, separate file. Second,
+write the prompts using markdown. The reason to use markdown is that
+it’s quite readable to LLMs (and humans), and it allows you to do things
+like use headers to divide up a prompt into sections and itemised lists
+to enumerate multiple options. You can see some examples of this style
+of prompt here:</p>
 <ul>
 <li><a href="https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_python.md" class="external-link uri">https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_python.md</a></li>
 <li><a href="https://github.com/jcheng5/py-sidebot/blob/main/prompt.md" class="external-link uri">https://github.com/jcheng5/py-sidebot/blob/main/prompt.md</a></li>
@@ -130,29 +127,29 @@ call it <code>prompt.md</code>. If you have multiple prompts, give them
 informative names like <code>prompt-extract-metadata.md</code> or
 <code>prompt-summarize-text.md</code>. If you’re writing a package, put
 your prompt(s) in <code>inst/prompts</code>, otherwise it’s fine to put
-them in the root directory of your project.</p>
-<p>Your prompts are going to change over time, so we highly recommend
+them in the project’s root directory.</p>
+<p>Your prompts are going to change over time, so we’d highly recommend
 commiting them to a git repo. That will ensure that you can easily see
-what has changed, and if you accidentally make a mistake you can easily
-roll back to a known good verison.</p>
+what has changed, and that if you accidentally make a mistake you can
+easily roll back to a known good verison.</p>
 <p>If your prompt includes dynamic data, use
-<code><a href="../reference/interpolate.html">elmer::interpolate_file()</a></code> to interpolate it into your
-prompt. <code><a href="../reference/interpolate.html">interpolate_file()</a></code> works like <a href="https://glue.tidyverse.org" class="external-link">glue</a>, but uses <code>{{ }}</code>
+<code><a href="../reference/interpolate.html">elmer::interpolate_file()</a></code> to intergrate it into your
+prompt. <code><a href="../reference/interpolate.html">interpolate_file()</a></code> works like <a href="https://glue.tidyverse.org" class="external-link">glue</a> but uses <code>{{ }}</code>
 instead of <code><a href="https://rdrr.io/r/base/Paren.html" class="external-link">{ }</a></code> to make it easier to work with JSON.</p>
-<p>As you iterate on the prompt, it’s a good idea to build up a small
-set of challenging examples that you can regularly re-check with your
-latest version of the prompt. Currently you’ll need to do this by hand,
-but we hope to eventually also provide tools that help you do this a
-little more formally.</p>
-<p>Unfortunately, however, you won’t see these logistics in action in
-this vignette, since we’re keeping the prompts short and inline to make
-it easier for you to grok what’s going on.</p>
+<p>As you iterate the prompt, it’s a good idea to build up a small set
+of challenging examples that you can regularly re-check with your latest
+version of the prompt. Currently you’ll need to do this by hand, but we
+hope to eventually provide tools that’ll help you do this a little more
+formally.</p>
+<p>Unfortunately, you won’t see these best practices in action in this
+vignette since we’re keeping the prompts short and inline to make it
+easier for you to grok what’s going on.</p>
 </div>
 <div class="section level2">
 <h2 id="code-generation">Code generation<a class="anchor" aria-label="anchor" href="#code-generation"></a>
 </h2>
 <p>Let’s explore prompt design for a simple code generation task:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">question</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
 <span><span class="st">  How can I compute the mean and median of variables a, b, c, and so on,</span></span>
 <span><span class="st">  all the way up to z, grouped by age and sex.</span></span>
@@ -164,12 +161,12 @@ experience it does the best job of generating code.</p>
 </h3>
 <p>When I don’t provide a system prompt, I sometimes get answers in a
 different languages or different styles of R code:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_claude.html">chat_claude</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="va">question</span><span class="op">)</span></span></code></pre></div>
 <p>I can ensure that I always get R code in a given style by providing a
 system prompt:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_claude.html">chat_claude</a></span><span class="op">(</span>system_prompt <span class="op">=</span> <span class="st">"</span></span>
 <span><span class="st">  You are an expert R programmer who prefers the tidyverse.</span></span>
 <span><span class="st">"</span><span class="op">)</span></span>
@@ -182,7 +179,7 @@ framing of the response from the specific questions that you want to
 ask.</p>
 <p>Since I’m mostly interested in the code, I ask it to drop the
 explanation and the sample data:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_claude.html">chat_claude</a></span><span class="op">(</span>system_prompt <span class="op">=</span> <span class="st">"</span></span>
 <span><span class="st">  You are an expert R programmer who prefers the tidyverse.</span></span>
 <span><span class="st">  Just give me the code. I don't want any explanation or sample data.</span></span>
@@ -190,7 +187,7 @@ explanation and the sample data:</p>
 <span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="va">question</span><span class="op">)</span></span></code></pre></div>
 <p>And of course, if you want a different style of R code, you can of
 course ask for it:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_claude.html">chat_claude</a></span><span class="op">(</span>system_prompt <span class="op">=</span> <span class="st">"</span></span>
 <span><span class="st">  You are an expert R programmer who prefers data.table.</span></span>
 <span><span class="st">  Just give me the code. I don't want any explanation or sample data.</span></span>
@@ -209,7 +206,7 @@ course ask for it:</p>
 <p>If there’s something about the output that you don’t like, you can
 try being more explicit about it. For example, the code isn’t styled
 quite how I like, so I provide more details about what I do want:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_claude.html">chat_claude</a></span><span class="op">(</span>system_prompt <span class="op">=</span> <span class="st">"</span></span>
 <span><span class="st">  You are an expert R programmer who prefers the tidyverse.</span></span>
 <span><span class="st">  Just give me the code. I don't want any explanation or sample data.</span></span>
@@ -226,7 +223,7 @@ quite how I like, so I provide more details about what I do want:</p>
 prety close.</p>
 <p>You could provide a different prompt if you were looking for more
 explanation of the code:</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_claude.html">chat_claude</a></span><span class="op">(</span>system_prompt <span class="op">=</span> <span class="st">"</span></span>
 <span><span class="st">  You are an expert R teacher.</span></span>
 <span><span class="st">  I am a new R user who wants to improve my programming skills.</span></span>
@@ -245,7 +242,7 @@ which will tend to reflect older coding styles (either because the new
 features aren’t in their index, or the older features are so much more
 popular). So if you want your code to use specific features that are
 relatively recent, you might need to provide the examples yourself:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_claude.html">chat_claude</a></span><span class="op">(</span>system_prompt <span class="op">=</span> <span class="st">"</span></span>
 <span><span class="st">  You are an expert R programmer.</span></span>
 <span><span class="st">  Just give me the code; no explanation in text.</span></span>
@@ -282,7 +279,7 @@ ideas apply in many other situations.</p>
 into a nicely structured JSON that I can then analyse in R (e.g. to
 compute the total weight, scale the recipe up or down, or to convert the
 units from volumes to weights).</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ingredients</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
 <span><span class="st">  ¾ cup (150g) dark brown sugar</span></span>
 <span><span class="st">  2 large eggs</span></span>
@@ -303,7 +300,7 @@ where a big part of the problem is just defining precisely what problem
 you want to solve. Seeing the LLM’s attempt at a data structure gives me
 something to immediately react to, rather than having to start from a
 blank page.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">instruct_json</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
 <span><span class="st">  You're an expert baker who also loves JSON. I am going to give you a list of</span></span>
 <span><span class="st">  ingredients and your job is to return nicely structured JSON. Just return the</span></span>
@@ -323,7 +320,7 @@ into the right mindset of a very nerdy baker.)</p>
 want to see volumes if weight isn’t available so I provide a couple of
 examples of what I’m looking for. I was pleasantly suprised that I can
 provide the input and output examples in such a loose format.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">instruct_weight</span> <span class="op">&lt;-</span> <span class="st">r"(</span></span>
 <span><span class="st">  Here are some examples of the sort of output I'm looking for:</span></span>
 <span><span class="st"></span></span>
@@ -345,7 +342,7 @@ trying to accomplish. I’m not sure if this helps the LLM or not, but it
 certainly makes it easier for me to understand the organisation of the
 whole prompt and check that I’ve covered the key pieces that I’m
 interested in.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">instruct_weight</span> <span class="op">&lt;-</span> <span class="st">r"(</span></span>
 <span><span class="st">  * If an ingredient has both weight and volume, extract only the weight:</span></span>
 <span><span class="st"></span></span>
@@ -374,7 +371,7 @@ ingredients are specified. For later analysis, I always want quantities
 to be number, even if they were originally fractions, or the if the
 units aren’t precise (like a pinch). It made me realise that some
 ingredients are unitless.</p>
-<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">instruct_unit</span> <span class="op">&lt;-</span> <span class="st">r"(</span></span>
 <span><span class="st">* If the unit uses a fraction, convert it to a decimal.</span></span>
 <span><span class="st"></span></span>
@@ -413,7 +410,7 @@ useful to formalise it and tell the LLM exactly what I’m looking for
 using structured data. This guarantees that the LLM will only return
 JSON, the JSON will have the fields that you expect, and that elmer will
 convert it into an R data structure for you.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">type_ingredient</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
 <span>  name <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="st">"Ingredient name"</span><span class="op">)</span>,</span>
 <span>  quantity <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_number</a></span><span class="op">(</span><span class="op">)</span>,</span>
@@ -434,7 +431,7 @@ ingredient name in the output. This doesn’t make much difference here,
 in this simple example, but it makes it much easier to align the input
 and the output and start to develop automated measures of how well my
 prompt is doing.</p>
-<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">instruct_weight_input</span> <span class="op">&lt;-</span> <span class="st">r"(</span></span>
 <span><span class="st">  * If an ingredient has both weight and volume, extract only the weight:</span></span>
 <span><span class="st"></span></span>
@@ -454,7 +451,7 @@ prompt is doing.</p>
 <span><span class="st">)"</span></span></code></pre></div>
 <p>I think this is particularly important if you’re working with even
 less structured text. For example, imagine you had this text:</p>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">recipe</span> <span class="op">&lt;-</span> <span class="st">r"(</span></span>
 <span><span class="st">  In a large bowl, cream together one cup of softened unsalted butter and a</span></span>
 <span><span class="st">  quarter cup of white sugar until smooth. Beat in an egg and 1 teaspoon of</span></span>
@@ -467,7 +464,7 @@ less structured text. For example, imagine you had this text:</p>
 <span><span class="st">)"</span></span></code></pre></div>
 <p>Including the input text in the output makes it easier to see if it’s
 doing a good job:</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_openai.html">chat_openai</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">instruct_json</span>, <span class="va">instruct_weight_input</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="va">recipe</span><span class="op">)</span></span></code></pre></div>
 <p>When I ran it while writing this vignette, it seems to be working out
