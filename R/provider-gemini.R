@@ -311,11 +311,10 @@ merge_optional <- function(merge_func) {
   }
 }
 
-merge_by_spec <- function(...) {
+merge_objects <- function(...) {
   spec <- list(...)
   function(left, right) {
-    # TODO: left and right should be named lists
-    stopifnot(all(nzchar(names(spec))))
+    stopifnot(is.list(left), is.list(right), all(nzchar(names(spec))))
     mapply(names(spec), spec, FUN = function(key, value) {
       value(left[[key]], right[[key]])
     }, USE.NAMES = TRUE, SIMPLIFY = FALSE)
@@ -332,7 +331,7 @@ merge_indexed_list <- function(...) {
       }
       lst
     }
-    # TODO: We shouldn't need to do this--why don't we see .index??cry
+    # TODO: We shouldn't need to do this--why don't we see .index??
     left <- ensure_indices(left)
     right <- ensure_indices(right)
     # left and right are lists of objects with [["index"]]
@@ -347,7 +346,7 @@ merge_indexed_list <- function(...) {
       } else if (is.null(right_item)) {
         left_item
       } else {
-        merge_by_spec(...)(left_item, right_item)
+        merge_objects(...)(left_item, right_item)
       }
     })
   }
@@ -368,7 +367,7 @@ merge_parts <- function(...) {
         c(left, right)
       } else {
         # Merge the last left and first right
-        result <- merge_by_spec(...)(last_left, first_right)
+        result <- merge_objects(...)(last_left, first_right)
         # Drop NULL properties
         result <- result[!vapply(result, is.null, logical(1))]
         # Put everything back together
@@ -378,18 +377,19 @@ merge_parts <- function(...) {
   }
 }
 
-merge_gemini_chunks <- merge_by_spec(
+# Put it all together...
+merge_gemini_chunks <- merge_objects(
   candidates = merge_indexed_list(
     index = merge_identical(),
-    content = merge_by_spec(
+    content = merge_objects(
       role = merge_any_or_empty(),
       parts = merge_parts(
         text = merge_optional(merge_concatenate()),
-        executable_code = merge_optional(merge_by_spec(
+        executable_code = merge_optional(merge_objects(
           language = merge_first(),
           code = merge_concatenate()
         )),
-        code_execution_result = merge_optional(merge_by_spec(
+        code_execution_result = merge_optional(merge_objects(
           outcome = merge_last(),
           output = merge_concatenate()
         ))
