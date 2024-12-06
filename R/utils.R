@@ -80,3 +80,11 @@ dots_named <- function(...) {
   x[[length(x) + 1]] <- value
   x
 }
+
+is_azure_token <- function (object)
+{
+  R6::is.R6(object) && inherits(object, "AzureToken")
+}
+
+
+
