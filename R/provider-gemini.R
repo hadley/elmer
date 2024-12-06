@@ -369,7 +369,7 @@ merge_parts <- function(...) {
         # Merge the last left and first right
         result <- merge_objects(...)(last_left, first_right)
         # Drop NULL properties
-        result <- result[!vapply(result, is.null, logical(1))]
+        result <- discard(result, is.null)
         # Put everything back together
         c(head(left, -1), list(result), tail(right, -1))
       }
@@ -385,22 +385,22 @@ merge_gemini_chunks <- merge_objects(
       role = merge_any_or_empty(),
       parts = merge_parts(
         text = merge_optional(merge_concatenate()),
-        executable_code = merge_optional(merge_objects(
+        executableCode = merge_optional(merge_objects(
           language = merge_first(),
           code = merge_concatenate()
         )),
-        code_execution_result = merge_optional(merge_objects(
+        codeExecutionResult = merge_optional(merge_objects(
           outcome = merge_last(),
           output = merge_concatenate()
         ))
       )
     ),
-    finish_reason = merge_last(),
-    safety_ratings = merge_safety_ratings(),
-    citation_metadata = merge_last(),
-    token_count = merge_last()
+    finishReason = merge_last(),
+    safetyRatings = merge_safety_ratings(),
+    citationMetadata = merge_last(),
+    tokenCount = merge_last()
   ),
-  prompt_feedback = merge_last(),
-  usage_metadata = merge_last_or_null(),
-  model_version = merge_last_or_null()
+  promptFeedback = merge_last(),
+  usageMetadata = merge_last_or_null(),
+  modelVersion = merge_last_or_null()
 )
