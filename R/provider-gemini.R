@@ -298,13 +298,6 @@ merge_any_or_empty <- function() {
   }
 }
 
-merge_concatenate <- function() {
-  function(left, right, path = NULL) {
-    # TODO: left and right should be NULL or single-element character vectors
-    paste0(left, right)
-  }
-}
-
 merge_optional <- function(merge_func) {
   function(left, right, path = NULL) {
     if (is.null(left) && is.null(right)) {
@@ -362,7 +355,7 @@ merge_append <- function() {
   }
 }
 
-merge_parts <- function(...) {
+merge_parts <- function() {
   function(left, right, path = NULL) {
     joined <- c(left, right)
 
@@ -393,9 +386,7 @@ merge_gemini_chunks <- merge_objects(
   candidates = merge_candidate_lists(
     content = merge_objects(
       role = merge_any_or_empty(),
-      parts = merge_parts(
-        text = merge_concatenate()
-      )
+      parts = merge_parts()
     ),
     finishReason = merge_last(),
     safetyRatings = merge_last(),
