@@ -47,6 +47,7 @@ last_response_json <- function() {
 }
 print_json <- function(x) {
   cat(pretty_json(x))
+  cat("\n")
 }
 pretty_json <- function(x) {
   jsonlite::toJSON(x, pretty = TRUE, auto_unbox = TRUE)
