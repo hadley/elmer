@@ -107,7 +107,7 @@ method(chat_request, ProviderGemini) <- function(provider,
     contents = contents,
     tools = tools,
     systemInstruction = system,
-    generation_config = generation_config,
+    generationConfig = generation_config,
     !!!extra_args
   ))
   req <- req_body_json(req, body)
@@ -132,7 +132,14 @@ method(stream_merge_chunks, ProviderGemini) <- function(provider, result, chunk)
   if (is.null(result)) {
     chunk
   } else {
-    merge_gemini_chunks(result, chunk)
+    # cat("== LEFT ==\n")
+    # print_json(result)
+    # cat("== RIGHT ==\n")
+    # print_json(chunk)
+    res <- merge_gemini_chunks(result, chunk)
+    # cat("== MERGED ==\n")
+    # print_json(res)
+    res
   }
 }
 method(value_turn, ProviderGemini) <- function(provider, result, has_type = FALSE) {
@@ -143,8 +150,10 @@ method(value_turn, ProviderGemini) <- function(provider, result, has_type = FALS
       if (has_type) {
         data <- jsonlite::parse_json(content$text)
         ContentJson(data)
-      } else {
+      } else if (any(nzchar(content$text))) {
         ContentText(content$text)
+      } else {
+        NULL
       }
     } else if (has_name(content, "functionCall")) {
       ContentToolRequest(
@@ -159,6 +168,7 @@ method(value_turn, ProviderGemini) <- function(provider, result, has_type = FALS
       )
     }
   })
+  contents <- compact(contents)
   usage <- result$usageMetadata
   tokens <- c(
     usage$promptTokenCount %||% NA_integer_,
@@ -254,13 +264,13 @@ method(as_json, list(ProviderGemini, TypeObject)) <- function(provider, x) {
 # Gemini-specific merge logic --------------------------------------------------
 
 merge_first <- function() {
-  function(left, right) {
+  function(left, right, path = NULL) {
     left
   }
 }
 
 merge_last <- function() {
-  function(left, right) {
+  function(left, right, path = NULL) {
     right
   }
 }
@@ -268,7 +278,7 @@ merge_last <- function() {
 merge_last_or_null <- merge_last
 
 merge_identical <- function() {
-  function(left, right) {
+  function(left, right, path = NULL) {
     if (!identical(left, right)) {
       stop("Expected identical values, but got ", deparse(left), " and ", deparse(right))
     }
@@ -277,7 +287,7 @@ merge_identical <- function() {
 }
 
 merge_any_or_empty <- function() {
-  function(left, right) {
+  function(left, right, path = NULL) {
     if (!is.null(left) && nzchar(left)) {
       left
     } else if (!is.null(right) && nzchar(right)) {
@@ -289,118 +299,117 @@ merge_any_or_empty <- function() {
 }
 
 merge_concatenate <- function() {
-  function(left, right) {
+  function(left, right, path = NULL) {
     # TODO: left and right should be NULL or single-element character vectors
     paste0(left, right)
   }
 }
 
 merge_safety_ratings <- function() {
-  function(left, right) {
+  function(left, right, path = NULL) {
     # TODO: https://github.com/google-gemini/generative-ai-python/blob/b8772ed1424a080911151b354764d76a0e7af2af/google/generativeai/types/generation_types.py#L238
   }
 }
 
 merge_optional <- function(merge_func) {
-  function(left, right) {
+  function(left, right, path = NULL) {
     if (is.null(left) && is.null(right)) {
       NULL
     } else {
-      merge_func(left, right)
+      merge_func(left, right, path)
     }
   }
 }
 
 merge_objects <- function(...) {
   spec <- list(...)
-  function(left, right) {
+  function(left, right, path = NULL) {
+    # cat(paste(collapse = "", path), "\n")
     stopifnot(is.list(left), is.list(right), all(nzchar(names(spec))))
     mapply(names(spec), spec, FUN = function(key, value) {
-      value(left[[key]], right[[key]])
+      value(left[[key]], right[[key]], c(path, ".", key))
     }, USE.NAMES = TRUE, SIMPLIFY = FALSE)
   }
 }
 
-merge_indexed_list <- function(...) {
-  function(left, right) {
-    ensure_indices <- function(lst) {
-      for (i in seq_len(length(lst))) {
-        if (is.null(lst[[i]][["index"]])) {
-          lst[[i]]$index <- i - 1L
+merge_candidate_lists <- function(...) {
+  merge_unindexed <- merge_objects(...)
+  merge_indexed <- merge_objects(index = merge_identical(), ...)
+
+  function(left, right, path = NULL) {
+    if (length(left) == 1 && length(right) == 1) {
+      list(merge_unindexed(left[[1]], right[[1]], c(path, "[]")))
+    } else {
+      # left and right are lists of objects with [["index"]]
+      # We need to find the elements that have matching indices and merge them
+      left_indices <- vapply(left, `[[`, integer(1), "index")
+      right_indices <- vapply(right, `[[`, integer(1), "index")
+      # I know this seems weird, but according to Google's Go SDK, we should
+      # only retain indices on the right that *already* appear on the left.
+      # Citations:
+      # https://github.com/google/generative-ai-go/blob/3d14f4039eaef321b15bcbf70839389d7f000233/genai/client_test.go#L655
+      # https://github.com/google/generative-ai-go/blob/3d14f4039eaef321b15bcbf70839389d7f000233/genai/client.go#L396
+      lapply(left_indices, function(index) {
+        left_item <- left[[which(left_indices == index)]]
+        right_item <- right[[which(right_indices == index)]]
+        if (is.null(right_item)) {
+          left_item
+        } else {
+          merge_indexed(left_item, right_item, c(path, "[", index, "]"))
         }
-      }
-      lst
+      })
     }
-    # TODO: We shouldn't need to do this--why don't we see .index??
-    left <- ensure_indices(left)
-    right <- ensure_indices(right)
-    # left and right are lists of objects with [["index"]]
-    # We need to find the elements that have matching indices and merge them
-    left_indices <- vapply(left, `[[`, integer(1), "index")
-    right_indices <- vapply(right, `[[`, integer(1), "index")
-    lapply(sort(unique(c(left_indices, right_indices))), function(index) {
-      left_item <- left[[which(left_indices == index)]]
-      right_item <- right[[which(right_indices == index)]]
-      if (is.null(left_item)) {
-        right_item
-      } else if (is.null(right_item)) {
-        left_item
-      } else {
-        merge_objects(...)(left_item, right_item)
-      }
-    })
+  }
+}
+
+merge_append <- function() {
+  function(left, right, path = NULL) {
+    c(left, right)
   }
 }
 
 merge_parts <- function(...) {
-  function(left, right) {
-    if (length(left) == 0) {
-      right
-    } else if (length(right) == 0) {
-      left
-    } else {
-      # Can we merge the last left and first right?
-      last_left <- tail(left, 1)[[1]]
-      first_right <- head(right, 1)[[1]]
-      if (!identical(names(last_left), names(first_right))) {
-        # Nothing to merge
-        c(left, right)
+  function(left, right, path = NULL) {
+    joined <- c(left, right)
+
+    # Identify text parts
+    is_text <- map_lgl(joined, ~is.list(.x) && identical(names(.x), "text"))
+
+    # Create groups for contiguous sections
+    groups <- cumsum(c(TRUE, diff(is_text) != 0))
+
+    # Split into groups and process each
+    split_parts <- split(joined, groups)
+    merged_split_parts <- map2(split_parts, split(is_text, groups), function(parts, is_text_group) {
+      if (!is_text_group[[1]]) {
+        # Non-text group: return parts unchanged
+        return(parts)
       } else {
-        # Merge the last left and first right
-        result <- merge_objects(...)(last_left, first_right)
-        # Drop NULL properties
-        result <- discard(result, is.null)
-        # Put everything back together
-        c(head(left, -1), list(result), tail(right, -1))
+        # Text group: merge text values
+        text_values <- map_chr(parts, ~.x[["text"]])
+        list(list(text = paste0(text_values, collapse = "")))
       }
-    }
+    })
+    flatten(merged_split_parts)
   }
 }
 
 # Put it all together...
 merge_gemini_chunks <- merge_objects(
-  candidates = merge_indexed_list(
-    index = merge_identical(),
+  candidates = merge_candidate_lists(
     content = merge_objects(
       role = merge_any_or_empty(),
       parts = merge_parts(
-        text = merge_optional(merge_concatenate()),
-        executableCode = merge_optional(merge_objects(
-          language = merge_first(),
-          code = merge_concatenate()
-        )),
-        codeExecutionResult = merge_optional(merge_objects(
-          outcome = merge_last(),
-          output = merge_concatenate()
-        ))
+        text = merge_concatenate()
       )
     ),
     finishReason = merge_last(),
     safetyRatings = merge_safety_ratings(),
-    citationMetadata = merge_last(),
+    citationMetadata = merge_optional(merge_objects(
+      citationSources = merge_append()
+    )),
     tokenCount = merge_last()
   ),
   promptFeedback = merge_last(),
-  usageMetadata = merge_last_or_null(),
-  modelVersion = merge_last_or_null()
+  usageMetadata = merge_last_or_null()
 )
