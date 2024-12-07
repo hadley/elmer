@@ -305,12 +305,6 @@ merge_concatenate <- function() {
   }
 }
 
-merge_safety_ratings <- function() {
-  function(left, right, path = NULL) {
-    # TODO: https://github.com/google-gemini/generative-ai-python/blob/b8772ed1424a080911151b354764d76a0e7af2af/google/generativeai/types/generation_types.py#L238
-  }
-}
-
 merge_optional <- function(merge_func) {
   function(left, right, path = NULL) {
     if (is.null(left) && is.null(right)) {
@@ -404,7 +398,7 @@ merge_gemini_chunks <- merge_objects(
       )
     ),
     finishReason = merge_last(),
-    safetyRatings = merge_safety_ratings(),
+    safetyRatings = merge_last(),
     citationMetadata = merge_optional(merge_objects(
       citationSources = merge_append()
     )),
