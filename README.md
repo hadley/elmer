@@ -13,7 +13,7 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 elmer makes it easy to use large language models (LLM) from R. It
 supports a wider variety of LLM providers and implements a rich set of
 features including streaming outputs, tool/function calling, structured
-data extration, and more.
+data extraction, and more.
 
 (Looking for something similar to elmer for python? Check out
 [chatlas](https://github.com/cpsievert/chatlas)!)
@@ -151,7 +151,7 @@ chat$chat(
 
 ### Programmatic chat
 
-The most programmataic way to chat is to create the chat object inside a
+The most programmatic way to chat is to create the chat object inside a
 function, where live streaming is automatically suppressed and `$chat()`
 returns the result as a string:
 
