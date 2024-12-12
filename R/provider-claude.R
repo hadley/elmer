@@ -176,6 +176,7 @@ method(stream_merge_chunks, ProviderClaude) <- function(provider, result, chunk)
     result$usage$output_tokens <- chunk$usage$output_tokens
   } else if (chunk$type == "error") {
     if (chunk$error$type == "overloaded_error") {
+      # https://docs.anthropic.com/en/api/messages-streaming#error-events
       # TODO: track number of retries
       wait <- backoff_default(1)
       Sys.sleep(wait)
