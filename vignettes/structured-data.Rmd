@@ -20,7 +20,7 @@ When using an LLM to extract data from text or images, you can ask the chatbot t
 
 ```{r setup}
 #| cache: false
-library(elmer)#|
+library(elmer)
 ```
 
 ## Structured data basics
@@ -149,13 +149,10 @@ type_named_entity <- type_object(
   type = type_enum("The entity type", c("person", "location", "organization")),
   context = type_string("The context in which the entity appears in the text.")
 )
-
-type_named_entities <- type_object(
-  entities = type_array(items = type_named_entity)
-)
+type_named_entities <- type_array(items = type_named_entity)
 
 chat <- chat_openai()
-str(chat$extract_data(text, type = type_named_entities))
+chat$extract_data(text, type = type_named_entities)
 ```
 
 ### Example 3: Sentiment analysis
@@ -205,21 +202,10 @@ type_classification <- type_array(
     )
   )
 )
-wrapper <- type_object(
-  classification = type_classification
-)
 
 chat <- chat_openai()
-data <- chat$extract_data(text, type = wrapper)
-do.call(rbind, lapply(data$classification, as.data.frame))
-```
-
-Here we created a wrapper object because the OpenAI API requires all structured data to use an object. If you're working with Claude or Gemini, the code is a little simpler:
-
-```{r, eval = elmer:::anthropic_key_exists()}
-chat <- chat_claude()
 data <- chat$extract_data(text, type = type_classification)
-do.call(rbind, lapply(data, as.data.frame))
+data
 ```
 
 ### Example 5: Working with unknown keys
@@ -267,14 +253,12 @@ type_asset <- type_object(
   income_high = type_integer(),
   tx_gt_1000 = type_boolean()
 )
-type_disclosure_report <- type_object(
-  assets = type_array(items = type_asset)
-)
+type_assets <- type_array(items = type_asset)
 
 chat <- chat_openai()
 image <- content_image_file("congressional-assets.png")
-data <- chat$extract_data(image, type = type_disclosure_report)
-str(data)
+data <- chat$extract_data(image, type = type_assets)
+data
 ```
 
 ## Advanced data types
@@ -356,8 +340,6 @@ type_my_df <- type_array(
 ```
 
 If you're familiar with the terms between row-oriented and column-oriented data frames, this is the same idea. Since most language don't possess vectorisation like R, row-oriented structures tend to be much more common in the wild.
-
-If you're working with OpenAI, you'll need to wrap this in a dummy object because OpenAI requires an when doing structured data extraction. See Example 4 above for a concrete example.
 
 ## Token usage
 
