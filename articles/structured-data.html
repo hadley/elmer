@@ -123,10 +123,10 @@ extracts two specific values from a string:</p>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; $primary_shape</span></span>
-<span><span class="co">#&gt; [1] "oval and letter R"</span></span>
+<span><span class="co">#&gt; [1] "oval and letter"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $primary_colour</span></span>
-<span><span class="co">#&gt; [1] "grey and blue"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "silver and blue"</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="data-types-basics">Data types basics<a class="anchor" aria-label="anchor" href="#data-types-basics"></a>
@@ -224,20 +224,20 @@ you can use structured data extraction.</p>
 <span><span class="co">#&gt; Using <span style="color: #00BB00;">model</span> = <span style="color: #0000BB;">"gpt-4o"</span>.</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">text</span>, type <span class="op">=</span> <span class="va">type_summary</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">summary</span><span class="op">)</span></span>
-<span><span class="co">#&gt; The article stresses the essential role of third-party testing as a core component of AI policy for ensuring the safe deployment and usage of advanced AI systems. It argues that, given the potential risks associated with powerful AI technologies, a robust third-party testing regime is necessary to mitigate societal harms and promote transparency, trust, and mutual coordination among nations and sectors. The article discusses the inadequacy of self-governance by individual AI developers and advocates for a collaborative effort between government, industry, and academia to establish a comprehensive testing framework. Importantly, it highlights how such testing mechanisms could serve as both immediate and future safeguards against misuse or accidents within the AI landscape, drawing parallels with safety standards in industries such as food and medicine. To support these efforts, institutions like Anthropic are focusing on pioneering responsible scaling policies and fostering partnerships with governments and academic entities.</span></span>
+<span><span class="co">#&gt; The article emphasizes the need for third-party testing within AI policy to ensure the safety and oversight of frontier AI systems like Claude. It argues that such a regime, which includes input from industry, government, and academia, would help to prevent societal harm and build trust in AI systems. By developing a robust framework of third-party testing, AI systems can be evaluated for risks such as national security threats, election manipulation, and harmful discrimination, while reducing accidental misuse and regulatory burdens. The article outlines the logistical aspects of implementing such a testing regime, including the roles of private companies, universities, and governments in administering tests and suggests that it may eventually become a legal requirement. It also addresses the potential challenges related to regulatory capture and calls for greater public sector involvement in AI research and evaluation.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 5</span></span>
-<span><span class="co">#&gt;  $ author    : chr "AI Policy Analyst"</span></span>
+<span><span class="co">#&gt;  $ author    : chr "Anthropic"</span></span>
 <span><span class="co">#&gt;  $ topics    :List of 5</span></span>
 <span><span class="co">#&gt;   ..$ : chr "AI policy"</span></span>
-<span><span class="co">#&gt;   ..$ : chr "third-party testing"</span></span>
 <span><span class="co">#&gt;   ..$ : chr "AI safety"</span></span>
 <span><span class="co">#&gt;   ..$ : chr "AI regulation"</span></span>
+<span><span class="co">#&gt;   ..$ : chr "third-party testing"</span></span>
 <span><span class="co">#&gt;   ..$ : chr "AI governance"</span></span>
-<span><span class="co">#&gt;  $ summary   : chr "The article stresses the essential role of third-party testing as a core component of AI policy for ensuring th"| __truncated__</span></span>
-<span><span class="co">#&gt;  $ coherence : int 90</span></span>
-<span><span class="co">#&gt;  $ persuasion: num 0.9</span></span></code></pre></div>
+<span><span class="co">#&gt;  $ summary   : chr "The article emphasizes the need for third-party testing within AI policy to ensure the safety and oversight of "| __truncated__</span></span>
+<span><span class="co">#&gt;  $ coherence : int 85</span></span>
+<span><span class="co">#&gt;  $ persuasion: num 0.85</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="example-2-named-entity-recognition">Example 2: Named entity recognition<a class="anchor" aria-label="anchor" href="#example-2-named-entity-recognition"></a>
@@ -262,35 +262,31 @@ you can use structured data extraction.</p>
 <span><span class="co">#&gt; Using <span style="color: #00BB00;">model</span> = <span style="color: #0000BB;">"gpt-4o"</span>.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">text</span>, type <span class="op">=</span> <span class="va">type_named_entities</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 1</span></span>
-<span><span class="co">#&gt;  $ entities:List of 7</span></span>
+<span><span class="co">#&gt;  $ entities:List of 6</span></span>
 <span><span class="co">#&gt;   ..$ :List of 3</span></span>
 <span><span class="co">#&gt;   .. ..$ name   : chr "John"</span></span>
 <span><span class="co">#&gt;   .. ..$ type   : chr "person"</span></span>
-<span><span class="co">#&gt;   .. ..$ context: chr "works at Google in New York."</span></span>
+<span><span class="co">#&gt;   .. ..$ context: chr "John works at Google in New York. He met with Sarah."</span></span>
 <span><span class="co">#&gt;   ..$ :List of 3</span></span>
 <span><span class="co">#&gt;   .. ..$ name   : chr "Google"</span></span>
 <span><span class="co">#&gt;   .. ..$ type   : chr "organization"</span></span>
-<span><span class="co">#&gt;   .. ..$ context: chr "where John works in New York."</span></span>
+<span><span class="co">#&gt;   .. ..$ context: chr "John works at Google in New York."</span></span>
 <span><span class="co">#&gt;   ..$ :List of 3</span></span>
 <span><span class="co">#&gt;   .. ..$ name   : chr "New York"</span></span>
 <span><span class="co">#&gt;   .. ..$ type   : chr "location"</span></span>
-<span><span class="co">#&gt;   .. ..$ context: chr "location where Google is based, and where John works."</span></span>
+<span><span class="co">#&gt;   .. ..$ context: chr "John works at Google in New York."</span></span>
 <span><span class="co">#&gt;   ..$ :List of 3</span></span>
 <span><span class="co">#&gt;   .. ..$ name   : chr "Sarah"</span></span>
 <span><span class="co">#&gt;   .. ..$ type   : chr "person"</span></span>
-<span><span class="co">#&gt;   .. ..$ context: chr "met with John last week in San Francisco."</span></span>
-<span><span class="co">#&gt;   ..$ :List of 3</span></span>
-<span><span class="co">#&gt;   .. ..$ name   : chr "CEO"</span></span>
-<span><span class="co">#&gt;   .. ..$ type   : chr "organization"</span></span>
-<span><span class="co">#&gt;   .. ..$ context: chr "Sarah's position within Acme Inc."</span></span>
+<span><span class="co">#&gt;   .. ..$ context: chr "Sarah, the CEO of Acme Inc., met with John last week in San Francisco."</span></span>
 <span><span class="co">#&gt;   ..$ :List of 3</span></span>
 <span><span class="co">#&gt;   .. ..$ name   : chr "Acme Inc."</span></span>
 <span><span class="co">#&gt;   .. ..$ type   : chr "organization"</span></span>
-<span><span class="co">#&gt;   .. ..$ context: chr "organization where Sarah is the CEO."</span></span>
+<span><span class="co">#&gt;   .. ..$ context: chr "Sarah is the CEO of Acme Inc. She met with John."</span></span>
 <span><span class="co">#&gt;   ..$ :List of 3</span></span>
 <span><span class="co">#&gt;   .. ..$ name   : chr "San Francisco"</span></span>
 <span><span class="co">#&gt;   .. ..$ type   : chr "location"</span></span>
-<span><span class="co">#&gt;   .. ..$ context: chr "location where John met Sarah last week."</span></span></code></pre></div>
+<span><span class="co">#&gt;   .. ..$ context: chr "John met with Sarah in San Francisco last week."</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="example-3-sentiment-analysis">Example 3: Sentiment analysis<a class="anchor" aria-label="anchor" href="#example-3-sentiment-analysis"></a>
@@ -312,9 +308,9 @@ you can use structured data extraction.</p>
 <span><span class="co">#&gt; Using <span style="color: #00BB00;">model</span> = <span style="color: #0000BB;">"gpt-4o"</span>.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">text</span>, type <span class="op">=</span> <span class="va">type_sentiment</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 3</span></span>
-<span><span class="co">#&gt;  $ positive_score: num 0.2</span></span>
+<span><span class="co">#&gt;  $ positive_score: num 0.1</span></span>
 <span><span class="co">#&gt;  $ negative_score: num 0.7</span></span>
-<span><span class="co">#&gt;  $ neutral_score : num 0.1</span></span></code></pre></div>
+<span><span class="co">#&gt;  $ neutral_score : num 0.2</span></span></code></pre></div>
 <p>Note that we’ve asked nicely for the scores to sum 1, and they do in
 this example (at least when I ran the code), but it’s not
 guaranteed.</p>
@@ -353,9 +349,9 @@ guaranteed.</p>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">text</span>, type <span class="op">=</span> <span class="va">wrapper</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">classification</span>, <span class="va">as.data.frame</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt;         name score</span></span>
-<span><span class="co">#&gt; 1 Technology  0.80</span></span>
+<span><span class="co">#&gt; 1 Technology  0.75</span></span>
 <span><span class="co">#&gt; 2   Business  0.15</span></span>
-<span><span class="co">#&gt; 3      Other  0.05</span></span></code></pre></div>
+<span><span class="co">#&gt; 3      Other  0.10</span></span></code></pre></div>
 <p>Here we created a wrapper object because the OpenAI API requires all
 structured data to use an object. If you’re working with Claude or
 Gemini, the code is a little simpler:</p>
@@ -366,7 +362,7 @@ Gemini, the code is a little simpler:</p>
 <span><span class="co">#&gt;         name score</span></span>
 <span><span class="co">#&gt; 1 Technology  0.85</span></span>
 <span><span class="co">#&gt; 2   Business  0.10</span></span>
-<span><span class="co">#&gt; 3    Science  0.05</span></span></code></pre></div>
+<span><span class="co">#&gt; 3      Other  0.05</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="example-5-working-with-unknown-keys">Example 5: Working with unknown keys<a class="anchor" aria-label="anchor" href="#example-5-working-with-unknown-keys"></a>
@@ -392,13 +388,15 @@ Gemini, the code is a little simpler:</p>
 <span><span class="co">#&gt;   ..$ height         : chr "tall"</span></span>
 <span><span class="co">#&gt;   ..$ facial_features:List of 2</span></span>
 <span><span class="co">#&gt;   .. ..$ beard: logi TRUE</span></span>
-<span><span class="co">#&gt;   .. ..$ scar :List of 1</span></span>
+<span><span class="co">#&gt;   .. ..$ scar :List of 2</span></span>
 <span><span class="co">#&gt;   .. .. ..$ location: chr "left cheek"</span></span>
+<span><span class="co">#&gt;   .. .. ..$ type    : chr "scar"</span></span>
 <span><span class="co">#&gt;   ..$ voice          : chr "deep"</span></span>
 <span><span class="co">#&gt;  $ clothing                :List of 1</span></span>
-<span><span class="co">#&gt;   ..$ outerwear:List of 2</span></span>
-<span><span class="co">#&gt;   .. ..$ type : chr "leather jacket"</span></span>
-<span><span class="co">#&gt;   .. ..$ color: chr "black"</span></span></code></pre></div>
+<span><span class="co">#&gt;   ..$ outerwear:List of 3</span></span>
+<span><span class="co">#&gt;   .. ..$ type    : chr "jacket"</span></span>
+<span><span class="co">#&gt;   .. ..$ material: chr "leather"</span></span>
+<span><span class="co">#&gt;   .. ..$ color   : chr "black"</span></span></code></pre></div>
 <p>This examples only works with Claude, not GPT or Gemini, because only
 Claude supports adding arbitrary additional properties.</p>
 </div>
@@ -501,7 +499,7 @@ one in the text:</p>
 <span><span class="co">#&gt; [1] "Hadley Wickham"</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $date</span></span>
-<span><span class="co">#&gt; [1] "2023-11-17"</span></span>
+<span><span class="co">#&gt; [1] "2023-10-25"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">data</span><span class="op">)</span></span>
 <span><span class="co">#&gt; List of 1</span></span>
 <span><span class="co">#&gt;  $ assets:List of 2</span></span>
@@ -596,12 +594,12 @@ See Example 4 above for a concrete example.</p>
 <td align="left">OpenAI-<a href="https://api.openai.com/v1" class="external-link uri">https://api.openai.com/v1</a>
 </td>
 <td align="right">5943</td>
-<td align="right">620</td>
+<td align="right">608</td>
 </tr>
 <tr class="even">
 <td align="left">Claude</td>
 <td align="right">1008</td>
-<td align="right">222</td>
+<td align="right">238</td>
 </tr>
 </tbody>
 </table>
