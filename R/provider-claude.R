@@ -91,8 +91,10 @@ method(chat_request, ProviderClaude) <- function(provider,
 
   # <https://docs.anthropic.com/en/api/errors>
   req <- req_error(req, body = function(resp) {
-    json <- resp_body_json(resp)
-    paste0(json$error$message, " [", json$error$type, "]")
+    if (resp_content_type(resp) == "application/json") {
+      json <- resp_body_json(resp)
+      paste0(json$error$message, " [", json$error$type, "]")
+    }
   })
 
   if (length(turns) >= 1 && is_system_prompt(turns[[1]])) {
