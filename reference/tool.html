@@ -81,8 +81,7 @@ function.</p></dd>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># elmer:::openai_key_exists()</span></span></span>
-<span class="r-in"><span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># First define the metadata that the model uses to figure out when to</span></span></span>
 <span class="r-in"><span><span class="co"># call the tool</span></span></span>
 <span class="r-in"><span><span class="va">tool_rnorm</span> <span class="op">&lt;-</span> <span class="fu">tool</span><span class="op">(</span></span></span>
@@ -93,6 +92,7 @@ function.</p></dd>
 <span class="r-in"><span>  sd <span class="op">=</span> <span class="fu"><a href="type_boolean.html">type_number</a></span><span class="op">(</span><span class="st">"The standard deviation of the distribution. Must be a non-negative number."</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="chat_openai.html">chat_openai</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using <span style="color: #00BB00;">model</span> = <span style="color: #0000BB;">"gpt-4o"</span>.</span>
 <span class="r-in"><span><span class="co"># Then register it</span></span></span>
 <span class="r-in"><span><span class="va">chat</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span><span class="va">tool_rnorm</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -100,11 +100,14 @@ function.</p></dd>
 <span class="r-in"><span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="st">"</span></span></span>
 <span class="r-in"><span><span class="st">  Give me five numbers from a random normal distribution.</span></span></span>
 <span class="r-in"><span><span class="st">"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> To provide you with five numbers from a random normal distribution, I </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> will need additional information such as the mean and standard deviation </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> for the distribution. Could you please provide these details? If not </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> specified, the default mean is 0 and standard deviation is 1.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Look at the chat history to see how tool calling works:</span></span></span>
 <span class="r-in"><span><span class="co"># Assistant sends a tool request which is evaluated locally and</span></span></span>
 <span class="r-in"><span><span class="co"># results are send back in a tool result.</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

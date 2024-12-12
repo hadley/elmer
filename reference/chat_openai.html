@@ -150,13 +150,58 @@ the console).</p></li>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># elmer:::openai_key_exists()</span></span></span>
-<span class="r-in"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu">chat_openai</span><span class="op">(</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu">chat_openai</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Using <span style="color: #00BB00;">model</span> = <span style="color: #0000BB;">"gpt-4o"</span>.</span>
 <span class="r-in"><span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="st">"</span></span></span>
 <span class="r-in"><span><span class="st">  What is the difference between a tibble and a data frame?</span></span></span>
 <span class="r-in"><span><span class="st">  Answer with a bulleted list</span></span></span>
 <span class="r-in"><span><span class="st">"</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Printing and Display:**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Tibble*: Displays the first 10 rows and as many columns as can fit </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> in the console window. It provides a cleaner and more readable print </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> format, and important information like the data type of each column is </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> included.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Data Frame*: Prints all rows by default and can become unwieldy with</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> large datasets. Column data types are not typically included in the </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> output.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Column Data Type Consistency:**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Tibble*: Does not automatically convert the data types of columns, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> preserving the type integrity of your data. For example, it won't convert</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> strings to factors by default.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Data Frame*: By default, converts character vectors to factors, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> which can be unexpected and may require additional processing to revert.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Subsetting and Extraction:**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Tibble*: Subsetting with `[` always returns a tibble, which helps </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> maintain consistency. Partial matching of column names is not performed, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> which reduces errors.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Data Frame*: When subsetting, can return vectors if a single column </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> is selected. Partial matching of column names can sometimes lead to </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> unintended results.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Column Accessibility:**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Tibble*: More consistent and safe in terms of accessing columns as </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> it doesn’t perform partial name matching and allows for non-syntactic </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> column names using backticks.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Data Frame*: Less strict with column names which can lead to issues </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> if non-syntactic names are used or if partial matching is relied upon.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Support and Integration:**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Tibble*: Part of the tidyverse, a collection of R packages designed </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> for data science, ensuring smoother integration and a modern syntax.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Data Frame*: Base R object, widely used and supported in R but may </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> not have some of the modern syntactic features seen in tibbles.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Performance:**</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Tibble*: While the focus is on usability rather than performance, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> tibbles are optimized for the operations done via tidyverse.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Data Frame*: May have slight performance advantages in some base R </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> operations.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> In general, tibbles are considered the "next generation" of data frames </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> in R, providing a more user-friendly and consistent experience, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> particularly for those working within the tidyverse framework.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
