@@ -83,7 +83,7 @@ chat <- chat_claude()
 chat$chat(question)
 ```
 
-To ensure that I always get R code in a given style, I provide a system prompt:
+I can ensure that I always get R code in a specific style by providing a system prompt:
 
 ```{r}
 #| label: code-r
