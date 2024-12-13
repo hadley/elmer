@@ -37,7 +37,6 @@ If you have a claude account, you can use its [prompt-generator](https://docs.an
 
 ```{r setup}
 #| cache: false
-#| echo: false
 library(elmer)
 ```
 
@@ -76,7 +75,7 @@ I'll use `chat_claude()` for this problem because in our experience it does the 
 
 ### Basic flavour
 
-When I don't provide a system prompt, I sometimes get answers in a different languages or different styles of R code:
+When I don't provide a system prompt, I sometimes get answers in different languages or different styles of R code:
 
 ```{r}
 #| label: code-basic
@@ -84,7 +83,7 @@ chat <- chat_claude()
 chat$chat(question)
 ```
 
-I can ensure that I always get R code in a given style by providing a system prompt:
+I can ensure that I always get R code in a specific style by providing a system prompt:
 
 ```{r}
 #| label: code-r
@@ -94,9 +93,9 @@ chat <- chat_claude(system_prompt = "
 chat$chat(question)
 ```
 
-Note that I'm using both a system prompt (which defines the general behaviour) and a user prompt (which askes the specific question). You could put all of the content in the user prompt and get similar results, but I think it's helpful to use both to cleanly divide the general framing of the response from the specific questions that you want to ask.
+Note that I'm using both a system prompt (which defines the general behaviour) and a user prompt (which asks the specific question). You could put all this content in the user prompt and get similar results, but I think it's helpful to use both to cleanly divide the general framing of the response from the specific questions you ask.
 
-Since I'm mostly interested in the code, I ask it to drop the explanation and the sample data:
+Since I'm mostly interested in the code, I ask it to drop the explanation and sample data:
 
 ```{r}
 #| label: code-r-minimal
@@ -107,7 +106,7 @@ chat <- chat_claude(system_prompt = "
 chat$chat(question)
 ```
 
-And of course, if you want a different style of R code, you can of course ask for it:
+And of course, if you want a different style of R code, just ask for it:
 
 ```{r}
 #| label: code-styles
@@ -126,7 +125,7 @@ chat$chat(question)
 
 ### Be explicit
 
-If there's something about the output that you don't like, you can try being more explicit about it. For example, the code isn't styled quite how I like, so I provide more details about what I do want:
+If there's something about the output that you don't like, try being more explicit. For example, the code isn't styled quite how I'd like it, so I provide more details about what I do want:
 
 ```{r}
 #| label: code-explicit
@@ -144,7 +143,7 @@ chat <- chat_claude(system_prompt = "
 chat$chat(question)
 ```
 
-This still doesn't yield exactly the code that I'd write, but it's prety close.
+This still doesn't yield exactly the code that I'd write, but it's pretty close.
 
 You could provide a different prompt if you were looking for more explanation of the code:
 
@@ -162,7 +161,7 @@ chat$chat(question)
 
 ### Teach it about new features
 
-You can imagine LLMs as being a sort of an average of the internet at a given point in time. That means they will provide popular answers, which will tend to reflect older coding styles (either because the new features aren't in their index, or the older features are so much more popular). So if you want your code to use specific features that are relatively recent, you might need to provide the examples yourself:
+You can imagine LLMs as being a sort of an average of the internet at a given point in time. That means they will provide popular answers, which will tend to reflect older coding styles (either because the new features aren't in their index, or the older features are so much more popular). So if you want your code to use specific newer language features, you might need to provide the examples yourself:
 
 ```{r}
 #| label: code-new-feature
@@ -189,11 +188,11 @@ chat$chat(question)
 
 ## Structured data
 
-Providing a rich set of examples is a great way to encourage the output to produce exactly what you want. This is also known as **multi-shot prompting**. Here we'll work through a prompt that I designed to extract structured data from recipes, but the same ideas apply in many other situations.
+Providing a rich set of examples is a great way to encourage the output to produce exactly what you want. This is known as **multi-shot prompting**. Below we'll work through a prompt that I designed to extract structured data from recipes, but the same ideas apply in many other situations.
 
 ### Getting started
 
-My overall goal is to turn a list of ingredients, like the following, into a nicely structured JSON that I can then analyse in R (e.g. to compute the total weight, scale the recipe up or down, or to convert the units from volumes to weights).
+My overall goal is to turn a list of ingredients, like the following, into a nicely structured JSON that I can then analyse in R (e.g. compute the total weight, scale the recipe up or down, or convert the units from volumes to weights).
 
 ```{r}
 #| cache: false
@@ -212,7 +211,7 @@ ingredients <- "
 
 (This isn't the ingredient list for a real recipe but it includes a sampling of styles that I encountered in my project.)
 
-If you don't have strong feelings about what the data structure should look like, you can start with a very loose prompt and see what you get back. I find this a useful pattern for underspecified problems where a big part of the problem is just defining precisely what problem you want to solve. Seeing the LLM's attempt at a data structure gives me something to immediately react to, rather than having to start from a blank page.
+If you don't have strong feelings about what the data structure should look like, you can start with a very loose prompt and see what you get back. I find this a useful pattern for underspecified problems where the heavy lifting lies with precisely defining the problem you want to solve. Seeing the LLM's attempt to create a data structure gives me something to react to, rather than having to start from a blank page.
 
 ```{r}
 #| label: data-loose
@@ -226,7 +225,7 @@ chat <- chat_openai(instruct_json)
 chat$chat(ingredients)
 ```
 
-(I don't know if the colour text, "You're an expert baker who also loves JSON", does anything, but I like to think this helps the LLM get into the right mindset of a very nerdy baker.)
+(I don't know if the additional colour, "You're an expert baker who also loves JSON", does anything, but I like to think this helps the LLM get into the right mindset of a very nerdy baker.)
 
 ### Provide examples
 
@@ -251,10 +250,10 @@ chat <- chat_openai(c(instruct_json, instruct_weight))
 chat$chat(ingredients)
 ```
 
-Just providing the examples seems to work remarkably well. But I found it useful to also include description of what the examples are trying to accomplish. I'm not sure if this helps the LLM or not, but it certainly makes it easier for me to understand the organisation of the whole prompt and check that I've covered the key pieces that I'm interested in.
+Just providing the examples seems to work remarkably well. But I found it useful to also include a description of what the examples are trying to accomplish. I'm not sure if this helps the LLM or not, but it certainly makes it easier for me to understand the organisation of the whole prompt and check that I've covered the key pieces I'm interested in.
 
 ```{r}
-#| cacahe: false
+#| cache: false
 instruct_weight <- r"(
   * If an ingredient has both weight and volume, extract only the weight:
 
@@ -276,7 +275,7 @@ instruct_weight <- r"(
 
 This structure also allows me to give the LLMs a hint about how I want multiple ingredients to be stored, i.e. as an JSON array.
 
-I then iterated on the prompt, looking at the results from different recipes to get a sense of what the LLM was getting wrong. Much of this felt like I waws iterating on my understanding of the problem as I didn't start by knowing exactly how I wanted the data. For example, when I started out I didn't really think about all the various ways that ingredients are specified. For later analysis, I always want quantities to be number, even if they were originally fractions, or the if the units aren't precise (like a pinch). It made me realise that some ingredients are unitless.
+I then iterated on the prompt, looking at the results from different recipes to get a sense of what the LLM was getting wrong. Much of this felt like I waws iterating on my own understanding of the problem as I didn't start by knowing exactly how I wanted the data. For example, when I started out I didn't really think about all the various ways that ingredients are specified. For later analysis, I always want quantities to be number, even if they were originally fractions, or the if the units aren't precise (like a pinch). It made me realise that some ingredients are unitless.
 
 ```{r}
 #| cache: false
@@ -313,7 +312,7 @@ You might want to take a look at the [full prompt](https://gist.github.com/hadle
 
 ### Structured data
 
-Now that I've iterated to get a data structure that I like, it seems useful to formalise it and tell the LLM exactly what I'm looking for using structured data. This guarantees that the LLM will only return JSON, the JSON will have the fields that you expect, and that elmer will convert it into an R data structure for you.
+Now that I've iterated to get a data structure I like, it seems useful to formalise it and tell the LLM exactly what I'm looking for when dealing with structured data. This guarantees that the LLM will only return JSON, that the JSON will have the fields that you expect, and that elmer will convert it into an R data structure.
 
 ```{r}
 #| label: data-structured
@@ -332,7 +331,7 @@ do.call(rbind, lapply(data$ingredients, as.data.frame))
 
 ### Capturing raw input
 
-One thing that I'd do next time would also be to include the raw ingredient name in the output. This doesn't make much difference here, in this simple example, but it makes it much easier to align the input and the output and start to develop automated measures of how well my prompt is doing.
+One thing that I'd do next time would also be to include the raw ingredient names in the output. This doesn't make much difference in this simple example but it makes it much easier to align the input with the output and to start developing automated measures of how well my prompt is doing.
 
 ```{r}
 #| cache: false
@@ -379,7 +378,7 @@ chat <- chat_openai(c(instruct_json, instruct_weight_input))
 chat$chat(recipe)
 ```
 
-When I ran it while writing this vignette, it seems to be working out the weight of the ingredients specified in volume, even though the prompt specifically asks it not to do that. This may suggest I need to broaden my examples.
+When I ran it while writing this vignette, it seemed to be working out the weight of the ingredients specified in volume, even though the prompt specifically asks it not to. This may suggest I need to broaden my examples.
 
 ## Token usage
 
