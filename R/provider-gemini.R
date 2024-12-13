@@ -255,19 +255,11 @@ method(as_json, list(ProviderGemini, TypeObject)) <- function(provider, x) {
 
 # Gemini-specific merge logic --------------------------------------------------
 
-merge_first <- function() {
-  function(left, right, path = NULL) {
-    left
-  }
-}
-
 merge_last <- function() {
   function(left, right, path = NULL) {
     right
   }
 }
-
-merge_last_or_null <- merge_last
 
 merge_identical <- function() {
   function(left, right, path = NULL) {
@@ -369,7 +361,7 @@ merge_parts <- function() {
         list(list(text = paste0(text_values, collapse = "")))
       }
     })
-    flatten(merged_split_parts)
+    unlist(merged_split_parts, recursive = FALSE, use.names = FALSE)
   }
 }
 
@@ -382,11 +374,11 @@ merge_gemini_chunks <- merge_objects(
     ),
     finishReason = merge_last(),
     safetyRatings = merge_last(),
-    citationMetadata = merge_optional(merge_objects(
-      citationSources = merge_append()
-    )),
+    citationMetadata = merge_optional(
+      merge_objects(citationSources = merge_append())
+    ),
     tokenCount = merge_last()
   ),
   promptFeedback = merge_last(),
-  usageMetadata = merge_last_or_null()
+  usageMetadata = merge_last()
 )
