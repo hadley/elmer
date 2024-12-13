@@ -225,7 +225,7 @@ chat <- chat_openai(instruct_json)
 chat$chat(ingredients)
 ```
 
-(I don't know if the text colouring, "You're an expert baker who also loves JSON", does anything, but I like to think this helps the LLM get into the right mindset of a very nerdy baker.)
+(I don't know if the additional colour, "You're an expert baker who also loves JSON", does anything, but I like to think this helps the LLM get into the right mindset of a very nerdy baker.)
 
 ### Provide examples
 
