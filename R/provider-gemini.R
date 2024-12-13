@@ -128,18 +128,10 @@ method(stream_text, ProviderGemini) <- function(provider, event) {
   event$candidates[[1]]$content$parts[[1]]$text
 }
 method(stream_merge_chunks, ProviderGemini) <- function(provider, result, chunk) {
-  info <<- list(provider, result, chunk)
   if (is.null(result)) {
     chunk
   } else {
-    # cat("== LEFT ==\n")
-    # print_json(result)
-    # cat("== RIGHT ==\n")
-    # print_json(chunk)
-    res <- merge_gemini_chunks(result, chunk)
-    # cat("== MERGED ==\n")
-    # print_json(res)
-    res
+    merge_gemini_chunks(result, chunk)
   }
 }
 method(value_turn, ProviderGemini) <- function(provider, result, has_type = FALSE) {
