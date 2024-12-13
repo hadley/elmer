@@ -3,6 +3,7 @@ Title: Call LLM APIs from R
 Version: 0.0.0.9000
 Authors@R: c(
     person("Hadley", "Wickham", , "hadley@posit.co", role = c("aut", "cre")),
+    person("Joe", "Cheng", role = "aut"),
     person("Posit Software, PBC", role = c("cph", "fnd"))
   )
 Description: A consistent interface for calling LLM APIs. Includes support
@@ -12,23 +13,24 @@ URL: https://elmer.tidyverse.org, https://github.com/tidyverse/elmer
 BugReports: https://github.com/tidyverse/elmer/issues
 Imports:
     cli,
-    coro,
+    coro (>= 1.1.0),
     glue,
-    httr2 (>= 1.0.6),
+    httr2 (>= 1.0.7),
     jsonlite,
+    later (>= 1.4.0),
+    promises (>= 1.3.1),
     R6,
     rlang (>= 1.1.0),
-    S7
+    S7 (>= 0.2.0)
 Suggests:
     base64enc,
     bslib,
+    curl (>= 6.0.1),
     gitcreds,
     knitr,
-    later,
     magick,
     openssl,
     paws.common,
-    promises,
     rmarkdown,
     shiny,
     shinychat (>= 0.0.0.9000),
@@ -48,13 +50,13 @@ RoxygenNote: 7.3.2
 Collate:
     'utils-S7.R'
     'types.R'
+    'content.R'
     'provider.R'
     'as-json.R'
     'utils-coro.R'
     'chat.R'
     'content-image.R'
     'content-tools.R'
-    'content.R'
     'elmer-package.R'
     'httr2.R'
     'import-standalone-obj-type.R'
@@ -68,6 +70,7 @@ Collate:
     'provider-bedrock.R'
     'provider-claude.R'
     'provider-cortex.R'
+    'provider-databricks.R'
     'provider-gemini.R'
     'provider-github.R'
     'provider-groq.R'

@@ -34,11 +34,11 @@ Chat <- R6::R6Class("Chat",
       private$echo <- echo
     },
 
-    #' @description The turns that have been sent and received so far
+    #' @description Retrieve the turns that have been sent and received so far
     #'   (optionally starting with the system prompt, if any).
     #' @param include_system_prompt Whether to include the system prompt in the
     #'   turns (if any exists).
-    turns = function(include_system_prompt = FALSE) {
+    get_turns = function(include_system_prompt = FALSE) {
       if (length(private$.turns) == 0) {
         return(private$.turns)
       }
@@ -48,6 +48,41 @@ Chat <- R6::R6Class("Chat",
       } else {
         private$.turns
       }
+    },
+
+    #' @description Replace existing turns with a new list.
+    #' @param value A list of [Turn]s.
+    set_turns = function(value) {
+      private$.turns <- normalize_turns(
+        value,
+        self$get_system_prompt(),
+        overwrite = TRUE
+      )
+      invisible(self)
+    },
+
+    #' @description If set, the system prompt, it not, `NULL`.
+    get_system_prompt = function() {
+      if (private$has_system_prompt()) {
+        private$.turns[[1]]@text
+      } else {
+        NULL
+      }
+    },
+
+    #' @description Update the system prompt
+    #' @param value A string giving the new system prompt
+    set_system_prompt = function(value) {
+      check_string(value, allow_null = TRUE)
+      # Remove prompt, if present
+      if (private$has_system_prompt()) {
+        private$.turns <- private$.turns[-1]
+      }
+      # Add prompt, if new
+      if (is.character(value)) {
+        private$.turns <- c(list(Turn("system", value)), private$.turns)
+      }
+      invisible(self)
     },
 
     #' @description List the number of tokens consumed by each assistant turn.
@@ -98,18 +133,27 @@ Chat <- R6::R6Class("Chat",
     #' @description Extract structured data
     #' @param ... The input to send to the chatbot. Will typically include
     #'   the phrase "extract structured data".
-    #' @param spec A type specification for the extracted data. Should be
+    #' @param type A type specification for the extracted data. Should be
     #'   created with a [`type_()`][type_boolean] function.
     #' @param echo Whether to emit the response to stdout as it is received.
     #'   Set to "text" to stream JSON data as it's generated (not supported by
     #'  all providers).
-    extract_data = function(..., spec, echo = "none") {
+    #' @param convert Automatically convert from JSON lists to R data types
+    #'   using the schema. For example, this will turn arrays of objects into
+    #'  data frames and arrays of strings into a character vector.
+    extract_data = function(..., type, echo = "none", convert = TRUE) {
       turn <- user_turn(...)
       echo <- check_echo(echo %||% private$echo)
+      check_bool(convert)
+
+      needs_wrapper <- S7_inherits(private$provider, ProviderOpenAI)
+      if (needs_wrapper) {
+        type <- type_object(wrapper = type)
+      }
 
       coro::collect(private$submit_turns(
         turn,
-        spec = spec,
+        type = type,
         stream = echo != "none",
         echo = echo
       ))
@@ -122,25 +166,34 @@ Chat <- R6::R6Class("Chat",
       }
 
       json <- turn@contents[[which(is_json)]]
-      json@value
+      out <- json@value
+
+      if (needs_wrapper) {
+        out <- out$wrapper
+        type <- type@properties[[1]]
+      }
+      if (convert) {
+        out <- convert_from_type(out, type)
+      }
+      out
     },
 
     #' @description Extract structured data, asynchronously. Returns a promise
     #'   that resolves to an object matching the type specification.
     #' @param ... The input to send to the chatbot. Will typically include
     #'   the phrase "extract structured data".
-    #' @param spec A type specification for the extracted data. Should be
+    #' @param type A type specification for the extracted data. Should be
     #'   created with a [`type_()`][type_boolean] function.
     #' @param echo Whether to emit the response to stdout as it is received.
     #'   Set to "text" to stream JSON data as it's generated (not supported by
     #'  all providers).
-    extract_data_async = function(..., spec, echo = "none") {
+    extract_data_async = function(..., type, echo = "none") {
       turn <- user_turn(...)
       echo <- check_echo(echo %||% private$echo)
 
       done <- coro::async_collect(private$submit_turns_async(
         turn,
-        spec = spec,
+        type = type,
         stream = echo != "none",
         echo = echo
       ))
@@ -208,29 +261,6 @@ Chat <- R6::R6Class("Chat",
       invisible(self)
     }
   ),
-  active = list(
-    #' @field system_prompt The system prompt, if present, as a string.
-    #'   Otherwise, `NULL`.
-    system_prompt = function(value) {
-      if (!missing(value)) {
-        check_string(value, allow_null = TRUE)
-        # Remove prompt, if present
-        if (private$has_system_prompt()) {
-          private$.turns <- private$.turns[-1]
-        }
-        # Add prompt, if new
-        if (is.character(value)) {
-          private$.turns <- c(list(Turn("system", value)), private$.turns)
-        }
-      } else {
-        if (private$has_system_prompt()) {
-          private$.turns[[1]]@text
-        } else {
-          NULL
-        }
-      }
-    }
-  ),
   private = list(
     provider = NULL,
 
@@ -272,11 +302,6 @@ Chat <- R6::R6Class("Chat",
         }
         user_turn <- private$invoke_tools()
       }
-
-      # Work around https://github.com/r-lib/coro/issues/51
-      if (FALSE) {
-        yield(NULL)
-      }
     }),
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
@@ -291,16 +316,11 @@ Chat <- R6::R6Class("Chat",
           cat(format(user_turn))
         }
       }
-
-      # Work around https://github.com/r-lib/coro/issues/51
-      if (FALSE) {
-        yield(NULL)
-      }
     }),
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant turns.
-    submit_turns = generator_method(function(self, private, user_turn, stream, echo, spec = NULL) {
+    submit_turns = generator_method(function(self, private, user_turn, stream, echo, type = NULL) {
 
       if (echo == "all") {
         cat_line(format(user_turn), prefix = "> ")
@@ -311,7 +331,7 @@ Chat <- R6::R6Class("Chat",
         mode = if (stream) "stream" else "value",
         turns = c(private$.turns, list(user_turn)),
         tools = private$tools,
-        spec = spec
+        type = type
       )
       emit <- emitter(echo)
 
@@ -329,7 +349,7 @@ Chat <- R6::R6Class("Chat",
 
           result <- stream_merge_chunks(private$provider, result, chunk)
         }
-        turn <- stream_turn(private$provider, result, has_spec = !is.null(spec))
+        turn <- value_turn(private$provider, result, has_type = !is.null(type))
 
         # Ensure turns always end in a newline
         if (any_text) {
@@ -343,7 +363,7 @@ Chat <- R6::R6Class("Chat",
           cat_line(formatted, prefix = "< ")
         }
       } else {
-        turn <- value_turn(private$provider, response, has_spec = !is.null(spec))
+        turn <- value_turn(private$provider, response, has_type = !is.null(type))
         text <- turn@text
         if (!is.null(text)) {
           text <- paste0(text, "\n")
@@ -357,21 +377,18 @@ Chat <- R6::R6Class("Chat",
       private$add_turn(user_turn)
       private$add_turn(turn)
 
-      # Work around https://github.com/r-lib/coro/issues/51
-      if (FALSE) {
-        yield(NULL)
-      }
+      coro::exhausted()
     }),
 
     # If stream = TRUE, yields completion deltas. If stream = FALSE, yields
     # complete assistant turns.
-    submit_turns_async = async_generator_method(function(self, private, user_turn, stream, echo, spec = NULL) {
+    submit_turns_async = async_generator_method(function(self, private, user_turn, stream, echo, type = NULL) {
       response <- chat_perform(
         provider = private$provider,
         mode = if (stream) "async-stream" else "async-value",
         turns = c(private$.turns, list(user_turn)),
         tools = private$tools,
-        spec = spec
+        type = type
       )
       emit <- emitter(echo)
 
@@ -388,7 +405,7 @@ Chat <- R6::R6Class("Chat",
 
           result <- stream_merge_chunks(private$provider, result, chunk)
         }
-        turn <- stream_turn(private$provider, result, has_spec = !is.null(spec))
+        turn <- value_turn(private$provider, result, has_type = !is.null(type))
 
         # Ensure turns always end in a newline
         if (any_text) {
@@ -398,7 +415,7 @@ Chat <- R6::R6Class("Chat",
       } else {
         result <- await(response)
 
-        turn <- value_turn(private$provider, result, has_spec = !is.null(spec))
+        turn <- value_turn(private$provider, result, has_type = !is.null(type))
         text <- turn@text
         if (!is.null(text)) {
           text <- paste0(text, "\n")
@@ -408,11 +425,7 @@ Chat <- R6::R6Class("Chat",
       }
       private$add_turn(user_turn)
       private$add_turn(turn)
-
-      # Work around https://github.com/r-lib/coro/issues/51
-      if (FALSE) {
-        yield(NULL)
-      }
+      coro::exhausted()
     }),
 
     invoke_tools = function() {
@@ -439,7 +452,7 @@ Chat <- R6::R6Class("Chat",
 
 #' @export
 print.Chat <- function(x, ...) {
-  turns <- x$turns(include_system_prompt = TRUE)
+  turns <- x$get_turns(include_system_prompt = TRUE)
   tokens <- colSums(x$tokens())
   cat(paste0("<Chat turns=", length(turns), " tokens=", tokens[1], "/", tokens[2], ">\n"))
   for (turn in turns) {
@@ -456,4 +469,22 @@ print.Chat <- function(x, ...) {
   }
 
   invisible(x)
+}
+
+method(contents_markdown, new_S3_class("Chat")) <- function(content, heading_level = 2) {
+  turns <- content$get_turns()
+  if (length(turns) == 0) {
+    return("")
+  }
+
+  hh <- strrep("#", heading_level)
+
+  res <- vector("character", length(turns))
+  for (i in seq_along(res)) {
+    role <- turns[[i]]@role
+    substr(role, 0, 1) <- toupper(substr(role, 0, 1))
+    res[i] <- glue::glue("{hh} {role}\n\n{contents_markdown(turns[[i]])}")
+  }
+
+  paste(res, collapse="\n\n")
 }

@@ -20,13 +20,23 @@ NULL
 #' previous messages. Nor does it support registering tools, and attempting to
 #' do so will result in an error.
 #'
+#' ## Authentication
+#'
+#' `chat_cortex()` picks up the following ambient Snowflake credentials:
+#'
+#' - A static OAuth token defined via the `SNOWFLAKE_TOKEN` environment
+#'   variable.
+#' - Key-pair authentication credentials defined via the `SNOWFLAKE_USER` and
+#'   `SNOWFLAKE_PRIVATE_KEY` (which can be a PEM-encoded private key or a path
+#'   to one) environment variables.
+#' - Posit Workbench-managed Snowflake credentials for the corresponding
+#'   `account`.
+#'
 #' @param account A Snowflake [account identifier](https://docs.snowflake.com/en/user-guide/admin-account-identifier),
 #'   e.g. `"testorg-test_account"`.
 #' @param credentials A list of authentication headers to pass into
-#'   [`httr2::req_headers()`] or a function that returns them when passed
-#'   `account` as a parameter. The default [`cortex_credentials()`] function
-#'   picks up ambient Snowflake OAuth and key-pair authentication credentials
-#'   and handles refreshing them automatically.
+#'   [`httr2::req_headers()`], a function that returns them when passed
+#'   `account` as a parameter, or `NULL` to use ambient credentials.
 #' @param model_spec A semantic model specification, or `NULL` when
 #'   using `model_file` instead.
 #' @param model_file Path to a semantic model file stored in a Snowflake Stage,
@@ -41,7 +51,7 @@ NULL
 #' chat$chat("What questions can I ask?")
 #' @export
 chat_cortex <- function(account = Sys.getenv("SNOWFLAKE_ACCOUNT"),
-                        credentials = cortex_credentials,
+                        credentials = NULL,
                         model_spec = NULL,
                         model_file = NULL,
                         api_args = list(),
@@ -56,7 +66,7 @@ chat_cortex <- function(account = Sys.getenv("SNOWFLAKE_ACCOUNT"),
     static_credentials <- force(credentials)
     credentials <- function(account) static_credentials
   }
-  check_function(credentials)
+  check_function(credentials, allow_null = TRUE)
 
   provider <- ProviderCortex(
     account = account,
@@ -72,7 +82,6 @@ chat_cortex <- function(account = Sys.getenv("SNOWFLAKE_ACCOUNT"),
 ProviderCortex <- new_class(
   "ProviderCortex",
   parent = Provider,
-  package = "elmer",
   constructor = function(account, credentials, model_spec = NULL,
                          model_file = NULL, extra_args = list()) {
     base_url <- paste0("https://", account, ".snowflakecomputing.com")
@@ -89,7 +98,7 @@ ProviderCortex <- new_class(
   },
   properties = list(
     account = prop_string(),
-    credentials = class_function,
+    credentials = class_function | NULL,
     extra_args = class_list
   )
 )
@@ -100,20 +109,19 @@ method(chat_request, ProviderCortex) <- function(provider,
                                                  stream = TRUE,
                                                  turns = list(),
                                                  tools = list(),
-                                                 spec = NULL,
+                                                 type = NULL,
                                                  extra_args = list()) {
   if (length(tools) != 0) {
     cli::cli_abort("Tools are not supported by Cortex.")
   }
-  if (!is.null(spec) != 0) {
+  if (!is.null(type) != 0) {
     cli::cli_abort("Structured data extraction is not supported by Cortex.")
   }
 
   req <- request(provider@base_url)
   req <- req_url_path_append(req, "/api/v2/cortex/analyst/message")
-  req <- httr2::req_headers(req,
-    !!!provider@credentials(provider@account), .redact = "Authorization"
-  )
+  creds <- cortex_credentials(provider@account, provider@credentials)
+  req <- httr2::req_headers(req, !!!creds, .redact = "Authorization")
   req <- req_retry(req, max_tries = 2)
   req <- req_timeout(req, 60)
 
@@ -235,14 +243,43 @@ cortex_chunk_to_message <- function(x) {
   }
 }
 
-method(stream_turn, ProviderCortex) <- function(provider, result, has_spec = FALSE) {
-  # We somehow lose the role when streaming, so add it back.
-  cortex_message_to_turn(list(role = "assistant", content = result))
+method(value_turn, ProviderCortex) <- function(provider, result, has_type = FALSE) {
+  if (!is_named(result)) { # streaming
+    role <- "assistant"
+    content <- result
+  } else {
+    role <- result$role
+    if (role == "analyst") {
+      role <- "assistant"
+    }
+    content <- result$content
+  }
+
+  Turn(
+    role = role,
+    contents = lapply(content, function(x) {
+      if (x$type == "text") {
+        if (!has_name(x, "text")) {
+          cli::cli_abort("'text'-type content must have a 'text' field.")
+        }
+        ContentText(x$text)
+      } else if (identical(x$type, "suggestions")) {
+        if (!has_name(x, "suggestions")) {
+          cli::cli_abort("'suggestions'-type content must have a 'suggestions' field.")
+        }
+        ContentSuggestions(unlist(x$suggestions))
+      } else if (identical(x$type, "sql")) {
+        if (!has_name(x, "statement")) {
+          cli::cli_abort("'sql'-type content must have a 'statement' field.")
+        }
+        ContentSql(x$statement)
+      } else {
+        cli::cli_abort("Unknown content type {.str {x$type}} in response.", .internal = TRUE)
+      }
+    })
+  )
 }
 
-method(value_turn, ProviderCortex) <- function(provider, result, has_spec = FALSE) {
-  cortex_message_to_turn(result$message)
-}
 
 # elmer -> Cortex --------------------------------------------------------------
 
@@ -267,8 +304,7 @@ method(as_json, list(ProviderCortex, ContentText)) <- function(provider, x) {
 ContentSuggestions <- new_class(
   "ContentSuggestions",
   parent = Content,
-  properties = list(suggestions = class_character),
-  package = "elmer"
+  properties = list(suggestions = class_character)
 )
 
 method(as_json, list(ProviderCortex, ContentSuggestions)) <- function(provider, x) {
@@ -299,8 +335,7 @@ method(format, ContentSuggestions) <- function(x, ...) {
 ContentSql <- new_class(
   "ContentSql",
   parent = Content,
-  properties = list(statement = prop_string()),
-  package = "elmer"
+  properties = list(statement = prop_string())
 )
 
 method(as_json, list(ProviderCortex, ContentSql)) <- function(provider, x) {
@@ -309,51 +344,19 @@ method(as_json, list(ProviderCortex, ContentSql)) <- function(provider, x) {
 
 method(contents_text, ContentSql) <- function(content) {
   # Emit a Markdown-formatted SQL code block as the textual representation.
+  contents_markdown(content)
+}
+
+method(contents_markdown, ContentSql) <- function(content) {
   paste0("\n\n```sql\n", content@statement, "\n```")
+}
+
+method(contents_html, ContentSql) <- function(content) {
+  sprintf('<pre><code>%s</code></pre>\n', content@statement)
 }
 
 method(format, ContentSql) <- function(x, ...) {
   cli::format_inline("{.strong SQL:} {.code {x@statement}}")
-}
-
-cortex_message_to_turn <- function(message, error_call = caller_env()) {
-  role <- message$role
-  if (role == "analyst") {
-    role <- "assistant"
-  }
-  Turn(
-    role = role,
-    contents = lapply(message$content, function(x) {
-      if (x$type == "text") {
-        if (!has_name(x, "text")) {
-          cli::cli_abort(
-            "'text'-type content must have a 'text' field.", call = error_call
-          )
-        }
-        ContentText(x$text)
-      } else if (identical(x$type, "suggestions")) {
-        if (!has_name(x, "suggestions")) {
-          cli::cli_abort(
-            "'suggestions'-type content must have a 'suggestions' field.",
-            call = error_call
-          )
-        }
-        ContentSuggestions(unlist(x$suggestions))
-      } else if (identical(x$type, "sql")) {
-        if (!has_name(x, "statement")) {
-          cli::cli_abort(
-            "'sql'-type content must have a 'statement' field.",
-            call = error_call
-          )
-        }
-        ContentSql(x$statement)
-      } else {
-        cli::cli_abort(
-          "Unknown content type {.str {x$type}} in response.", .internal = TRUE
-        )
-      }
-    })
-  )
 }
 
 # Credential handling ----------------------------------------------------------
@@ -362,21 +365,13 @@ cortex_credentials_exist <- function(...) {
   tryCatch(is_list(cortex_credentials(...)), error = function(e) FALSE)
 }
 
-#' @details
-#' `cortex_credentials()` picks up the following ambient Snowflake credentials:
-#'
-#' - A static OAuth token defined via the `SNOWFLAKE_TOKEN` environment
-#'   variable.
-#' - Key-pair authentication credentials defined via the `SNOWFLAKE_USER` and
-#'   `SNOWFLAKE_PRIVATE_KEY` (which can be a PEM-encoded private key or a path
-#'   to one) environment variables.
-#' - Posit Workbench-managed Snowflake credentials for the corresponding
-#'   `account`.
-#'
-#' @inheritParams chat_cortex
-#' @export
-#' @rdname chat_cortex
-cortex_credentials <- function(account = Sys.getenv("SNOWFLAKE_ACCOUNT")) {
+cortex_credentials <- function(account = Sys.getenv("SNOWFLAKE_ACCOUNT"),
+                               credentials = NULL) {
+  # User-supplied credentials.
+  if (!is.null(credentials)) {
+    return(credentials(account))
+  }
+
   token <- Sys.getenv("SNOWFLAKE_TOKEN")
   if (nchar(token) != 0) {
     return(

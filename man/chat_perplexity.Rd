@@ -18,14 +18,9 @@ chat_perplexity(
 \arguments{
 \item{system_prompt}{A system prompt to set the behavior of the assistant.}
 
-\item{turns}{A list of turns to start the chat with (i.e., continuing a
+\item{turns}{A list of \link{Turn}s to start the chat with (i.e., continuing a
 previous conversation). If not provided, the conversation begins from
-scratch. Do not provide non-\code{NULL} values for both \code{turns} and
-\code{system_prompt}.
-
-Each message in the list should be a named list with at least \code{role}
-(usually \code{system}, \code{user}, or \code{assistant}, but \code{tool} is also possible).
-Normally there is also a \code{content} field, which is a string.}
+scratch.}
 
 \item{base_url}{The base URL to the endpoint; the default uses OpenAI.}
 
@@ -59,14 +54,20 @@ A \link{Chat} object.
 \description{
 Sign up at \url{https://www.perplexity.ai}.
 
+Perplexity AI is a platform for running LLMs that are capable of
+searching the web in real-time to help them answer questions with
+information that may not have been available when the model was
+trained.
+
 This function is a lightweight wrapper around \code{\link[=chat_openai]{chat_openai()}} with
-the defaults tweaked for groq.
+the defaults tweaked for Perplexity AI.
 }
 \seealso{
 Other chatbots: 
 \code{\link{chat_bedrock}()},
 \code{\link{chat_claude}()},
 \code{\link{chat_cortex}()},
+\code{\link{chat_databricks}()},
 \code{\link{chat_gemini}()},
 \code{\link{chat_github}()},
 \code{\link{chat_groq}()},

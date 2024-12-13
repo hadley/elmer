@@ -18,14 +18,9 @@ chat_claude(
 \arguments{
 \item{system_prompt}{A system prompt to set the behavior of the assistant.}
 
-\item{turns}{A list of turns to start the chat with (i.e., continuing a
+\item{turns}{A list of \link{Turn}s to start the chat with (i.e., continuing a
 previous conversation). If not provided, the conversation begins from
-scratch. Do not provide non-\code{NULL} values for both \code{turns} and
-\code{system_prompt}.
-
-Each message in the list should be a named list with at least \code{role}
-(usually \code{system}, \code{user}, or \code{assistant}, but \code{tool} is also possible).
-Normally there is also a \code{content} field, which is a string.}
+scratch.}
 
 \item{max_tokens}{Maximum number of tokens to generate before stopping.}
 
@@ -58,17 +53,20 @@ A \link{Chat} object.
 \description{
 \href{https://www.anthropic.com}{Anthropic} provides a number of chat based
 models under the \href{https://www.anthropic.com/claude}{Claude} moniker.
+Note that a Claude Pro membership does not give you the ability to call
+models via the API; instead, you will need to sign up (and pay for) a
+\href{https://console.anthropic.com/}{developer account}
 
-Note that a Claude Prop membership does not give you the ability to call
-models via the API. You will need to go to the
-\href{https://console.anthropic.com/account/keys}{developer console} to sign up
-(and pay for) a developer account that will give you an API key that
-you can use with this package.
+To authenticate, we recommend saving your
+\href{https://console.anthropic.com/account/keys}{API key} to
+the \code{ANTHROPIC_API_KEY} env var in your \code{.Renviron}
+(which you can easily edit by calling \code{usethis::edit_r_environ()}).
 }
 \seealso{
 Other chatbots: 
 \code{\link{chat_bedrock}()},
 \code{\link{chat_cortex}()},
+\code{\link{chat_databricks}()},
 \code{\link{chat_gemini}()},
 \code{\link{chat_github}()},
 \code{\link{chat_groq}()},

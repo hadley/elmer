@@ -17,14 +17,9 @@ chat_gemini(
 \arguments{
 \item{system_prompt}{A system prompt to set the behavior of the assistant.}
 
-\item{turns}{A list of turns to start the chat with (i.e., continuing a
+\item{turns}{A list of \link{Turn}s to start the chat with (i.e., continuing a
 previous conversation). If not provided, the conversation begins from
-scratch. Do not provide non-\code{NULL} values for both \code{turns} and
-\code{system_prompt}.
-
-Each message in the list should be a named list with at least \code{role}
-(usually \code{system}, \code{user}, or \code{assistant}, but \code{tool} is also possible).
-Normally there is also a \code{content} field, which is a string.}
+scratch.}
 
 \item{base_url}{The base URL to the endpoint; the default uses OpenAI.}
 
@@ -53,13 +48,17 @@ Note this only affects the \code{chat()} method.}
 A \link{Chat} object.
 }
 \description{
-Chat with a Google Gemini model
+To authenticate, we recommend saving your
+\href{https://aistudio.google.com/app/apikey}{API key} to
+the \code{GOOGLE_API_KEY} env var in your \code{.Renviron}
+(which you can easily edit by calling \code{usethis::edit_r_environ()}).
 }
 \seealso{
 Other chatbots: 
 \code{\link{chat_bedrock}()},
 \code{\link{chat_claude}()},
 \code{\link{chat_cortex}()},
+\code{\link{chat_databricks}()},
 \code{\link{chat_github}()},
 \code{\link{chat_groq}()},
 \code{\link{chat_ollama}()},

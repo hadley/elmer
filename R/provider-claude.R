@@ -9,12 +9,14 @@ NULL
 #' @description
 #' [Anthropic](https://www.anthropic.com) provides a number of chat based
 #' models under the [Claude](https://www.anthropic.com/claude) moniker.
+#' Note that a Claude Pro membership does not give you the ability to call
+#' models via the API; instead, you will need to sign up (and pay for) a
+#' [developer account](https://console.anthropic.com/)
 #'
-#' Note that a Claude Prop membership does not give you the ability to call
-#' models via the API. You will need to go to the
-#' [developer console](https://console.anthropic.com/account/keys) to sign up
-#' (and pay for) a developer account that will give you an API key that
-#' you can use with this package.
+#' To authenticate, we recommend saving your
+#' [API key](https://console.anthropic.com/account/keys) to
+#' the `ANTHROPIC_API_KEY` env var in your `.Renviron`
+#' (which you can easily edit by calling `usethis::edit_r_environ()`).
 #'
 #' @inheritParams chat_openai
 #' @inherit chat_openai return
@@ -51,7 +53,6 @@ chat_claude <- function(system_prompt = NULL,
 ProviderClaude <- new_class(
   "ProviderClaude",
   parent = Provider,
-  package = "elmer",
   properties = list(
     api_key = prop_string(),
     model = prop_string(),
@@ -67,11 +68,11 @@ anthropic_key_exists <- function() {
 }
 
 method(chat_request, ProviderClaude) <- function(provider,
-                                                  stream = TRUE,
-                                                  turns = list(),
-                                                  tools = list(),
-                                                  spec = NULL,
-                                                  extra_args = list()) {
+                                                 stream = TRUE,
+                                                 turns = list(),
+                                                 tools = list(),
+                                                 type = NULL,
+                                                 extra_args = list()) {
 
   req <- request(provider@base_url)
   # https://docs.anthropic.com/en/api/messages
@@ -90,8 +91,10 @@ method(chat_request, ProviderClaude) <- function(provider,
 
   # <https://docs.anthropic.com/en/api/errors>
   req <- req_error(req, body = function(resp) {
-    json <- resp_body_json(resp)
-    paste0(json$error$message, " [", json$error$type, "]")
+    if (resp_content_type(resp) == "application/json") {
+      json <- resp_body_json(resp)
+      paste0(json$error$message, " [", json$error$type, "]")
+    }
   })
 
   if (length(turns) >= 1 && is_system_prompt(turns[[1]])) {
@@ -102,12 +105,12 @@ method(chat_request, ProviderClaude) <- function(provider,
 
   messages <- compact(as_json(provider, turns))
 
-  if (!is.null(spec)) {
+  if (!is.null(type)) {
     tool_def <- ToolDef(
       fun = function(...) {},
       name = "_structured_tool_call",
       description = "Extract structured data",
-      arguments = type_object(data = spec)
+      arguments = type_object(data = type)
     )
     tools[[tool_def@name]] <- tool_def
     tool_choice <- list(type = "tool", name = tool_def@name)
@@ -174,18 +177,26 @@ method(stream_merge_chunks, ProviderClaude) <- function(provider, result, chunk)
     result$stop_sequence <- chunk$delta$stop_sequence
     result$usage$output_tokens <- chunk$usage$output_tokens
   } else if (chunk$type == "error") {
-    cli::cli_abort("{chunk$error$message}")
+    if (chunk$error$type == "overloaded_error") {
+      # https://docs.anthropic.com/en/api/messages-streaming#error-events
+      # TODO: track number of retries
+      wait <- backoff_default(1)
+      Sys.sleep(wait)
+    } else {
+      cli::cli_abort("{chunk$error$message}")
+    }
   } else {
     cli::cli_inform(c("!" = "Unknown chunk type {.str {chunk$type}}."))
   }
   result
 }
-method(stream_turn, ProviderClaude) <- function(provider, result, has_spec = FALSE) {
+
+method(value_turn, ProviderClaude) <- function(provider, result, has_type = FALSE) {
   contents <- lapply(result$content, function(content) {
     if (content$type == "text") {
       ContentText(content$text)
     } else if (content$type == "tool_use") {
-      if (has_spec) {
+      if (has_type) {
         ContentJson(content$input$data)
       } else {
         if (is_string(content$input)) {
@@ -206,7 +217,6 @@ method(stream_turn, ProviderClaude) <- function(provider, result, has_spec = FAL
 
   Turn(result$role, contents, json = result, tokens = tokens)
 }
-method(value_turn, ProviderClaude) <- method(stream_turn, ProviderClaude)
 
 # elmer -> Claude --------------------------------------------------------------
 
@@ -266,4 +276,13 @@ method(as_json, list(ProviderClaude, ToolDef)) <- function(provider, x) {
     description = x@description,
     input_schema = compact(as_json(provider, x@arguments))
   )
+}
+
+
+
+# Helpers ----------------------------------------------------------------
+
+# From httr2
+backoff_default <- function(i) {
+  round(min(stats::runif(1, min = 1, max = 2^i), 60), 1)
 }

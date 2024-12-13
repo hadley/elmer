@@ -23,7 +23,7 @@
 #' @param topic A symbol or string literal naming the function to create
 #'   metadata for. Can also be an expression of the form `pkg::fun`.
 #' @param model The OpenAI model to use for generating the metadata. Defaults to
-#'  "gpt-4o", which is highly recommended over "gpt-4o-mini".
+#'  "gpt-4o".
 #' @param echo Emit the registration code to the console. Defaults to `TRUE` in
 #'   interactive sessions.
 #' @param verbose If `TRUE`, print the input we send to the LLM, which may be

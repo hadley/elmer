@@ -1,11 +1,12 @@
 ---
-title: "Tool calling (a.k.a. function calling)"
+title: "Tool/function calling"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Tool calling (a.k.a. function calling)}
+  %\VignetteIndexEntry{Tool/function calling}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
+
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
@@ -18,9 +19,17 @@ knitr::opts_chunk$set(
 
 One of the most interesting aspects of modern chat models is their ability to make use of external tools that are defined by the caller.
 
-When making a chat request to the chat model, the caller advertises one or more tools (defined by their function name, description, and a list of expected arguments), and the chat model can choose to respond with one or more "tool calls". These tool calls are requests _from the chat model to the caller_ to execute the function with the given arguments; the caller is expected to execute the functions and "return" the results by submitting another chat request with the conversation so far, plus the results. The chat model can then use those results in formulating its response, or, it may decide to make additional tool calls.
+When making a chat request to the chat model, the caller advertises one or more tools (defined by their function name, description, and a list of expected arguments), and the chat model can choose to respond with one or more "tool calls". These tool calls are requests *from the chat model to the caller* to execute the function with the given arguments; the caller is expected to execute the functions and "return" the results by submitting another chat request with the conversation so far, plus the results. The chat model can then use those results in formulating its response, or, it may decide to make additional tool calls.
 
-*Note that the chat model does not directly execute any external tools!* It only makes requests for the caller to execute them. The value that the chat model brings is not in helping with execution, but with knowing when it makes sense to call a tool, what values to pass as arguments, and how to use the results in formulating its response.
+*Note that the chat model does not directly execute any external tools!* It only makes requests for the caller to execute them. It's easy to think that tool calling might work like this:
+
+![Diagram showing showing the wrong mental model of tool calls: a user initiates a request that flows to the assistant, which then runs the code, and returns the result back to the user."](tool-calling-wrong.svg)
+
+But in fact it works like this:
+
+![Diagram showing the correct mental model for tool calls: a user sends a request that needs a tool call, the assistant request that the user's runs that tool, returns the result to the assistant, which uses it to generate the final answer.](tool-calling-right.svg)
+
+The value that the chat model brings is not in helping with execution, but with knowing when it makes sense to call a tool, what values to pass as arguments, and how to use the results in formulating its response.
 
 ```{r setup}
 library(elmer)

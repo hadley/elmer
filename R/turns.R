@@ -29,7 +29,6 @@ NULL
 #' @export
 Turn <- new_class(
   "Turn",
-  package = "elmer",
   properties = list(
     role = prop_string(),
     contents = prop_list_of(Content),
@@ -45,9 +44,7 @@ Turn <- new_class(
     ),
     text = new_property(
       class = class_character,
-      getter = function(self) {
-        paste0(unlist(lapply(self@contents, contents_text)), collapse = "")
-      }
+      getter = function(self) contents_text(self)
     )
   ),
   constructor = function(role,
@@ -71,6 +68,15 @@ method(format, Turn) <- function(x, ...) {
   contents <- map_chr(x@contents, format, ...)
   paste0(contents, "\n", collapse = "")
 }
+method(contents_text, Turn) <- function(content) {
+  paste0(unlist(lapply(content@contents, contents_text)), collapse = "")
+}
+method(contents_html, Turn) <- function(content) {
+  paste0(unlist(lapply(content@contents, contents_html)), collapse = "\n")
+}
+method(contents_markdown, Turn) <- function(content) {
+  paste0(unlist(lapply(content@contents, contents_markdown)), collapse = "\n\n")
+}
 
 user_turn <- function(..., .error_call = caller_env()) {
   if (...length() == 0) {
@@ -89,10 +95,14 @@ is_system_prompt <- function(x) {
 }
 
 normalize_turns <- function(turns = NULL,
-                               system_prompt = NULL,
-                               error_call = caller_env()) {
+                            system_prompt = NULL,
+                            overwrite = FALSE,
+                            error_call = caller_env()) {
 
-  check_string(system_prompt, allow_null = TRUE, call = error_call)
+  check_character(system_prompt, allow_null = TRUE, call = error_call)
+  if (length(system_prompt) > 1) {
+    system_prompt <- paste(system_prompt, collapse = "\n\n")
+  }
 
   if (!is.null(turns)) {
     if (!is.list(turns) || is_named(turns)) {
@@ -119,7 +129,7 @@ normalize_turns <- function(turns = NULL,
       turns <- list(system_turn)
     } else if (turns[[1]]@role != "system") {
       turns <- c(list(system_turn), turns)
-    } else if (identical(turns[[1]], system_turn)) {
+    } else if (overwrite || identical(turns[[1]], system_turn)) {
       # Duplicate system prompt; don't need to do anything
     } else {
       cli::cli_abort(

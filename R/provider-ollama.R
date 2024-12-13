@@ -1,8 +1,8 @@
-#' Chat with a local ollama model
+#' Chat with a local Ollama model
 #'
 #' @description
 #' To use `chat_ollama()` first download and install
-#' [ollama](https://ollama.com). Then install some models from the command line,
+#' [Ollama](https://ollama.com). Then install some models from the command line,
 #' e.g. with `ollama pull llama3.1` or `ollama pull gemma2`.
 #'
 #' This function is a lightweight wrapper around [chat_openai()] with
@@ -19,18 +19,18 @@
 #' @family chatbots
 #' @export
 chat_ollama <- function(system_prompt = NULL,
-                            turns = NULL,
-                            base_url = "http://localhost:11434/v1",
-                            model,
-                            seed = NULL,
-                            api_args = list(),
-                            echo = NULL) {
-  if (!has_ollama()) {
+                        turns = NULL,
+                        base_url = "http://localhost:11434",
+                        model,
+                        seed = NULL,
+                        api_args = list(),
+                        echo = NULL) {
+  if (!has_ollama(base_url)) {
     cli::cli_abort("Can't find locally running ollama.")
   }
 
   if (missing(model)) {
-    models <- ollama_models()
+    models <- ollama_models(base_url)
     cli::cli_abort(c(
       "Must specify {.arg model}.",
       i = "Locally installed models: {.str {models}}."
@@ -40,7 +40,7 @@ chat_ollama <- function(system_prompt = NULL,
   chat_openai(
     system_prompt = system_prompt,
     turns = turns,
-    base_url = base_url,
+    base_url = file.path(base_url, "v1"), ## the v1 portion of the path is added for openAI compatible API
     api_key = "ollama", # ignored
     model = model,
     seed = seed,
@@ -49,8 +49,9 @@ chat_ollama <- function(system_prompt = NULL,
   )
 }
 
-ollama_models <- function() {
-  req <- request("http://localhost:11434/api/tags")
+ollama_models <- function(base_url = "http://localhost:11434") {
+  req <- request(base_url)
+  req <- req_url_path(req, "api/tags")
   resp <- req_perform(req)
   json <- resp_body_json(resp)
 
@@ -58,10 +59,12 @@ ollama_models <- function() {
   gsub(":latest$", "", names)
 }
 
-has_ollama <- function() {
+has_ollama <- function(base_url = "http://localhost:11434") {
   tryCatch(
     {
-      req_perform(request("http://localhost:11434/api/tags"))
+      req <- request(base_url)
+      req <- req_url_path(req, "api/tags")
+      req_perform(req)
       TRUE
     },
     httr2_error = function(cnd) FALSE

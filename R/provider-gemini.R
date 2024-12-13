@@ -6,6 +6,11 @@ NULL
 
 #' Chat with a Google Gemini model
 #'
+#' To authenticate, we recommend saving your
+#' [API key](https://aistudio.google.com/app/apikey) to
+#' the `GOOGLE_API_KEY` env var in your `.Renviron`
+#' (which you can easily edit by calling `usethis::edit_r_environ()`).
+#'
 #' @param api_key The API key to use for authentication. You generally should
 #'   not supply this directly, but instead set the `GOOGLE_API_KEY` environment
 #'   variable.
@@ -36,7 +41,6 @@ chat_gemini <- function(system_prompt = NULL,
 ProviderGemini <- new_class(
   "ProviderGemini",
   parent = Provider,
-  package = "elmer",
   properties = list(
     api_key = prop_string(),
     model = prop_string()
@@ -51,7 +55,7 @@ method(chat_request, ProviderGemini) <- function(provider,
                                                  stream = TRUE,
                                                  turns = list(),
                                                  tools = list(),
-                                                 spec = NULL,
+                                                 type = NULL,
                                                  extra_args = list()) {
 
 
@@ -79,10 +83,10 @@ method(chat_request, ProviderGemini) <- function(provider,
     system <- list(parts = list(text = ""))
   }
 
-  if (!is.null(spec)) {
+  if (!is.null(type)) {
     generation_config <- list(
       response_mime_type = "application/json",
-      response_schema = as_json(provider, spec)
+      response_schema = as_json(provider, type)
     )
   } else {
     generation_config <- NULL
@@ -130,12 +134,12 @@ method(stream_merge_chunks, ProviderGemini) <- function(provider, result, chunk)
     merge_dicts(result, chunk)
   }
 }
-method(stream_turn, ProviderGemini) <- function(provider, result, has_spec = FALSE) {
+method(value_turn, ProviderGemini) <- function(provider, result, has_type = FALSE) {
   message <- result$candidates[[1]]$content
 
   contents <- lapply(message$parts, function(content) {
     if (has_name(content, "text")) {
-      if (has_spec) {
+      if (has_type) {
         data <- jsonlite::parse_json(content$text)
         ContentJson(data)
       } else {
@@ -155,12 +159,14 @@ method(stream_turn, ProviderGemini) <- function(provider, result, has_spec = FAL
     }
   })
   usage <- result$usageMetadata
-  tokens <- c(usage$promptTokenCount, usage$candidatesTokenCount)
+  tokens <- c(
+    usage$promptTokenCount %||% NA_integer_,
+    usage$candidatesTokenCount %||% NA_integer_
+  )
   tokens_log("Gemini", tokens)
 
   Turn("assistant", contents, json = result, tokens = tokens)
 }
-method(value_turn, ProviderGemini) <- method(stream_turn, ProviderGemini)
 
 # elmer -> Gemini --------------------------------------------------------------
 

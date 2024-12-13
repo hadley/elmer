@@ -2,12 +2,12 @@
 % Please edit documentation in R/provider-ollama.R
 \name{chat_ollama}
 \alias{chat_ollama}
-\title{Chat with a local ollama model}
+\title{Chat with a local Ollama model}
 \usage{
 chat_ollama(
   system_prompt = NULL,
   turns = NULL,
-  base_url = "http://localhost:11434/v1",
+  base_url = "http://localhost:11434",
   model,
   seed = NULL,
   api_args = list(),
@@ -17,14 +17,9 @@ chat_ollama(
 \arguments{
 \item{system_prompt}{A system prompt to set the behavior of the assistant.}
 
-\item{turns}{A list of turns to start the chat with (i.e., continuing a
+\item{turns}{A list of \link{Turn}s to start the chat with (i.e., continuing a
 previous conversation). If not provided, the conversation begins from
-scratch. Do not provide non-\code{NULL} values for both \code{turns} and
-\code{system_prompt}.
-
-Each message in the list should be a named list with at least \code{role}
-(usually \code{system}, \code{user}, or \code{assistant}, but \code{tool} is also possible).
-Normally there is also a \code{content} field, which is a string.}
+scratch.}
 
 \item{base_url}{The base URL to the endpoint; the default uses OpenAI.}
 
@@ -50,7 +45,7 @@ Note this only affects the \code{chat()} method.}
 }
 \description{
 To use \code{chat_ollama()} first download and install
-\href{https://ollama.com}{ollama}. Then install some models from the command line,
+\href{https://ollama.com}{Ollama}. Then install some models from the command line,
 e.g. with \verb{ollama pull llama3.1} or \verb{ollama pull gemma2}.
 
 This function is a lightweight wrapper around \code{\link[=chat_openai]{chat_openai()}} with
@@ -69,6 +64,7 @@ Other chatbots:
 \code{\link{chat_bedrock}()},
 \code{\link{chat_claude}()},
 \code{\link{chat_cortex}()},
+\code{\link{chat_databricks}()},
 \code{\link{chat_gemini}()},
 \code{\link{chat_github}()},
 \code{\link{chat_groq}()},

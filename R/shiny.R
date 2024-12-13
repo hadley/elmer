@@ -21,42 +21,43 @@ live_console <- function(chat, quiet = FALSE) {
   if (!isTRUE(quiet)) {
     cli::cat_boxx(
       c(
-        "Entering chat console. Use \"\"\" for multi-line input.",
-        "Press Ctrl+C to quit."
+        "Entering chat console.",
+        "Use \"\"\" for multi-line input.",
+        "Type 'Q' to quit."
       ),
       padding = c(0, 1, 0, 1),
       border_style = "double"
     )
   }
 
-  tryCatch(
-    repeat {
-      # Prompt for user input
-      user_input <- readline(prompt = ">>> ")
+  repeat {
+    user_input <- readline(prompt = ">>> ")
 
-      if (!grepl("\\S", user_input)) {
-        next
-      }
+    if (user_input == "Q") {
+      break
+    }
 
-      if (grepl('^\\s*"""', user_input)) {
-        repeat {
-          next_input <- readline(prompt = '... ')
-          user_input <- paste0(user_input, "\n", next_input)
-          if (grepl('"""\\s*$', next_input)) {
-            break
-          }
+    if (!grepl("\\S", user_input)) {
+      next
+    }
+
+    if (grepl('^\\s*"""', user_input)) {
+      repeat {
+        next_input <- readline(prompt = '... ')
+        user_input <- paste0(user_input, "\n", next_input)
+        if (grepl('"""\\s*$', next_input)) {
+          break
         }
-        # Strip leading and trailing """, using regex
-        user_input <- gsub('^\\s*"""\\s*', '', user_input)
-        user_input <- gsub('\\s*"""\\s*$', '', user_input)
       }
+      # Strip leading and trailing """, using regex
+      user_input <- gsub('^\\s*"""\\s*', '', user_input)
+      user_input <- gsub('\\s*"""\\s*$', '', user_input)
+    }
 
-      # Process the input using the provided LLM function
-      chat$chat(user_input, echo = TRUE)
-      cat("\n")
-    },
-    interrupt = function(cnd) NULL
-  )
+    # Process the input using the provided LLM function
+    chat$chat(user_input, echo = TRUE)
+    cat("\n")
+  }
 
   invisible(chat)
 }
@@ -75,10 +76,10 @@ live_browser <- function(chat, quiet = FALSE) {
     )
   )
   server <- function(input, output, session) {
-    for (turn in chat$turns()) {
+    for (turn in chat$get_turns()) {
       shinychat::chat_append_message("chat", list(
         role = turn@role,
-        content = turn@text
+        content = contents_markdown(turn)
       ))
     }
 

@@ -7,24 +7,21 @@ NULL
 #' Chat with an OpenAI model
 #'
 #' @description
-#' [OpenAI](https://openai.com/o1/) provides a number of chat based models under
-#' the [ChatGPT](https://chatgpt.com) moniker.
+#' [OpenAI](https://openai.com/) provides a number of chat-based models,
+#' mostly under the [ChatGPT](https://chat.openai.com/) brand.
+#' Note that a ChatGPT Plus membership does not grant access to the API.
+#' You will need to sign up for a developer account (and pay for it) at the
+#' [developer platform](https://platform.openai.com).
 #'
-#' Note that a ChatGPT Plus membership does not give you the ability to call
-#' models via the API. You will need to go to the
-#' [developer platform](https://platform.openai.com) to sign up
-#' (and pay for) a developer account that will give you an API key that
-#' you can use with this package.
+#' For authentication, we recommend saving your
+#' [API key](https://platform.openai.com/account/api-keys) to
+#' the `OPENAI_API_KEY` environment variable in your `.Renviron` file.
+#' You can easily edit this file by calling `usethis::edit_r_environ()`.
 #'
 #' @param system_prompt A system prompt to set the behavior of the assistant.
-#' @param turns A list of turns to start the chat with (i.e., continuing a
+#' @param turns A list of [Turn]s to start the chat with (i.e., continuing a
 #'   previous conversation). If not provided, the conversation begins from
-#'   scratch. Do not provide non-`NULL` values for both `turns` and
-#'   `system_prompt`.
-#'
-#'   Each message in the list should be a named list with at least `role`
-#'   (usually `system`, `user`, or `assistant`, but `tool` is also possible).
-#'   Normally there is also a `content` field, which is a string.
+#'   scratch.
 #' @param base_url The base URL to the endpoint; the default uses OpenAI.
 #' @param api_key The API key to use for authentication. You generally should
 #'   not supply this directly, but instead set the `OPENAI_API_KEY` environment
@@ -61,7 +58,7 @@ chat_openai <- function(system_prompt = NULL,
                             api_args = list(),
                             echo = c("none", "text", "all")) {
   turns <- normalize_turns(turns, system_prompt)
-  model <- set_default(model, "gpt-4o-mini")
+  model <- set_default(model, "gpt-4o")
   echo <- check_echo(echo)
 
   if (is_testing() && is.null(seed)) {
@@ -81,7 +78,6 @@ chat_openai <- function(system_prompt = NULL,
 ProviderOpenAI <- new_class(
   "ProviderOpenAI",
   parent = Provider,
-  package = "elmer",
   properties = list(
     api_key = prop_string(),
     model = prop_string(),
@@ -102,7 +98,7 @@ method(chat_request, ProviderOpenAI) <- function(provider,
                                                  stream = TRUE,
                                                  turns = list(),
                                                  tools = list(),
-                                                 spec = NULL,
+                                                 type = NULL,
                                                  extra_args = list()) {
 
   req <- request(provider@base_url)
@@ -119,12 +115,12 @@ method(chat_request, ProviderOpenAI) <- function(provider,
   tools <- as_json(provider, unname(tools))
   extra_args <- utils::modifyList(provider@extra_args, extra_args)
 
-  if (!is.null(spec)) {
+  if (!is.null(type)) {
     response_format <- list(
       type = "json_schema",
       json_schema = list(
         name = "structured_data",
-        schema = as_json(provider, spec),
+        schema = as_json(provider, type),
         strict = TRUE
       )
     )
@@ -175,14 +171,14 @@ method(stream_merge_chunks, ProviderOpenAI) <- function(provider, result, chunk)
     merge_dicts(result, chunk)
   }
 }
-method(stream_turn, ProviderOpenAI) <- function(provider, result, has_spec = FALSE) {
-  openai_assistant_turn(provider, result$choices[[1]]$delta, result, has_spec)
-}
-method(value_turn, ProviderOpenAI) <- function(provider, result, has_spec = FALSE) {
-  openai_assistant_turn(provider, result$choices[[1]]$message, result, has_spec)
-}
-openai_assistant_turn <- function(provider, message, result, has_spec) {
-  if (has_spec) {
+method(value_turn, ProviderOpenAI) <- function(provider, result, has_type = FALSE) {
+  if (has_name(result$choices[[1]], "delta")) { # streaming
+    message <- result$choices[[1]]$delta
+  } else {
+    message <- result$choices[[1]]$message
+  }
+
+  if (has_type) {
     json <- jsonlite::parse_json(message$content[[1]])
     content <- list(ContentJson(json))
   } else {
@@ -267,10 +263,6 @@ method(as_json, list(ProviderOpenAI, ContentToolRequest)) <- function(provider, 
     `function` = list(name = x@name, arguments = json_args),
     type = "function"
   )
-}
-
-method(as_json, list(ProviderOpenAI, ContentJson)) <- function(provider, x) {
-  list(type = "text", text = "")
 }
 
 method(as_json, list(ProviderOpenAI, ToolDef)) <- function(provider, x) {

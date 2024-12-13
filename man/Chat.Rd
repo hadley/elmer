@@ -14,19 +14,14 @@ your behalf), it also takes care of the tool loop.
 You should generally not create this object yourself,
 but instead call \code{\link[=chat_openai]{chat_openai()}} or friends instead.
 }
-\section{Active bindings}{
-\if{html}{\out{<div class="r6-active-bindings">}}
-\describe{
-\item{\code{system_prompt}}{The system prompt, if present, as a string.
-Otherwise, \code{NULL}.}
-}
-\if{html}{\out{</div>}}
-}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-Chat-new}{\code{Chat$new()}}
-\item \href{#method-Chat-turns}{\code{Chat$turns()}}
+\item \href{#method-Chat-get_turns}{\code{Chat$get_turns()}}
+\item \href{#method-Chat-set_turns}{\code{Chat$set_turns()}}
+\item \href{#method-Chat-get_system_prompt}{\code{Chat$get_system_prompt()}}
+\item \href{#method-Chat-set_system_prompt}{\code{Chat$set_system_prompt()}}
 \item \href{#method-Chat-tokens}{\code{Chat$tokens()}}
 \item \href{#method-Chat-last_turn}{\code{Chat$last_turn()}}
 \item \href{#method-Chat-chat}{\code{Chat$chat()}}
@@ -73,13 +68,13 @@ Note this only affects the \code{chat()} method.}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-Chat-turns"></a>}}
-\if{latex}{\out{\hypertarget{method-Chat-turns}{}}}
-\subsection{Method \code{turns()}}{
-The turns that have been sent and received so far
+\if{html}{\out{<a id="method-Chat-get_turns"></a>}}
+\if{latex}{\out{\hypertarget{method-Chat-get_turns}{}}}
+\subsection{Method \code{get_turns()}}{
+Retrieve the turns that have been sent and received so far
 (optionally starting with the system prompt, if any).
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$turns(include_system_prompt = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Chat$get_turns(include_system_prompt = FALSE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -87,6 +82,50 @@ The turns that have been sent and received so far
 \describe{
 \item{\code{include_system_prompt}}{Whether to include the system prompt in the
 turns (if any exists).}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Chat-set_turns"></a>}}
+\if{latex}{\out{\hypertarget{method-Chat-set_turns}{}}}
+\subsection{Method \code{set_turns()}}{
+Replace existing turns with a new list.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Chat$set_turns(value)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{value}}{A list of \link{Turn}s.}
+}
+\if{html}{\out{</div>}}
+}
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Chat-get_system_prompt"></a>}}
+\if{latex}{\out{\hypertarget{method-Chat-get_system_prompt}{}}}
+\subsection{Method \code{get_system_prompt()}}{
+If set, the system prompt, it not, \code{NULL}.
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Chat$get_system_prompt()}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-Chat-set_system_prompt"></a>}}
+\if{latex}{\out{\hypertarget{method-Chat-set_system_prompt}{}}}
+\subsection{Method \code{set_system_prompt()}}{
+Update the system prompt
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{Chat$set_system_prompt(value)}\if{html}{\out{</div>}}
+}
+
+\subsection{Arguments}{
+\if{html}{\out{<div class="arguments">}}
+\describe{
+\item{\code{value}}{A string giving the new system prompt}
 }
 \if{html}{\out{</div>}}
 }
@@ -154,7 +193,7 @@ will be used.}
 \subsection{Method \code{extract_data()}}{
 Extract structured data
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$extract_data(..., spec, echo = "none")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Chat$extract_data(..., type, echo = "none", convert = TRUE)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -163,12 +202,16 @@ Extract structured data
 \item{\code{...}}{The input to send to the chatbot. Will typically include
 the phrase "extract structured data".}
 
-\item{\code{spec}}{A type specification for the extracted data. Should be
+\item{\code{type}}{A type specification for the extracted data. Should be
 created with a \code{\link[=type_boolean]{type_()}} function.}
 
 \item{\code{echo}}{Whether to emit the response to stdout as it is received.
 Set to "text" to stream JSON data as it's generated (not supported by
 all providers).}
+
+\item{\code{convert}}{Automatically convert from JSON lists to R data types
+using the schema. For example, this will turn arrays of objects into
+data frames and arrays of strings into a character vector.}
 }
 \if{html}{\out{</div>}}
 }
@@ -180,7 +223,7 @@ all providers).}
 Extract structured data, asynchronously. Returns a promise
 that resolves to an object matching the type specification.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{Chat$extract_data_async(..., spec, echo = "none")}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{Chat$extract_data_async(..., type, echo = "none")}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -189,7 +232,7 @@ that resolves to an object matching the type specification.
 \item{\code{...}}{The input to send to the chatbot. Will typically include
 the phrase "extract structured data".}
 
-\item{\code{spec}}{A type specification for the extracted data. Should be
+\item{\code{type}}{A type specification for the extracted data. Should be
 created with a \code{\link[=type_boolean]{type_()}} function.}
 
 \item{\code{echo}}{Whether to emit the response to stdout as it is received.

@@ -2,29 +2,24 @@
 % Please edit documentation in R/provider-cortex.R
 \name{chat_cortex}
 \alias{chat_cortex}
-\alias{cortex_credentials}
 \title{Create a chatbot that speaks to the Snowflake Cortex Analyst}
 \usage{
 chat_cortex(
   account = Sys.getenv("SNOWFLAKE_ACCOUNT"),
-  credentials = cortex_credentials,
+  credentials = NULL,
   model_spec = NULL,
   model_file = NULL,
   api_args = list(),
   echo = c("none", "text", "all")
 )
-
-cortex_credentials(account = Sys.getenv("SNOWFLAKE_ACCOUNT"))
 }
 \arguments{
 \item{account}{A Snowflake \href{https://docs.snowflake.com/en/user-guide/admin-account-identifier}{account identifier},
 e.g. \code{"testorg-test_account"}.}
 
 \item{credentials}{A list of authentication headers to pass into
-\code{\link[httr2:req_headers]{httr2::req_headers()}} or a function that returns them when passed
-\code{account} as a parameter. The default \code{\link[=cortex_credentials]{cortex_credentials()}} function
-picks up ambient Snowflake OAuth and key-pair authentication credentials
-and handles refreshing them automatically.}
+\code{\link[httr2:req_headers]{httr2::req_headers()}}, a function that returns them when passed
+\code{account} as a parameter, or \code{NULL} to use ambient credentials.}
 
 \item{model_spec}{A semantic model specification, or \code{NULL} when
 using \code{model_file} instead.}
@@ -60,9 +55,9 @@ reference to an existing file in a Snowflake Stage.
 Note that Cortex does not support multi-turn, so it will not remember
 previous messages. Nor does it support registering tools, and attempting to
 do so will result in an error.
-}
-\details{
-\code{cortex_credentials()} picks up the following ambient Snowflake credentials:
+\subsection{Authentication}{
+
+\code{chat_cortex()} picks up the following ambient Snowflake credentials:
 \itemize{
 \item A static OAuth token defined via the \code{SNOWFLAKE_TOKEN} environment
 variable.
@@ -71,6 +66,7 @@ variable.
 to one) environment variables.
 \item Posit Workbench-managed Snowflake credentials for the corresponding
 \code{account}.
+}
 }
 }
 \examples{
@@ -85,6 +81,7 @@ chat$chat("What questions can I ask?")
 Other chatbots: 
 \code{\link{chat_bedrock}()},
 \code{\link{chat_claude}()},
+\code{\link{chat_databricks}()},
 \code{\link{chat_gemini}()},
 \code{\link{chat_github}()},
 \code{\link{chat_groq}()},

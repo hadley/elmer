@@ -2,6 +2,12 @@
 
 * New `chat_vllm()` to chat with models served by vLLM (#140).
 
+* The default `chat_openai()` model is now GPT-4o.
+
+* New `Chat$set_turns()` to set turns. `Chat$turns()` is now `Chat$get_turns()`. `Chat$system_prompt()` is replaced with `Chat$set_system_prompt()` and `Chat$get_system_prompt()`.
+
+* Async and streaming async chat are now event-driven and use `later::later_fd()` to wait efficiently on curl socket activity (#157).
+
 * New `chat_bedrock()` to chat with AWS bedrock models (#50).
 
 * New `chat$extract_data()` uses the structured data API where available (and tool calling otherwise) to extract data structured according to a known type specification. You can create specs with functions `type_boolean()`, `type_integer()`, `type_number()`, `type_string()`, `type_enum()`, `type_array()`, and `type_object()` (#31).
@@ -29,3 +35,5 @@
 * Claude and Gemini are now supported via `chat_claude()` and `chat_gemini()`.
 
 * The Snowflake Cortex Analyst is now supported via `chat_cortex()` (#56).
+
+* Databricks is now supported via `chat_databricks()` (#152).

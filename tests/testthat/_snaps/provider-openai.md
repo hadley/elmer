@@ -3,7 +3,7 @@
     Code
       . <- chat_openai()
     Message
-      Using model = "gpt-4o-mini".
+      Using model = "gpt-4o".
 
 # all tool variations work
 
@@ -19,6 +19,6 @@
     Code
       as_json(stub, type_object(.additional_properties = TRUE))
     Condition
-      Error:
+      Error in `method(as_json, list(elmer::ProviderOpenAI, elmer::TypeObject))`:
       ! `.additional_properties` not supported for OpenAI.
 

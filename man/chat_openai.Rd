@@ -18,14 +18,9 @@ chat_openai(
 \arguments{
 \item{system_prompt}{A system prompt to set the behavior of the assistant.}
 
-\item{turns}{A list of turns to start the chat with (i.e., continuing a
+\item{turns}{A list of \link{Turn}s to start the chat with (i.e., continuing a
 previous conversation). If not provided, the conversation begins from
-scratch. Do not provide non-\code{NULL} values for both \code{turns} and
-\code{system_prompt}.
-
-Each message in the list should be a named list with at least \code{role}
-(usually \code{system}, \code{user}, or \code{assistant}, but \code{tool} is also possible).
-Normally there is also a \code{content} field, which is a string.}
+scratch.}
 
 \item{base_url}{The base URL to the endpoint; the default uses OpenAI.}
 
@@ -57,14 +52,16 @@ Note this only affects the \code{chat()} method.}
 A \link{Chat} object.
 }
 \description{
-\href{https://openai.com/o1/}{OpenAI} provides a number of chat based models under
-the \href{https://chatgpt.com}{ChatGPT} moniker.
+\href{https://openai.com/}{OpenAI} provides a number of chat-based models,
+mostly under the \href{https://chat.openai.com/}{ChatGPT} brand.
+Note that a ChatGPT Plus membership does not grant access to the API.
+You will need to sign up for a developer account (and pay for it) at the
+\href{https://platform.openai.com}{developer platform}.
 
-Note that a ChatGPT Plus membership does not give you the ability to call
-models via the API. You will need to go to the
-\href{https://platform.openai.com}{developer platform} to sign up
-(and pay for) a developer account that will give you an API key that
-you can use with this package.
+For authentication, we recommend saving your
+\href{https://platform.openai.com/account/api-keys}{API key} to
+the \code{OPENAI_API_KEY} environment variable in your \code{.Renviron} file.
+You can easily edit this file by calling \code{usethis::edit_r_environ()}.
 }
 \examples{
 \dontshow{if (elmer:::openai_key_exists()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
@@ -80,6 +77,7 @@ Other chatbots:
 \code{\link{chat_bedrock}()},
 \code{\link{chat_claude}()},
 \code{\link{chat_cortex}()},
+\code{\link{chat_databricks}()},
 \code{\link{chat_gemini}()},
 \code{\link{chat_github}()},
 \code{\link{chat_groq}()},
