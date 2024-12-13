@@ -138,9 +138,18 @@ Chat <- R6::R6Class("Chat",
     #' @param echo Whether to emit the response to stdout as it is received.
     #'   Set to "text" to stream JSON data as it's generated (not supported by
     #'  all providers).
-    extract_data = function(..., type, echo = "none") {
+    #' @param convert Automatically convert from JSON lists to R data types
+    #'   using the schema. For example, this will turn arrays of objects into
+    #'  data frames and arrays of strings into a character vector.
+    extract_data = function(..., type, echo = "none", convert = TRUE) {
       turn <- user_turn(...)
       echo <- check_echo(echo %||% private$echo)
+      check_bool(convert)
+
+      needs_wrapper <- S7_inherits(private$provider, ProviderOpenAI)
+      if (needs_wrapper) {
+        type <- type_object(wrapper = type)
+      }
 
       coro::collect(private$submit_turns(
         turn,
@@ -157,7 +166,16 @@ Chat <- R6::R6Class("Chat",
       }
 
       json <- turn@contents[[which(is_json)]]
-      json@value
+      out <- json@value
+
+      if (needs_wrapper) {
+        out <- out$wrapper
+        type <- type@properties[[1]]
+      }
+      if (convert) {
+        out <- convert_from_type(out, type)
+      }
+      out
     },
 
     #' @description Extract structured data, asynchronously. Returns a promise
