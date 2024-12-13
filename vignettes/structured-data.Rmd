@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-When using an LLM to extract data from text or images, you can ask the chatbot to nicely format it, in JSON or any other format that you like. This will generally work well most of the time, but there's no guarantee that you'll actually get the exact format that you want. In particular, if you're trying to get JSON, find that it's typically surrounded in ```` ```json ````, and you'll occassionally get text that isn't actually valid JSON. To avoid these challenges you can use a recent LLM feature: **structured data** (aka structured output). With structured data, you supply a type specification that exactly defines the object structure that you want and the LLM will guarantee that's what you get back.
+When using an LLM to extract data from text or images, you can ask the chatbot to nicely format it, in JSON or any other format that you like. This will generally work well most of the time, but there's no guarantee that you'll get the exact format that you want. In particular, if you're trying to get JSON, find that it's typically surrounded in ```` ```json ````, and you'll occassionally get text that isn't actually valid JSON. To avoid these challenges you can use a recent LLM feature: **structured data** (aka structured output). With structured data, you supply a type specification that exactly defines the object structure that you want and the LLM will guarantee that's what you get back.
 
 ```{r setup}
 #| cache: false
@@ -85,6 +85,8 @@ To define your desired type specification (also known as a **schema**), you use 
     hobbies = type_array(items = type_string())
   )
   ```
+
+Using these type specifications ensures that the LLM will return JSON. But elmer goes one step further to convert the results to their most natural R representation. This currently converts arrays of boolean, integers, numbers, and strings into logical, integer, numeric, and character vectors, and arrays of objects into data frames. You can opt-out of this and get plain lists instead by setting `convert = FALSE` in `$extract_data()`.
 
 As well as the definition of the types, you need to provide the LLM with some information about what you actually want. This is the purpose of the first argument, `description`, which is a string that describes the data that you want. This is a good place to ask nicely for other attributes you'll like the value to possess (e.g. minimum or maximum values, date formats, ...). You aren't guaranteed that these requests will be honoured, but the LLM will usually make a best effort to do so.
 
