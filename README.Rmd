@@ -52,7 +52,7 @@ elmer supports a wide variety of model providers:
 
 ## Model choice
 
-If you're using elmer inside your organisation, you'll be limited to what it allows, which is likely to be one provided by a big cloud provider, e.g. `chat_azure()`, `chat_bedrock()`, `chat_databricks()`, or `chat_snowflake()`. If you're using elmer for your own exploration, you'll have a lot more freedom, so we have a few recommendations to help you get started:
+If you're using elmer inside your organisation, you'll be limited to what your IT department allows, which is likely to be one provided by a big cloud provider, e.g. `chat_azure()`, `chat_bedrock()`, `chat_databricks()`, or `chat_snowflake()`. If you're using elmer for your own exploration, you'll have a lot more freedom, so we have a few recommendations to help you get started:
 
 - `chat_openai()` or `chat_claude()` are good places to start. `chat_openai()` defaults to **GPT-4o**, but you can use `model = "gpt-4o-mini"` for a cheaper, lower-quality model, or `model = "o1-mini"` for more complex reasoning. `chat_claude()` is also good; it defaults to **Claude 3.5 Sonnet**, which we have found to be particularly good at writing code.
 
