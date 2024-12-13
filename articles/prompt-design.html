@@ -462,47 +462,46 @@ blank page.</p>
 <span><span class="co">#&gt; {</span></span>
 <span><span class="co">#&gt;   "ingredients": [</span></span>
 <span><span class="co">#&gt;     {</span></span>
+<span><span class="co">#&gt;       "name": "dark brown sugar",</span></span>
 <span><span class="co">#&gt;       "quantity": "¾ cup",</span></span>
-<span><span class="co">#&gt;       "weight": "150g",</span></span>
-<span><span class="co">#&gt;       "ingredient": "dark brown sugar"</span></span>
+<span><span class="co">#&gt;       "weight": "150g"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "quantity": "2",</span></span>
-<span><span class="co">#&gt;       "unit": "large",</span></span>
-<span><span class="co">#&gt;       "ingredient": "eggs"</span></span>
+<span><span class="co">#&gt;       "name": "large eggs",</span></span>
+<span><span class="co">#&gt;       "quantity": "2"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
+<span><span class="co">#&gt;       "name": "sour cream",</span></span>
 <span><span class="co">#&gt;       "quantity": "¾ cup",</span></span>
-<span><span class="co">#&gt;       "weight": "165g",</span></span>
-<span><span class="co">#&gt;       "ingredient": "sour cream"</span></span>
+<span><span class="co">#&gt;       "weight": "165g"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
+<span><span class="co">#&gt;       "name": "unsalted butter",</span></span>
 <span><span class="co">#&gt;       "quantity": "½ cup",</span></span>
 <span><span class="co">#&gt;       "weight": "113g",</span></span>
-<span><span class="co">#&gt;       "ingredient": "unsalted butter, melted"</span></span>
+<span><span class="co">#&gt;       "state": "melted"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "quantity": "1 teaspoon",</span></span>
-<span><span class="co">#&gt;       "ingredient": "vanilla extract"</span></span>
+<span><span class="co">#&gt;       "name": "vanilla extract",</span></span>
+<span><span class="co">#&gt;       "quantity": "1 teaspoon"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "quantity": "¾ teaspoon",</span></span>
-<span><span class="co">#&gt;       "ingredient": "kosher salt"</span></span>
+<span><span class="co">#&gt;       "name": "kosher salt",</span></span>
+<span><span class="co">#&gt;       "quantity": "¾ teaspoon"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
+<span><span class="co">#&gt;       "name": "neutral oil",</span></span>
 <span><span class="co">#&gt;       "quantity": "⅓ cup",</span></span>
-<span><span class="co">#&gt;       "volume": "80ml",</span></span>
-<span><span class="co">#&gt;       "ingredient": "neutral oil"</span></span>
+<span><span class="co">#&gt;       "volume": "80ml"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
+<span><span class="co">#&gt;       "name": "all-purpose flour",</span></span>
 <span><span class="co">#&gt;       "quantity": "1½ cups",</span></span>
-<span><span class="co">#&gt;       "weight": "190g",</span></span>
-<span><span class="co">#&gt;       "ingredient": "all-purpose flour"</span></span>
+<span><span class="co">#&gt;       "weight": "190g"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "weight": "150g",</span></span>
-<span><span class="co">#&gt;       "additional": "plus 1½ teaspoons",</span></span>
-<span><span class="co">#&gt;       "ingredient": "sugar"</span></span>
+<span><span class="co">#&gt;       "name": "sugar",</span></span>
+<span><span class="co">#&gt;       "weight": "150g plus 1½ teaspoons"</span></span>
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt;   ]</span></span>
 <span><span class="co">#&gt; }</span></span>
@@ -636,17 +635,37 @@ convert it into an R data structure for you.</p>
 <span><span class="co">#&gt; Using <span style="color: #00BB00;">model</span> = <span style="color: #0000BB;">"gpt-4o"</span>.</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">ingredients</span>, type <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span>ingredients <span class="op">=</span> <span class="va">type_ingredients</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">ingredients</span>, <span class="va">as.data.frame</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                       name quantity     unit</span></span>
-<span><span class="co">#&gt; 1         dark brown sugar   150.00        g</span></span>
-<span><span class="co">#&gt; 2                     eggs     2.00    large</span></span>
-<span><span class="co">#&gt; 3               sour cream   165.00        g</span></span>
-<span><span class="co">#&gt; 4  unsalted butter, melted   113.00        g</span></span>
-<span><span class="co">#&gt; 5          vanilla extract     1.00 teaspoon</span></span>
-<span><span class="co">#&gt; 6              kosher salt     0.75 teaspoon</span></span>
-<span><span class="co">#&gt; 7              neutral oil    80.00       ml</span></span>
-<span><span class="co">#&gt; 8        all-purpose flour   190.00        g</span></span>
-<span><span class="co">#&gt; 9                    sugar   150.00        g</span></span>
-<span><span class="co">#&gt; 10                   sugar     1.50 teaspoon</span></span></code></pre></div>
+<span><span class="co">#&gt;                              X[[i]]</span></span>
+<span><span class="co">#&gt; name.1             dark brown sugar</span></span>
+<span><span class="co">#&gt; name.2                   large eggs</span></span>
+<span><span class="co">#&gt; name.3                   sour cream</span></span>
+<span><span class="co">#&gt; name.4      unsalted butter, melted</span></span>
+<span><span class="co">#&gt; name.5              vanilla extract</span></span>
+<span><span class="co">#&gt; name.6                  kosher salt</span></span>
+<span><span class="co">#&gt; name.7                  neutral oil</span></span>
+<span><span class="co">#&gt; name.8            all-purpose flour</span></span>
+<span><span class="co">#&gt; name.9                        sugar</span></span>
+<span><span class="co">#&gt; name.10                       sugar</span></span>
+<span><span class="co">#&gt; quantity.1                      150</span></span>
+<span><span class="co">#&gt; quantity.2                        2</span></span>
+<span><span class="co">#&gt; quantity.3                      165</span></span>
+<span><span class="co">#&gt; quantity.4                      113</span></span>
+<span><span class="co">#&gt; quantity.5                        1</span></span>
+<span><span class="co">#&gt; quantity.6                     0.75</span></span>
+<span><span class="co">#&gt; quantity.7                       80</span></span>
+<span><span class="co">#&gt; quantity.8                      190</span></span>
+<span><span class="co">#&gt; quantity.9                      150</span></span>
+<span><span class="co">#&gt; quantity.10                     1.5</span></span>
+<span><span class="co">#&gt; unit.1                            g</span></span>
+<span><span class="co">#&gt; unit.2                        piece</span></span>
+<span><span class="co">#&gt; unit.3                            g</span></span>
+<span><span class="co">#&gt; unit.4                            g</span></span>
+<span><span class="co">#&gt; unit.5                     teaspoon</span></span>
+<span><span class="co">#&gt; unit.6                     teaspoon</span></span>
+<span><span class="co">#&gt; unit.7                           ml</span></span>
+<span><span class="co">#&gt; unit.8                            g</span></span>
+<span><span class="co">#&gt; unit.9                            g</span></span>
+<span><span class="co">#&gt; unit.10                    teaspoon</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="capturing-raw-input">Capturing raw input<a class="anchor" aria-label="anchor" href="#capturing-raw-input"></a>
@@ -702,8 +721,8 @@ doing a good job:</p>
 <span><span class="co">#&gt;   {"name": "egg", "quantity": 1, "unit": "piece", "input": "an egg"},</span></span>
 <span><span class="co">#&gt;   {"name": "vanilla extract", "quantity": 1, "unit": "teaspoon", "input":</span></span>
 <span><span class="co">#&gt; "1 teaspoon of vanilla extract"},</span></span>
-<span><span class="co">#&gt;   {"name": "all-purpose flour", "quantity": 2, "unit": "cup", "input": "2</span></span>
-<span><span class="co">#&gt; cups of all-purpose flour"},</span></span>
+<span><span class="co">#&gt;   {"name": "all-purpose flour", "quantity": 2, "unit": "cups", "input": </span></span>
+<span><span class="co">#&gt; "2 cups of all-purpose flour"},</span></span>
 <span><span class="co">#&gt;   {"name": "semisweet chocolate chips", "quantity": 1, "unit": "cup", </span></span>
 <span><span class="co">#&gt; "input": "1 cup of semisweet chocolate chips"}</span></span>
 <span><span class="co">#&gt; ]</span></span>
@@ -732,8 +751,8 @@ broaden my examples.</p>
 <tr class="even">
 <td align="left">OpenAI-<a href="https://api.openai.com/v1" class="external-link uri">https://api.openai.com/v1</a>
 </td>
-<td align="right">1127</td>
-<td align="right">836</td>
+<td align="right">1138</td>
+<td align="right">833</td>
 </tr>
 </tbody>
 </table>
