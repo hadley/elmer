@@ -105,11 +105,13 @@ popular models:</p>
 It’s specifically tailored for Claude, but I suspect it will help you
 with many other LLMs, or at least give you some ideas as to what else to
 include in your prompt.</p>
-<pre><code><span><span class="co">#&gt; </span></span>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://elmer.tidyverse.org">elmer</a></span><span class="op">)</span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Attaching package: 'elmer'</span></span>
 <span><span class="co">#&gt; The following object is masked _by_ '.GlobalEnv':</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt;     chat_claude</span></span></code></pre>
+<span><span class="co">#&gt;     chat_claude</span></span></code></pre></div>
 <div class="section level2">
 <h2 id="best-practices">Best practices<a class="anchor" aria-label="anchor" href="#best-practices"></a>
 </h2>
@@ -164,7 +166,7 @@ experience it does the best job of generating code.</p>
 <div class="section level3">
 <h3 id="basic-flavour">Basic flavour<a class="anchor" aria-label="anchor" href="#basic-flavour"></a>
 </h3>
-<p>When I don’t provide a system prompt, I sometimes get answers in a
+<p>When I don’t provide a system prompt, I sometimes get answers in
 different languages or different styles of R code:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_claude.html">chat_claude</a></span><span class="op">(</span><span class="op">)</span></span>
@@ -196,8 +198,8 @@ different languages or different styles of R code:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; The output will have columns for age, sex, and mean/median values for </span></span>
 <span><span class="co">#&gt; each variable.</span></span></code></pre>
-<p>I can ensure that I always get R code in a given style by providing a
-system prompt:</p>
+<p>I can ensure that I always get R code in a specific style by
+providing a system prompt:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_claude.html">chat_claude</a></span><span class="op">(</span>system_prompt <span class="op">=</span> <span class="st">"</span></span>
 <span><span class="st">  You are an expert R programmer who prefers the tidyverse.</span></span>
@@ -212,8 +214,8 @@ system prompt:</p>
 <span><span class="co">#&gt; df %&gt;%</span></span>
 <span><span class="co">#&gt;   group_by(age, sex) %&gt;%</span></span>
 <span><span class="co">#&gt;   summarise(across(</span></span>
-<span><span class="co">#&gt;     .cols = a:z,</span></span>
-<span><span class="co">#&gt;     .fns = list(</span></span>
+<span><span class="co">#&gt;     a:z,</span></span>
+<span><span class="co">#&gt;     list(</span></span>
 <span><span class="co">#&gt;       mean = ~mean(., na.rm = TRUE),</span></span>
 <span><span class="co">#&gt;       median = ~median(., na.rm = TRUE)</span></span>
 <span><span class="co">#&gt;     )</span></span>
@@ -223,20 +225,23 @@ system prompt:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; This code will:</span></span>
 <span><span class="co">#&gt; 1. Group the data by age and sex</span></span>
-<span><span class="co">#&gt; 2. Use `across()` to apply both mean and median functions to all columns </span></span>
-<span><span class="co">#&gt; from 'a' to 'z'</span></span>
+<span><span class="co">#&gt; 2. Use `across()` to apply both mean and median functions to all </span></span>
+<span><span class="co">#&gt; variables from 'a' to 'z'</span></span>
 <span><span class="co">#&gt; 3. Handle missing values with `na.rm = TRUE`</span></span>
-<span><span class="co">#&gt; 4. The result will have columns named like `a_mean`, `a_median`, </span></span>
+<span><span class="co">#&gt; 4. The output will have columns named like `a_mean`, `a_median`, </span></span>
 <span><span class="co">#&gt; `b_mean`, `b_median`, etc.</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; If you want to make the output more tidy (long format), you could add:</span></span>
+<span><span class="co">#&gt; If you want to make the output longer (more rows instead of columns), you</span></span>
+<span><span class="co">#&gt; could add:</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ```r</span></span>
+<span><span class="co">#&gt; library(tidyverse)</span></span>
+<span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; df %&gt;%</span></span>
 <span><span class="co">#&gt;   group_by(age, sex) %&gt;%</span></span>
 <span><span class="co">#&gt;   summarise(across(</span></span>
-<span><span class="co">#&gt;     .cols = a:z,</span></span>
-<span><span class="co">#&gt;     .fns = list(</span></span>
+<span><span class="co">#&gt;     a:z,</span></span>
+<span><span class="co">#&gt;     list(</span></span>
 <span><span class="co">#&gt;       mean = ~mean(., na.rm = TRUE),</span></span>
 <span><span class="co">#&gt;       median = ~median(., na.rm = TRUE)</span></span>
 <span><span class="co">#&gt;     )</span></span>
@@ -250,16 +255,15 @@ system prompt:</p>
 <span><span class="co">#&gt;   )</span></span>
 <span><span class="co">#&gt; ```</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; This will give you a long format with columns: age, sex, variable, </span></span>
+<span><span class="co">#&gt; This will give you a tidy format with columns: age, sex, variable, </span></span>
 <span><span class="co">#&gt; statistic, and value.</span></span></code></pre>
 <p>Note that I’m using both a system prompt (which defines the general
-behaviour) and a user prompt (which askes the specific question). You
-could put all of the content in the user prompt and get similar results,
+behaviour) and a user prompt (which asks the specific question). You
+could put all this content in the user prompt and get similar results,
 but I think it’s helpful to use both to cleanly divide the general
-framing of the response from the specific questions that you want to
-ask.</p>
+framing of the response from the specific questions you ask.</p>
 <p>Since I’m mostly interested in the code, I ask it to drop the
-explanation and the sample data:</p>
+explanation and sample data:</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_claude.html">chat_claude</a></span><span class="op">(</span>system_prompt <span class="op">=</span> <span class="st">"</span></span>
 <span><span class="st">  You are an expert R programmer who prefers the tidyverse.</span></span>
@@ -277,8 +281,8 @@ explanation and the sample data:</p>
 <span><span class="co">#&gt;   ))) %&gt;%</span></span>
 <span><span class="co">#&gt;   ungroup()</span></span>
 <span><span class="co">#&gt; ```</span></span></code></pre>
-<p>And of course, if you want a different style of R code, you can of
-course ask for it:</p>
+<p>And of course, if you want a different style of R code, just ask for
+it:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_claude.html">chat_claude</a></span><span class="op">(</span>system_prompt <span class="op">=</span> <span class="st">"</span></span>
 <span><span class="st">  You are an expert R programmer who prefers data.table.</span></span>
@@ -310,9 +314,9 @@ course ask for it:</p>
 <div class="section level3">
 <h3 id="be-explicit">Be explicit<a class="anchor" aria-label="anchor" href="#be-explicit"></a>
 </h3>
-<p>If there’s something about the output that you don’t like, you can
-try being more explicit about it. For example, the code isn’t styled
-quite how I like, so I provide more details about what I do want:</p>
+<p>If there’s something about the output that you don’t like, try being
+more explicit. For example, the code isn’t styled quite how I’d like it,
+so I provide more details about what I do want:</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_claude.html">chat_claude</a></span><span class="op">(</span>system_prompt <span class="op">=</span> <span class="st">"</span></span>
 <span><span class="st">  You are an expert R programmer who prefers the tidyverse.</span></span>
@@ -341,7 +345,7 @@ quite how I like, so I provide more details about what I do want:</p>
 <span><span class="co">#&gt;   )</span></span>
 <span><span class="co">#&gt; ```</span></span></code></pre>
 <p>This still doesn’t yield exactly the code that I’d write, but it’s
-prety close.</p>
+pretty close.</p>
 <p>You could provide a different prompt if you were looking for more
 explanation of the code:</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
@@ -357,17 +361,19 @@ explanation of the code:</p>
 <span><span class="co">#&gt; # Create a vector of variable names from 'a' to 'z'</span></span>
 <span><span class="co">#&gt; vars &lt;- letters</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; # Group by age and sex, then compute mean and median for each variable</span></span>
+<span><span class="co">#&gt; # Use across() to compute mean and median for all variables</span></span>
+<span><span class="co">#&gt; # group_by() creates groups based on age and sex</span></span>
+<span><span class="co">#&gt; # summarise() with across() applies functions to multiple columns</span></span>
 <span><span class="co">#&gt; result &lt;- data %&gt;%</span></span>
 <span><span class="co">#&gt;   group_by(age, sex) %&gt;%</span></span>
 <span><span class="co">#&gt;   summarise(</span></span>
-<span><span class="co">#&gt;     # Use across() to apply functions to multiple columns</span></span>
 <span><span class="co">#&gt;     across(</span></span>
-<span><span class="co">#&gt;       all_of(vars),  # Select variables a through z</span></span>
+<span><span class="co">#&gt;       all_of(vars),  # Select all variables from a to z</span></span>
 <span><span class="co">#&gt;       list(</span></span>
-<span><span class="co">#&gt;         mean = ~mean(., na.rm = TRUE),    # Calculate mean, removing NAs</span></span>
+<span><span class="co">#&gt;         mean = ~mean(., na.rm = TRUE),    # Calculate mean, removing NA </span></span>
+<span><span class="co">#&gt; values</span></span>
 <span><span class="co">#&gt;         median = ~median(., na.rm = TRUE)  # Calculate median, removing </span></span>
-<span><span class="co">#&gt; NAs</span></span>
+<span><span class="co">#&gt; NA values</span></span>
 <span><span class="co">#&gt;       )</span></span>
 <span><span class="co">#&gt;     ),</span></span>
 <span><span class="co">#&gt;     .groups = "drop"  # Drop grouping structure from result</span></span>
@@ -381,8 +387,8 @@ explanation of the code:</p>
 a given point in time. That means they will provide popular answers,
 which will tend to reflect older coding styles (either because the new
 features aren’t in their index, or the older features are so much more
-popular). So if you want your code to use specific features that are
-relatively recent, you might need to provide the examples yourself:</p>
+popular). So if you want your code to use specific newer language
+features, you might need to provide the examples yourself:</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_claude.html">chat_claude</a></span><span class="op">(</span>system_prompt <span class="op">=</span> <span class="st">"</span></span>
 <span><span class="st">  You are an expert R programmer.</span></span>
@@ -416,17 +422,17 @@ relatively recent, you might need to provide the examples yourself:</p>
 <h2 id="structured-data">Structured data<a class="anchor" aria-label="anchor" href="#structured-data"></a>
 </h2>
 <p>Providing a rich set of examples is a great way to encourage the
-output to produce exactly what you want. This is also known as
-<strong>multi-shot prompting</strong>. Here we’ll work through a prompt
+output to produce exactly what you want. This is known as
+<strong>multi-shot prompting</strong>. Below we’ll work through a prompt
 that I designed to extract structured data from recipes, but the same
 ideas apply in many other situations.</p>
 <div class="section level3">
 <h3 id="getting-started">Getting started<a class="anchor" aria-label="anchor" href="#getting-started"></a>
 </h3>
 <p>My overall goal is to turn a list of ingredients, like the following,
-into a nicely structured JSON that I can then analyse in R (e.g. to
-compute the total weight, scale the recipe up or down, or to convert the
-units from volumes to weights).</p>
+into a nicely structured JSON that I can then analyse in R (e.g. compute
+the total weight, scale the recipe up or down, or convert the units from
+volumes to weights).</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ingredients</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
 <span><span class="st">  ¾ cup (150g) dark brown sugar</span></span>
@@ -444,10 +450,10 @@ sampling of styles that I encountered in my project.)</p>
 <p>If you don’t have strong feelings about what the data structure
 should look like, you can start with a very loose prompt and see what
 you get back. I find this a useful pattern for underspecified problems
-where a big part of the problem is just defining precisely what problem
-you want to solve. Seeing the LLM’s attempt at a data structure gives me
-something to immediately react to, rather than having to start from a
-blank page.</p>
+where the heavy lifting lies with precisely defining the problem you
+want to solve. Seeing the LLM’s attempt to create a data structure gives
+me something to react to, rather than having to start from a blank
+page.</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">instruct_json</span> <span class="op">&lt;-</span> <span class="st">"</span></span>
 <span><span class="st">  You're an expert baker who also loves JSON. I am going to give you a list of</span></span>
@@ -462,53 +468,57 @@ blank page.</p>
 <span><span class="co">#&gt; {</span></span>
 <span><span class="co">#&gt;   "ingredients": [</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "dark brown sugar",</span></span>
-<span><span class="co">#&gt;       "quantity": "¾ cup",</span></span>
-<span><span class="co">#&gt;       "weight": "150g"</span></span>
+<span><span class="co">#&gt;       "amount": "¾ cup",</span></span>
+<span><span class="co">#&gt;       "weight": "150g",</span></span>
+<span><span class="co">#&gt;       "ingredient": "dark brown sugar"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "large eggs",</span></span>
-<span><span class="co">#&gt;       "quantity": "2"</span></span>
+<span><span class="co">#&gt;       "amount": "2",</span></span>
+<span><span class="co">#&gt;       "ingredient": "large eggs"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "sour cream",</span></span>
-<span><span class="co">#&gt;       "quantity": "¾ cup",</span></span>
-<span><span class="co">#&gt;       "weight": "165g"</span></span>
+<span><span class="co">#&gt;       "amount": "¾ cup",</span></span>
+<span><span class="co">#&gt;       "weight": "165g",</span></span>
+<span><span class="co">#&gt;       "ingredient": "sour cream"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "unsalted butter",</span></span>
-<span><span class="co">#&gt;       "quantity": "½ cup",</span></span>
+<span><span class="co">#&gt;       "amount": "½ cup",</span></span>
 <span><span class="co">#&gt;       "weight": "113g",</span></span>
+<span><span class="co">#&gt;       "ingredient": "unsalted butter",</span></span>
 <span><span class="co">#&gt;       "state": "melted"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "vanilla extract",</span></span>
-<span><span class="co">#&gt;       "quantity": "1 teaspoon"</span></span>
+<span><span class="co">#&gt;       "amount": "1 teaspoon",</span></span>
+<span><span class="co">#&gt;       "ingredient": "vanilla extract"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "kosher salt",</span></span>
-<span><span class="co">#&gt;       "quantity": "¾ teaspoon"</span></span>
+<span><span class="co">#&gt;       "amount": "¾ teaspoon",</span></span>
+<span><span class="co">#&gt;       "ingredient": "kosher salt"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "neutral oil",</span></span>
-<span><span class="co">#&gt;       "quantity": "⅓ cup",</span></span>
-<span><span class="co">#&gt;       "volume": "80ml"</span></span>
+<span><span class="co">#&gt;       "amount": "⅓ cup",</span></span>
+<span><span class="co">#&gt;       "volume": "80ml",</span></span>
+<span><span class="co">#&gt;       "ingredient": "neutral oil"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "all-purpose flour",</span></span>
-<span><span class="co">#&gt;       "quantity": "1½ cups",</span></span>
-<span><span class="co">#&gt;       "weight": "190g"</span></span>
+<span><span class="co">#&gt;       "amount": "1½ cups",</span></span>
+<span><span class="co">#&gt;       "weight": "190g",</span></span>
+<span><span class="co">#&gt;       "ingredient": "all-purpose flour"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "sugar",</span></span>
-<span><span class="co">#&gt;       "weight": "150g plus 1½ teaspoons"</span></span>
+<span><span class="co">#&gt;       "amount": "150g",</span></span>
+<span><span class="co">#&gt;       "ingredient": "sugar"</span></span>
+<span><span class="co">#&gt;     },</span></span>
+<span><span class="co">#&gt;     {</span></span>
+<span><span class="co">#&gt;       "amount": "1½ teaspoons",</span></span>
+<span><span class="co">#&gt;       "ingredient": "sugar"</span></span>
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt;   ]</span></span>
 <span><span class="co">#&gt; }</span></span>
 <span><span class="co">#&gt; ```</span></span></code></pre>
-<p>(I don’t know if the colour text, “You’re an expert baker who also
-loves JSON”, does anything, but I like to think this helps the LLM get
-into the right mindset of a very nerdy baker.)</p>
+<p>(I don’t know if the additional colour, “You’re an expert baker who
+also loves JSON”, does anything, but I like to think this helps the LLM
+get into the right mindset of a very nerdy baker.)</p>
 </div>
 <div class="section level3">
 <h3 id="provide-examples">Provide examples<a class="anchor" aria-label="anchor" href="#provide-examples"></a>
@@ -539,7 +549,7 @@ provide the input and output examples in such a loose format.</p>
 <span><span class="co">#&gt;   {"name": "dark brown sugar", "quantity": 150, "unit": "g"},</span></span>
 <span><span class="co">#&gt;   {"name": "large eggs", "quantity": 2, "unit": "count"},</span></span>
 <span><span class="co">#&gt;   {"name": "sour cream", "quantity": 165, "unit": "g"},</span></span>
-<span><span class="co">#&gt;   {"name": "unsalted butter, melted", "quantity": 113, "unit": "g"},</span></span>
+<span><span class="co">#&gt;   {"name": "unsalted butter", "quantity": 113, "unit": "g"},</span></span>
 <span><span class="co">#&gt;   {"name": "vanilla extract", "quantity": 1, "unit": "teaspoon"},</span></span>
 <span><span class="co">#&gt;   {"name": "kosher salt", "quantity": 0.75, "unit": "teaspoon"},</span></span>
 <span><span class="co">#&gt;   {"name": "neutral oil", "quantity": 80, "unit": "ml"},</span></span>
@@ -549,11 +559,11 @@ provide the input and output examples in such a loose format.</p>
 <span><span class="co">#&gt; ]</span></span>
 <span><span class="co">#&gt; ```</span></span></code></pre>
 <p>Just providing the examples seems to work remarkably well. But I
-found it useful to also include description of what the examples are
+found it useful to also include a description of what the examples are
 trying to accomplish. I’m not sure if this helps the LLM or not, but it
 certainly makes it easier for me to understand the organisation of the
-whole prompt and check that I’ve covered the key pieces that I’m
-interested in.</p>
+whole prompt and check that I’ve covered the key pieces I’m interested
+in.</p>
 <div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">instruct_weight</span> <span class="op">&lt;-</span> <span class="st">r"(</span></span>
 <span><span class="st">  * If an ingredient has both weight and volume, extract only the weight:</span></span>
@@ -576,7 +586,7 @@ interested in.</p>
 want multiple ingredients to be stored, i.e. as an JSON array.</p>
 <p>I then iterated on the prompt, looking at the results from different
 recipes to get a sense of what the LLM was getting wrong. Much of this
-felt like I waws iterating on my understanding of the problem as I
+felt like I waws iterating on my own understanding of the problem as I
 didn’t start by knowing exactly how I wanted the data. For example, when
 I started out I didn’t really think about all the various ways that
 ingredients are specified. For later analysis, I always want quantities
@@ -617,11 +627,11 @@ prompt</a> to see what I ended up with.</p>
 <div class="section level3">
 <h3 id="structured-data-1">Structured data<a class="anchor" aria-label="anchor" href="#structured-data-1"></a>
 </h3>
-<p>Now that I’ve iterated to get a data structure that I like, it seems
+<p>Now that I’ve iterated to get a data structure I like, it seems
 useful to formalise it and tell the LLM exactly what I’m looking for
-using structured data. This guarantees that the LLM will only return
-JSON, the JSON will have the fields that you expect, and that elmer will
-convert it into an R data structure for you.</p>
+when dealing with structured data. This guarantees that the LLM will
+only return JSON, that the JSON will have the fields that you expect,
+and that elmer will convert it into an R data structure.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">type_ingredient</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
 <span>  name <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="st">"Ingredient name"</span><span class="op">)</span>,</span>
@@ -657,7 +667,7 @@ convert it into an R data structure for you.</p>
 <span><span class="co">#&gt; quantity.9                      150</span></span>
 <span><span class="co">#&gt; quantity.10                     1.5</span></span>
 <span><span class="co">#&gt; unit.1                            g</span></span>
-<span><span class="co">#&gt; unit.2                        piece</span></span>
+<span><span class="co">#&gt; unit.2                        count</span></span>
 <span><span class="co">#&gt; unit.3                            g</span></span>
 <span><span class="co">#&gt; unit.4                            g</span></span>
 <span><span class="co">#&gt; unit.5                     teaspoon</span></span>
@@ -671,9 +681,9 @@ convert it into an R data structure for you.</p>
 <h3 id="capturing-raw-input">Capturing raw input<a class="anchor" aria-label="anchor" href="#capturing-raw-input"></a>
 </h3>
 <p>One thing that I’d do next time would also be to include the raw
-ingredient name in the output. This doesn’t make much difference here,
-in this simple example, but it makes it much easier to align the input
-and the output and start to develop automated measures of how well my
+ingredient names in the output. This doesn’t make much difference in
+this simple example but it makes it much easier to align the input with
+the output and to start developing automated measures of how well my
 prompt is doing.</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">instruct_weight_input</span> <span class="op">&lt;-</span> <span class="st">r"(</span></span>
@@ -718,7 +728,7 @@ doing a good job:</p>
 <span><span class="co">#&gt; cup of softened unsalted butter"},</span></span>
 <span><span class="co">#&gt;   {"name": "white sugar", "quantity": 0.25, "unit": "cup", "input": "a </span></span>
 <span><span class="co">#&gt; quarter cup of white sugar"},</span></span>
-<span><span class="co">#&gt;   {"name": "egg", "quantity": 1, "unit": "piece", "input": "an egg"},</span></span>
+<span><span class="co">#&gt;   {"name": "egg", "quantity": 1, "unit": "whole", "input": "an egg"},</span></span>
 <span><span class="co">#&gt;   {"name": "vanilla extract", "quantity": 1, "unit": "teaspoon", "input":</span></span>
 <span><span class="co">#&gt; "1 teaspoon of vanilla extract"},</span></span>
 <span><span class="co">#&gt;   {"name": "all-purpose flour", "quantity": 2, "unit": "cups", "input": </span></span>
@@ -727,10 +737,10 @@ doing a good job:</p>
 <span><span class="co">#&gt; "input": "1 cup of semisweet chocolate chips"}</span></span>
 <span><span class="co">#&gt; ]</span></span>
 <span><span class="co">#&gt; ```</span></span></code></pre>
-<p>When I ran it while writing this vignette, it seems to be working out
-the weight of the ingredients specified in volume, even though the
-prompt specifically asks it not to do that. This may suggest I need to
-broaden my examples.</p>
+<p>When I ran it while writing this vignette, it seemed to be working
+out the weight of the ingredients specified in volume, even though the
+prompt specifically asks it not to. This may suggest I need to broaden
+my examples.</p>
 </div>
 </div>
 <div class="section level2">
@@ -746,13 +756,13 @@ broaden my examples.</p>
 <tr class="odd">
 <td align="left">Claude</td>
 <td align="right">788</td>
-<td align="right">1206</td>
+<td align="right">1214</td>
 </tr>
 <tr class="even">
 <td align="left">OpenAI-<a href="https://api.openai.com/v1" class="external-link uri">https://api.openai.com/v1</a>
 </td>
 <td align="right">1138</td>
-<td align="right">833</td>
+<td align="right">847</td>
 </tr>
 </tbody>
 </table>
