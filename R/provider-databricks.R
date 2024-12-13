@@ -9,6 +9,8 @@
 #' outputs. Tool calling support is also very limited at present; too limited
 #' for `elmer`'s tool calling features to work properly at all.
 #'
+#' ## Authentication
+#'
 #' `chat_databricks()` picks up on ambient Databricks credentials for a subset
 #' of the [Databricks client unified
 #' authentication](https://docs.databricks.com/en/dev-tools/auth/unified-auth.html)
