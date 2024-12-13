@@ -4,6 +4,9 @@ and can also serve as a gateway for external models hosted by a third party.
 Databricks models do not support images, but they do support structured
 outputs. Tool calling support is also very limited at present; too limited
 for elmer's tool calling features to work properly at all.
+Authentication
+
+
 chat_databricks() picks up on ambient Databricks credentials for a subset
 of the Databricks client unified authentication
 model. Specifically, it supports:
@@ -13,11 +16,16 @@ User account via OAuth (OAuth U2M)
 Authentication via the Databricks CLI
 Posit Workbench-managed credentials
 
+
+
 "><meta property="og:description" content="Databricks provides out-of-the-box access to a number of foundation models
 and can also serve as a gateway for external models hosted by a third party.
 Databricks models do not support images, but they do support structured
 outputs. Tool calling support is also very limited at present; too limited
 for elmer's tool calling features to work properly at all.
+Authentication
+
+
 chat_databricks() picks up on ambient Databricks credentials for a subset
 of the Databricks client unified authentication
 model. Specifically, it supports:
@@ -26,6 +34,8 @@ Service principals via OAuth (OAuth M2M)
 User account via OAuth (OAuth U2M)
 Authentication via the Databricks CLI
 Posit Workbench-managed credentials
+
+
 
 "><meta property="og:image" content="https://elmer.tidyverse.org/logo.png"><script defer data-domain="elmer.tidyverse.org,all.tidyverse.org" src="https://plausible.io/js/plausible.js"></script></head><body>
     <a href="#container" class="visually-hidden-focusable">Skip to content</a>
@@ -73,7 +83,10 @@ Posit Workbench-managed credentials
 and can also serve as a gateway for external models hosted by a third party.</p>
 <p>Databricks models do not support images, but they do support structured
 outputs. Tool calling support is also very limited at present; too limited
-for <code>elmer</code>'s tool calling features to work properly at all.</p>
+for <code>elmer</code>'s tool calling features to work properly at all.</p><div class="section">
+<h3 id="authentication">Authentication<a class="anchor" aria-label="anchor" href="#authentication"></a></h3>
+
+
 <p><code>chat_databricks()</code> picks up on ambient Databricks credentials for a subset
 of the <a href="https://docs.databricks.com/en/dev-tools/auth/unified-auth.html" class="external-link">Databricks client unified authentication</a>
 model. Specifically, it supports:</p><ul><li><p>Personal access tokens</p></li>
@@ -82,6 +95,8 @@ model. Specifically, it supports:</p><ul><li><p>Personal access tokens</p></li>
 <li><p>Authentication via the Databricks CLI</p></li>
 <li><p>Posit Workbench-managed credentials</p></li>
 </ul></div>
+
+    </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>

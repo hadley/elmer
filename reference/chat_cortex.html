@@ -7,7 +7,22 @@ starting point. The semantic model can be passed as a YAML string or via
 reference to an existing file in a Snowflake Stage.
 Note that Cortex does not support multi-turn, so it will not remember
 previous messages. Nor does it support registering tools, and attempting to
-do so will result in an error.'><meta property="og:description" content='Chat with the LLM-powered Snowflake Cortex Analyst.
+do so will result in an error.
+Authentication
+
+
+chat_cortex() picks up the following ambient Snowflake credentials:
+A static OAuth token defined via the SNOWFLAKE_TOKEN environment
+variable.
+Key-pair authentication credentials defined via the SNOWFLAKE_USER and
+SNOWFLAKE_PRIVATE_KEY (which can be a PEM-encoded private key or a path
+to one) environment variables.
+Posit Workbench-managed Snowflake credentials for the corresponding
+account.
+
+
+
+'><meta property="og:description" content='Chat with the LLM-powered Snowflake Cortex Analyst.
 Unlike most comparable model APIs, Cortex does not take a system prompt.
 Instead, the caller must provide a "semantic model" describing available
 tables, their meaning, and verified queries that can be run against them as a
@@ -15,7 +30,22 @@ starting point. The semantic model can be passed as a YAML string or via
 reference to an existing file in a Snowflake Stage.
 Note that Cortex does not support multi-turn, so it will not remember
 previous messages. Nor does it support registering tools, and attempting to
-do so will result in an error.'><meta property="og:image" content="https://elmer.tidyverse.org/logo.png"><script defer data-domain="elmer.tidyverse.org,all.tidyverse.org" src="https://plausible.io/js/plausible.js"></script></head><body>
+do so will result in an error.
+Authentication
+
+
+chat_cortex() picks up the following ambient Snowflake credentials:
+A static OAuth token defined via the SNOWFLAKE_TOKEN environment
+variable.
+Key-pair authentication credentials defined via the SNOWFLAKE_USER and
+SNOWFLAKE_PRIVATE_KEY (which can be a PEM-encoded private key or a path
+to one) environment variables.
+Posit Workbench-managed Snowflake credentials for the corresponding
+account.
+
+
+
+'><meta property="og:image" content="https://elmer.tidyverse.org/logo.png"><script defer data-domain="elmer.tidyverse.org,all.tidyverse.org" src="https://plausible.io/js/plausible.js"></script></head><body>
     <a href="#container" class="visually-hidden-focusable">Skip to content</a>
 
 
@@ -65,21 +95,31 @@ starting point. The semantic model can be passed as a YAML string or via
 reference to an existing file in a Snowflake Stage.</p>
 <p>Note that Cortex does not support multi-turn, so it will not remember
 previous messages. Nor does it support registering tools, and attempting to
-do so will result in an error.</p>
+do so will result in an error.</p><div class="section">
+<h3 id="authentication">Authentication<a class="anchor" aria-label="anchor" href="#authentication"></a></h3>
+
+
+<p><code>chat_cortex()</code> picks up the following ambient Snowflake credentials:</p><ul><li><p>A static OAuth token defined via the <code>SNOWFLAKE_TOKEN</code> environment
+variable.</p></li>
+<li><p>Key-pair authentication credentials defined via the <code>SNOWFLAKE_USER</code> and
+<code>SNOWFLAKE_PRIVATE_KEY</code> (which can be a PEM-encoded private key or a path
+to one) environment variables.</p></li>
+<li><p>Posit Workbench-managed Snowflake credentials for the corresponding
+<code>account</code>.</p></li>
+</ul></div>
+
     </div>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">chat_cortex</span><span class="op">(</span></span>
 <span>  account <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"SNOWFLAKE_ACCOUNT"</span><span class="op">)</span>,</span>
-<span>  credentials <span class="op">=</span> <span class="va">cortex_credentials</span>,</span>
+<span>  credentials <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  model_spec <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  model_file <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  api_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  echo <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"text"</span>, <span class="st">"all"</span><span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu">cortex_credentials</span><span class="op">(</span>account <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.getenv.html" class="external-link">Sys.getenv</a></span><span class="op">(</span><span class="st">"SNOWFLAKE_ACCOUNT"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -93,10 +133,8 @@ e.g. <code>"testorg-test_account"</code>.</p></dd>
 
 <dt id="arg-credentials">credentials<a class="anchor" aria-label="anchor" href="#arg-credentials"></a></dt>
 <dd><p>A list of authentication headers to pass into
-<code><a href="https://httr2.r-lib.org/reference/req_headers.html" class="external-link">httr2::req_headers()</a></code> or a function that returns them when passed
-<code>account</code> as a parameter. The default <code>cortex_credentials()</code> function
-picks up ambient Snowflake OAuth and key-pair authentication credentials
-and handles refreshing them automatically.</p></dd>
+<code><a href="https://httr2.r-lib.org/reference/req_headers.html" class="external-link">httr2::req_headers()</a></code>, a function that returns them when passed
+<code>account</code> as a parameter, or <code>NULL</code> to use ambient credentials.</p></dd>
 
 
 <dt id="arg-model-spec">model_spec<a class="anchor" aria-label="anchor" href="#arg-model-spec"></a></dt>
@@ -126,16 +164,6 @@ the console).</p></li>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <a href="Chat.html">Chat</a> object.</p>
     </div>
-    <div class="section level2">
-    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><code>cortex_credentials()</code> picks up the following ambient Snowflake credentials:</p><ul><li><p>A static OAuth token defined via the <code>SNOWFLAKE_TOKEN</code> environment
-variable.</p></li>
-<li><p>Key-pair authentication credentials defined via the <code>SNOWFLAKE_USER</code> and
-<code>SNOWFLAKE_PRIVATE_KEY</code> (which can be a PEM-encoded private key or a path
-to one) environment variables.</p></li>
-<li><p>Posit Workbench-managed Snowflake credentials for the corresponding
-<code>account</code>.</p></li>
-</ul></div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other chatbots:
