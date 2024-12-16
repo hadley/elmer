@@ -38,6 +38,7 @@ reference:
   - Provider
   - Content
   - Chat
+  - Type
 
 - title: Utilities
   contents:
