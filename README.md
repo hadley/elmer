@@ -11,7 +11,7 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 <!-- badges: end -->
 
 elmer makes it easy to use large language models (LLM) from R. It
-supports a wider variety of LLM providers and implements a rich set of
+supports a wide variety of LLM providers and implements a rich set of
 features including streaming outputs, tool/function calling, structured
 data extraction, and more.
 
@@ -47,27 +47,27 @@ elmer supports a wide variety of model providers:
 ## Model choice
 
 If you’re using elmer inside your organisation, you’ll be limited to
-what your org allows, which is likely to be one provided by a big cloud
-provider, e.g. `chat_azure()`, `chat_bedrock()`, `chat_databricks()`, or
-`chat_snowflake()`. If you’re using elmer for your own personal
-exploration, you have a lot more freedom so we have a few
+what your IT department allows, which is likely to be one provided by a
+big cloud provider, e.g. `chat_azure()`, `chat_bedrock()`,
+`chat_databricks()`, or `chat_snowflake()`. If you’re using elmer for
+your own exploration, you’ll have a lot more freedom, so we have a few
 recommendations to help you get started:
 
-- `chat_openai()` or `chat_claude()` are both good places to start.
+- `chat_openai()` or `chat_claude()` are good places to start.
   `chat_openai()` defaults to **GPT-4o**, but you can use
-  `model = "gpt-4o-mini"` for a cheaper lower-quality model, or
+  `model = "gpt-4o-mini"` for a cheaper, lower-quality model, or
   `model = "o1-mini"` for more complex reasoning. `chat_claude()` is
-  similarly good; it defaults to **Claude 3.5 Sonnet** which we have
-  found to be particularly good at writing code.
+  also good; it defaults to **Claude 3.5 Sonnet**, which we have found
+  to be particularly good at writing code.
 
-- `chat_gemini()` is great for large prompt, because it has a much
+- `chat_gemini()` is great for large prompts because it has a much
   larger context window than other models. It allows up to 1 million
   tokens, compared to Claude 3.5 Sonnet’s 200k and GPT-4o’s 128k.
 
 - `chat_ollama()`, which uses [Ollama](https://ollama.com), allows you
-  to run models on your own computer. The biggest models you can run
-  locally aren’t as good as the state of the art hosted models, but they
-  also don’t share your data and are effectively free.
+  to run models on your own computer. While the biggest models you can
+  run locally aren’t as good as the state of the art hosted models, they
+  don’t share your data and are effectively free.
 
 ## Using elmer
 
@@ -85,8 +85,8 @@ chat <- chat_openai(
 ```
 
 Chat objects are stateful [R6 objects](https://r6.r-lib.org): they
-retain the context of the conversation, so each new query can build on
-the previous ones, and you call their methods with `$`.
+retain the context of the conversation, so each new query builds on the
+previous ones. You call their methods with `$`.
 
 ### Interactive chat console
 
@@ -113,7 +113,7 @@ Keep in mind that the chat object retains state, so when you enter the
 chat console, any previous interactions with that chat object are still
 part of the conversation, and any interactions you have in the chat
 console will persist after you exit back to the R prompt. This is true
-regardless of which of the various chat functions you use.
+regardless of which chat function you use.
 
 ### Interactive method call
 
@@ -127,11 +127,10 @@ chat$chat("What preceding languages most influenced R?")
 ```
 
 If you initialize the chat object in the global environment, the `chat`
-method will stream the response to the console as it arrives. When the
-entire response is received, it is also returned as a character vector
-(but invisibly, so it’s not printed twice). This mode is useful when you
-want to see the response as it arrives, but you don’t want to enter the
-chat console.
+method will stream the response to the console. When the entire response
+is received, it’s also (invisibly) returned as a character vector. This
+is useful when you want to see the response as it arrives, but you don’t
+want to enter the chat console.
 
 If you want to ask a question about an image, you can pass one or more
 additional input arguments using `content_image_file()` and/or
@@ -152,8 +151,8 @@ chat$chat(
 ### Programmatic chat
 
 The most programmatic way to chat is to create the chat object inside a
-function, where live streaming is automatically suppressed and `$chat()`
-returns the result as a string:
+function. By doing so, live streaming is automatically suppressed and
+`$chat()` returns the result as a string:
 
 ``` r
 my_function <- function() {
@@ -171,9 +170,7 @@ my_function()
 ```
 
 If needed, you can manually control this behaviour with the `echo`
-argument.
-
-This mode is useful for programming with elmer, when the result is
+argument. This is useful for programming with elmer when the result is
 either not intended for human consumption or when you want to process
 the response before displaying it.
 
