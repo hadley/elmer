@@ -74,7 +74,7 @@
 </div>
 <!-- badges: start -->
 
-<p>elmer makes it easy to use large language models (LLM) from R. It supports a wider variety of LLM providers and implements a rich set of features including streaming outputs, tool/function calling, structured data extraction, and more.</p>
+<p>elmer makes it easy to use large language models (LLM) from R. It supports a wide variety of LLM providers and implements a rich set of features including streaming outputs, tool/function calling, structured data extraction, and more.</p>
 <p>(Looking for something similar to elmer for python? Check out <a href="https://github.com/cpsievert/chatlas" class="external-link">chatlas</a>!)</p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
@@ -105,11 +105,11 @@
 <div class="section level2">
 <h2 id="model-choice">Model choice<a class="anchor" aria-label="anchor" href="#model-choice"></a>
 </h2>
-<p>If you’re using elmer inside your organisation, you’ll be limited to what your org allows, which is likely to be one provided by a big cloud provider, e.g. <code><a href="reference/chat_azure.html">chat_azure()</a></code>, <code><a href="reference/chat_bedrock.html">chat_bedrock()</a></code>, <code><a href="reference/chat_databricks.html">chat_databricks()</a></code>, or <code>chat_snowflake()</code>. If you’re using elmer for your own personal exploration, you have a lot more freedom so we have a few recommendations to help you get started:</p>
+<p>If you’re using elmer inside your organisation, you’ll be limited to what your IT department allows, which is likely to be one provided by a big cloud provider, e.g. <code><a href="reference/chat_azure.html">chat_azure()</a></code>, <code><a href="reference/chat_bedrock.html">chat_bedrock()</a></code>, <code><a href="reference/chat_databricks.html">chat_databricks()</a></code>, or <code>chat_snowflake()</code>. If you’re using elmer for your own exploration, you’ll have a lot more freedom, so we have a few recommendations to help you get started:</p>
 <ul>
-<li><p><code><a href="reference/chat_openai.html">chat_openai()</a></code> or <code><a href="reference/chat_claude.html">chat_claude()</a></code> are both good places to start. <code><a href="reference/chat_openai.html">chat_openai()</a></code> defaults to <strong>GPT-4o</strong>, but you can use <code>model = "gpt-4o-mini"</code> for a cheaper lower-quality model, or <code>model = "o1-mini"</code> for more complex reasoning. <code><a href="reference/chat_claude.html">chat_claude()</a></code> is similarly good; it defaults to <strong>Claude 3.5 Sonnet</strong> which we have found to be particularly good at writing code.</p></li>
-<li><p><code><a href="reference/chat_gemini.html">chat_gemini()</a></code> is great for large prompt, because it has a much larger context window than other models. It allows up to 1 million tokens, compared to Claude 3.5 Sonnet’s 200k and GPT-4o’s 128k.</p></li>
-<li><p><code><a href="reference/chat_ollama.html">chat_ollama()</a></code>, which uses <a href="https://ollama.com" class="external-link">Ollama</a>, allows you to run models on your own computer. The biggest models you can run locally aren’t as good as the state of the art hosted models, but they also don’t share your data and are effectively free.</p></li>
+<li><p><code><a href="reference/chat_openai.html">chat_openai()</a></code> or <code><a href="reference/chat_claude.html">chat_claude()</a></code> are good places to start. <code><a href="reference/chat_openai.html">chat_openai()</a></code> defaults to <strong>GPT-4o</strong>, but you can use <code>model = "gpt-4o-mini"</code> for a cheaper, lower-quality model, or <code>model = "o1-mini"</code> for more complex reasoning. <code><a href="reference/chat_claude.html">chat_claude()</a></code> is also good; it defaults to <strong>Claude 3.5 Sonnet</strong>, which we have found to be particularly good at writing code.</p></li>
+<li><p><code><a href="reference/chat_gemini.html">chat_gemini()</a></code> is great for large prompts because it has a much larger context window than other models. It allows up to 1 million tokens, compared to Claude 3.5 Sonnet’s 200k and GPT-4o’s 128k.</p></li>
+<li><p><code><a href="reference/chat_ollama.html">chat_ollama()</a></code>, which uses <a href="https://ollama.com" class="external-link">Ollama</a>, allows you to run models on your own computer. While the biggest models you can run locally aren’t as good as the state of the art hosted models, they don’t share your data and are effectively free.</p></li>
 </ul>
 </div>
 <div class="section level2">
@@ -123,7 +123,7 @@
 <span>  model <span class="op">=</span> <span class="st">"gpt-4o-mini"</span>,</span>
 <span>  system_prompt <span class="op">=</span> <span class="st">"You are a friendly but terse assistant."</span>,</span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>Chat objects are stateful <a href="https://r6.r-lib.org" class="external-link">R6 objects</a>: they retain the context of the conversation, so each new query can build on the previous ones, and you call their methods with <code>$</code>.</p>
+<p>Chat objects are stateful <a href="https://r6.r-lib.org" class="external-link">R6 objects</a>: they retain the context of the conversation, so each new query builds on the previous ones. You call their methods with <code>$</code>.</p>
 <div class="section level3">
 <h3 id="interactive-chat-console">Interactive chat console<a class="anchor" aria-label="anchor" href="#interactive-chat-console"></a>
 </h3>
@@ -141,7 +141,7 @@
 <span><span class="co">#&gt; &gt;&gt;&gt; When was that?</span></span>
 <span><span class="co">#&gt; R was initially released in 1995. Development began a few years prior to that,</span></span>
 <span><span class="co">#&gt; in the early 1990s.</span></span></code></pre></div>
-<p>Keep in mind that the chat object retains state, so when you enter the chat console, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist after you exit back to the R prompt. This is true regardless of which of the various chat functions you use.</p>
+<p>Keep in mind that the chat object retains state, so when you enter the chat console, any previous interactions with that chat object are still part of the conversation, and any interactions you have in the chat console will persist after you exit back to the R prompt. This is true regardless of which chat function you use.</p>
 </div>
 <div class="section level3">
 <h3 id="interactive-method-call">Interactive method call<a class="anchor" aria-label="anchor" href="#interactive-method-call"></a>
@@ -152,7 +152,7 @@
 <span><span class="co">#&gt; R was primarily influenced by the S programming language, particularly S-PLUS.</span></span>
 <span><span class="co">#&gt; Other languages that had an impact include Scheme and various data analysis</span></span>
 <span><span class="co">#&gt; languages.</span></span></code></pre></div>
-<p>If you initialize the chat object in the global environment, the <code>chat</code> method will stream the response to the console as it arrives. When the entire response is received, it is also returned as a character vector (but invisibly, so it’s not printed twice). This mode is useful when you want to see the response as it arrives, but you don’t want to enter the chat console.</p>
+<p>If you initialize the chat object in the global environment, the <code>chat</code> method will stream the response to the console. When the entire response is received, it’s also (invisibly) returned as a character vector. This is useful when you want to see the response as it arrives, but you don’t want to enter the chat console.</p>
 <p>If you want to ask a question about an image, you can pass one or more additional input arguments using <code><a href="reference/content_image_url.html">content_image_file()</a></code> and/or <code><a href="reference/content_image_url.html">content_image_url()</a></code>:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span></span>
@@ -168,7 +168,7 @@
 <div class="section level3">
 <h3 id="programmatic-chat">Programmatic chat<a class="anchor" aria-label="anchor" href="#programmatic-chat"></a>
 </h3>
-<p>The most programmatic way to chat is to create the chat object inside a function, where live streaming is automatically suppressed and <code>$chat()</code> returns the result as a string:</p>
+<p>The most programmatic way to chat is to create the chat object inside a function. By doing so, live streaming is automatically suppressed and <code>$chat()</code> returns the result as a string:</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">my_function</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/chat_openai.html">chat_openai</a></span><span class="op">(</span></span>
@@ -182,8 +182,7 @@
 <span><span class="co">#&gt; be first-class objects, supports higher-order functions, and encourages the</span></span>
 <span><span class="co">#&gt; use of functions as core components of code. However, it also supports</span></span>
 <span><span class="co">#&gt; procedural and object-oriented programming styles."</span></span></code></pre></div>
-<p>If needed, you can manually control this behaviour with the <code>echo</code> argument.</p>
-<p>This mode is useful for programming with elmer, when the result is either not intended for human consumption or when you want to process the response before displaying it.</p>
+<p>If needed, you can manually control this behaviour with the <code>echo</code> argument. This is useful for programming with elmer when the result is either not intended for human consumption or when you want to process the response before displaying it.</p>
 </div>
 </div>
 <div class="section level2">
