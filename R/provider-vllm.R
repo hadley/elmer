@@ -46,6 +46,14 @@ chat_vllm <- function(base_url,
   Chat$new(provider = provider, turns = turns, echo = echo)
 }
 
+chat_vllm_test <- function(...) {
+  chat_vllm(
+    base_url = "https://llm.nrp-nautilus.io/",
+    ...,
+    model = "groq-tools"
+  )
+}
+
 ProviderVllm <- new_class(
   "ProviderVllm",
   parent = ProviderOpenAI,
