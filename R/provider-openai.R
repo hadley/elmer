@@ -135,6 +135,7 @@ method(chat_request, ProviderOpenAI) <- function(provider,
     stream = stream,
     stream_options = if (stream) list(include_usage = TRUE),
     tools = tools,
+    tool_choice = "auto",
     response_format = response_format,
     !!!extra_args
   ))
@@ -298,7 +299,6 @@ method(as_json, list(ProviderOpenAI, TypeObject)) <- function(provider, x) {
     type = "object",
     description = x@description %||% "",
     properties = properties,
-    required = as.list(names),
-    additionalProperties = x@additional_properties
+    required = as.list(names)
   )
 }
