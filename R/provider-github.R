@@ -44,12 +44,6 @@ chat_github <- function(system_prompt = NULL,
 }
 
 github_key <- function() {
-
-  pat <- Sys.getenv("GITHUB_PAT")
-  if (pat != "") {
-    return(pat)
-  }
-
   withCallingHandlers(
     gitcreds::gitcreds_get()$password,
     error = function(cnd) {
