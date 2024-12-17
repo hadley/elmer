@@ -50,7 +50,7 @@ chat_vllm_test <- function(...) {
   chat_vllm(
     base_url = "https://llm.nrp-nautilus.io/",
     ...,
-    model = "groq-tools"
+    model = "llama3"
   )
 }
 
