@@ -94,7 +94,9 @@ scratch.</p></dd>
 <dt id="arg-api-key">api_key<a class="anchor" aria-label="anchor" href="#arg-api-key"></a></dt>
 <dd><p>The API key to use for authentication. You generally should
 not supply this directly, but instead manage your GitHub credentials
-as described in <a href="https://usethis.r-lib.org/articles/git-credentials.html" class="external-link">https://usethis.r-lib.org/articles/git-credentials.html</a>.</p></dd>
+as described in <a href="https://usethis.r-lib.org/articles/git-credentials.html" class="external-link">https://usethis.r-lib.org/articles/git-credentials.html</a>.
+For headless environments, this will also look in the <code>GITHUB_PAT</code>
+env var.</p></dd>
 
 
 <dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
