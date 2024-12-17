@@ -13,17 +13,19 @@
 #' @param api_key The API key to use for authentication. You generally should
 #'   not supply this directly, but instead manage your GitHub credentials
 #'   as described in <https://usethis.r-lib.org/articles/git-credentials.html>.
+#'   For headless environments, this will also look in the `GITHUB_PAT`
+#'   env var.
 #' @export
 #' @inheritParams chat_openai
 #' @inherit chat_openai return
 chat_github <- function(system_prompt = NULL,
-                            turns = NULL,
-                            base_url = "https://models.inference.ai.azure.com/",
-                            api_key = github_key(),
-                            model = NULL,
-                            seed = NULL,
-                            api_args = list(),
-                            echo = NULL) {
+                        turns = NULL,
+                        base_url = "https://models.inference.ai.azure.com/",
+                        api_key = github_key(),
+                        model = NULL,
+                        seed = NULL,
+                        api_args = list(),
+                        echo = NULL) {
 
   check_installed("gitcreds")
 
@@ -44,8 +46,11 @@ chat_github <- function(system_prompt = NULL,
 github_key <- function() {
   withCallingHandlers(
     gitcreds::gitcreds_get()$password,
-    errror = function(cnd) {
-      cli::cli_abort("Failed to find GITHUB_PAT.", parent = cnd)
+    error = function(cnd) {
+      cli::cli_abort(
+        "Failed to find git credentials or GITHUB_PAT env var",
+        parent = cnd
+      )
     }
   )
 }

@@ -1,13 +1,27 @@
 #' @include utils-S7.R
 NULL
 
+#' Type definitions for function calling and structured data extraction.
+#'
+#' These S7 classes are provided for use by package devlopers who are
+#' extending elmer. In every day use, use [type_boolean()] and friends.
+#'
+#' @name Type
+#' @inheritParams type_boolean
+NULL
+
 Type <- new_class(
   "Type",
   properties = list(
     description = prop_string(allow_null = TRUE),
-    required = prop_bool()
+    required = prop_bool(TRUE)
   )
 )
+
+#' @export
+#' @rdname Type
+#' @param type Basic type name. Must be one of `boolean`, `integer`,
+#'   `number`, or `string`.
 TypeBasic <- new_class(
   "TypeBasic",
   Type,
@@ -15,6 +29,9 @@ TypeBasic <- new_class(
     type = prop_string()
   )
 )
+
+#' @export
+#' @rdname Type
 TypeEnum <- new_class(
   "TypeEnum",
   Type,
@@ -22,6 +39,9 @@ TypeEnum <- new_class(
     values = class_character
   )
 )
+
+#' @export
+#' @rdname Type
 TypeArray <- new_class(
   "TypeArray",
   Type,
@@ -29,12 +49,17 @@ TypeArray <- new_class(
     items = Type
   )
 )
+
+#' @export
+#' @rdname Type
+#' @param properties Named list of properties stored inside the object.
+#'   Each element should be an S7 `Type` object.`
 TypeObject <- new_class(
   "TypeObject",
   Type,
   properties = list(
     properties = prop_list_of(Type, names = "all"),
-    additional_properties = prop_bool()
+    additional_properties = prop_bool(TRUE)
   )
 )
 

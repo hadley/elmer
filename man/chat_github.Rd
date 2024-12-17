@@ -26,7 +26,9 @@ scratch.}
 
 \item{api_key}{The API key to use for authentication. You generally should
 not supply this directly, but instead manage your GitHub credentials
-as described in \url{https://usethis.r-lib.org/articles/git-credentials.html}.}
+as described in \url{https://usethis.r-lib.org/articles/git-credentials.html}.
+For headless environments, this will also look in the \code{GITHUB_PAT}
+env var.}
 
 \item{model}{The model to use for the chat. The default, \code{NULL}, will pick
 a reasonable default, and tell you about. We strongly recommend explicitly
