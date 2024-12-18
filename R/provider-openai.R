@@ -135,7 +135,6 @@ method(chat_request, ProviderOpenAI) <- function(provider,
     stream = stream,
     stream_options = if (stream) list(include_usage = TRUE),
     tools = tools,
-    tool_choice = "auto",
     response_format = response_format,
     !!!extra_args
   ))
