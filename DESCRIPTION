@@ -35,13 +35,11 @@ Suggests:
     paws.common,
     rmarkdown,
     shiny,
-    shinychat (>= 0.0.0.9000),
+    shinychat (>= 0.1.1),
     testthat (>= 3.0.0),
     withr
 VignetteBuilder:
     knitr
-Remotes:
-    jcheng5/shinychat
 Config/Needs/website: tidyverse/tidytemplate, rmarkdown
 Config/testthat/edition: 3
 Config/testthat/parallel: true
