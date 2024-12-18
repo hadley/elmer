@@ -26,12 +26,11 @@ elmer makes it easy to use large language models (LLM) from R. It supports a wid
 
 ## Installation
 
-You can install the development version of elmer from [GitHub](https://github.com/) with:
+You can install elmer from CRAN with:
 
 ```{r}
 #| eval: false
-# install.packages("pak")
-pak::pak("tidyverse/elmer")
+install.packages("elmer")
 ```
 
 ## Providers

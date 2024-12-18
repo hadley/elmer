@@ -20,12 +20,10 @@ data extraction, and more.
 
 ## Installation
 
-You can install the development version of elmer from
-[GitHub](https://github.com/) with:
+You can install elmer from CRAN with:
 
 ``` r
-# install.packages("pak")
-pak::pak("tidyverse/elmer")
+install.packages("elmer")
 ```
 
 ## Providers
