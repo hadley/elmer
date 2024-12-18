@@ -95,3 +95,4 @@ prop_number_whole <- function(default = NULL, min = NULL, max = NULL, allow_null
     }
   )
 }
+
