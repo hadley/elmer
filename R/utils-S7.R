@@ -19,12 +19,13 @@ prop_string <- function(default = NULL, allow_null = FALSE, allow_na = FALSE) {
   )
 }
 
-prop_bool <- function(allow_null = FALSE, allow_na = FALSE) {
+prop_bool <- function(default, allow_null = FALSE, allow_na = FALSE) {
   force(allow_null)
   force(allow_na)
 
   new_property(
     class = if (allow_null) NULL | class_logical else class_logical,
+    default = default,
     validator = function(value) {
       if (allow_null && is.null(value)) {
         return()

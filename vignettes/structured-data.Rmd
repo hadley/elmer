@@ -16,11 +16,11 @@ knitr::opts_chunk$set(
 )
 ```
 
-When using an LLM to extract data from text or images, you can ask the chatbot to nicely format it, in JSON or any other format that you like. This will generally work well most of the time, but there's no guarantee that you'll actually get the exact format that you want. In particular, if you're trying to get JSON, find that it's typically surrounded in ```` ```json ````, and you'll occassionally get text that isn't actually valid JSON. To avoid these challenges you can use a recent LLM feature: **structured data** (aka structured output). With structured data, you supply a type specification that exactly defines the object structure that you want and the LLM will guarantee that's what you get back.
+When using an LLM to extract data from text or images, you can ask the chatbot to nicely format it, in JSON or any other format that you like. This will generally work well most of the time, but there's no guarantee that you'll get the exact format that you want. In particular, if you're trying to get JSON, find that it's typically surrounded in ```` ```json ````, and you'll occassionally get text that isn't actually valid JSON. To avoid these challenges you can use a recent LLM feature: **structured data** (aka structured output). With structured data, you supply a type specification that exactly defines the object structure that you want and the LLM will guarantee that's what you get back.
 
 ```{r setup}
 #| cache: false
-library(elmer)#|
+library(elmer)
 ```
 
 ## Structured data basics
@@ -86,6 +86,8 @@ To define your desired type specification (also known as a **schema**), you use 
   )
   ```
 
+Using these type specifications ensures that the LLM will return JSON. But elmer goes one step further to convert the results to their most natural R representation. This currently converts arrays of boolean, integers, numbers, and strings into logical, integer, numeric, and character vectors, and arrays of objects into data frames. You can opt-out of this and get plain lists instead by setting `convert = FALSE` in `$extract_data()`.
+
 As well as the definition of the types, you need to provide the LLM with some information about what you actually want. This is the purpose of the first argument, `description`, which is a string that describes the data that you want. This is a good place to ask nicely for other attributes you'll like the value to possess (e.g. minimum or maximum values, date formats, ...). You aren't guaranteed that these requests will be honoured, but the LLM will usually make a best effort to do so.
 
 ```{r}
@@ -149,13 +151,10 @@ type_named_entity <- type_object(
   type = type_enum("The entity type", c("person", "location", "organization")),
   context = type_string("The context in which the entity appears in the text.")
 )
-
-type_named_entities <- type_object(
-  entities = type_array(items = type_named_entity)
-)
+type_named_entities <- type_array(items = type_named_entity)
 
 chat <- chat_openai()
-str(chat$extract_data(text, type = type_named_entities))
+chat$extract_data(text, type = type_named_entities)
 ```
 
 ### Example 3: Sentiment analysis
@@ -205,21 +204,10 @@ type_classification <- type_array(
     )
   )
 )
-wrapper <- type_object(
-  classification = type_classification
-)
 
 chat <- chat_openai()
-data <- chat$extract_data(text, type = wrapper)
-do.call(rbind, lapply(data$classification, as.data.frame))
-```
-
-Here we created a wrapper object because the OpenAI API requires all structured data to use an object. If you're working with Claude or Gemini, the code is a little simpler:
-
-```{r, eval = elmer:::anthropic_key_exists()}
-chat <- chat_claude()
 data <- chat$extract_data(text, type = type_classification)
-do.call(rbind, lapply(data, as.data.frame))
+data
 ```
 
 ### Example 5: Working with unknown keys
@@ -267,14 +255,12 @@ type_asset <- type_object(
   income_high = type_integer(),
   tx_gt_1000 = type_boolean()
 )
-type_disclosure_report <- type_object(
-  assets = type_array(items = type_asset)
-)
+type_assets <- type_array(items = type_asset)
 
 chat <- chat_openai()
 image <- content_image_file("congressional-assets.png")
-data <- chat$extract_data(image, type = type_disclosure_report)
-str(data)
+data <- chat$extract_data(image, type = type_assets)
+data
 ```
 
 ## Advanced data types
@@ -356,8 +342,6 @@ type_my_df <- type_array(
 ```
 
 If you're familiar with the terms between row-oriented and column-oriented data frames, this is the same idea. Since most language don't possess vectorisation like R, row-oriented structures tend to be much more common in the wild.
-
-If you're working with OpenAI, you'll need to wrap this in a dummy object because OpenAI requires an when doing structured data extraction. See Example 4 above for a concrete example.
 
 ## Token usage
 

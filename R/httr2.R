@@ -74,3 +74,63 @@ on_load(chat_perform_async_stream <- coro::async_generator(function(provider, re
     }
   }
 }))
+
+# The following functions are just wrappers around httr2::resp_stream_* and
+# httr2::req_perform*, but with optional logging.
+
+resp_stream_sse <- function(resp, max_size = Inf) {
+  event <- httr2::resp_stream_sse(resp, max_size = max_size)
+  if (!is.null(event) && log_http_traffic()) {
+    for (key in names(event)) {
+      cat("< ", key, ": ", event[[key]], "\n", sep = "")
+    }
+    cat("\n")
+  }
+  event
+}
+
+resp_stream_aws <- function(resp, max_size = Inf) {
+  event <- httr2::resp_stream_aws(resp, max_size = max_size)
+  if (!is.null(event) && log_http_traffic()) {
+    # Emit header
+    for (key in names(event$headers)) {
+      cat("< ", key, ": ", event$headers[[key]], "\n", sep = "")
+    }
+    cat("\n")
+
+    # Emit body
+    cat("< ", event$body, "\n", sep = "")
+    cat("\n")
+  }
+  event
+}
+
+req_perform <- function(req, ...) {
+  log_req_body(req)
+  httr2::req_perform(req, ...)
+}
+
+req_perform_promise <- function(req, ...) {
+  log_req_body(req)
+  httr2::req_perform_promise(req, ...)
+}
+
+req_perform_connection <- function(req, blocking = TRUE) {
+  log_req_body(req)
+  httr2::req_perform_connection(req, blocking = blocking)
+}
+
+log_req_body <- function(req) {
+  if (log_http_traffic()) {
+    body <- req$body$data
+    if (!is.null(body)) {
+      cat(paste0("> ", strsplit(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE), "\n")[[1]], "\n"), sep = "")
+      cat("\n")
+    }
+  }
+  invisible()
+}
+
+log_http_traffic <- function() {
+  getOption("elmer_verbosity", 0L) >= 2L
+}

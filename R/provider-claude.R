@@ -68,11 +68,11 @@ anthropic_key_exists <- function() {
 }
 
 method(chat_request, ProviderClaude) <- function(provider,
-                                                  stream = TRUE,
-                                                  turns = list(),
-                                                  tools = list(),
-                                                  type = NULL,
-                                                  extra_args = list()) {
+                                                 stream = TRUE,
+                                                 turns = list(),
+                                                 tools = list(),
+                                                 type = NULL,
+                                                 extra_args = list()) {
 
   req <- request(provider@base_url)
   # https://docs.anthropic.com/en/api/messages
@@ -87,17 +87,14 @@ method(chat_request, ProviderClaude) <- function(provider,
   )
 
   # <https://docs.anthropic.com/en/api/rate-limits>
-  # 529 is not documented, but we see it fairly frequently in tests
-  req <- req_retry(
-    req,
-    max_tries = 2,
-    is_transient = function(resp) resp_status(resp) %in% c(429, 503, 529)
-  )
+  req <- req_retry(req, max_tries = 2)
 
   # <https://docs.anthropic.com/en/api/errors>
   req <- req_error(req, body = function(resp) {
-    json <- resp_body_json(resp)
-    paste0(json$error$message, " [", json$error$type, "]")
+    if (resp_content_type(resp) == "application/json") {
+      json <- resp_body_json(resp)
+      paste0(json$error$message, " [", json$error$type, "]")
+    }
   })
 
   if (length(turns) >= 1 && is_system_prompt(turns[[1]])) {
@@ -169,7 +166,10 @@ method(stream_merge_chunks, ProviderClaude) <- function(provider, result, chunk)
     if (chunk$delta$type == "text_delta") {
       paste(result$content[[chunk$index + 1L]]$text) <- chunk$delta$text
     } else if (chunk$delta$type == "input_json_delta") {
-      paste(result$content[[chunk$index + 1L]]$input) <- chunk$delta$partial_json
+      if (chunk$delta$partial_json != "") {
+        # See issue #228 about partial_json sometimes being ""
+        paste(result$content[[chunk$index + 1L]]$input) <- chunk$delta$partial_json
+      }
     } else {
       cli::cli_inform(c("!" = "Unknown delta type {.str {chunk$delta$type}}."))
     }
@@ -180,7 +180,14 @@ method(stream_merge_chunks, ProviderClaude) <- function(provider, result, chunk)
     result$stop_sequence <- chunk$delta$stop_sequence
     result$usage$output_tokens <- chunk$usage$output_tokens
   } else if (chunk$type == "error") {
-    cli::cli_abort("{chunk$error$message}")
+    if (chunk$error$type == "overloaded_error") {
+      # https://docs.anthropic.com/en/api/messages-streaming#error-events
+      # TODO: track number of retries
+      wait <- backoff_default(1)
+      Sys.sleep(wait)
+    } else {
+      cli::cli_abort("{chunk$error$message}")
+    }
   } else {
     cli::cli_inform(c("!" = "Unknown chunk type {.str {chunk$type}}."))
   }
@@ -208,7 +215,7 @@ method(value_turn, ProviderClaude) <- function(provider, result, has_type = FALS
     }
   })
 
-  tokens <- c(result$usage[[1]], result$usage[[2]])
+  tokens <- c(result$usage$input_tokens, result$usage$output_tokens)
   tokens_log("Claude", tokens)
 
   Turn(result$role, contents, json = result, tokens = tokens)
@@ -272,4 +279,13 @@ method(as_json, list(ProviderClaude, ToolDef)) <- function(provider, x) {
     description = x@description,
     input_schema = compact(as_json(provider, x@arguments))
   )
+}
+
+
+
+# Helpers ----------------------------------------------------------------
+
+# From httr2
+backoff_default <- function(i) {
+  round(min(stats::runif(1, min = 1, max = 2^i), 60), 1)
 }
