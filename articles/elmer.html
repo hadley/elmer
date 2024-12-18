@@ -159,18 +159,19 @@ printing it, and you can see total usage for a session with
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_openai.html">chat_openai</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"gpt-4o"</span><span class="op">)</span></span>
 <span><span class="va">.</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="st">"Who created R?"</span>, echo <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">chat</span></span>
-<span><span class="co">#&gt; &lt;Chat turns=2 tokens=11/53&gt;</span></span>
+<span><span class="co">#&gt; &lt;Chat turns=2 tokens=11/63&gt;</span></span>
 <span><span class="co">#&gt; ── <span style="color: #0000BB;">user</span> ──────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; Who created R?</span></span>
 <span><span class="co">#&gt; ── <span style="color: #00BB00;">assistant</span> ─────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; R was created by statisticians Ross Ihaka and Robert Gentleman at the</span></span>
-<span><span class="co">#&gt; University of Auckland, New Zealand, in the mid-1990s. It was designed as</span></span>
-<span><span class="co">#&gt; a free software environment for statistical computing and graphics and is</span></span>
-<span><span class="co">#&gt; widely used among statisticians and data analysts.</span></span>
+<span><span class="co">#&gt; R was created by statisticians Ross Ihaka and Robert Gentleman. They</span></span>
+<span><span class="co">#&gt; developed it at the University of Auckland, New Zealand, in the early</span></span>
+<span><span class="co">#&gt; 1990s. R was designed as a free software environment for statistical</span></span>
+<span><span class="co">#&gt; computing and graphics and has since grown to become a widely used tool</span></span>
+<span><span class="co">#&gt; among statisticians and data scientists.</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/token_usage.html">token_usage</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                               name input output</span></span>
-<span><span class="co">#&gt; 1 OpenAI-https://api.openai.com/v1    11     53</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 OpenAI-https://api.openai.com/v1    11     63</span></span></code></pre></div>
 <p>If you want to learn more about tokens and tokenizers, I’d recommend
 watching the first 20-30 minutes of <a href="https://www.youtube.com/watch?v=zduSFxRajkE" class="external-link">Let’s build the GPT
 Tokenizer</a> by Andrej Karpathy. You certainly don’t need to learn how
