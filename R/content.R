@@ -215,6 +215,8 @@ tool_errored <- function(x) !is.null(x@error)
 tool_string <- function(x) {
   if (tool_errored(x)) {
     paste0("Tool calling failed with error ", x@error)
+  } else if (inherits(x@value, "AsIs")) {
+    x@value
   } else {
     toString(x@value)
   }
