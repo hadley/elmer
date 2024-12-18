@@ -307,6 +307,12 @@ yields string promises.
 Register a tool (an R function) that the chatbot can use.
 If the chatbot decides to use the function,  elmer will automatically
 call it and submit the results back.
+
+The return value of the function. Generally, this should either be a
+string, or a JSON-serializable value. If you must have more direct
+control of the structure of the JSON that's returned, you can return a
+JSON-serializable value wrapped in \code{\link[base:AsIs]{base::I()}}, which elmer will leave
+alone until the entire request is JSON-serialized.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Chat$register_tool(tool_def)}\if{html}{\out{</div>}}
 }
