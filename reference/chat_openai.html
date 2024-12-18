@@ -156,55 +156,57 @@ the console).</p></li>
 <span class="r-in"><span><span class="st">  What is the difference between a tibble and a data frame?</span></span></span>
 <span class="r-in"><span><span class="st">  Answer with a bulleted list</span></span></span>
 <span class="r-in"><span><span class="st">"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - **Printing**:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Tibbles have a more concise and modern print method which displays </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> the first ten rows and all columns that fit on the screen, along with a </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> summary of the number of remaining rows and columns.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Data frames print all columns and sometimes more rows, which can be </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> unwieldy for large datasets.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Printing**:  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Tibbles have a more modern and concise print method compared to data </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> frames, showing just the top 10 rows and as many columns as fit on a </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> screen. This makes them easier to read and avoids overwhelming the user </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> with too much data at once.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Data frames print all data unless explicitly limited, which can be </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> less convenient for large datasets.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - **Column Data Types**:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Tibbles preserve input types. When a column is a list, it remains a </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> list, and each element can also be complex (e.g., a model object).</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Data frames sometimes coerce list columns into vectors if possible.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Column Types**:  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Tibbles are more stringent with column types and never change the </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> type of the data. They provide warnings when operations might lead to </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> type inconsistency.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Data frames might silently coerce types, which can lead to unexpected</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> results.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - **Characters and Factors**:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Tibbles do not convert character vectors to factors by default, which</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> is more predictable and results in less unexpected type changes.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Data frames convert character vectors to factors unless </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> `stringsAsFactors = FALSE` is specified.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Subsetting**:  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Subsetting a tibble always returns another tibble, which provides </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> consistent behavior regardless of the structure of the subset.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Subsetting a data frame can sometimes return a vector if only one </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> column is selected without drop = FALSE.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - **Subsetting**:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Tibbles are stricter in subsetting operations, especially when </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> accessing columns by name. They result in an error if the requested </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> column does not exist.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Data frames return `NULL` if a non-existent column is accessed.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Convenience**:  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Tibbles are designed to be more intuitive and user-friendly, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> especially for interactive data analysis sessions.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Data frames are base R objects and may require more explicit handling</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> of operations, which can be less convenient in exploratory analysis.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - **Partial Matching**:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Tibbles do not support partial matching of column names, which </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> reduces potential errors in data manipulation.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Data frames allow partial matching of column names, which can </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> sometimes result in unexpected behavior.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Metadata Support**:  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Tibbles support list-columns, allowing more complex data structures </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (such as nested data) to be stored conveniently.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Data frames are more restrictive and offer less flexibility for such </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> cases.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - **Column Names**:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Tibbles allow for non-syntactic column names, even with spaces or </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> special characters, without needing backticks for access.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Data frames also allow non-syntactic names but often require </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> backticks to access them.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Variable Name Handling**:  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Tibbles can handle non-syntactic variable names (e.g., names that </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> include spaces or other special characters) without issues, as they use a</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> more flexible naming system.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Data frames require syntactic names and may auto-correct or modify </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> variable names on creation.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - **Enhanced Features**:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Tibbles are part of the `tibble` package, which provides various </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> utility functions for quick creation and manipulation of tibbles.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Data frames are base R structures and lack these additional utility </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> features.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Package Dependency**:  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Tibbles are part of the tidyverse suite, which includes a range of </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> additional tools and functions for streamlined data manipulation.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Data frames are part of base R and do not depend on any additional </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> packages.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - **Performance**:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - Tibbles often have more optimized operations for performance in </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> certain scenarios, though base operations are quite similar.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> By focusing on these distinctions, tibbles provide a more user-friendly </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> experience, especially when working interactively or with larger </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> datasets.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Error Messages**:  </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Tibbles often provide more informative and user-friendly error </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> messages, which can be beneficial for troubleshooting.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   - Data frames may produce less informative error messages that can be </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> harder to interpret for new users.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
