@@ -31,9 +31,6 @@ chat_vllm <- function(base_url,
       i = "Available models: {.str {models}}."
     ))
   }
-  if (is_testing() && is.null(seed)) {
-    seed <- seed %||% 1014
-  }
   echo <- check_echo(echo)
 
   provider <- ProviderVllm(

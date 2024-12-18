@@ -43,6 +43,7 @@ elmer supports a wide variety of model providers:
 - OpenAI: `chat_openai()`.
 - perplexity.ai: `chat_perplexity()`.
 - Snowflake Cortex: `chat_cortex()`.
+- VLLM: `chat_vllm()`.
 
 ## Model choice
 
