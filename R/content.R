@@ -215,8 +215,14 @@ tool_errored <- function(x) !is.null(x@error)
 tool_string <- function(x) {
   if (tool_errored(x)) {
     paste0("Tool calling failed with error ", x@error)
+  } else if (inherits(x@value, "AsIs")) {
+    x@value
+  } else if (inherits(x@value, "json")) {
+    x@value
+  } else if (is.character(x@value)) {
+    paste(x@value, collapse = "\n")
   } else {
-    toString(x@value)
+    jsonlite::toJSON(x@value, auto_unbox = TRUE)
   }
 }
 

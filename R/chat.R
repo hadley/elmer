@@ -251,6 +251,12 @@ Chat <- R6::R6Class("Chat",
     #' @description Register a tool (an R function) that the chatbot can use.
     #'   If the chatbot decides to use the function,  elmer will automatically
     #'   call it and submit the results back.
+    #' 
+    #'   The return value of the function. Generally, this should either be a
+    #'   string, or a JSON-serializable value. If you must have more direct
+    #'   control of the structure of the JSON that's returned, you can return a
+    #'   JSON-serializable value wrapped in [base::I()], which elmer will leave
+    #'   alone until the entire request is JSON-serialized.
     #' @param tool_def Tool definition created by [tool()].
     register_tool = function(tool_def) {
       if (!S7_inherits(tool_def, ToolDef)) {
