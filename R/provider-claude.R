@@ -166,7 +166,10 @@ method(stream_merge_chunks, ProviderClaude) <- function(provider, result, chunk)
     if (chunk$delta$type == "text_delta") {
       paste(result$content[[chunk$index + 1L]]$text) <- chunk$delta$text
     } else if (chunk$delta$type == "input_json_delta") {
-      paste(result$content[[chunk$index + 1L]]$input) <- chunk$delta$partial_json
+      if (chunk$delta$partial_json != "") {
+        # See issue #228 about partial_json sometimes being ""
+        paste(result$content[[chunk$index + 1L]]$input) <- chunk$delta$partial_json
+      }
     } else {
       cli::cli_inform(c("!" = "Unknown delta type {.str {chunk$delta$type}}."))
     }

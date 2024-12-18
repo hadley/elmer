@@ -52,7 +52,7 @@ test_tools_simple <- function(chat_fun) {
   chat <- chat_fun(system_prompt = "Be very terse, not even punctuation.")
   chat$register_tool(tool(function() "2024-01-01", "Return the current date"))
 
-  result <- chat$chat("What's the current date in YMD format?")
+  result <- chat$chat("What's the current date in YMD format?", echo = TRUE)
   expect_match(result, "2024-01-01")
 
   result <- chat$chat("What month is it? Provide the full name")
