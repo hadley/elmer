@@ -1,14 +1,14 @@
 Package: elmer
-Title: Call Large Language Model APIs
+Title: Call Large Language Model 'API's
 Version: 0.0.0.9000
 Authors@R: c(
     person("Hadley", "Wickham", , "hadley@posit.co", role = c("aut", "cre")),
     person("Joe", "Cheng", role = "aut"),
     person("Posit Software, PBC", role = c("cph", "fnd"))
   )
-Description: A consistent interface for calling LLM (large language model)
+Description: A consistent interface for calling 'LLM' (large language model)
   APIs that works across different providers including 'Claude', 'OpenAI'
-  'Azure' 'Bedrock' and 'Google' 'Gemini'. Supports streaming, async, tool
+  'Azure' 'Bedrock' and 'Google' 'Gemini'. Supports streaming, 'async', tool
   calling, and structured data extraction.
 License: MIT + file LICENSE
 URL: https://elmer.tidyverse.org, https://github.com/tidyverse/elmer
