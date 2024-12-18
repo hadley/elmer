@@ -156,54 +156,45 @@ the console).</p></li>
 <span class="r-in"><span><span class="st">  What is the difference between a tibble and a data frame?</span></span></span>
 <span class="r-in"><span><span class="st">  Answer with a bulleted list</span></span></span>
 <span class="r-in"><span><span class="st">"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - **Printing Behavior**:  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Tibble*: Provides a more concise and readable print layout by </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> default. Only the first 10 rows and as many columns as fit on the screen </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> are shown, helping to avoid overwhelming the user with too much </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> information.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Data Frame*: Prints all rows and columns in the console, which can </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> be overwhelming for large data sets.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Data Structure**: Both tibbles and data frames are table-like data </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> structures in R, but tibbles are a modern reimagining of data frames with</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> enhancements.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - **Column Names**:  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Tibble*: Allows for non-syntactic names (e.g., names with spaces or </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> special characters) and retains them without modification.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Data Frame*: Converts non-syntactic names to syntactic names </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> automatically.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Printing**: Tibbles have a refined print method that only shows the </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> first 10 rows and as many columns as fit on the screen, which helps </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> prevent overwhelming the user with too much data. Traditional data frames</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> print all rows by default.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - **Subsetting and Recycling**:  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Tibble*: Does not allow partial matching of column names by default </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> and throws a clearer error if a column is missing. Does not perform </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> automatic recycling of vectors.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Data Frame*: Allows partial matching and might perform some </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> recycling actions silently.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Column Names**: Tibbles can have non-syntactic names (e.g., names </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> with spaces or special characters) without needing to be backquoted, </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> while traditional data frames require column names to be valid R </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> identifiers.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - **Performance**:  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Tibble*: Often provides optimizations that can result in better </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> performance, particularly with large data sets.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Data Frame*: Could be slower due to older implementation methods.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Subsetting**: Tibbles are stricter in subsetting. For instance, they </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> do not simplify single-column extraction to vectors by default, thus </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> preserving the tibble structure, unlike data frames that simplify by </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> default.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - **Default Data Structure**:  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Tibble*: Default data structure in the `tidyverse` suite of packages</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> in R, emphasized for improved data analysis workflow.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Data Frame*: Base R’s standard data structure, historically used in </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> R prior to the introduction of tibbles.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Column Data Types**: Tibbles encapsulate the notion that each </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> variable is represented as a vector, list, or another tibble, supporting </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> more complex data types easily, whereas data frames might require </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> additional handling.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - **Creation**:  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Tibble*: Can maintain a list of special column classes like time and</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> date, without changing them.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Data Frame*: Can sometimes coerce other types to character when </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> creating new data frames from lists or other types.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Automatic Type Conversion**: Unlike data frames, tibbles do not </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> automatically convert strings to factors. This feature avoids unexpected </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> data type changes, thus reducing the risk of data manipulation errors.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> - **Handling of Different Data Types**:  </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Tibble*: Better at preserving special data types such as factor </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> levels and date-times during filtering and manipulation.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   - *Data Frame*: May not always handle these optimally during </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> manipulation, leading to potential conversion issues.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Creation and Use**: Tibbles are part of the tidyverse ecosystem and </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> integrate seamlessly with other tidyverse packages, promoting a tidy data</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> workflow, while traditional data frames are part of base R.</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Remember that while tibbles are an enhancement of data frames intended to</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> make data manipulation easier and more intuitive, data frames are still </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> fully compatible with tibble and provide a lot of legacy support in R </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> programming.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Performance**: Tibbles generally offer better performance on large </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> datasets due to improvements in how they handle subsetting and memory </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> management compared to traditional data frames.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> - **Error Messages**: Tibbles provide more informative error messages </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> which assist users in debugging, unlike data frames that might produce </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> less descriptive errors.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
