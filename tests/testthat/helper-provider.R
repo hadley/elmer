@@ -117,7 +117,7 @@ test_tools_sequential <- function(chat_fun, total_calls) {
 
 test_data_extraction <- function(chat_fun) {
   article_summary <- type_object(
-    "Summary of the article.",
+    "Summary of the article. Preserve existing case.",
     title = type_string("Content title"),
     author = type_string("Name of the author")
   )
