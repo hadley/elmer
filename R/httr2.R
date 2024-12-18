@@ -81,9 +81,7 @@ on_load(chat_perform_async_stream <- coro::async_generator(function(provider, re
 resp_stream_sse <- function(resp, max_size = Inf) {
   event <- httr2::resp_stream_sse(resp, max_size = max_size)
   if (!is.null(event) && log_http_traffic()) {
-    for (key in names(event)) {
-      cat("< ", key, ": ", event[[key]], "\n", sep = "")
-    }
+    cat_with_prefix("< ", paste0(names(event), ": ", event))
     cat("\n")
   }
   event
@@ -93,13 +91,11 @@ resp_stream_aws <- function(resp, max_size = Inf) {
   event <- httr2::resp_stream_aws(resp, max_size = max_size)
   if (!is.null(event) && log_http_traffic()) {
     # Emit header
-    for (key in names(event$headers)) {
-      cat("< ", key, ": ", event$headers[[key]], "\n", sep = "")
-    }
+    cat_with_prefix("< ", paste0(names(event$headers), ": ", event$headers))
     cat("\n")
 
     # Emit body
-    cat("< ", event$body, "\n", sep = "")
+    cat_with_prefix("< ", event$body)
     cat("\n")
   }
   event
@@ -107,12 +103,17 @@ resp_stream_aws <- function(resp, max_size = Inf) {
 
 req_perform <- function(req, ...) {
   log_req_body(req)
-  httr2::req_perform(req, ...)
+  resp <- httr2::req_perform(req, ...)
+  log_resp_body(resp)
+  resp
 }
 
 req_perform_promise <- function(req, ...) {
   log_req_body(req)
-  httr2::req_perform_promise(req, ...)
+  promises::then(httr2::req_perform_promise(req, ...), function(resp) {
+    log_resp_body(resp)
+    resp
+  })
 }
 
 req_perform_connection <- function(req, blocking = TRUE) {
@@ -124,11 +125,31 @@ log_req_body <- function(req) {
   if (log_http_traffic()) {
     body <- req$body$data
     if (!is.null(body)) {
-      cat(paste0("> ", strsplit(jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE), "\n")[[1]], "\n"), sep = "")
+      cat_with_prefix("> ", jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE))
       cat("\n")
     }
   }
   invisible()
+}
+
+log_resp_body <- function(resp) {
+  if (log_http_traffic()) {
+    body <- resp_body_json(resp)
+    if (!is.null(body)) {
+      cat_with_prefix("< ", jsonlite::toJSON(body, auto_unbox = TRUE, pretty = TRUE))
+      cat("\n")
+    }
+  }
+  invisible()
+}
+
+# Prefixes each line of `lines` with `prefix`. `lines` must be a character
+# vector but can be any length, and can contain embedded newlines or not.
+cat_with_prefix <- function(prefix, lines) {
+  if (length(lines) > 0) {
+    lines <- unlist(strsplit(lines, "\n"))
+    cat(paste0(prefix, lines, "\n"), sep = "")
+  }
 }
 
 log_http_traffic <- function() {
