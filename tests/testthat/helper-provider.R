@@ -52,7 +52,10 @@ test_tools_simple <- function(chat_fun) {
   chat <- chat_fun(system_prompt = "Be very terse, not even punctuation.")
   chat$register_tool(tool(function() "2024-01-01", "Return the current date"))
 
-  result <- chat$chat("What's the current date in YMD format?", echo = TRUE)
+  expect_output(
+    result <- chat$chat("What's the current date in YMD format?", echo = TRUE),
+    "2024-01-01"
+  )
   expect_match(result, "2024-01-01")
 
   result <- chat$chat("What month is it? Provide the full name")
@@ -114,7 +117,7 @@ test_tools_sequential <- function(chat_fun, total_calls) {
 
 test_data_extraction <- function(chat_fun) {
   article_summary <- type_object(
-    "Summary of the article.",
+    "Summary of the article. Preserve existing case.",
     title = type_string("Content title"),
     author = type_string("Name of the author")
   )
