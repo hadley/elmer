@@ -77,13 +77,9 @@ provides an efficient and convenient LLMs model server. You can use
 
 
 <dt id="arg-turns">turns<a class="anchor" aria-label="anchor" href="#arg-turns"></a></dt>
-<dd><p>A list of turns to start the chat with (i.e., continuing a
+<dd><p>A list of <a href="Turn.html">Turn</a>s to start the chat with (i.e., continuing a
 previous conversation). If not provided, the conversation begins from
-scratch. Do not provide non-<code>NULL</code> values for both <code>turns</code> and
-<code>system_prompt</code>.</p>
-<p>Each message in the list should be a named list with at least <code>role</code>
-(usually <code>system</code>, <code>user</code>, or <code>assistant</code>, but <code>tool</code> is also possible).
-Normally there is also a <code>content</code> field, which is a string.</p></dd>
+scratch.</p></dd>
 
 
 <dt id="arg-model">model<a class="anchor" aria-label="anchor" href="#arg-model"></a></dt>
@@ -104,7 +100,7 @@ of every chat API call.</p></dd>
 
 <dt id="arg-api-key">api_key<a class="anchor" aria-label="anchor" href="#arg-api-key"></a></dt>
 <dd><p>The API key to use for authentication. You generally should
-not supply this directly, but instead set the <code>OPENAI_API_KEY</code> environment
+not supply this directly, but instead set the <code>VLLM_API_KEY</code> environment
 variable.</p></dd>
 
 

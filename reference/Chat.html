@@ -359,7 +359,12 @@ yields string promises.</p><div class="section">
 <h3 id="method-register-tool-">Method <code>register_tool()</code><a class="anchor" aria-label="anchor" href="#method-register-tool-"></a></h3>
 <p>Register a tool (an R function) that the chatbot can use.
 If the chatbot decides to use the function,  elmer will automatically
-call it and submit the results back.</p><div class="section">
+call it and submit the results back.</p>
+<p>The return value of the function. Generally, this should either be a
+string, or a JSON-serializable value. If you must have more direct
+control of the structure of the JSON that's returned, you can return a
+JSON-serializable value wrapped in <code><a href="https://rdrr.io/r/base/AsIs.html" class="external-link">base::I()</a></code>, which elmer will leave
+alone until the entire request is JSON-serialized.</p><div class="section">
 <h4 id="usage-13">Usage<a class="anchor" aria-label="anchor" href="#usage-13"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">Chat</span><span class="op">$</span><span class="fu">register_tool</span><span class="op">(</span><span class="va">tool_def</span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
