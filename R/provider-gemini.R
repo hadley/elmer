@@ -142,10 +142,8 @@ method(value_turn, ProviderGemini) <- function(provider, result, has_type = FALS
       if (has_type) {
         data <- jsonlite::parse_json(content$text)
         ContentJson(data)
-      } else if (any(nzchar(content$text))) {
-        ContentText(content$text)
       } else {
-        NULL
+        ContentText(content$text)
       }
     } else if (has_name(content, "functionCall")) {
       ContentToolRequest(
@@ -196,7 +194,13 @@ method(as_json, list(ProviderGemini, ToolDef)) <- function(provider, x) {
 }
 
 method(as_json, list(ProviderGemini, ContentText)) <- function(provider, x) {
-  list(text = x@text)
+  if (identical(x@text, "")) {
+    # Gemini tool call requests can include a Content with empty text,
+    # but it doesn't like it if you send this back
+    NULL
+  } else {
+    list(text = x@text)
+  }
 }
 
 # https://ai.google.dev/api/caching#FileData
