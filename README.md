@@ -16,7 +16,7 @@ features including streaming outputs, tool/function calling, structured
 data extraction, and more.
 
 (Looking for something similar to elmer for python? Check out
-[chatlas](https://github.com/cpsievert/chatlas)!)
+[chatlas](https://github.com/posit-dev/chatlas)!)
 
 ## Installation
 
