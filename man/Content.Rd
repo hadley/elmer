@@ -12,17 +12,21 @@
 \usage{
 Content()
 
-ContentText(text = character(0))
+ContentText(text = stop("Required"))
 
 ContentImage()
 
-ContentImageRemote(url = character(0), detail = character(0))
+ContentImageRemote(url = stop("Required"), detail = "")
 
-ContentImageInline(type = character(0), data = NULL)
+ContentImageInline(type = stop("Required"), data = NULL)
 
-ContentToolRequest(id = character(0), name = character(0), arguments = list())
+ContentToolRequest(
+  id = stop("Required"),
+  name = stop("Required"),
+  arguments = list()
+)
 
-ContentToolResult(id = character(0), value = NULL, error = NULL)
+ContentToolResult(id = stop("Required"), value = NULL, error = NULL)
 }
 \arguments{
 \item{text}{A single string.}
@@ -45,13 +49,18 @@ ContentToolResult(id = character(0), value = NULL, error = NULL)
 it succeeded, otherwise the error message, as a string. One of
 \code{value} and \code{error} will always be \code{NULL}.}
 }
+\value{
+S7 objects that all inherit from \code{Content}
+}
 \description{
+Use these functions if you're writing a package that extends elmer and need
+to customise methods for various types of content. For normal use, see
+\code{\link[=content_image_url]{content_image_url()}} and friends.
+
 elmer abstracts away differences in the way that different \link{Provider}s
 represent various types of content, allowing you to more easily write
-code that works with any chatbot.
-
-This set of classes represents the various types of content that can be
-sent to and received from a provider:
+code that works with any chatbot. This set of classes represents types of
+content that can be either sent to and received from a provider:
 \itemize{
 \item \code{ContentText}: simple text (often in markdown format). This is the only
 type of content that can be streamed live as it's received.
@@ -63,4 +72,10 @@ objects.
 assistant).
 \item \code{ContentToolResult}: the result of calling the tool (sent by the user).
 }
+}
+\examples{
+Content()
+ContentText("Tell me a joke")
+ContentImageRemote("https://www.r-project.org/Rlogo.png")
+ContentToolRequest(id = "abc", name = "mean", arguments = list(x = 1:5))
 }

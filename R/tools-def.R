@@ -19,6 +19,7 @@ NULL
 #'   function. Each element should be created by a [`type_*()`][type_boolean]
 #'   function.
 #' @export
+#' @return An S7 `ToolDef` object.
 #' @examplesIf elmer:::openai_key_exists()
 #'
 #' # First define the metadata that the model uses to figure out when to

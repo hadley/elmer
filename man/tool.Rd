@@ -18,6 +18,9 @@ function.}
 
 \item{.name}{The name of the function.}
 }
+\value{
+An S7 \code{ToolDef} object.
+}
 \description{
 Define an R function for use by a chatbot. The function will always be
 run in the current R instance.

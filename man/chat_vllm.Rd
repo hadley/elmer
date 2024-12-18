@@ -20,14 +20,9 @@ chat_vllm(
 
 \item{system_prompt}{A system prompt to set the behavior of the assistant.}
 
-\item{turns}{A list of turns to start the chat with (i.e., continuing a
+\item{turns}{A list of \link{Turn}s to start the chat with (i.e., continuing a
 previous conversation). If not provided, the conversation begins from
-scratch. Do not provide non-\code{NULL} values for both \code{turns} and
-\code{system_prompt}.
-
-Each message in the list should be a named list with at least \code{role}
-(usually \code{system}, \code{user}, or \code{assistant}, but \code{tool} is also possible).
-Normally there is also a \code{content} field, which is a string.}
+scratch.}
 
 \item{model}{The model to use for the chat. The default, \code{NULL}, will pick
 a reasonable default, and tell you about. We strongly recommend explicitly
@@ -60,4 +55,10 @@ A \link{Chat} object.
 \href{https://docs.vllm.ai/en/latest/}{vLLM} is an open source library that
 provides an efficient and convenient LLMs model server. You can use
 \code{chat_vllm()} to connect to endpoints powered by vLLM.
+}
+\examples{
+\dontrun{
+chat <- chat_vllm("http://my-vllm.com")
+chat$chat("Tell me three jokes about statisticians")
+}
 }

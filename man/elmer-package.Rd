@@ -4,11 +4,11 @@
 \name{elmer-package}
 \alias{elmer}
 \alias{elmer-package}
-\title{elmer: Call LLM APIs from R}
+\title{elmer: Call Large Language Model APIs}
 \description{
 \if{html}{\figure{logo.png}{options: style='float: right' alt='logo' width='120'}}
 
-A consistent interface for calling LLM APIs. Includes support for streaming.
+A consistent interface for calling LLM (large language model) APIs that works across different providers including 'Claude', 'OpenAI' 'Azure' 'Bedrock' and 'Google' 'Gemini'. Supports streaming, async, tool calling, and structured data extraction.
 }
 \seealso{
 Useful links:

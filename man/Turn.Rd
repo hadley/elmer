@@ -21,6 +21,9 @@ doesn't otherwise expose.}
 input and output tokens (respectively) used in this turn. Currently
 only recorded for assistant turns.}
 }
+\value{
+An S7 \code{Turn} object
+}
 \description{
 Every conversation with a chatbot consists of pairs of user and assistant
 turns, corresponding to an HTTP request and response. These turns are
@@ -33,4 +36,7 @@ user-assistant turn cycles. For example, if you have registered tools,
 elmer will automatically handle the tool calling loop, which may result in
 any number of additional cycles. Learn more about tool calling in
 \code{vignette("tool-calling")}.
+}
+\examples{
+Turn(role = "user", contents = list(ContentText("Hello, world!")))
 }
