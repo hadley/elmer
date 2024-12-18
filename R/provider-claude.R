@@ -212,7 +212,7 @@ method(value_turn, ProviderClaude) <- function(provider, result, has_type = FALS
     }
   })
 
-  tokens <- c(result$usage[[1]], result$usage[[2]])
+  tokens <- c(result$usage$input_tokens, result$usage$output_tokens)
   tokens_log("Claude", tokens)
 
   Turn(result$role, contents, json = result, tokens = tokens)
