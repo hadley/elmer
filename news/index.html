@@ -41,7 +41,8 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="elmer-development-version">elmer (development version)<a class="anchor" aria-label="anchor" href="#elmer-development-version"></a></h2>
-<ul><li><p>The default <code><a href="../reference/chat_openai.html">chat_openai()</a></code> model is now GPT-4o.</p></li>
+<ul><li><p>New <code><a href="../reference/chat_vllm.html">chat_vllm()</a></code> to chat with models served by vLLM (<a href="https://github.com/tidyverse/elmer/issues/140" class="external-link">#140</a>).</p></li>
+<li><p>The default <code><a href="../reference/chat_openai.html">chat_openai()</a></code> model is now GPT-4o.</p></li>
 <li><p>New <code>Chat$set_turns()</code> to set turns. <code>Chat$turns()</code> is now <code>Chat$get_turns()</code>. <code>Chat$system_prompt()</code> is replaced with <code>Chat$set_system_prompt()</code> and <code>Chat$get_system_prompt()</code>.</p></li>
 <li><p>Async and streaming async chat are now event-driven and use <code><a href="https://r-lib.github.io/later/reference/later_fd.html" class="external-link">later::later_fd()</a></code> to wait efficiently on curl socket activity (<a href="https://github.com/tidyverse/elmer/issues/157" class="external-link">#157</a>).</p></li>
 <li><p>New <code><a href="../reference/chat_bedrock.html">chat_bedrock()</a></code> to chat with AWS bedrock models (<a href="https://github.com/tidyverse/elmer/issues/50" class="external-link">#50</a>).</p></li>

@@ -27,6 +27,7 @@
 <url><loc>https://elmer.tidyverse.org/reference/chat_ollama.html</loc></url>
 <url><loc>https://elmer.tidyverse.org/reference/chat_openai.html</loc></url>
 <url><loc>https://elmer.tidyverse.org/reference/chat_perplexity.html</loc></url>
+<url><loc>https://elmer.tidyverse.org/reference/chat_vllm.html</loc></url>
 <url><loc>https://elmer.tidyverse.org/reference/content_image_url.html</loc></url>
 <url><loc>https://elmer.tidyverse.org/reference/contents_text.html</loc></url>
 <url><loc>https://elmer.tidyverse.org/reference/create_tool_def.html</loc></url>
