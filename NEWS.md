@@ -1,5 +1,7 @@
 # elmer (development version)
 
+* New `chat_vllm()` to chat with models served by vLLM (#140).
+
 * The default `chat_openai()` model is now GPT-4o.
 
 * New `Chat$set_turns()` to set turns. `Chat$turns()` is now `Chat$get_turns()`. `Chat$system_prompt()` is replaced with `Chat$set_system_prompt()` and `Chat$get_system_prompt()`.
