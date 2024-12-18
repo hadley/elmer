@@ -214,8 +214,8 @@ providing a system prompt:</p>
 <span><span class="co">#&gt; df %&gt;%</span></span>
 <span><span class="co">#&gt;   group_by(age, sex) %&gt;%</span></span>
 <span><span class="co">#&gt;   summarise(across(</span></span>
-<span><span class="co">#&gt;     .cols = a:z,</span></span>
-<span><span class="co">#&gt;     .fns = list(</span></span>
+<span><span class="co">#&gt;     a:z,</span></span>
+<span><span class="co">#&gt;     list(</span></span>
 <span><span class="co">#&gt;       mean = ~mean(., na.rm = TRUE),</span></span>
 <span><span class="co">#&gt;       median = ~median(., na.rm = TRUE)</span></span>
 <span><span class="co">#&gt;     )</span></span>
@@ -225,20 +225,21 @@ providing a system prompt:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; This code will:</span></span>
 <span><span class="co">#&gt; 1. Group the data by age and sex</span></span>
-<span><span class="co">#&gt; 2. Use `across()` to apply both mean and median functions to all columns </span></span>
-<span><span class="co">#&gt; from 'a' to 'z'</span></span>
+<span><span class="co">#&gt; 2. Use `across()` to apply both mean and median functions to all </span></span>
+<span><span class="co">#&gt; variables from 'a' to 'z'</span></span>
 <span><span class="co">#&gt; 3. Handle missing values with `na.rm = TRUE`</span></span>
-<span><span class="co">#&gt; 4. The result will have columns named like `a_mean`, `a_median`, </span></span>
+<span><span class="co">#&gt; 4. The output will have columns named like `a_mean`, `a_median`, </span></span>
 <span><span class="co">#&gt; `b_mean`, `b_median`, etc.</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; If you want to make the output more tidy (long format), you could add:</span></span>
+<span><span class="co">#&gt; If you want to make the output longer (more rows instead of columns), you</span></span>
+<span><span class="co">#&gt; could add:</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ```r</span></span>
 <span><span class="co">#&gt; df %&gt;%</span></span>
 <span><span class="co">#&gt;   group_by(age, sex) %&gt;%</span></span>
 <span><span class="co">#&gt;   summarise(across(</span></span>
-<span><span class="co">#&gt;     .cols = a:z,</span></span>
-<span><span class="co">#&gt;     .fns = list(</span></span>
+<span><span class="co">#&gt;     a:z,</span></span>
+<span><span class="co">#&gt;     list(</span></span>
 <span><span class="co">#&gt;       mean = ~mean(., na.rm = TRUE),</span></span>
 <span><span class="co">#&gt;       median = ~median(., na.rm = TRUE)</span></span>
 <span><span class="co">#&gt;     )</span></span>
@@ -252,7 +253,7 @@ providing a system prompt:</p>
 <span><span class="co">#&gt;   )</span></span>
 <span><span class="co">#&gt; ```</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; This will give you a long format with columns: age, sex, variable, </span></span>
+<span><span class="co">#&gt; This will give you a tidy format with columns: age, sex, variable, </span></span>
 <span><span class="co">#&gt; statistic, and value.</span></span></code></pre>
 <p>Note that I’m using both a system prompt (which defines the general
 behaviour) and a user prompt (which asks the specific question). You
@@ -338,7 +339,8 @@ so I provide more details about what I do want:</p>
 <span><span class="co">#&gt;         median = median</span></span>
 <span><span class="co">#&gt;       ),</span></span>
 <span><span class="co">#&gt;       na.rm = TRUE</span></span>
-<span><span class="co">#&gt;     )</span></span>
+<span><span class="co">#&gt;     ),</span></span>
+<span><span class="co">#&gt;     .groups = "drop"</span></span>
 <span><span class="co">#&gt;   )</span></span>
 <span><span class="co">#&gt; ```</span></span></code></pre>
 <p>This still doesn’t yield exactly the code that I’d write, but it’s
@@ -358,8 +360,7 @@ explanation of the code:</p>
 <span><span class="co">#&gt; # Create a vector of variable names from 'a' to 'z'</span></span>
 <span><span class="co">#&gt; vars &lt;- letters</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; # Group data by age and sex, then compute mean and median for each </span></span>
-<span><span class="co">#&gt; variable</span></span>
+<span><span class="co">#&gt; # Group by age and sex, then compute mean and median for each variable</span></span>
 <span><span class="co">#&gt; result &lt;- data %&gt;%</span></span>
 <span><span class="co">#&gt;   group_by(age, sex) %&gt;%</span></span>
 <span><span class="co">#&gt;   summarise(</span></span>
@@ -464,47 +465,47 @@ page.</p>
 <span><span class="co">#&gt; {</span></span>
 <span><span class="co">#&gt;   "ingredients": [</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "dark brown sugar",</span></span>
 <span><span class="co">#&gt;       "amount": "¾ cup",</span></span>
-<span><span class="co">#&gt;       "weight": "150g"</span></span>
+<span><span class="co">#&gt;       "weight": "150g",</span></span>
+<span><span class="co">#&gt;       "name": "dark brown sugar"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "large eggs",</span></span>
 <span><span class="co">#&gt;       "amount": "2",</span></span>
-<span><span class="co">#&gt;       "unit": "count"</span></span>
+<span><span class="co">#&gt;       "unit": "large",</span></span>
+<span><span class="co">#&gt;       "name": "eggs"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "sour cream",</span></span>
 <span><span class="co">#&gt;       "amount": "¾ cup",</span></span>
-<span><span class="co">#&gt;       "weight": "165g"</span></span>
+<span><span class="co">#&gt;       "weight": "165g",</span></span>
+<span><span class="co">#&gt;       "name": "sour cream"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "unsalted butter",</span></span>
 <span><span class="co">#&gt;       "amount": "½ cup",</span></span>
 <span><span class="co">#&gt;       "weight": "113g",</span></span>
+<span><span class="co">#&gt;       "name": "unsalted butter",</span></span>
 <span><span class="co">#&gt;       "state": "melted"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "vanilla extract",</span></span>
-<span><span class="co">#&gt;       "amount": "1 teaspoon"</span></span>
+<span><span class="co">#&gt;       "amount": "1 teaspoon",</span></span>
+<span><span class="co">#&gt;       "name": "vanilla extract"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "kosher salt",</span></span>
-<span><span class="co">#&gt;       "amount": "¾ teaspoon"</span></span>
+<span><span class="co">#&gt;       "amount": "¾ teaspoon",</span></span>
+<span><span class="co">#&gt;       "name": "kosher salt"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "neutral oil",</span></span>
 <span><span class="co">#&gt;       "amount": "⅓ cup",</span></span>
-<span><span class="co">#&gt;       "volume": "80ml"</span></span>
+<span><span class="co">#&gt;       "volume": "80ml",</span></span>
+<span><span class="co">#&gt;       "name": "neutral oil"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "all-purpose flour",</span></span>
 <span><span class="co">#&gt;       "amount": "1½ cups",</span></span>
-<span><span class="co">#&gt;       "weight": "190g"</span></span>
+<span><span class="co">#&gt;       "weight": "190g",</span></span>
+<span><span class="co">#&gt;       "name": "all-purpose flour"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "name": "sugar",</span></span>
-<span><span class="co">#&gt;       "amount": "150g plus 1½ teaspoons"</span></span>
+<span><span class="co">#&gt;       "amount": "150g plus 1½ teaspoons",</span></span>
+<span><span class="co">#&gt;       "name": "sugar"</span></span>
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt;   ]</span></span>
 <span><span class="co">#&gt; }</span></span>
@@ -540,9 +541,9 @@ provide the input and output examples in such a loose format.</p>
 <pre><code><span><span class="co">#&gt; ```json</span></span>
 <span><span class="co">#&gt; [</span></span>
 <span><span class="co">#&gt;   {"name": "dark brown sugar", "quantity": 150, "unit": "g"},</span></span>
-<span><span class="co">#&gt;   {"name": "large eggs", "quantity": 2, "unit": "count"},</span></span>
+<span><span class="co">#&gt;   {"name": "large eggs", "quantity": 2, "unit": null},</span></span>
 <span><span class="co">#&gt;   {"name": "sour cream", "quantity": 165, "unit": "g"},</span></span>
-<span><span class="co">#&gt;   {"name": "unsalted butter, melted", "quantity": 113, "unit": "g"},</span></span>
+<span><span class="co">#&gt;   {"name": "unsalted butter", "quantity": 113, "unit": "g"},</span></span>
 <span><span class="co">#&gt;   {"name": "vanilla extract", "quantity": 1, "unit": "teaspoon"},</span></span>
 <span><span class="co">#&gt;   {"name": "kosher salt", "quantity": 0.75, "unit": "teaspoon"},</span></span>
 <span><span class="co">#&gt;   {"name": "neutral oil", "quantity": 80, "unit": "ml"},</span></span>
@@ -638,37 +639,34 @@ and that elmer will convert it into an R data structure.</p>
 <span><span class="co">#&gt; Using <span style="color: #00BB00;">model</span> = <span style="color: #0000BB;">"gpt-4o"</span>.</span></span>
 <span><span class="va">data</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">extract_data</span><span class="op">(</span><span class="va">ingredients</span>, type <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span>ingredients <span class="op">=</span> <span class="va">type_ingredients</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">rbind</span>, <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">ingredients</span>, <span class="va">as.data.frame</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt;                        X[[i]]</span></span>
-<span><span class="co">#&gt; name.1       dark brown sugar</span></span>
-<span><span class="co">#&gt; name.2             large eggs</span></span>
-<span><span class="co">#&gt; name.3             sour cream</span></span>
-<span><span class="co">#&gt; name.4        unsalted butter</span></span>
-<span><span class="co">#&gt; name.5        vanilla extract</span></span>
-<span><span class="co">#&gt; name.6            kosher salt</span></span>
-<span><span class="co">#&gt; name.7            neutral oil</span></span>
-<span><span class="co">#&gt; name.8      all-purpose flour</span></span>
-<span><span class="co">#&gt; name.9                  sugar</span></span>
-<span><span class="co">#&gt; name.10                 sugar</span></span>
-<span><span class="co">#&gt; quantity.1                150</span></span>
-<span><span class="co">#&gt; quantity.2                  2</span></span>
-<span><span class="co">#&gt; quantity.3                165</span></span>
-<span><span class="co">#&gt; quantity.4                113</span></span>
-<span><span class="co">#&gt; quantity.5                  1</span></span>
-<span><span class="co">#&gt; quantity.6               0.75</span></span>
-<span><span class="co">#&gt; quantity.7                 80</span></span>
-<span><span class="co">#&gt; quantity.8                190</span></span>
-<span><span class="co">#&gt; quantity.9                150</span></span>
-<span><span class="co">#&gt; quantity.10               1.5</span></span>
-<span><span class="co">#&gt; unit.1                      g</span></span>
-<span><span class="co">#&gt; unit.2                  count</span></span>
-<span><span class="co">#&gt; unit.3                      g</span></span>
-<span><span class="co">#&gt; unit.4                      g</span></span>
-<span><span class="co">#&gt; unit.5               teaspoon</span></span>
-<span><span class="co">#&gt; unit.6               teaspoon</span></span>
-<span><span class="co">#&gt; unit.7                     ml</span></span>
-<span><span class="co">#&gt; unit.8                      g</span></span>
-<span><span class="co">#&gt; unit.9                      g</span></span>
-<span><span class="co">#&gt; unit.10              teaspoon</span></span></code></pre></div>
+<span><span class="co">#&gt;                             X[[i]]</span></span>
+<span><span class="co">#&gt; name.1            dark brown sugar</span></span>
+<span><span class="co">#&gt; name.2                  large eggs</span></span>
+<span><span class="co">#&gt; name.3                  sour cream</span></span>
+<span><span class="co">#&gt; name.4     unsalted butter, melted</span></span>
+<span><span class="co">#&gt; name.5             vanilla extract</span></span>
+<span><span class="co">#&gt; name.6                 kosher salt</span></span>
+<span><span class="co">#&gt; name.7                 neutral oil</span></span>
+<span><span class="co">#&gt; name.8           all-purpose flour</span></span>
+<span><span class="co">#&gt; name.9                       sugar</span></span>
+<span><span class="co">#&gt; quantity.1                     150</span></span>
+<span><span class="co">#&gt; quantity.2                       2</span></span>
+<span><span class="co">#&gt; quantity.3                     165</span></span>
+<span><span class="co">#&gt; quantity.4                     113</span></span>
+<span><span class="co">#&gt; quantity.5                       1</span></span>
+<span><span class="co">#&gt; quantity.6                    0.75</span></span>
+<span><span class="co">#&gt; quantity.7                      80</span></span>
+<span><span class="co">#&gt; quantity.8                     190</span></span>
+<span><span class="co">#&gt; quantity.9                     150</span></span>
+<span><span class="co">#&gt; unit.1                           g</span></span>
+<span><span class="co">#&gt; unit.2                       large</span></span>
+<span><span class="co">#&gt; unit.3                           g</span></span>
+<span><span class="co">#&gt; unit.4                           g</span></span>
+<span><span class="co">#&gt; unit.5                    teaspoon</span></span>
+<span><span class="co">#&gt; unit.6                    teaspoon</span></span>
+<span><span class="co">#&gt; unit.7                          ml</span></span>
+<span><span class="co">#&gt; unit.8                           g</span></span>
+<span><span class="co">#&gt; unit.9                           g</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="capturing-raw-input">Capturing raw input<a class="anchor" aria-label="anchor" href="#capturing-raw-input"></a>
@@ -717,15 +715,15 @@ doing a good job:</p>
 <span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="va">recipe</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">#&gt; ```json</span></span>
 <span><span class="co">#&gt; [</span></span>
-<span><span class="co">#&gt;   {"name": "softened unsalted butter", "quantity": 1, "unit": "cup", </span></span>
-<span><span class="co">#&gt; "input": "one cup of softened unsalted butter"},</span></span>
+<span><span class="co">#&gt;   {"name": "unsalted butter", "quantity": 1, "unit": "cup", "input": "one</span></span>
+<span><span class="co">#&gt; cup of softened unsalted butter"},</span></span>
 <span><span class="co">#&gt;   {"name": "white sugar", "quantity": 0.25, "unit": "cup", "input": "a </span></span>
 <span><span class="co">#&gt; quarter cup of white sugar"},</span></span>
-<span><span class="co">#&gt;   {"name": "egg", "quantity": 1, "unit": "whole", "input": "an egg"},</span></span>
+<span><span class="co">#&gt;   {"name": "egg", "quantity": 1, "unit": "large", "input": "an egg"},</span></span>
 <span><span class="co">#&gt;   {"name": "vanilla extract", "quantity": 1, "unit": "teaspoon", "input":</span></span>
 <span><span class="co">#&gt; "1 teaspoon of vanilla extract"},</span></span>
-<span><span class="co">#&gt;   {"name": "all-purpose flour", "quantity": 2, "unit": "cups", "input": </span></span>
-<span><span class="co">#&gt; "2 cups of all-purpose flour"},</span></span>
+<span><span class="co">#&gt;   {"name": "all-purpose flour", "quantity": 2, "unit": "cup", "input": "2</span></span>
+<span><span class="co">#&gt; cups of all-purpose flour"},</span></span>
 <span><span class="co">#&gt;   {"name": "semisweet chocolate chips", "quantity": 1, "unit": "cup", </span></span>
 <span><span class="co">#&gt; "input": "1 cup of semisweet chocolate chips"}</span></span>
 <span><span class="co">#&gt; ]</span></span>
@@ -749,13 +747,13 @@ my examples.</p>
 <tr class="odd">
 <td align="left">Claude</td>
 <td align="right">788</td>
-<td align="right">1207</td>
+<td align="right">1202</td>
 </tr>
 <tr class="even">
 <td align="left">OpenAI-<a href="https://api.openai.com/v1" class="external-link uri">https://api.openai.com/v1</a>
 </td>
 <td align="right">1138</td>
-<td align="right">840</td>
+<td align="right">820</td>
 </tr>
 </tbody>
 </table>
