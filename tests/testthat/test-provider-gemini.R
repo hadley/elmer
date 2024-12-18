@@ -48,3 +48,26 @@ test_that("can use images", {
   test_images_inline(chat_fun)
   test_images_remote_error(chat_fun)
 })
+
+# chunk merging ----------------------------------------------------------
+
+test_that("can merge text output", {
+  # output from "tell me a joke" with text changed
+  messages <- c(
+    '{"candidates": [{"content": {"parts": [{"text": "a"}],"role": "model"}}],"usageMetadata": {"promptTokenCount": 5,"totalTokenCount": 5},"modelVersion": "gemini-1.5-flash"}',
+    '{"candidates": [{"content": {"parts": [{"text": "b"}],"role": "model"}}],"usageMetadata": {"promptTokenCount": 5,"totalTokenCount": 5},"modelVersion": "gemini-1.5-flash"}',
+    '{"candidates": [{"content": {"parts": [{"text": "c"}],"role": "model"},"finishReason": "STOP"}],"usageMetadata": {"promptTokenCount": 5,"candidatesTokenCount": 17,"totalTokenCount": 22},"modelVersion": "gemini-1.5-flash"}'
+  )
+  chunks <- lapply(messages, jsonlite::parse_json)
+
+  out <- merge_gemini_chunks(chunks[[1]], chunks[[2]])
+  out <- merge_gemini_chunks(out, chunks[[3]])
+
+  expect_equal(out$candidates[[1]]$content$parts[[1]]$text, "abc")
+  expect_equal(out$usageMetadata, list(
+    promptTokenCount = 5,
+    candidatesTokenCount = 17,
+    totalTokenCount = 22
+  ))
+  expect_equal(out$candidates[[1]]$finishReason, "STOP")
+})
