@@ -299,6 +299,6 @@ method(as_json, list(ProviderOpenAI, TypeObject)) <- function(provider, x) {
     description = x@description %||% "",
     properties = properties,
     required = as.list(names),
-    additionalProperties = x@additional_properties
+    additionalProperties = FALSE
   )
 }

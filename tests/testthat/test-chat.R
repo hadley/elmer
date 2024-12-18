@@ -124,16 +124,11 @@ test_that("has a basic print method", {
 })
 
 test_that("can optionally echo", {
-  chat <- chat_openai(
-    "You're a helpful assistant that returns very minimal output",
-    echo = TRUE
-  )
+  chat <- chat_openai("Repeat the input back to me exactly", echo = TRUE)
   expect_output(chat$chat("Echo this."), "Echo this.")
   expect_output(chat$chat("Echo this.", echo = FALSE), NA)
 
-  chat <- chat_openai(
-    "You're a helpful assistant that returns very minimal output"
-  )
+  chat <- chat_openai("Repeat the input back to me exactly")
   expect_output(chat$chat("Echo this."), NA)
   expect_output(chat$chat("Echo this.", echo = TRUE), "Echo this.")
 })
