@@ -53,6 +53,8 @@ Sign up at \url{https://groq.com}.
 
 This function is a lightweight wrapper around \code{\link[=chat_openai]{chat_openai()}} with
 the defaults tweaked for groq.
+
+It does not currently support structured data extraction.
 }
 \seealso{
 Other chatbots: 

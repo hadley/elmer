@@ -9,6 +9,8 @@ NULL
 #' This function is a lightweight wrapper around [chat_openai()] with
 #' the defaults tweaked for groq.
 #'
+#' It does not currently support structured data extraction.
+#'
 #' @export
 #' @family chatbots
 #' @inheritParams chat_openai
@@ -41,40 +43,6 @@ chat_groq <- function(system_prompt = NULL,
 
 ProviderGroq <- new_class("ProviderGroq", parent = ProviderOpenAI)
 
-
-# method(value_turn, ProviderGroq) <- function(provider, result, has_type = FALSE) {
-#   if (has_name(result$choices[[1]], "delta")) { # streaming
-#     message <- result$choices[[1]]$delta
-#   } else {
-#     message <- result$choices[[1]]$message
-#   }
-
-#   if (has_type) {
-#     json <- jsonlite::parse_json(message$content[[1]])
-#     content <- list(ContentJson(json))
-#   } else {
-#     content <- lapply(message$content, as_content)
-#   }
-
-#   if (has_name(message, "tool_calls")) {
-#     calls <- lapply(message$tool_calls, function(call) {
-#       name <- call$`function`$name
-#       # TODO: record parsing error
-#       args <- jsonlite::parse_json(call$`function`$arguments)
-#       ContentToolRequest(name = name, arguments = args, id = call$id)
-#     })
-#     content <- c(content, calls)
-#   }
-#   tokens <- c(
-#     result$usage$prompt_tokens %||% NA_integer_,
-#     result$usage$completion_tokens %||% NA_integer_
-#   )
-#   tokens_log(paste0("OpenAI-", provider@base_url), tokens)
-
-#   Turn(message$role, content, json = result, tokens = tokens)
-# }
-
-
 method(as_json, list(ProviderGroq, Turn)) <- function(provider, x) {
   if (x@role == "assistant") {
     # Tool requests come out of content and go into own argument
@@ -83,7 +51,11 @@ method(as_json, list(ProviderGroq, Turn)) <- function(provider, x) {
 
     # Grok contents is just a string. Hopefully it never sends back more
     # than a single text response.
-    content <- x@contents[!is_tool][[1]]@text
+    if (any(!is_tool)) {
+      content <- x@contents[!is_tool][[1]]@text
+    } else {
+      content <- NULL
+    }
 
     list(
       compact(list(role = "assistant", content = content, tool_calls = tool_calls))
@@ -93,31 +65,30 @@ method(as_json, list(ProviderGroq, Turn)) <- function(provider, x) {
   }
 }
 
-# method(as_json, list(ProviderGroq, TypeObject)) <- function(provider, x) {
-#   if (x@additional_properties) {
-#     cli::cli_abort("{.arg .additional_properties} not supported for Groq.")
-#   }
-#   required <- map_lgl(x@properties, function(prop) prop@required)
+method(as_json, list(ProviderGroq, TypeObject)) <- function(provider, x) {
+  if (x@additional_properties) {
+    cli::cli_abort("{.arg .additional_properties} not supported for Groq.")
+  }
+  required <- map_lgl(x@properties, function(prop) prop@required)
 
-#   compact(list(
-#     type = "object",
-#     description = x@description,
-#     properties = as_json(provider, x@properties),
-#     required = as.list(names2(x@properties)[required])
-#   ))
-# }
+  compact(list(
+    type = "object",
+    description = x@description,
+    properties = as_json(provider, x@properties),
+    required = as.list(names2(x@properties)[required])
+  ))
+}
 
-
-# method(as_json, list(ProviderGroq, ToolDef)) <- function(provider, x) {
-#   list(
-#     type = "function",
-#     "function" = compact(list(
-#       name = x@name,
-#       description = x@description,
-#       parameters = as_json(provider, x@arguments)
-#     ))
-#   )
-# }
+method(as_json, list(ProviderGroq, ToolDef)) <- function(provider, x) {
+  list(
+    type = "function",
+    "function" = compact(list(
+      name = x@name,
+      description = x@description,
+      parameters = as_json(provider, x@arguments)
+    ))
+  )
+}
 
 groq_key <- function() {
   key_get("GROQ_API_KEY")
