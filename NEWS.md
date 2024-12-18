@@ -26,6 +26,8 @@
 
 * The `echo` can now be one of three values: "none", "text", or "all". If "all", you'll now see both user and assistant turns, and all content types will be printed, not just text. When running in the global environment, `echo` defaults to "text", and when running inside a function it defaults to "none".
 
+* You can now log low-level JSON request/response info by setting `options(elmer_verbosity = 2)`.
+
 * `chat$register_tool()` now takes an object created by `Tool()`. This makes it a little easier to reuse tool definitions (#32).
 
 * `new_chat_openai()` is now `chat_openai()`.
