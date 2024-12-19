@@ -19,8 +19,8 @@ NULL
 #' @param api_key The API key to use for authentication. You generally should
 #'   not supply this directly, but instead set the `AZURE_OPENAI_API_KEY` environment
 #'   variable.
-#' @param token Azure token for authentication. This is typically not required for
-#' Azure OpenAI API calls, but can be used if your setup requires it.
+#' @param azure_token token object of class AzureToken for authentication. This is typically not required for
+#' Azure OpenAI API calls, but can be used if your setup requires it. The azure_token object is retrieved using the AzureAuth package.#' Using the azure_token object ensures a refresh method is available for the token.
 #' @inheritParams chat_openai
 #' @inherit chat_openai return
 #' @export
@@ -35,7 +35,7 @@ chat_azure <- function(endpoint = azure_endpoint(),
                        system_prompt = NULL,
                        turns = NULL,
                        api_key = azure_key(),
-                       token = NULL,
+                       azure_token = NULL,
                        api_args = list(),
                        echo = c("none", "text", "all")) {
   check_string(endpoint)
@@ -46,12 +46,29 @@ chat_azure <- function(endpoint = azure_endpoint(),
 
   base_url <- paste0(endpoint, "/openai/deployments/", deployment_id)
 
+  if(is.null(azure_token)){
+    access_token = azure_token
+  } else if(is_azure_token(azure_token)) {
+    # uses the token object method to validate the azure_token (for example if it expired)
+    valid = azure_token$validate()
+    if(!valid ) {
+      # uses the token object method to refresh the azure_token
+      azure_token = azure_token$refresh()
+    }
+    # retrieves the actual access token from the azure_token object for further use.
+    access_token = azure_token$credentials$access_token
+
+  } else {
+    cli::cli_abort("azure_token must be of class <AzureToken> or NULL. Please consider using the AzureAuth package to create a token object.")
+    return()
+  }
+
   provider <- ProviderAzure(
     base_url = base_url,
     endpoint = endpoint,
     model = deployment_id,
     api_version = api_version,
-    token = token,
+    access_token = access_token,
     extra_args = api_args,
     api_key = api_key
   )
@@ -63,7 +80,7 @@ ProviderAzure <- new_class(
   parent = ProviderOpenAI,
   properties = list(
     api_key = prop_string(),
-    token = prop_string(allow_null = TRUE),
+    access_token = prop_string(allow_null = TRUE),
     endpoint = prop_string(),
     api_version = prop_string()
   )
@@ -90,8 +107,8 @@ method(chat_request, ProviderAzure) <- function(provider,
   req <- req_url_path_append(req, "/chat/completions")
   req <- req_url_query(req, `api-version` = provider@api_version)
   req <- req_headers(req, `api-key` = provider@api_key, .redact = "api-key")
-  if (!is.null(provider@token)) {
-    req <- req_auth_bearer_token(req, provider@token)
+  if (!is.null(provider@access_token)) {
+    req <- req_auth_bearer_token(req, provider@access_token)
   }
   req <- req_retry(req, max_tries = 2)
   req <- req_error(req, body = function(resp) resp_body_json(resp)$message)
