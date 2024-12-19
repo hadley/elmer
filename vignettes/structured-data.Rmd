@@ -11,7 +11,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = elmer:::openai_key_exists(),
+  eval = ellmer:::openai_key_exists(),
   cache = TRUE
 )
 ```
@@ -20,7 +20,7 @@ When using an LLM to extract data from text or images, you can ask the chatbot t
 
 ```{r setup}
 #| cache: false
-library(elmer)
+library(ellmer)
 ```
 
 ## Structured data basics
@@ -86,7 +86,7 @@ To define your desired type specification (also known as a **schema**), you use 
   )
   ```
 
-Using these type specifications ensures that the LLM will return JSON. But elmer goes one step further to convert the results to their most natural R representation. This currently converts arrays of boolean, integers, numbers, and strings into logical, integer, numeric, and character vectors, and arrays of objects into data frames. You can opt-out of this and get plain lists instead by setting `convert = FALSE` in `$extract_data()`.
+Using these type specifications ensures that the LLM will return JSON. But ellmer goes one step further to convert the results to their most natural R representation. This currently converts arrays of boolean, integers, numbers, and strings into logical, integer, numeric, and character vectors, and arrays of objects into data frames. You can opt-out of this and get plain lists instead by setting `convert = FALSE` in `$extract_data()`.
 
 As well as the definition of the types, you need to provide the LLM with some information about what you actually want. This is the purpose of the first argument, `description`, which is a string that describes the data that you want. This is a good place to ask nicely for other attributes you'll like the value to possess (e.g. minimum or maximum values, date formats, ...). You aren't guaranteed that these requests will be honoured, but the LLM will usually make a best effort to do so.
 
@@ -113,7 +113,7 @@ The following examples are [closely inspired by the Claude documentation](https:
 
 ```{r}
 #| label: examples-summarisation
-text <- readLines(system.file("examples/third-party-testing.txt", package = "elmer"))
+text <- readLines(system.file("examples/third-party-testing.txt", package = "ellmer"))
 # url <- "https://www.anthropic.com/news/third-party-testing"
 # html <- rvest::read_html(url)
 # text <- rvest::html_text2(rvest::html_element(html, "article"))
@@ -212,7 +212,7 @@ data
 
 ### Example 5: Working with unknown keys
 
-```{r, eval = elmer:::anthropic_key_exists()}
+```{r, eval = ellmer:::anthropic_key_exists()}
 #| label: examples-unknown-keys
 type_characteristics <- type_object(
   "All characteristics",

@@ -44,7 +44,7 @@ coro::loop(for (chunk in stream) {
 
 ## Async usage
 
-elmer also supports async usage, which is useful when you want to run multiple chat sessions concurrently. This is primarily useful in Shiny applications, where using the methods described above would block the Shiny app for other users for the duration of each response.
+ellmer also supports async usage, which is useful when you want to run multiple chat sessions concurrently. This is primarily useful in Shiny applications, where using the methods described above would block the Shiny app for other users for the duration of each response.
 
 To use async chat, instead of `chat()`/`stream()`, call `chat_async()`/`stream_async()`. The `_async` variants take the same arguments for construction, but return promises instead of the actual response.
 

@@ -50,12 +50,12 @@ chatbot. The \code{content_image_url()} function is used to provide a URL to an
 image, while \code{content_image_file()} is used to provide the image data itself.
 }
 \examples{
-\dontshow{if (elmer:::openai_key_exists()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (ellmer:::openai_key_exists()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 chat <- chat_openai(echo = TRUE)
 chat$chat(
   "What do you see in these images?",
   content_image_url("https://www.r-project.org/Rlogo.png"),
-  content_image_file(system.file("httr2.png", package = "elmer"))
+  content_image_file(system.file("httr2.png", package = "ellmer"))
 )
 
 \dontshow{dev.control('enable')}

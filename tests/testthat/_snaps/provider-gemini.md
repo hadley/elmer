@@ -19,6 +19,5 @@
     Code
       . <- chat$chat("What's in this image?", image_remote)
     Condition
-      Error in `method(as_json, list(elmer::ProviderGemini, elmer::ContentImageRemote))`:
+      Error in `method(as_json, list(ellmer::ProviderGemini, ellmer::ContentImageRemote))`:
       ! Gemini doesn't support remote images
-

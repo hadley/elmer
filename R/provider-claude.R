@@ -136,7 +136,7 @@ method(chat_request, ProviderClaude) <- function(provider,
   req
 }
 
-# Claude -> elmer --------------------------------------------------------------
+# Claude -> ellmer --------------------------------------------------------------
 
 method(stream_parse, ProviderClaude) <- function(provider, event) {
   if (is.null(event)) {
@@ -221,7 +221,7 @@ method(value_turn, ProviderClaude) <- function(provider, result, has_type = FALS
   Turn(result$role, contents, json = result, tokens = tokens)
 }
 
-# elmer -> Claude --------------------------------------------------------------
+# ellmer -> Claude --------------------------------------------------------------
 
 method(as_json, list(ProviderClaude, Turn)) <- function(provider, x) {
   if (x@role == "system") {
