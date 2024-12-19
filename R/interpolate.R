@@ -13,6 +13,7 @@
 #' @param .envir Environment to evaluate `...` expressions in. Used when
 #'   wrapping in another function. See `vignette("wrappers", package = "glue")`
 #'   for more details.
+#' @return A \{glue\} string.
 #' @export
 #' @examples
 #' joke <- "You're a cool dude who loves to make jokes. Tell me a joke about {{topic}}."

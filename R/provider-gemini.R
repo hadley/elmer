@@ -18,6 +18,11 @@ NULL
 #' @inherit chat_openai return
 #' @family chatbots
 #' @export
+#' @examples
+#' \dontrun{
+#' chat <- chat_gemini()
+#' chat$chat("Tell me three jokes about statisticians")
+#' }
 chat_gemini <- function(system_prompt = NULL,
                             turns = NULL,
                             base_url = "https://generativelanguage.googleapis.com/v1beta/",

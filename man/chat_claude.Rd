@@ -62,6 +62,12 @@ To authenticate, we recommend saving your
 the \code{ANTHROPIC_API_KEY} env var in your \code{.Renviron}
 (which you can easily edit by calling \code{usethis::edit_r_environ()}).
 }
+\examples{
+\dontshow{if (elmer:::anthropic_key_exists()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+chat <- chat_claude()
+chat$chat("Tell me three jokes about statisticians")
+\dontshow{\}) # examplesIf}
+}
 \seealso{
 Other chatbots: 
 \code{\link{chat_bedrock}()},

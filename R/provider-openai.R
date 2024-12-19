@@ -49,6 +49,8 @@ NULL
 #'   What is the difference between a tibble and a data frame?
 #'   Answer with a bulleted list
 #' ")
+#'
+#' chat$chat("Tell me three funny jokes about statistcians")
 chat_openai <- function(system_prompt = NULL,
                             turns = NULL,
                             base_url = "https://api.openai.com/v1",

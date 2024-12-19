@@ -62,6 +62,12 @@ be accepted into the beta access program. See
 This function is a lightweight wrapper around \code{\link[=chat_openai]{chat_openai()}} with
 the defaults tweaked for the GitHub model marketplace.
 }
+\examples{
+\dontrun{
+chat <- chat_github()
+chat$chat("Tell me three jokes about statisticians")
+}
+}
 \seealso{
 Other chatbots: 
 \code{\link{chat_bedrock}()},

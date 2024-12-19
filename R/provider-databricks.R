@@ -40,6 +40,11 @@
 #' @inheritParams chat_openai
 #' @inherit chat_openai return
 #' @export
+#' @examples
+#' \dontrun{
+#' chat <- chat_databricks()
+#' chat$chat("Tell me three jokes about statisticians")
+#' }
 chat_databricks <- function(workspace = databricks_workspace(),
                             system_prompt = NULL,
                             turns = NULL,

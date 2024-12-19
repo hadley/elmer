@@ -48,6 +48,12 @@ does not work for you automatically, you'll need to follow the advice
 at \url{https://www.paws-r-sdk.com/#credentials}. In particular, if your
 org uses AWS SSO, you'll need to run \verb{aws sso login} at the terminal.
 }
+\examples{
+\dontrun{
+chat <- chat_bedrock()
+chat$chat("Tell me three jokes about statisticians")
+}
+}
 \seealso{
 Other chatbots: 
 \code{\link{chat_claude}()},

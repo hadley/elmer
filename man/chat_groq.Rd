@@ -48,6 +48,9 @@ the console).
 
 Note this only affects the \code{chat()} method.}
 }
+\value{
+A \link{Chat} object.
+}
 \description{
 Sign up at \url{https://groq.com}.
 
@@ -55,6 +58,12 @@ This function is a lightweight wrapper around \code{\link[=chat_openai]{chat_ope
 the defaults tweaked for groq.
 
 It does not currently support structured data extraction.
+}
+\examples{
+\dontrun{
+chat <- chat_groq()
+chat$chat("Tell me three jokes about statisticians")
+}
 }
 \seealso{
 Other chatbots: 

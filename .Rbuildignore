@@ -9,3 +9,4 @@
 ^pkgdown$
 ^vignettes/articles$
 _cache/
+^cran-comments\.md$

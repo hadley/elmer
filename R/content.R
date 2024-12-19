@@ -2,11 +2,11 @@
 NULL
 
 #' Format contents into a textual representation
-#' 
+#'
 #' @description
 #' These generic functions can be use to convert [Turn] contents or [Content]
-#' objects into textual representations. 
-#' 
+#' objects into textual representations.
+#'
 #' * `contents_text()` is the most minimal and only includes [ContentText]
 #'   objects in the output.
 #' * `contents_markdown()` returns the text content (which it assumes to be
@@ -15,7 +15,7 @@ NULL
 #' * `contents_html()` returns the text content, converted from markdown to
 #'   HTML with [commonmark::markdown_html()], plus HTML representations of
 #'   images and other content types.
-#' 
+#'
 #' @examples
 #' turns <- list(
 #'   Turn("user", contents = list(
@@ -30,12 +30,12 @@ NULL
 #' if (rlang::is_installed("commonmark")) {
 #'   contents_html(turns[[1]])
 #' }
-#' 
+#'
 #' @param content The [Turn] or [Content] object to be converted into text.
 #'   `contents_markdown()` also accepts [Chat] instances to turn the entire
 #'   conversation history into markdown text.
 #' @param ... Additional arguments passed to methods.
-#' 
+#'
 #' @return A string of text, markdown or HTML.
 #' @export
 contents_text <- new_generic("contents_text", "content")
@@ -52,12 +52,14 @@ contents_markdown <- new_generic("contents_markdown", "content")
 #' Content types received from and sent to a chatbot
 #'
 #' @description
+#' Use these functions if you're writing a package that extends elmer and need
+#' to customise methods for various types of content. For normal use, see
+#' [content_image_url()] and friends.
+#'
 #' elmer abstracts away differences in the way that different [Provider]s
 #' represent various types of content, allowing you to more easily write
-#' code that works with any chatbot.
-#'
-#' This set of classes represents the various types of content that can be
-#' sent to and received from a provider:
+#' code that works with any chatbot. This set of classes represents types of
+#' content that can be either sent to and received from a provider:
 #'
 #' * `ContentText`: simple text (often in markdown format). This is the only
 #'   type of content that can be streamed live as it's received.
@@ -70,6 +72,12 @@ contents_markdown <- new_generic("contents_markdown", "content")
 #' * `ContentToolResult`: the result of calling the tool (sent by the user).
 #'
 #' @export
+#' @return S7 objects that all inherit from `Content`
+#' @examples
+#' Content()
+#' ContentText("Tell me a joke")
+#' ContentImageRemote("https://www.r-project.org/Rlogo.png")
+#' ContentToolRequest(id = "abc", name = "mean", arguments = list(x = 1:5))
 Content <- new_class("Content")
 
 method(contents_text, Content) <- function(content) {
@@ -128,7 +136,7 @@ ContentImageRemote <- new_class(
   parent = Content,
   properties = list(
     url = prop_string(),
-    detail = prop_string()
+    detail = prop_string(default = "")
   )
 )
 method(format, ContentImageRemote) <- function(x, ...) {

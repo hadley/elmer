@@ -15,6 +15,9 @@ NULL
 #' @export
 #' @param base_url The base URL for the API.
 #' @param extra_args Arbitrary extra arguments to be included in the request body.
+#' @return An S7 Provider object.
+#' @examples
+#' Provider(base_url = "https://cool-models.com")
 Provider <- new_class(
   "Provider",
   properties = list(

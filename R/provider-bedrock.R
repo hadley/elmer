@@ -21,6 +21,11 @@ NULL
 #' @inherit chat_openai return
 #' @family chatbots
 #' @export
+#' @examples
+#' \dontrun{
+#' chat <- chat_bedrock()
+#' chat$chat("Tell me three jokes about statisticians")
+#' }
 chat_bedrock <- function(system_prompt = NULL,
                          turns = NULL,
                          model = NULL,

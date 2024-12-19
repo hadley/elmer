@@ -13,6 +13,12 @@
 #'   to use the console.
 #' @export
 #' @returns (Invisibly) The input `chat`.
+#' @examples
+#' \dontrun{
+#' chat <- chat_claude()
+#' live_console(chat)
+#' live_browser(chat)
+#' }
 live_console <- function(chat, quiet = FALSE) {
   if (!is_interactive()) {
     cli::cli_abort("The chat console is only available in interactive mode.")

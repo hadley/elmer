@@ -4,7 +4,7 @@ prop_string <- function(default = NULL, allow_null = FALSE, allow_na = FALSE) {
 
   new_property(
     class = if (allow_null) NULL | class_character else class_character,
-    default = default,
+    default = if (is.null(default) && !allow_null) quote(stop("Required")) else default,
     validator = function(value) {
       if (allow_null && is.null(value)) {
         return()

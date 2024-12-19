@@ -43,6 +43,9 @@ the console).
 
 Note this only affects the \code{chat()} method.}
 }
+\value{
+A \link{Chat} object.
+}
 \description{
 To use \code{chat_ollama()} first download and install
 \href{https://ollama.com}{Ollama}. Then install some models from the command line,
@@ -57,6 +60,12 @@ the defaults tweaked for ollama.
 \item Tool calling generally seems quite weak, at least with the models I have
 tried it with.
 }
+}
+}
+\examples{
+\dontrun{
+chat <- chat_ollama(model = "llama3.2")
+chat$chat("Tell me three jokes about statisticians")
 }
 }
 \seealso{

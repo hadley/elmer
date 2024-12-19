@@ -15,6 +15,11 @@ NULL
 #'   variable.
 #' @inherit chat_openai return
 #' @export
+#' @examples
+#' \dontrun{
+#' chat <- chat_vllm("http://my-vllm.com")
+#' chat$chat("Tell me three jokes about statisticians")
+#' }
 chat_vllm <- function(base_url,
                       system_prompt = NULL,
                       turns = NULL,

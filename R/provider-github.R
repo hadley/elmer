@@ -18,6 +18,11 @@
 #' @export
 #' @inheritParams chat_openai
 #' @inherit chat_openai return
+#' @examples
+#' \dontrun{
+#' chat <- chat_github()
+#' chat$chat("Tell me three jokes about statisticians")
+#' }
 chat_github <- function(system_prompt = NULL,
                         turns = NULL,
                         base_url = "https://models.inference.ai.azure.com/",
@@ -30,6 +35,7 @@ chat_github <- function(system_prompt = NULL,
   check_installed("gitcreds")
 
   model <- set_default(model, "gpt-4o")
+  echo <- check_echo(echo)
 
   chat_openai(
     system_prompt = system_prompt,

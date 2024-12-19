@@ -27,6 +27,9 @@ NULL
 #'   input and output tokens (respectively) used in this turn. Currently
 #'   only recorded for assistant turns.
 #' @export
+#' @return An S7 `Turn` object
+#' @examples
+#' Turn(role = "user", contents = list(ContentText("Hello, world!")))
 Turn <- new_class(
   "Turn",
   properties = list(

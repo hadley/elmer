@@ -24,6 +24,11 @@ NULL
 #' @inheritParams chat_openai
 #' @inherit chat_openai return
 #' @export
+#' @examples
+#' \dontrun{
+#' chat <- chat_azure(deployment_id = "gpt-4o-mini")
+#' chat$chat("Tell me three jokes about statisticians")
+#' }
 chat_azure <- function(endpoint = azure_endpoint(),
                        deployment_id,
                        api_version = NULL,

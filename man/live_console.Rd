@@ -27,3 +27,10 @@ to use the console.}
 Note that these functions will mutate the input \code{chat} object as
 you chat because your turns will be appended to the history.
 }
+\examples{
+\dontrun{
+chat <- chat_claude()
+live_console(chat)
+live_browser(chat)
+}
+}

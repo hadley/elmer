@@ -16,16 +16,14 @@ features including streaming outputs, tool/function calling, structured
 data extraction, and more.
 
 (Looking for something similar to elmer for python? Check out
-[chatlas](https://github.com/cpsievert/chatlas)!)
+[chatlas](https://github.com/posit-dev/chatlas)!)
 
 ## Installation
 
-You can install the development version of elmer from
-[GitHub](https://github.com/) with:
+You can install elmer from CRAN with:
 
 ``` r
-# install.packages("pak")
-pak::pak("tidyverse/elmer")
+install.packages("elmer")
 ```
 
 ## Providers

@@ -117,7 +117,7 @@ LLMs can also be useful to solve general programming problems. For example:
 
 * You could automatically look up the documentation for an R function, and include it in the prompt to make it easier to figure out how to use a specific function.
 
-* You can use LLMs to explain code, or even ask them to [generate a diagram](https://bsky.app/profile/daviddiviny.bsky.social/post/3lb6kjaen4c2u).
+* You can use LLMs to explain code, or even ask them to [generate a diagram](https://bsky.app/profile/daviddiviny.com/post/3lb6kjaen4c2u).
 
 * You can ask an LLM to analyse your code for potential code smells or security issues. You can do this a function at a time, or explore the entire source code of your package or script in the prompt.
 

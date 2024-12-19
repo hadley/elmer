@@ -8,6 +8,10 @@ NULL
 #'
 #' @name Type
 #' @inheritParams type_boolean
+#' @return S7 objects inheriting from `Type`
+#' @examples
+#' TypeBasic(type = "boolean")
+#' TypeArray(items = TypeBasic(type = "boolean"))
 NULL
 
 Type <- new_class(

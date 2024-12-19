@@ -70,6 +70,8 @@ chat$chat("
   What is the difference between a tibble and a data frame?
   Answer with a bulleted list
 ")
+
+chat$chat("Tell me three funny jokes about statistcians")
 \dontshow{\}) # examplesIf}
 }
 \seealso{
