@@ -70,7 +70,7 @@ to one) environment variables.
 }
 }
 \examples{
-\dontshow{if (elmer:::cortex_credentials_exist()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (ellmer:::cortex_credentials_exist()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 chat <- chat_cortex(
   model_file = "@my_db.my_schema.my_stage/model.yaml"
 )

@@ -11,7 +11,7 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = elmer:::openai_key_exists()
+  eval = ellmer:::openai_key_exists()
 )
 ```
 
@@ -32,7 +32,7 @@ But in fact it works like this:
 The value that the chat model brings is not in helping with execution, but with knowing when it makes sense to call a tool, what values to pass as arguments, and how to use the results in formulating its response.
 
 ```{r setup}
-library(elmer)
+library(ellmer)
 ```
 
 ### Motivating example
@@ -138,7 +138,7 @@ That's correct! Without any further guidance, the chat model decided to call our
 
 (Full disclosure: I originally tried this example with the default model of `gpt-4o-mini` and it got the tool calling right but the date math wrong, hence the explicit `model="gpt-4o"`.)
 
-This tool example was extremely simple, but you can imagine doing much more interesting things from tool functions: calling APIs, reading from or writing to a database, kicking off a complex simulation, or even calling a complementary GenAI model (like an image generator). Or if you are using elmer in a Shiny app, you could use tools to set reactive values, setting off a chain of reactive updates.
+This tool example was extremely simple, but you can imagine doing much more interesting things from tool functions: calling APIs, reading from or writing to a database, kicking off a complex simulation, or even calling a complementary GenAI model (like an image generator). Or if you are using ellmer in a Shiny app, you could use tools to set reactive values, setting off a chain of reactive updates.
 
 ### Tool limitations
 

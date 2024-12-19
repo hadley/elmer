@@ -25,7 +25,7 @@ run in the current R instance.
 Learn more in \code{vignette("tool-calling")}.
 }
 \examples{
-\dontshow{if (elmer:::openai_key_exists()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (ellmer:::openai_key_exists()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 
 # First define the metadata that the model uses to figure out when to
 # call the tool

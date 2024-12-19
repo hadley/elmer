@@ -57,7 +57,7 @@ chat_vllm_test <- function(...) {
 ProviderVllm <- new_class(
   "ProviderVllm",
   parent = ProviderOpenAI,
-  package = "elmer",
+  package = "ellmer",
 )
 
 # Just like OpenAI but no strict

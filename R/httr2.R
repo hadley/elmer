@@ -153,5 +153,5 @@ cat_with_prefix <- function(prefix, lines) {
 }
 
 log_http_traffic <- function() {
-  getOption("elmer_verbosity", 0L) >= 2L
+  getOption("ellmer_verbosity", 0L) >= 2L
 }

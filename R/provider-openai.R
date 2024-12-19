@@ -43,7 +43,7 @@ NULL
 #' @family chatbots
 #' @export
 #' @returns A [Chat] object.
-#' @examplesIf elmer:::openai_key_exists()
+#' @examplesIf ellmer:::openai_key_exists()
 #' chat <- chat_openai()
 #' chat$chat("
 #'   What is the difference between a tibble and a data frame?
@@ -143,7 +143,7 @@ method(chat_request, ProviderOpenAI) <- function(provider,
   req
 }
 
-# OpenAI -> elmer --------------------------------------------------------------
+# OpenAI -> ellmer --------------------------------------------------------------
 
 method(stream_parse, ProviderOpenAI) <- function(provider, event) {
   if (is.null(event)) {
@@ -202,7 +202,7 @@ method(value_turn, ProviderOpenAI) <- function(provider, result, has_type = FALS
   Turn(message$role, content, json = result, tokens = tokens)
 }
 
-# elmer -> OpenAI --------------------------------------------------------------
+# ellmer -> OpenAI --------------------------------------------------------------
 
 method(as_json, list(ProviderOpenAI, Turn)) <- function(provider, x) {
   if (x@role == "system") {
