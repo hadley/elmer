@@ -11,19 +11,19 @@ vignette: >
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  eval = elmer:::openai_key_exists() && elmer:::anthropic_key_exists(),
+  eval = ellmer:::openai_key_exists() && ellmer:::anthropic_key_exists(),
   cache = TRUE
 )
-options(elmer_seed = 1337)
+options(ellmer_seed = 1337)
 
 # Manually ratchet claude variability way down to hopefully make generated
 # code better match my prose.
 chat_claude <- function(...) {
-  elmer::chat_claude(..., api_args = list(temperature = 0))
+  ellmer::chat_claude(..., api_args = list(temperature = 0))
 }
 ```
 
-This vignette gives you some advice about how to use elmer to write prompts. We'll work through two hopefully relevant examples: a prompt that generates code and another that extracts structured data. If you've never written a prompt, I'd highly recommend reading Ethan Mollick's [Getting started with AI: Good enough prompting](https://www.oneusefulthing.org/p/getting-started-with-ai-good-enough). I think understanding his analogy about how AI works will really help you get started:
+This vignette gives you some advice about how to use ellmer to write prompts. We'll work through two hopefully relevant examples: a prompt that generates code and another that extracts structured data. If you've never written a prompt, I'd highly recommend reading Ethan Mollick's [Getting started with AI: Good enough prompting](https://www.oneusefulthing.org/p/getting-started-with-ai-good-enough). I think understanding his analogy about how AI works will really help you get started:
 
 > Treat AI like an infinitely patient new coworker who forgets everything you tell them each new conversation, one that comes highly recommended but whose actual abilities are not that clear. ... Two parts of this are analogous to working with humans (being new on the job and being a coworker) and two of them are very alien (forgetting everything and being infinitely patient). We should start with where AIs are closest to humans, because that is the key to good-enough prompting
 
@@ -37,7 +37,7 @@ If you have a claude account, you can use its [prompt-generator](https://docs.an
 
 ```{r setup}
 #| cache: false
-library(elmer)
+library(ellmer)
 ```
 
 ## Best practices
@@ -53,7 +53,7 @@ In terms of file names, if you only have one prompt in your project, call it `pr
 
 Your prompts are going to change over time, so we'd highly recommend commiting them to a git repo. That will ensure that you can easily see what has changed, and that if you accidentally make a mistake you can easily roll back to a known good verison.
 
-If your prompt includes dynamic data, use `elmer::interpolate_file()` to intergrate it into your prompt. `interpolate_file()` works like [glue](https://glue.tidyverse.org) but uses `{{ }}` instead of `{ }` to make it easier to work with JSON.
+If your prompt includes dynamic data, use `ellmer::interpolate_file()` to intergrate it into your prompt. `interpolate_file()` works like [glue](https://glue.tidyverse.org) but uses `{{ }}` instead of `{ }` to make it easier to work with JSON.
 
 As you iterate the prompt, it's a good idea to build up a small set of challenging examples that you can regularly re-check with your latest version of the prompt. Currently you'll need to do this by hand, but we hope to eventually provide tools that'll help you do this a little more formally.
 
@@ -312,7 +312,7 @@ You might want to take a look at the [full prompt](https://gist.github.com/hadle
 
 ### Structured data
 
-Now that I've iterated to get a data structure I like, it seems useful to formalise it and tell the LLM exactly what I'm looking for when dealing with structured data. This guarantees that the LLM will only return JSON, that the JSON will have the fields that you expect, and that elmer will convert it into an R data structure.
+Now that I've iterated to get a data structure I like, it seems useful to formalise it and tell the LLM exactly what I'm looking for when dealing with structured data. This guarantees that the LLM will only return JSON, that the JSON will have the fields that you expect, and that ellmer will convert it into an R data structure.
 
 ```{r}
 #| label: data-structured

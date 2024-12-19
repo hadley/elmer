@@ -49,7 +49,7 @@ async_method <- function(fn) {
 # upon first call. This is necessary because the transformation needs to be done
 # not at package build time, but after package load time.
 #
-# Elsewhere in elmer, we use rlang::on_load to defer the transformation of
+# Elsewhere in ellmer, we use rlang::on_load to defer the transformation of
 # generators until after package load time. We can't do that for R6 methods
 # because nesting R6 class definitions inside of rlang::on_load causes roxygen2
 # to get confused.

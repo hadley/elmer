@@ -1,10 +1,10 @@
-url: https://elmer.tidyverse.org
+url: https://ellmer.tidyverse.org
 template:
   bootstrap: 5
   package: tidytemplate
   includes:
     in_header: |
-      <script defer data-domain="elmer.tidyverse.org,all.tidyverse.org" src="https://plausible.io/js/plausible.js"></script>
+      <script defer data-domain="ellmer.tidyverse.org,all.tidyverse.org" src="https://plausible.io/js/plausible.js"></script>
 
 development:
   mode: auto
@@ -30,7 +30,7 @@ reference:
 - title: Objects
   desc: >
     These classes abstact across behaviour differences in chat providers so
-    that for typical elmer use you don't need to worry about them. You'll need
+    that for typical ellmer use you don't need to worry about them. You'll need
     to learn more about the objects if you're doing something that's only
     supported by one provider, or if you're implementing a new provider.
   contents:

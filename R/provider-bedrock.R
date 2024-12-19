@@ -125,7 +125,7 @@ method(chat_resp_stream, ProviderBedrock) <- function(provider, resp) {
   resp_stream_aws(resp)
 }
 
-# Bedrock -> elmer -------------------------------------------------------------
+# Bedrock -> ellmer -------------------------------------------------------------
 
 method(stream_parse, ProviderBedrock) <- function(provider, event) {
   if (is.null(event)) {
@@ -216,7 +216,7 @@ method(value_turn, ProviderBedrock) <- function(provider, result, has_type = FAL
   Turn(result$output$message$role, contents, json = result, tokens = tokens)
 }
 
-# elmer -> Bedrock -------------------------------------------------------------
+# ellmer -> Bedrock -------------------------------------------------------------
 
 # https://docs.aws.amazon.com/bedrock/latest/APIReference/API_runtime_ContentBlock.html
 method(as_json, list(ProviderBedrock, Turn)) <- function(provider, x) {

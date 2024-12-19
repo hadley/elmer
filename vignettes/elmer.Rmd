@@ -1,8 +1,8 @@
 ---
-title: "Getting started with elmer"
+title: "Getting started with ellmer"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Getting started with elmer}
+  %\VignetteIndexEntry{Getting started with ellmer}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -10,16 +10,16 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  eval = elmer:::openai_key_exists(),
+  eval = ellmer:::openai_key_exists(),
   comment = "#>"
 )
 ```
 
 ```{r setup}
-library(elmer)
+library(ellmer)
 ```
 
-elmer makes it easy to access the wealth of large language models (LLMs) from R. But what can you do with those models once you have access to them? This vignette will give you the basic vocabulary you need to use an LLM effectively and will show you some examples to ignite your creativity.
+ellmer makes it easy to access the wealth of large language models (LLMs) from R. But what can you do with those models once you have access to them? This vignette will give you the basic vocabulary you need to use an LLM effectively and will show you some examples to ignite your creativity.
 
 In this vignette we'll mostly ignore how LLMs work, using them as convenient black boxes. If you want to get a sense of how they actually work, we recommend watching Jeremy Howard's posit::conf(2023) keynote: [A hacker's guide to open source LLMs](https://www.youtube.com/watch?v=sYliwvml9Es).
 
@@ -41,7 +41,7 @@ LLMs are priced per million tokens. State of the art models (like GPT-4o or Clau
 
 Tokens also used to measure the context window, which is how much text the LLM can use to generate the next response. As we'll discuss shortly, the context length includes the full state of your conversation so far (both your prompts and the model's responses), which means that cost grow rapidly with the number of conversational turns.
 
-In elmer, you can see how many tokens a conversations has used by printing it, and you can see total usage for a session with `token_usage()`.
+In ellmer, you can see how many tokens a conversations has used by printing it, and you can see total usage for a session with `token_usage()`.
 
 ```{r}
 chat <- chat_openai(model = "gpt-4o")
@@ -63,7 +63,7 @@ It's important to note that a request includes not only the current user prompt,
 
 * Each response is affected by all previous prompts and responses. This can make a converstion get stuck in a local optimum, so it's generally better to iterate by starting a new conversation with a better prompt rather than having a long back-and-forth.
 
-* elmer has full control over the conversational history. Because it's elmer's responsibility to send the previous turns of the conversation, it's possible to start a conversation with one model and finish it with another.
+* ellmer has full control over the conversational history. Because it's ellmer's responsibility to send the previous turns of the conversation, it's possible to start a conversation with one model and finish it with another.
 
 ### What is a prompt?
 
@@ -85,9 +85,9 @@ In general, we recommend avoiding LLMs where accuracy is critical. That said, th
 
 ### Chatbots
 
-A great place to start with elmer and LLMs is to build a chatbot with a custom prompt. Chatbots are a familiar interface to LLMs and are easy to create in R with [shinychat](https://github.com/jcheng5/shinychat). And there's a surprising amount of value to creating a custom chatbot that has a prompt stuffed with useful knowledge. For example:
+A great place to start with ellmer and LLMs is to build a chatbot with a custom prompt. Chatbots are a familiar interface to LLMs and are easy to create in R with [shinychat](https://github.com/jcheng5/shinychat). And there's a surprising amount of value to creating a custom chatbot that has a prompt stuffed with useful knowledge. For example:
 
-* Help people use your new package. To do so, you need a custom prompt because LLMs were trained on data prior to your package's existence. You can create a surprisingly useful tool just by preloading the prompt with your README and vignettes. This is how the [elmer assistant](https://github.com/jcheng5/elmer-assistant) works.
+* Help people use your new package. To do so, you need a custom prompt because LLMs were trained on data prior to your package's existence. You can create a surprisingly useful tool just by preloading the prompt with your README and vignettes. This is how the [ellmer assistant](https://github.com/jcheng5/ellmer-assistant) works.
 
 * Build language specific prompts for R and/or python. [Shiny assistant](https://shiny.posit.co/blog/posts/shiny-assistant/) helps you build shiny apps (either in R or python) by combining a [prompt](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt.md) that gives general advice on building apps with a prompt for [R](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_r.md) or [python](https://github.com/posit-dev/shiny-assistant/blob/main/shinyapp/app_prompt_python.md). The python prompt is very detailed because there's much less information about Shiny for Python in the existing LLM knowledgebases.
 

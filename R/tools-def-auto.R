@@ -74,7 +74,7 @@ create_tool_def <- function(topic,
 
   topic_str <- format(expr)
 
-  tool_prompt <- readLines(system.file("tool_prompt.md", package = "elmer"), warn = FALSE)
+  tool_prompt <- readLines(system.file("tool_prompt.md", package = "ellmer"), warn = FALSE)
   tool_prompt <- paste(tool_prompt, collapse = "\n")
 
   payload <- paste0(

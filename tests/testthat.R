@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(elmer)
+library(ellmer)
 
-test_check("elmer")
+test_check("ellmer")

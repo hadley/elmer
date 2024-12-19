@@ -145,7 +145,7 @@ test_images_inline <- function(chat_fun) {
   chat <- chat_fun()
   response <- chat$chat(
     "What's in this image? (Be sure to mention the outside shape)",
-    content_image_file(system.file("httr2.png", package = "elmer"))
+    content_image_file(system.file("httr2.png", package = "ellmer"))
   )
   expect_match(response, "hex")
   expect_match(response, "baseball")

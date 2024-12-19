@@ -12,7 +12,7 @@ NULL
 #'
 #' Note that a call to `$chat()` and related functions may result in multiple
 #' user-assistant turn cycles. For example, if you have registered tools,
-#' elmer will automatically handle the tool calling loop, which may result in
+#' ellmer will automatically handle the tool calling loop, which may result in
 #' any number of additional cycles. Learn more about tool calling in
 #' `vignette("tool-calling")`.
 #'
@@ -21,7 +21,7 @@ NULL
 #' @param json The serialized JSON corresponding to the underlying data of
 #'   the turns. Currently only provided for assistant.
 #'
-#'   This is useful if there's information returned by the provider that elmer
+#'   This is useful if there's information returned by the provider that ellmer
 #'   doesn't otherwise expose.
 #' @param tokens A numeric vector of length 2 representing the number of
 #'   input and output tokens (respectively) used in this turn. Currently

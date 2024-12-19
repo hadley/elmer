@@ -35,7 +35,7 @@ test_that("respects turns interface", {
 
 test_that("all tool variations work", {
   # Note: Databricks models cannot yet handle "continuing past the first tool
-  # call", which causes issues with how elmer implements tool calling. Nor do
+  # call", which causes issues with how ellmer implements tool calling. Nor do
   # they support parallel tool calls.
   #
   # See: https://docs.databricks.com/en/machine-learning/model-serving/function-calling.html#limitations
