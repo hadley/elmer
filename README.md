@@ -16,16 +16,14 @@ features including streaming outputs, tool/function calling, structured
 data extraction, and more.
 
 (Looking for something similar to ellmer for python? Check out
-[chatlas](https://github.com/cpsievert/chatlas)!)
+[chatlas](https://github.com/posit-dev/chatlas)!)
 
 ## Installation
 
-You can install the development version of ellmer from
-[GitHub](https://github.com/) with:
+You can install ellmer from CRAN with:
 
 ``` r
-# install.packages("pak")
-pak::pak("tidyverse/ellmer")
+install.packages("ellmer")
 ```
 
 ## Providers
@@ -179,7 +177,8 @@ the response before displaying it.
 
 ellmer comes with a bunch of vignettes to help you learn more:
 
-- Learn key vocabulary and see example use cases in `vignette("ellmer")`.
+- Learn key vocabulary and see example use cases in
+  `vignette("ellmer")`.
 - Learn how to design your prompt in `vignette("prompt-design")`.
 - Learn about tool/function calling in `vignette("tool-calling")`.
 - Learn how to extract structured data in `vignette("structured-data")`.

@@ -3,9 +3,9 @@
 #' @description
 #' Sign up at <https://www.perplexity.ai>.
 #'
-#' Perplexity AI is a platform for running LLMs that are capable of 
-#' searching the web in real-time to help them answer questions with 
-#' information that may not have been available when the model was 
+#' Perplexity AI is a platform for running LLMs that are capable of
+#' searching the web in real-time to help them answer questions with
+#' information that may not have been available when the model was
 #' trained.
 #'
 #' This function is a lightweight wrapper around [chat_openai()] with
@@ -18,14 +18,19 @@
 #'   variable.
 #' @inheritParams chat_openai
 #' @inherit chat_openai return
+#' @examples
+#' \dontrun{
+#' chat <- chat_perplexity()
+#' chat$chat("Tell me three jokes about statisticians")
+#' }
 chat_perplexity <- function(system_prompt = NULL,
-                                turns = NULL,
-                                base_url = "https://api.perplexity.ai/",
-                                api_key = perplexity_key(),
-                                model = NULL,
-                                seed = NULL,
-                                api_args = list(),
-                                echo = NULL) {
+                            turns = NULL,
+                            base_url = "https://api.perplexity.ai/",
+                            api_key = perplexity_key(),
+                            model = NULL,
+                            seed = NULL,
+                            api_args = list(),
+                            echo = NULL) {
 
   model <- set_default(model, "llama-3.1-sonar-small-128k-online")
 

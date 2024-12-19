@@ -22,6 +22,9 @@ tokens_reset <- function() {
 #' have sent and recieved in the current session.
 #'
 #' @export
+#' @return A data frame
+#' @examples
+#' token_usage()
 token_usage <- function() {
   if (is.null(the$tokens)) {
     cli::cli_inform(c(x = "No recorded usage in this session"))

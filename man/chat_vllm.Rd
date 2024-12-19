@@ -56,3 +56,9 @@ A \link{Chat} object.
 provides an efficient and convenient LLMs model server. You can use
 \code{chat_vllm()} to connect to endpoints powered by vLLM.
 }
+\examples{
+\dontrun{
+chat <- chat_vllm("http://my-vllm.com")
+chat$chat("Tell me three jokes about statisticians")
+}
+}

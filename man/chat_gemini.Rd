@@ -53,6 +53,12 @@ To authenticate, we recommend saving your
 the \code{GOOGLE_API_KEY} env var in your \code{.Renviron}
 (which you can easily edit by calling \code{usethis::edit_r_environ()}).
 }
+\examples{
+\dontrun{
+chat <- chat_gemini()
+chat$chat("Tell me three jokes about statisticians")
+}
+}
 \seealso{
 Other chatbots: 
 \code{\link{chat_bedrock}()},

@@ -22,16 +22,15 @@ knitr::opts_chunk$set(
 
 ellmer makes it easy to use large language models (LLM) from R. It supports a wide variety of LLM providers and implements a rich set of features including streaming outputs, tool/function calling, structured data extraction, and more.
 
-(Looking for something similar to ellmer for python? Check out [chatlas](https://github.com/cpsievert/chatlas)!)
+(Looking for something similar to ellmer for python? Check out [chatlas](https://github.com/posit-dev/chatlas)!)
 
 ## Installation
 
-You can install the development version of ellmer from [GitHub](https://github.com/) with:
+You can install ellmer from CRAN with:
 
 ```{r}
 #| eval: false
-# install.packages("pak")
-pak::pak("tidyverse/ellmer")
+install.packages("ellmer")
 ```
 
 ## Providers

@@ -14,14 +14,20 @@ NULL
 #' @export
 #' @family chatbots
 #' @inheritParams chat_openai
+#' @inherit chat_openai return
+#' @examples
+#' \dontrun{
+#' chat <- chat_groq()
+#' chat$chat("Tell me three jokes about statisticians")
+#' }
 chat_groq <- function(system_prompt = NULL,
-                          turns = NULL,
-                          base_url = "https://api.groq.com/openai/v1",
-                          api_key = groq_key(),
-                          model = NULL,
-                          seed = NULL,
-                          api_args = list(),
-                          echo = NULL) {
+                      turns = NULL,
+                      base_url = "https://api.groq.com/openai/v1",
+                      api_key = groq_key(),
+                      model = NULL,
+                      seed = NULL,
+                      api_args = list(),
+                      echo = NULL) {
 
   turns <- normalize_turns(turns, system_prompt)
   model <- set_default(model, "llama3-8b-8192")

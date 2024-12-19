@@ -26,6 +26,9 @@ NULL
 #' @param max_tokens Maximum number of tokens to generate before stopping.
 #' @family chatbots
 #' @export
+#' @examplesIf ellmer:::anthropic_key_exists()
+#' chat <- chat_claude()
+#' chat$chat("Tell me three jokes about statisticians")
 chat_claude <- function(system_prompt = NULL,
                             turns = NULL,
                             max_tokens = 4096,

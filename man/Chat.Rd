@@ -3,6 +3,9 @@
 \name{Chat}
 \alias{Chat}
 \title{A chat}
+\value{
+A Chat object
+}
 \description{
 A \code{Chat} is an sequence of sequence of user and assistant \link{Turn}s sent
 to a specific \link{Provider}. A \code{Chat} is a mutable R6 object that takes care of
@@ -13,6 +16,12 @@ your behalf), it also takes care of the tool loop.
 
 You should generally not create this object yourself,
 but instead call \code{\link[=chat_openai]{chat_openai()}} or friends instead.
+}
+\examples{
+\dontshow{if (ellmer:::openai_key_exists()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+chat <- chat_openai(echo = TRUE)
+chat$chat("Tell me a funny joke")
+\dontshow{\}) # examplesIf}
 }
 \section{Methods}{
 \subsection{Public methods}{

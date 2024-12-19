@@ -16,8 +16,14 @@
 #'   tried it with.
 #'
 #' @inheritParams chat_openai
+#' @inherit chat_openai return
 #' @family chatbots
 #' @export
+#' @examples
+#' \dontrun{
+#' chat <- chat_ollama(model = "llama3.2")
+#' chat$chat("Tell me three jokes about statisticians")
+#' }
 chat_ollama <- function(system_prompt = NULL,
                         turns = NULL,
                         base_url = "http://localhost:11434",
@@ -36,6 +42,7 @@ chat_ollama <- function(system_prompt = NULL,
       i = "Locally installed models: {.str {models}}."
     ))
   }
+  echo <- check_echo(echo)
 
   chat_openai(
     system_prompt = system_prompt,

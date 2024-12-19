@@ -59,3 +59,9 @@ The \href{https://azure.microsoft.com/en-us/products/ai-services/openai-service}
 hosts a number of open source models as well as proprietary models
 from OpenAI.
 }
+\examples{
+\dontrun{
+chat <- chat_azure(deployment_id = "gpt-4o-mini")
+chat$chat("Tell me three jokes about statisticians")
+}
+}

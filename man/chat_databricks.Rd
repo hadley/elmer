@@ -76,6 +76,12 @@ model. Specifically, it supports:
 }
 }
 }
+\examples{
+\dontrun{
+chat <- chat_databricks()
+chat$chat("Tell me three jokes about statisticians")
+}
+}
 \seealso{
 Other chatbots: 
 \code{\link{chat_bedrock}()},

@@ -22,6 +22,9 @@ for more details.}
 
 \item{path}{A path to a prompt file (often a \code{.md}).}
 }
+\value{
+A \{glue\} string.
+}
 \description{
 These functions are lightweight wrappers around
 \href{https://glue.tidyverse.org/}{glue} that make it easier to interpolate

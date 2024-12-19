@@ -1,13 +1,16 @@
+/Users/hadleywickham/Documents/llms/elmer/DESCRIPTION
 Package: ellmer
-Title: Call LLM APIs from R
+Title: Chat with Large Language Models
 Version: 0.0.0.9000
 Authors@R: c(
     person("Hadley", "Wickham", , "hadley@posit.co", role = c("aut", "cre")),
     person("Joe", "Cheng", role = "aut"),
     person("Posit Software, PBC", role = c("cph", "fnd"))
   )
-Description: A consistent interface for calling LLM APIs. Includes support
-    for streaming.
+Description: Chat with large language models from a range of providers
+  including 'Claude', 'OpenAI', 'Azure', 'Bedrock', and 'Google' 'Gemini'.
+  Supports streaming, asyncronous calls, tool calling, and structured data
+  extraction.
 License: MIT + file LICENSE
 URL: https://ellmer.tidyverse.org, https://github.com/tidyverse/ellmer
 BugReports: https://github.com/tidyverse/ellmer/issues

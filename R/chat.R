@@ -13,6 +13,11 @@ NULL
 #'
 #' You should generally not create this object yourself,
 #' but instead call [chat_openai()] or friends instead.
+#'
+#' @return A Chat object
+#' @examplesIf ellmer:::openai_key_exists()
+#' chat <- chat_openai(echo = TRUE)
+#' chat$chat("Tell me a funny joke")
 Chat <- R6::R6Class("Chat",
   public = list(
     #' @param provider A provider object.

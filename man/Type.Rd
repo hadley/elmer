@@ -8,7 +8,7 @@
 \alias{TypeObject}
 \title{Type definitions for function calling and structured data extraction.}
 \usage{
-TypeBasic(description = NULL, required = TRUE, type = character(0))
+TypeBasic(description = NULL, required = TRUE, type = stop("Required"))
 
 TypeEnum(description = NULL, required = TRUE, values = character(0))
 
@@ -45,7 +45,14 @@ Each element should be an S7 \code{Type} object.`}
 \item{additional_properties}{Can the object have arbitrary additional
 properties that are not explicitly listed? Only supported by Claude.}
 }
+\value{
+S7 objects inheriting from \code{Type}
+}
 \description{
 These S7 classes are provided for use by package devlopers who are
 extending ellmer. In every day use, use \code{\link[=type_boolean]{type_boolean()}} and friends.
+}
+\examples{
+TypeBasic(type = "boolean")
+TypeArray(items = TypeBasic(type = "boolean"))
 }

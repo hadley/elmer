@@ -52,12 +52,14 @@ contents_markdown <- new_generic("contents_markdown", "content")
 #' Content types received from and sent to a chatbot
 #'
 #' @description
+#' Use these functions if you're writing a package that extends ellmer and need
+#' to customise methods for various types of content. For normal use, see
+#' [content_image_url()] and friends.
+#'
 #' ellmer abstracts away differences in the way that different [Provider]s
 #' represent various types of content, allowing you to more easily write
-#' code that works with any chatbot.
-#'
-#' This set of classes represents the various types of content that can be
-#' sent to and received from a provider:
+#' code that works with any chatbot. This set of classes represents types of
+#' content that can be either sent to and received from a provider:
 #'
 #' * `ContentText`: simple text (often in markdown format). This is the only
 #'   type of content that can be streamed live as it's received.
@@ -70,6 +72,12 @@ contents_markdown <- new_generic("contents_markdown", "content")
 #' * `ContentToolResult`: the result of calling the tool (sent by the user).
 #'
 #' @export
+#' @return S7 objects that all inherit from `Content`
+#' @examples
+#' Content()
+#' ContentText("Tell me a joke")
+#' ContentImageRemote("https://www.r-project.org/Rlogo.png")
+#' ContentToolRequest(id = "abc", name = "mean", arguments = list(x = 1:5))
 Content <- new_class("Content")
 
 method(contents_text, Content) <- function(content) {
@@ -128,7 +136,7 @@ ContentImageRemote <- new_class(
   parent = Content,
   properties = list(
     url = prop_string(),
-    detail = prop_string()
+    detail = prop_string(default = "")
   )
 )
 method(format, ContentImageRemote) <- function(x, ...) {

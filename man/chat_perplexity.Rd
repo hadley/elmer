@@ -62,6 +62,12 @@ trained.
 This function is a lightweight wrapper around \code{\link[=chat_openai]{chat_openai()}} with
 the defaults tweaked for Perplexity AI.
 }
+\examples{
+\dontrun{
+chat <- chat_perplexity()
+chat$chat("Tell me three jokes about statisticians")
+}
+}
 \seealso{
 Other chatbots: 
 \code{\link{chat_bedrock}()},
