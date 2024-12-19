@@ -21,7 +21,7 @@ The `chat()` method does not return any results until the entire response is rec
 
 If you want to process the response as it arrives, you can use the `stream()` method. This is useful when you want to send the response, in realtime, somewhere other than the R console (e.g., to a file, an HTTP response, or a Shiny chat window), or when you want to manipulate the response before displaying it without giving up the immediacy of streaming.
 
-With the `stream()` method, which returns a [coro package](https://coro.r-lib.org/) [generator](https://coro.r-lib.org/articles/generator.html), you can process the response by looping over it as it arrives.
+With the `stream()` method, which returns a [coro](https://coro.r-lib.org/) [generator](https://coro.r-lib.org/articles/generator.html), you can process the response by looping over it as it arrives.
 
 ```{r eval=FALSE}
 stream <- chat$stream("What are some common uses of R?")
