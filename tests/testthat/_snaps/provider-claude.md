@@ -19,3 +19,4 @@
     Condition
       Error in `method(as_json, list(ellmer::ProviderClaude, ellmer::ContentImageRemote))`:
       ! Claude doesn't support remote images
+

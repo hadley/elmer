@@ -21,3 +21,4 @@
     Condition
       Error in `method(as_json, list(ellmer::ProviderOpenAI, ellmer::TypeObject))`:
       ! `.additional_properties` not supported for OpenAI.
+

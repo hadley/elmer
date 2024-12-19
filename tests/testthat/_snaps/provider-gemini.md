@@ -21,3 +21,4 @@
     Condition
       Error in `method(as_json, list(ellmer::ProviderGemini, ellmer::ContentImageRemote))`:
       ! Gemini doesn't support remote images
+
