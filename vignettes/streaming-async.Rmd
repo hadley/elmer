@@ -17,11 +17,11 @@ knitr::opts_chunk$set(
 
 ### Streaming results
 
-The `chat()` method does not return any results until the entire response has been received. (It can _print_ the streaming results to the console, but it _returns_ the result only when the response is complete.)
+The `chat()` method does not return any results until the entire response is received. (It can _print_ the streaming results to the console but it _returns_ the result only when the response is complete.)
 
-If you want to process the response as it arrives, you can use the `stream()` method. This may be useful when you want to display the response in realtime, but somewhere other than the R console (like writing to a file, or an HTTP response, or a Shiny chat window); or when you want to manipulate the response before displaying it, without giving up the immediacy of streaming.
+If you want to process the response as it arrives, you can use the `stream()` method. This is useful when you want to send the response, in realtime, somewhere other than the R console (e.g., to a file, an HTTP response, or a Shiny chat window), or when you want to manipulate the response before displaying it without giving up the immediacy of streaming.
 
-The `stream()` method returns a [generator](https://coro.r-lib.org/articles/generator.html) from the [coro package](https://coro.r-lib.org/), which you can loop over to process the response as it arrives.
+With the `stream()` method, which returns a [coro](https://coro.r-lib.org/) [generator](https://coro.r-lib.org/articles/generator.html), you can process the response by looping over it as it arrives.
 
 ```{r eval=FALSE}
 stream <- chat$stream("What are some common uses of R?")
@@ -44,15 +44,15 @@ coro::loop(for (chunk in stream) {
 
 ## Async usage
 
-ellmer also supports async usage, which is useful when you want to run multiple chat sessions concurrently. This is primarily useful in Shiny applications, where using the methods described above would block the Shiny app for other users for the duration of each response.
+ellmer also supports async usage. This is useful when you want to run multiple, concurrent chat sessions. This is particularly important for Shiny applications where using the methods described above would block the Shiny app for other users for the duration of each response.
 
-To use async chat, instead of `chat()`/`stream()`, call `chat_async()`/`stream_async()`. The `_async` variants take the same arguments for construction, but return promises instead of the actual response.
+To use async chat, call `chat_async()`/`stream_async()` instead of `chat()`/`stream()`. The `_async` variants take the same arguments for construction but return a promise instead of the actual response.
 
-Remember that chat objects are stateful, maintaining the conversation history as you interact with it. Note that this means it doesn't make sense to issue multiple chat/stream operations on the same chat object concurrently, as the conversation history could become corrupted with interleaved conversation fragments. If you need to run multiple chat sessions concurrently, create multiple chat objects.
+Remember that chat objects are stateful; they preserve the conversation history as you interact with it. This means that it doesn't make sense to issue multiple, concurrent chat/stream operations on the same chat object because the conversation history can become corrupted with interleaved conversation fragments. If you need to run concurrent chat sessions, create multiple chat objects.
 
 ### Asynchronous chat
 
-For asynchronous, non-streaming chat, you use the `chat()` method as before, but handle the result as a promise instead of a string.
+For asynchronous, non-streaming chat, you'd use the `chat()` method as before, but handle the result as a promise instead of a string.
 
 ```{r eval=FALSE}
 library(promises)
@@ -65,7 +65,7 @@ TODO: Shiny example
 
 ### Asynchronous streaming
 
-For asynchronous streaming, you use the `stream()` method as before, but the result is a [async generator](https://coro.r-lib.org/reference/async_generator.html) from the [coro package](https://coro.r-lib.org/). This is the same as a regular [generator](https://coro.r-lib.org/articles/generator.html), except instead of giving you strings, it gives you promises that resolve to strings.
+For asynchronous streaming, you'd use the `stream()` method as before, but the result is an [async generator](https://coro.r-lib.org/reference/async_generator.html) from the [coro package](https://coro.r-lib.org/). This is the same as a regular [generator](https://coro.r-lib.org/articles/generator.html), except that instead of giving you strings, it gives you promises that resolve to strings.
 
 ```{r eval=FALSE}
 stream <- chat$stream_async("What are some common uses of R?")
@@ -86,4 +86,4 @@ coro::async(function() {
 #>  8. **GEOSPATIAL ANALYSIS**: MAPPING AND ANALYZING GEOGRAPHIC DATA.
 ```
 
-Async generators are very advanced, and require a good understanding of asynchronous programming in R. They are also the only way to present streaming results in Shiny without blocking other users. Fortunately, Shiny will soon have chat components that will make this easier, where you can simply hand the result of `stream_async()` to a chat output.
+Async generators are very advanced and require a good understanding of asynchronous programming in R. They are also the only way to present streaming results in Shiny without blocking other users. Fortunately, Shiny will soon have chat components that will make this easier, where you'll simply hand the result of `stream_async()` to a chat output.
