@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Getting started with elmer • elmer</title>
+<title>Getting started with ellmer • ellmer</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -18,8 +18,8 @@
 <link href="../deps/Source_Code_Pro-0.4.9/font.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
-<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting started with elmer">
-<script defer data-domain="elmer.tidyverse.org,all.tidyverse.org" src="https://plausible.io/js/plausible.js"></script>
+<script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Getting started with ellmer">
+<script defer data-domain="ellmer.tidyverse.org,all.tidyverse.org" src="https://plausible.io/js/plausible.js"></script>
 </head>
 <body>
     <a href="#container" class="visually-hidden-focusable">Skip to content</a>
@@ -27,7 +27,7 @@
 
     <nav class="navbar navbar-expand-lg fixed-top bg-none" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
-    <a class="navbar-brand me-2" href="../index.html">elmer</a>
+    <a class="navbar-brand me-2" href="../index.html">ellmer</a>
 
     <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.0.0.9000</small>
 
@@ -38,12 +38,12 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="active nav-item"><a class="nav-link" href="../articles/elmer.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/prompt-design.html">Prompt design</a></li>
+<li><a class="dropdown-item" href="../articles/elmer.html">Getting started with ellmer</a></li>
+    <li><a class="dropdown-item" href="../articles/prompt-design.html">Prompt design</a></li>
     <li><a class="dropdown-item" href="../articles/streaming-async.html">Streaming and async APIs</a></li>
     <li><a class="dropdown-item" href="../articles/structured-data.html">Structured data</a></li>
     <li><a class="dropdown-item" href="../articles/tool-calling.html">Tool/function calling</a></li>
@@ -55,7 +55,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/tidyverse/elmer/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/tidyverse/ellmer/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -68,18 +68,18 @@
 
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
-      <img src="../logo.png" class="logo" alt=""><h1>Getting started with elmer</h1>
+      <img src="../logo.png" class="logo" alt=""><h1>Getting started with ellmer</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/tidyverse/elmer/blob/main/vignettes/elmer.Rmd" class="external-link"><code>vignettes/elmer.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/tidyverse/ellmer/blob/main/vignettes/elmer.Rmd" class="external-link"><code>vignettes/elmer.Rmd</code></a></small>
       <div class="d-none name"><code>elmer.Rmd</code></div>
     </div>
 
     
     
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://elmer.tidyverse.org">elmer</a></span><span class="op">)</span></span></code></pre></div>
-<p>elmer makes it easy to access the wealth of large language models
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ellmer.tidyverse.org">ellmer</a></span><span class="op">)</span></span></code></pre></div>
+<p>ellmer makes it easy to access the wealth of large language models
 (LLMs) from R. But what can you do with those models once you have
 access to them? This vignette will give you the basic vocabulary you
 need to use an LLM effectively and will show you some examples to ignite
@@ -152,26 +152,23 @@ text the LLM can use to generate the next response. As we’ll discuss
 shortly, the context length includes the full state of your conversation
 so far (both your prompts and the model’s responses), which means that
 cost grow rapidly with the number of conversational turns.</p>
-<p>In elmer, you can see how many tokens a conversations has used by
+<p>In ellmer, you can see how many tokens a conversations has used by
 printing it, and you can see total usage for a session with
 <code><a href="../reference/token_usage.html">token_usage()</a></code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/chat_openai.html">chat_openai</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"gpt-4o"</span><span class="op">)</span></span>
 <span><span class="va">.</span> <span class="op">&lt;-</span> <span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="st">"Who created R?"</span>, echo <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">chat</span></span>
-<span><span class="co">#&gt; &lt;Chat turns=2 tokens=11/60&gt;</span></span>
+<span><span class="co">#&gt; &lt;Chat turns=2 tokens=11/28&gt;</span></span>
 <span><span class="co">#&gt; ── <span style="color: #0000BB;">user</span> ──────────────────────────────────────────────────────────────────</span></span>
 <span><span class="co">#&gt; Who created R?</span></span>
 <span><span class="co">#&gt; ── <span style="color: #00BB00;">assistant</span> ─────────────────────────────────────────────────────────────</span></span>
-<span><span class="co">#&gt; R was created by Ross Ihaka and Robert Gentleman in the mid-1990s. They</span></span>
-<span><span class="co">#&gt; were both statisticians at the University of Auckland in New Zealand. R</span></span>
-<span><span class="co">#&gt; was designed as a free software environment for statistical computing and</span></span>
-<span><span class="co">#&gt; graphics, and it has since become widely used among statisticians and</span></span>
-<span><span class="co">#&gt; data scientists.</span></span>
+<span><span class="co">#&gt; R was created by Ross Ihaka and Robert Gentleman at the University of</span></span>
+<span><span class="co">#&gt; Auckland, New Zealand, in the early 1990s.</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/token_usage.html">token_usage</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt;                               name input output</span></span>
-<span><span class="co">#&gt; 1 OpenAI-https://api.openai.com/v1    11     60</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 OpenAI-https://api.openai.com/v1    11     28</span></span></code></pre></div>
 <p>If you want to learn more about tokens and tokenizers, I’d recommend
 watching the first 20-30 minutes of <a href="https://www.youtube.com/watch?v=zduSFxRajkE" class="external-link">Let’s build the GPT
 Tokenizer</a> by Andrej Karpathy. You certainly don’t need to learn how
@@ -198,8 +195,8 @@ short.</p></li>
 This can make a converstion get stuck in a local optimum, so it’s
 generally better to iterate by starting a new conversation with a better
 prompt rather than having a long back-and-forth.</p></li>
-<li><p>elmer has full control over the conversational history. Because
-it’s elmer’s responsibility to send the previous turns of the
+<li><p>ellmer has full control over the conversational history. Because
+it’s ellmer’s responsibility to send the previous turns of the
 conversation, it’s possible to start a conversation with one model and
 finish it with another.</p></li>
 </ul>
@@ -253,16 +250,16 @@ scratch with a blank page.</p>
 <div class="section level3">
 <h3 id="chatbots">Chatbots<a class="anchor" aria-label="anchor" href="#chatbots"></a>
 </h3>
-<p>A great place to start with elmer and LLMs is to build a chatbot with
-a custom prompt. Chatbots are a familiar interface to LLMs and are easy
-to create in R with <a href="https://github.com/jcheng5/shinychat" class="external-link">shinychat</a>. And there’s a
+<p>A great place to start with ellmer and LLMs is to build a chatbot
+with a custom prompt. Chatbots are a familiar interface to LLMs and are
+easy to create in R with <a href="https://github.com/jcheng5/shinychat" class="external-link">shinychat</a>. And there’s a
 surprising amount of value to creating a custom chatbot that has a
 prompt stuffed with useful knowledge. For example:</p>
 <ul>
 <li><p>Help people use your new package. To do so, you need a custom
 prompt because LLMs were trained on data prior to your package’s
 existence. You can create a surprisingly useful tool just by preloading
-the prompt with your README and vignettes. This is how the <a href="https://github.com/jcheng5/elmer-assistant" class="external-link">elmer assistant</a>
+the prompt with your README and vignettes. This is how the <a href="https://github.com/jcheng5/ellmer-assistant" class="external-link">ellmer assistant</a>
 works.</p></li>
 <li><p>Build language specific prompts for R and/or python. <a href="https://shiny.posit.co/blog/posts/shiny-assistant/" class="external-link">Shiny
 assistant</a> helps you build shiny apps (either in R or python) by

@@ -5,7 +5,7 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<title>Prompt design • elmer</title>
+<title>Prompt design • ellmer</title>
 <!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
 <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
 <link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
@@ -19,7 +19,7 @@
 <link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Prompt design">
-<script defer data-domain="elmer.tidyverse.org,all.tidyverse.org" src="https://plausible.io/js/plausible.js"></script>
+<script defer data-domain="ellmer.tidyverse.org,all.tidyverse.org" src="https://plausible.io/js/plausible.js"></script>
 </head>
 <body>
     <a href="#container" class="visually-hidden-focusable">Skip to content</a>
@@ -27,7 +27,7 @@
 
     <nav class="navbar navbar-expand-lg fixed-top bg-none" data-bs-theme="light" aria-label="Site navigation"><div class="container">
 
-    <a class="navbar-brand me-2" href="../index.html">elmer</a>
+    <a class="navbar-brand me-2" href="../index.html">ellmer</a>
 
     <small class="nav-text text-danger me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Unreleased version">0.0.0.9000</small>
 
@@ -38,12 +38,12 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
-<li class="nav-item"><a class="nav-link" href="../articles/elmer.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/prompt-design.html">Prompt design</a></li>
+<li><a class="dropdown-item" href="../articles/elmer.html">Getting started with ellmer</a></li>
+    <li><a class="dropdown-item" href="../articles/prompt-design.html">Prompt design</a></li>
     <li><a class="dropdown-item" href="../articles/streaming-async.html">Streaming and async APIs</a></li>
     <li><a class="dropdown-item" href="../articles/structured-data.html">Structured data</a></li>
     <li><a class="dropdown-item" href="../articles/tool-calling.html">Tool/function calling</a></li>
@@ -55,7 +55,7 @@
 <li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json">
 </form></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://github.com/tidyverse/elmer/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://github.com/tidyverse/ellmer/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
       </ul>
 </div>
 
@@ -71,13 +71,13 @@
       <img src="../logo.png" class="logo" alt=""><h1>Prompt design</h1>
             
       
-      <small class="dont-index">Source: <a href="https://github.com/tidyverse/elmer/blob/main/vignettes/prompt-design.Rmd" class="external-link"><code>vignettes/prompt-design.Rmd</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/tidyverse/ellmer/blob/main/vignettes/prompt-design.Rmd" class="external-link"><code>vignettes/prompt-design.Rmd</code></a></small>
       <div class="d-none name"><code>prompt-design.Rmd</code></div>
     </div>
 
     
     
-<p>This vignette gives you some advice about how to use elmer to write
+<p>This vignette gives you some advice about how to use ellmer to write
 prompts. We’ll work through two hopefully relevant examples: a prompt
 that generates code and another that extracts structured data. If you’ve
 never written a prompt, I’d highly recommend reading Ethan Mollick’s <a href="https://www.oneusefulthing.org/p/getting-started-with-ai-good-enough" class="external-link">Getting
@@ -106,9 +106,9 @@ It’s specifically tailored for Claude, but I suspect it will help you
 with many other LLMs, or at least give you some ideas as to what else to
 include in your prompt.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://elmer.tidyverse.org">elmer</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ellmer.tidyverse.org">ellmer</a></span><span class="op">)</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Attaching package: 'elmer'</span></span>
+<span><span class="co">#&gt; Attaching package: 'ellmer'</span></span>
 <span><span class="co">#&gt; The following object is masked _by_ '.GlobalEnv':</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt;     chat_claude</span></span></code></pre></div>
@@ -140,7 +140,7 @@ commiting them to a git repo. That will ensure that you can easily see
 what has changed, and that if you accidentally make a mistake you can
 easily roll back to a known good verison.</p>
 <p>If your prompt includes dynamic data, use
-<code><a href="../reference/interpolate.html">elmer::interpolate_file()</a></code> to intergrate it into your
+<code><a href="../reference/interpolate.html">ellmer::interpolate_file()</a></code> to intergrate it into your
 prompt. <code><a href="../reference/interpolate.html">interpolate_file()</a></code> works like <a href="https://glue.tidyverse.org" class="external-link">glue</a> but uses <code>{{ }}</code>
 instead of <code><a href="https://rdrr.io/r/base/Paren.html" class="external-link">{ }</a></code> to make it easier to work with JSON.</p>
 <p>As you iterate the prompt, it’s a good idea to build up a small set
@@ -214,8 +214,8 @@ providing a system prompt:</p>
 <span><span class="co">#&gt; df %&gt;%</span></span>
 <span><span class="co">#&gt;   group_by(age, sex) %&gt;%</span></span>
 <span><span class="co">#&gt;   summarise(across(</span></span>
-<span><span class="co">#&gt;     a:z,</span></span>
-<span><span class="co">#&gt;     list(</span></span>
+<span><span class="co">#&gt;     .cols = a:z,</span></span>
+<span><span class="co">#&gt;     .fns = list(</span></span>
 <span><span class="co">#&gt;       mean = ~mean(., na.rm = TRUE),</span></span>
 <span><span class="co">#&gt;       median = ~median(., na.rm = TRUE)</span></span>
 <span><span class="co">#&gt;     )</span></span>
@@ -225,21 +225,20 @@ providing a system prompt:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; This code will:</span></span>
 <span><span class="co">#&gt; 1. Group the data by age and sex</span></span>
-<span><span class="co">#&gt; 2. Use `across()` to apply both mean and median functions to all </span></span>
-<span><span class="co">#&gt; variables from 'a' to 'z'</span></span>
+<span><span class="co">#&gt; 2. Use `across()` to apply both mean and median functions to all columns </span></span>
+<span><span class="co">#&gt; from 'a' to 'z'</span></span>
 <span><span class="co">#&gt; 3. Handle missing values with `na.rm = TRUE`</span></span>
-<span><span class="co">#&gt; 4. The output will have columns named like `a_mean`, `a_median`, </span></span>
+<span><span class="co">#&gt; 4. The result will have columns named like `a_mean`, `a_median`, </span></span>
 <span><span class="co">#&gt; `b_mean`, `b_median`, etc.</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; If you want to make the output longer (more rows instead of columns), you</span></span>
-<span><span class="co">#&gt; could add:</span></span>
+<span><span class="co">#&gt; If you want to make the output more tidy (long format), you could add:</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; ```r</span></span>
 <span><span class="co">#&gt; df %&gt;%</span></span>
 <span><span class="co">#&gt;   group_by(age, sex) %&gt;%</span></span>
 <span><span class="co">#&gt;   summarise(across(</span></span>
-<span><span class="co">#&gt;     a:z,</span></span>
-<span><span class="co">#&gt;     list(</span></span>
+<span><span class="co">#&gt;     .cols = a:z,</span></span>
+<span><span class="co">#&gt;     .fns = list(</span></span>
 <span><span class="co">#&gt;       mean = ~mean(., na.rm = TRUE),</span></span>
 <span><span class="co">#&gt;       median = ~median(., na.rm = TRUE)</span></span>
 <span><span class="co">#&gt;     )</span></span>
@@ -253,7 +252,7 @@ providing a system prompt:</p>
 <span><span class="co">#&gt;   )</span></span>
 <span><span class="co">#&gt; ```</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; This will give you a tidy format with columns: age, sex, variable, </span></span>
+<span><span class="co">#&gt; This will give you a long format with columns: age, sex, variable, </span></span>
 <span><span class="co">#&gt; statistic, and value.</span></span></code></pre>
 <p>Note that I’m using both a system prompt (which defines the general
 behaviour) and a user prompt (which asks the specific question). You
@@ -339,8 +338,7 @@ so I provide more details about what I do want:</p>
 <span><span class="co">#&gt;         median = median</span></span>
 <span><span class="co">#&gt;       ),</span></span>
 <span><span class="co">#&gt;       na.rm = TRUE</span></span>
-<span><span class="co">#&gt;     ),</span></span>
-<span><span class="co">#&gt;     .groups = "drop"</span></span>
+<span><span class="co">#&gt;     )</span></span>
 <span><span class="co">#&gt;   )</span></span>
 <span><span class="co">#&gt; ```</span></span></code></pre>
 <p>This still doesn’t yield exactly the code that I’d write, but it’s
@@ -466,46 +464,47 @@ page.</p>
 <span><span class="co">#&gt; {</span></span>
 <span><span class="co">#&gt;   "ingredients": [</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "quantity": "¾ cup",</span></span>
-<span><span class="co">#&gt;       "grams": 150,</span></span>
-<span><span class="co">#&gt;       "ingredient": "dark brown sugar"</span></span>
+<span><span class="co">#&gt;       "amount": "¾ cup",</span></span>
+<span><span class="co">#&gt;       "weight": "150g",</span></span>
+<span><span class="co">#&gt;       "name": "dark brown sugar"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "quantity": "2",</span></span>
-<span><span class="co">#&gt;       "measurement": "large",</span></span>
-<span><span class="co">#&gt;       "ingredient": "eggs"</span></span>
+<span><span class="co">#&gt;       "amount": "2",</span></span>
+<span><span class="co">#&gt;       "unit": "large",</span></span>
+<span><span class="co">#&gt;       "name": "eggs"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "quantity": "¾ cup",</span></span>
-<span><span class="co">#&gt;       "grams": 165,</span></span>
-<span><span class="co">#&gt;       "ingredient": "sour cream"</span></span>
+<span><span class="co">#&gt;       "amount": "¾ cup",</span></span>
+<span><span class="co">#&gt;       "weight": "165g",</span></span>
+<span><span class="co">#&gt;       "name": "sour cream"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "quantity": "½ cup",</span></span>
-<span><span class="co">#&gt;       "grams": 113,</span></span>
-<span><span class="co">#&gt;       "ingredient": "unsalted butter, melted"</span></span>
+<span><span class="co">#&gt;       "amount": "½ cup",</span></span>
+<span><span class="co">#&gt;       "weight": "113g",</span></span>
+<span><span class="co">#&gt;       "name": "unsalted butter",</span></span>
+<span><span class="co">#&gt;       "additional_info": "melted"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "quantity": "1 teaspoon",</span></span>
-<span><span class="co">#&gt;       "ingredient": "vanilla extract"</span></span>
+<span><span class="co">#&gt;       "amount": "1 teaspoon",</span></span>
+<span><span class="co">#&gt;       "name": "vanilla extract"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "quantity": "¾ teaspoon",</span></span>
-<span><span class="co">#&gt;       "ingredient": "kosher salt"</span></span>
+<span><span class="co">#&gt;       "amount": "¾ teaspoon",</span></span>
+<span><span class="co">#&gt;       "name": "kosher salt"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "quantity": "⅓ cup",</span></span>
-<span><span class="co">#&gt;       "milliliters": 80,</span></span>
-<span><span class="co">#&gt;       "ingredient": "neutral oil"</span></span>
+<span><span class="co">#&gt;       "amount": "⅓ cup",</span></span>
+<span><span class="co">#&gt;       "volume": "80ml",</span></span>
+<span><span class="co">#&gt;       "name": "neutral oil"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "quantity": "1½ cups",</span></span>
-<span><span class="co">#&gt;       "grams": 190,</span></span>
-<span><span class="co">#&gt;       "ingredient": "all-purpose flour"</span></span>
+<span><span class="co">#&gt;       "amount": "1½ cups",</span></span>
+<span><span class="co">#&gt;       "weight": "190g",</span></span>
+<span><span class="co">#&gt;       "name": "all-purpose flour"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "quantity": "150g plus 1½ teaspoons",</span></span>
-<span><span class="co">#&gt;       "ingredient": "sugar"</span></span>
+<span><span class="co">#&gt;       "amount": "150g plus 1½ teaspoons",</span></span>
+<span><span class="co">#&gt;       "name": "sugar"</span></span>
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt;   ]</span></span>
 <span><span class="co">#&gt; }</span></span>
@@ -541,7 +540,7 @@ provide the input and output examples in such a loose format.</p>
 <pre><code><span><span class="co">#&gt; ```json</span></span>
 <span><span class="co">#&gt; [</span></span>
 <span><span class="co">#&gt;   {"name": "dark brown sugar", "quantity": 150, "unit": "g"},</span></span>
-<span><span class="co">#&gt;   {"name": "large eggs", "quantity": 2, "unit": ""},</span></span>
+<span><span class="co">#&gt;   {"name": "large eggs", "quantity": 2, "unit": "piece"},</span></span>
 <span><span class="co">#&gt;   {"name": "sour cream", "quantity": 165, "unit": "g"},</span></span>
 <span><span class="co">#&gt;   {"name": "unsalted butter, melted", "quantity": 113, "unit": "g"},</span></span>
 <span><span class="co">#&gt;   {"name": "vanilla extract", "quantity": 1, "unit": "teaspoon"},</span></span>
@@ -625,7 +624,7 @@ prompt</a> to see what I ended up with.</p>
 useful to formalise it and tell the LLM exactly what I’m looking for
 when dealing with structured data. This guarantees that the LLM will
 only return JSON, that the JSON will have the fields that you expect,
-and that elmer will convert it into an R data structure.</p>
+and that ellmer will convert it into an R data structure.</p>
 <div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">type_ingredient</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/type_boolean.html">type_object</a></span><span class="op">(</span></span>
 <span>  name <span class="op">=</span> <span class="fu"><a href="../reference/type_boolean.html">type_string</a></span><span class="op">(</span><span class="st">"Ingredient name"</span><span class="op">)</span>,</span>
@@ -661,7 +660,7 @@ and that elmer will convert it into an R data structure.</p>
 <span><span class="co">#&gt; quantity.9                      150</span></span>
 <span><span class="co">#&gt; quantity.10                     1.5</span></span>
 <span><span class="co">#&gt; unit.1                            g</span></span>
-<span><span class="co">#&gt; unit.2                        count</span></span>
+<span><span class="co">#&gt; unit.2                        large</span></span>
 <span><span class="co">#&gt; unit.3                            g</span></span>
 <span><span class="co">#&gt; unit.4                            g</span></span>
 <span><span class="co">#&gt; unit.5                     teaspoon</span></span>
@@ -725,8 +724,8 @@ doing a good job:</p>
 <span><span class="co">#&gt;   {"name": "egg", "quantity": 1, "unit": null, "input": "an egg"},</span></span>
 <span><span class="co">#&gt;   {"name": "vanilla extract", "quantity": 1, "unit": "teaspoon", "input":</span></span>
 <span><span class="co">#&gt; "1 teaspoon of vanilla extract"},</span></span>
-<span><span class="co">#&gt;   {"name": "all-purpose flour", "quantity": 2, "unit": "cups", "input": </span></span>
-<span><span class="co">#&gt; "2 cups of all-purpose flour"},</span></span>
+<span><span class="co">#&gt;   {"name": "all-purpose flour", "quantity": 2, "unit": "cup", "input": "2</span></span>
+<span><span class="co">#&gt; cups of all-purpose flour"},</span></span>
 <span><span class="co">#&gt;   {"name": "semisweet chocolate chips", "quantity": 1, "unit": "cup", </span></span>
 <span><span class="co">#&gt; "input": "1 cup of semisweet chocolate chips"}</span></span>
 <span><span class="co">#&gt; ]</span></span>
@@ -750,13 +749,13 @@ my examples.</p>
 <tr class="odd">
 <td align="left">Claude</td>
 <td align="right">788</td>
-<td align="right">1203</td>
+<td align="right">1207</td>
 </tr>
 <tr class="even">
 <td align="left">OpenAI-<a href="https://api.openai.com/v1" class="external-link uri">https://api.openai.com/v1</a>
 </td>
 <td align="right">1138</td>
-<td align="right">827</td>
+<td align="right">844</td>
 </tr>
 </tbody>
 </table>
