@@ -10,6 +10,9 @@ NULL
 #' `chat_vllm()` to connect to endpoints powered by vLLM.
 #'
 #' @inheritParams chat_openai
+#' @param api_key The API key to use for authentication. You generally should
+#'   not supply this directly, but instead set the `VLLM_API_KEY` environment
+#'   variable.
 #' @inherit chat_openai return
 #' @export
 #' @examples
@@ -59,7 +62,7 @@ chat_vllm_test <- function(...) {
 ProviderVllm <- new_class(
   "ProviderVllm",
   parent = ProviderOpenAI,
-  package = "elmer",
+  package = "ellmer",
 )
 
 # Just like OpenAI but no strict
@@ -75,7 +78,7 @@ method(as_json, list(ProviderVllm, ToolDef)) <- function(provider, x) {
 }
 
 vllm_key <- function() {
-  key_get("VLLM_KEY")
+  key_get("VLLM_API_KEY")
 }
 
 vllm_models <- function(base_url, key = vllm_key()) {

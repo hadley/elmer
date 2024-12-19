@@ -44,7 +44,7 @@ NULL
 #' @inheritParams chat_openai
 #' @inherit chat_openai return
 #' @family chatbots
-#' @examplesIf elmer:::cortex_credentials_exist()
+#' @examplesIf ellmer:::cortex_credentials_exist()
 #' chat <- chat_cortex(
 #'   model_file = "@my_db.my_schema.my_stage/model.yaml"
 #' )
@@ -137,11 +137,11 @@ method(chat_request, ProviderCortex) <- function(provider,
   req <- req_error(req, body = function(resp) resp_body_json(resp)$message)
 
   # Snowflake uses the User Agent header to identify "parter applications",
-  # so identify requests as coming from "r_elmer" (unless an explicit
+  # so identify requests as coming from "r_ellmer" (unless an explicit
   # partner application is set via the ambient SF_PARTNER environment
   # variable).
   req <- req_user_agent(
-    req, paste0("r_elmer/", utils::packageVersion("elmer"))
+    req, paste0("r_ellmer/", utils::packageVersion("ellmer"))
   )
   if (nchar(Sys.getenv("SF_PARTNER")) != 0) {
     req <- req_user_agent(req, Sys.getenv("SF_PARTNER"))
@@ -158,7 +158,7 @@ method(chat_request, ProviderCortex) <- function(provider,
   req
 }
 
-# Cortex -> elmer --------------------------------------------------------------
+# Cortex -> ellmer --------------------------------------------------------------
 
 method(stream_parse, ProviderCortex) <- function(provider, event) {
   # While undocumented, Cortex seems to mostly follow OpenAI API conventions for
@@ -281,7 +281,7 @@ method(value_turn, ProviderCortex) <- function(provider, result, has_type = FALS
 }
 
 
-# elmer -> Cortex --------------------------------------------------------------
+# ellmer -> Cortex --------------------------------------------------------------
 
 # Cortex supports not only "text" content, but also bespoke "suggestions" and
 # "sql" types.

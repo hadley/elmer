@@ -50,7 +50,7 @@ S7 objects inheriting from \code{Type}
 }
 \description{
 These S7 classes are provided for use by package devlopers who are
-extending elmer. In every day use, use \code{\link[=type_boolean]{type_boolean()}} and friends.
+extending ellmer. In every day use, use \code{\link[=type_boolean]{type_boolean()}} and friends.
 }
 \examples{
 TypeBasic(type = "boolean")

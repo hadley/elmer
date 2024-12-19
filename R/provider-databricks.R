@@ -7,7 +7,7 @@
 #'
 #' Databricks models do not support images, but they do support structured
 #' outputs. Tool calling support is also very limited at present; too limited
-#' for `elmer`'s tool calling features to work properly at all.
+#' for `ellmer`'s tool calling features to work properly at all.
 #'
 #' ## Authentication
 #'
@@ -193,7 +193,7 @@ databricks_token <- function(workspace = databricks_workspace(), token = NULL) {
         paste0("https://", host, "/oidc/v1/token"),
         secret = client_secret,
         auth = "header",
-        name = "elmer-databricks-m2m"
+        name = "ellmer-databricks-m2m"
       ),
       oauth_flow_client_credentials,
       # The "all-apis" scope translates to "everything this service principal
@@ -244,7 +244,7 @@ databricks_token <- function(workspace = databricks_workspace(), token = NULL) {
         "databricks-cli",
         paste0("https://", host, "/oidc/v1/token"),
         auth = "body",
-        name = "elmer-databricks-u2m"
+        name = "ellmer-databricks-u2m"
       ),
       oauth_flow_auth_code,
       flow_params = list(

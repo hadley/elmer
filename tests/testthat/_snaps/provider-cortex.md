@@ -42,7 +42,7 @@
       Options:
       * timeout_ms: 60000
       * connecttimeout: 0
-      * useragent: 'r_elmer/0.0.0.9000'
+      * useragent: 'r_ellmer/0.0.0.9000'
       Policies:
       * retry_max_tries: 2
       * retry_on_failure: FALSE

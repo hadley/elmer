@@ -18,7 +18,7 @@ You should generally not create this object yourself,
 but instead call \code{\link[=chat_openai]{chat_openai()}} or friends instead.
 }
 \examples{
-\dontshow{if (elmer:::openai_key_exists()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
+\dontshow{if (ellmer:::openai_key_exists()) (if (getRversion() >= "3.4") withAutoprint else force)(\{ # examplesIf}
 chat <- chat_openai(echo = TRUE)
 chat$chat("Tell me a funny joke")
 \dontshow{\}) # examplesIf}
@@ -314,8 +314,14 @@ yields string promises.
 \if{latex}{\out{\hypertarget{method-Chat-register_tool}{}}}
 \subsection{Method \code{register_tool()}}{
 Register a tool (an R function) that the chatbot can use.
-If the chatbot decides to use the function,  elmer will automatically
+If the chatbot decides to use the function,  ellmer will automatically
 call it and submit the results back.
+
+The return value of the function. Generally, this should either be a
+string, or a JSON-serializable value. If you must have more direct
+control of the structure of the JSON that's returned, you can return a
+JSON-serializable value wrapped in \code{\link[base:AsIs]{base::I()}}, which ellmer will leave
+alone until the entire request is JSON-serialized.
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{Chat$register_tool(tool_def)}\if{html}{\out{</div>}}
 }

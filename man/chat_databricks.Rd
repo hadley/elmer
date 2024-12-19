@@ -61,7 +61,7 @@ and can also serve as a gateway for external models hosted by a third party.
 
 Databricks models do not support images, but they do support structured
 outputs. Tool calling support is also very limited at present; too limited
-for \code{elmer}'s tool calling features to work properly at all.
+for \code{ellmer}'s tool calling features to work properly at all.
 \subsection{Authentication}{
 
 \code{chat_databricks()} picks up on ambient Databricks credentials for a subset

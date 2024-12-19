@@ -1,4 +1,4 @@
-Package: elmer
+Package: ellmer
 Title: Call Large Language Model 'API's
 Version: 0.0.0.9000
 Authors@R: c(
@@ -11,8 +11,8 @@ Description: A consistent interface for calling 'LLM' (large language model)
   'Azure' 'Bedrock' and 'Google' 'Gemini'. Supports streaming, 'async', tool
   calling, and structured data extraction.
 License: MIT + file LICENSE
-URL: https://elmer.tidyverse.org, https://github.com/tidyverse/elmer
-BugReports: https://github.com/tidyverse/elmer/issues
+URL: https://ellmer.tidyverse.org, https://github.com/tidyverse/ellmer
+BugReports: https://github.com/tidyverse/ellmer/issues
 Imports:
     cli,
     coro (>= 1.1.0),
@@ -57,7 +57,7 @@ Collate:
     'chat.R'
     'content-image.R'
     'content-tools.R'
-    'elmer-package.R'
+    'ellmer-package.R'
     'httr2.R'
     'import-standalone-obj-type.R'
     'import-standalone-purrr.R'

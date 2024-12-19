@@ -35,7 +35,7 @@ more reproducible.}
 of every chat API call.}
 
 \item{api_key}{The API key to use for authentication. You generally should
-not supply this directly, but instead set the \code{OPENAI_API_KEY} environment
+not supply this directly, but instead set the \code{VLLM_API_KEY} environment
 variable.}
 
 \item{echo}{One of the following options:

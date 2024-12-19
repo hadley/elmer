@@ -120,7 +120,7 @@ method(chat_request, ProviderGemini) <- function(provider,
   req
 }
 
-# Gemini -> elmer --------------------------------------------------------------
+# Gemini -> ellmer --------------------------------------------------------------
 
 method(stream_parse, ProviderGemini) <- function(provider, event) {
   if (is.null(event)) {
@@ -174,7 +174,7 @@ method(value_turn, ProviderGemini) <- function(provider, result, has_type = FALS
   Turn("assistant", contents, json = result, tokens = tokens)
 }
 
-# elmer -> Gemini --------------------------------------------------------------
+# ellmer -> Gemini --------------------------------------------------------------
 
 # https://ai.google.dev/api/caching#Content
 method(as_json, list(ProviderGemini, Turn)) <- function(provider, x) {

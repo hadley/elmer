@@ -53,11 +53,11 @@ it succeeded, otherwise the error message, as a string. One of
 S7 objects that all inherit from \code{Content}
 }
 \description{
-Use these functions if you're writing a package that extends elmer and need
+Use these functions if you're writing a package that extends ellmer and need
 to customise methods for various types of content. For normal use, see
 \code{\link[=content_image_url]{content_image_url()}} and friends.
 
-elmer abstracts away differences in the way that different \link{Provider}s
+ellmer abstracts away differences in the way that different \link{Provider}s
 represent various types of content, allowing you to more easily write
 code that works with any chatbot. This set of classes represents types of
 content that can be either sent to and received from a provider:

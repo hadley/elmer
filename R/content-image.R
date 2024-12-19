@@ -15,12 +15,12 @@
 #'   the `chat()`, `stream()`, `chat_async()`, or `stream_async()` methods.
 #'
 #' @export
-#' @examplesIf elmer:::openai_key_exists()
+#' @examplesIf ellmer:::openai_key_exists()
 #' chat <- chat_openai(echo = TRUE)
 #' chat$chat(
 #'   "What do you see in these images?",
 #'   content_image_url("https://www.r-project.org/Rlogo.png"),
-#'   content_image_file(system.file("httr2.png", package = "elmer"))
+#'   content_image_file(system.file("httr2.png", package = "ellmer"))
 #' )
 #'
 #' \dontshow{dev.control('enable')}
@@ -144,7 +144,7 @@ content_image_plot <- function(width = 768, height = 768) {
 
   old <- grDevices::dev.cur()
 
-  path <- tempfile("elmer-plot-", fileext = ".png")
+  path <- tempfile("ellmer-plot-", fileext = ".png")
   defer(unlink(path))
 
   grDevices::png(path, width = width, height = height)

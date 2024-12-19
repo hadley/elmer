@@ -1,34 +1,34 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# elmer <a href="https://elmer.tidyverse.org"><img src="man/figures/logo.png" align="right" height="138" alt="elmer website" /></a>
+# ellmer <a href="https://ellmer.tidyverse.org"><img src="man/figures/logo.png" align="right" height="138" alt="ellmer website" /></a>
 
 <!-- badges: start -->
 
 [![Lifecycle:
 experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
-[![R-CMD-check](https://github.com/tidyverse/elmer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/tidyverse/elmer/actions/workflows/R-CMD-check.yaml)
+[![R-CMD-check](https://github.com/tidyverse/ellmer/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/tidyverse/ellmer/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-elmer makes it easy to use large language models (LLM) from R. It
+ellmer makes it easy to use large language models (LLM) from R. It
 supports a wide variety of LLM providers and implements a rich set of
 features including streaming outputs, tool/function calling, structured
 data extraction, and more.
 
-(Looking for something similar to elmer for python? Check out
+(Looking for something similar to ellmer for python? Check out
 [chatlas](https://github.com/posit-dev/chatlas)!)
 
 ## Installation
 
-You can install elmer from CRAN with:
+You can install ellmer from CRAN with:
 
 ``` r
-install.packages("elmer")
+install.packages("ellmer")
 ```
 
 ## Providers
 
-elmer supports a wide variety of model providers:
+ellmer supports a wide variety of model providers:
 
 - Anthropic’s Claude: `chat_claude()`.
 - AWS Bedrock: `chat_bedrock()`.
@@ -45,10 +45,10 @@ elmer supports a wide variety of model providers:
 
 ## Model choice
 
-If you’re using elmer inside your organisation, you’ll be limited to
+If you’re using ellmer inside your organisation, you’ll be limited to
 what your IT department allows, which is likely to be one provided by a
 big cloud provider, e.g. `chat_azure()`, `chat_bedrock()`,
-`chat_databricks()`, or `chat_snowflake()`. If you’re using elmer for
+`chat_databricks()`, or `chat_snowflake()`. If you’re using ellmer for
 your own exploration, you’ll have a lot more freedom, so we have a few
 recommendations to help you get started:
 
@@ -68,14 +68,14 @@ recommendations to help you get started:
   run locally aren’t as good as the state of the art hosted models, they
   don’t share your data and are effectively free.
 
-## Using elmer
+## Using ellmer
 
-You can work with elmer in several different ways, depending on whether
+You can work with ellmer in several different ways, depending on whether
 you are working interactively or programmatically. They all start with
 creating a new chat object:
 
 ``` r
-library(elmer)
+library(ellmer)
 
 chat <- chat_openai(
   model = "gpt-4o-mini",
@@ -89,7 +89,7 @@ previous ones. You call their methods with `$`.
 
 ### Interactive chat console
 
-The most interactive and least programmatic way of using elmer is to
+The most interactive and least programmatic way of using ellmer is to
 chat directly in your R console or browser with `live_console(chat)` or
 `live_browser()`:
 
@@ -169,15 +169,16 @@ my_function()
 ```
 
 If needed, you can manually control this behaviour with the `echo`
-argument. This is useful for programming with elmer when the result is
+argument. This is useful for programming with ellmer when the result is
 either not intended for human consumption or when you want to process
 the response before displaying it.
 
 ## Learning more
 
-elmer comes with a bunch of vignettes to help you learn more:
+ellmer comes with a bunch of vignettes to help you learn more:
 
-- Learn key vocabulary and see example use cases in `vignette("elmer")`.
+- Learn key vocabulary and see example use cases in
+  `vignette("ellmer")`.
 - Learn how to design your prompt in `vignette("prompt-design")`.
 - Learn about tool/function calling in `vignette("tool-calling")`.
 - Learn how to extract structured data in `vignette("structured-data")`.

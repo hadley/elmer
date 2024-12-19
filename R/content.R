@@ -52,11 +52,11 @@ contents_markdown <- new_generic("contents_markdown", "content")
 #' Content types received from and sent to a chatbot
 #'
 #' @description
-#' Use these functions if you're writing a package that extends elmer and need
+#' Use these functions if you're writing a package that extends ellmer and need
 #' to customise methods for various types of content. For normal use, see
 #' [content_image_url()] and friends.
 #'
-#' elmer abstracts away differences in the way that different [Provider]s
+#' ellmer abstracts away differences in the way that different [Provider]s
 #' represent various types of content, allowing you to more easily write
 #' code that works with any chatbot. This set of classes represents types of
 #' content that can be either sent to and received from a provider:
