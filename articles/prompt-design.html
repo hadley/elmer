@@ -38,12 +38,12 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../articles/ellmer.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/elmer.html">Getting started with ellmer</a></li>
-    <li><a class="dropdown-item" href="../articles/prompt-design.html">Prompt design</a></li>
+<li><a class="dropdown-item" href="../articles/prompt-design.html">Prompt design</a></li>
     <li><a class="dropdown-item" href="../articles/streaming-async.html">Streaming and async APIs</a></li>
     <li><a class="dropdown-item" href="../articles/structured-data.html">Structured data</a></li>
     <li><a class="dropdown-item" href="../articles/tool-calling.html">Tool/function calling</a></li>
@@ -464,47 +464,49 @@ page.</p>
 <span><span class="co">#&gt; {</span></span>
 <span><span class="co">#&gt;   "ingredients": [</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "amount": "¾ cup",</span></span>
+<span><span class="co">#&gt;       "quantity": "¾ cup",</span></span>
 <span><span class="co">#&gt;       "weight": "150g",</span></span>
-<span><span class="co">#&gt;       "name": "dark brown sugar"</span></span>
+<span><span class="co">#&gt;       "item": "dark brown sugar"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "amount": "2",</span></span>
-<span><span class="co">#&gt;       "unit": "large",</span></span>
-<span><span class="co">#&gt;       "name": "eggs"</span></span>
+<span><span class="co">#&gt;       "quantity": "2",</span></span>
+<span><span class="co">#&gt;       "item": "large eggs"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "amount": "¾ cup",</span></span>
+<span><span class="co">#&gt;       "quantity": "¾ cup",</span></span>
 <span><span class="co">#&gt;       "weight": "165g",</span></span>
-<span><span class="co">#&gt;       "name": "sour cream"</span></span>
+<span><span class="co">#&gt;       "item": "sour cream"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "amount": "½ cup",</span></span>
+<span><span class="co">#&gt;       "quantity": "½ cup",</span></span>
 <span><span class="co">#&gt;       "weight": "113g",</span></span>
-<span><span class="co">#&gt;       "name": "unsalted butter",</span></span>
-<span><span class="co">#&gt;       "additional_info": "melted"</span></span>
+<span><span class="co">#&gt;       "item": "unsalted butter, melted"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "amount": "1 teaspoon",</span></span>
-<span><span class="co">#&gt;       "name": "vanilla extract"</span></span>
+<span><span class="co">#&gt;       "quantity": "1 teaspoon",</span></span>
+<span><span class="co">#&gt;       "item": "vanilla extract"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "amount": "¾ teaspoon",</span></span>
-<span><span class="co">#&gt;       "name": "kosher salt"</span></span>
+<span><span class="co">#&gt;       "quantity": "¾ teaspoon",</span></span>
+<span><span class="co">#&gt;       "item": "kosher salt"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "amount": "⅓ cup",</span></span>
+<span><span class="co">#&gt;       "quantity": "⅓ cup",</span></span>
 <span><span class="co">#&gt;       "volume": "80ml",</span></span>
-<span><span class="co">#&gt;       "name": "neutral oil"</span></span>
+<span><span class="co">#&gt;       "item": "neutral oil"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "amount": "1½ cups",</span></span>
+<span><span class="co">#&gt;       "quantity": "1½ cups",</span></span>
 <span><span class="co">#&gt;       "weight": "190g",</span></span>
-<span><span class="co">#&gt;       "name": "all-purpose flour"</span></span>
+<span><span class="co">#&gt;       "item": "all-purpose flour"</span></span>
 <span><span class="co">#&gt;     },</span></span>
 <span><span class="co">#&gt;     {</span></span>
-<span><span class="co">#&gt;       "amount": "150g plus 1½ teaspoons",</span></span>
-<span><span class="co">#&gt;       "name": "sugar"</span></span>
+<span><span class="co">#&gt;       "weight": "150g",</span></span>
+<span><span class="co">#&gt;       "item": "sugar"</span></span>
+<span><span class="co">#&gt;     },</span></span>
+<span><span class="co">#&gt;     {</span></span>
+<span><span class="co">#&gt;       "quantity": "1½ teaspoons",</span></span>
+<span><span class="co">#&gt;       "item": "sugar"</span></span>
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt;   ]</span></span>
 <span><span class="co">#&gt; }</span></span>
@@ -540,7 +542,7 @@ provide the input and output examples in such a loose format.</p>
 <pre><code><span><span class="co">#&gt; ```json</span></span>
 <span><span class="co">#&gt; [</span></span>
 <span><span class="co">#&gt;   {"name": "dark brown sugar", "quantity": 150, "unit": "g"},</span></span>
-<span><span class="co">#&gt;   {"name": "large eggs", "quantity": 2, "unit": "piece"},</span></span>
+<span><span class="co">#&gt;   {"name": "large eggs", "quantity": 2, "unit": "count"},</span></span>
 <span><span class="co">#&gt;   {"name": "sour cream", "quantity": 165, "unit": "g"},</span></span>
 <span><span class="co">#&gt;   {"name": "unsalted butter, melted", "quantity": 113, "unit": "g"},</span></span>
 <span><span class="co">#&gt;   {"name": "vanilla extract", "quantity": 1, "unit": "teaspoon"},</span></span>
@@ -660,7 +662,7 @@ and that ellmer will convert it into an R data structure.</p>
 <span><span class="co">#&gt; quantity.9                      150</span></span>
 <span><span class="co">#&gt; quantity.10                     1.5</span></span>
 <span><span class="co">#&gt; unit.1                            g</span></span>
-<span><span class="co">#&gt; unit.2                        large</span></span>
+<span><span class="co">#&gt; unit.2                             </span></span>
 <span><span class="co">#&gt; unit.3                            g</span></span>
 <span><span class="co">#&gt; unit.4                            g</span></span>
 <span><span class="co">#&gt; unit.5                     teaspoon</span></span>
@@ -721,7 +723,7 @@ doing a good job:</p>
 <span><span class="co">#&gt; cup of softened unsalted butter"},</span></span>
 <span><span class="co">#&gt;   {"name": "white sugar", "quantity": 0.25, "unit": "cup", "input": "a </span></span>
 <span><span class="co">#&gt; quarter cup of white sugar"},</span></span>
-<span><span class="co">#&gt;   {"name": "egg", "quantity": 1, "unit": null, "input": "an egg"},</span></span>
+<span><span class="co">#&gt;   {"name": "egg", "quantity": 1, "unit": "piece", "input": "an egg"},</span></span>
 <span><span class="co">#&gt;   {"name": "vanilla extract", "quantity": 1, "unit": "teaspoon", "input":</span></span>
 <span><span class="co">#&gt; "1 teaspoon of vanilla extract"},</span></span>
 <span><span class="co">#&gt;   {"name": "all-purpose flour", "quantity": 2, "unit": "cup", "input": "2</span></span>
@@ -755,7 +757,7 @@ my examples.</p>
 <td align="left">OpenAI-<a href="https://api.openai.com/v1" class="external-link uri">https://api.openai.com/v1</a>
 </td>
 <td align="right">1138</td>
-<td align="right">844</td>
+<td align="right">846</td>
 </tr>
 </tbody>
 </table>

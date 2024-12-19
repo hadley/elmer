@@ -31,11 +31,11 @@ the ANTHROPIC_API_KEY env var in your .Renviron
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/ellmer.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/elmer.html">Getting started with ellmer</a></li>
-    <li><a class="dropdown-item" href="../articles/prompt-design.html">Prompt design</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/prompt-design.html">Prompt design</a></li>
     <li><a class="dropdown-item" href="../articles/streaming-async.html">Streaming and async APIs</a></li>
     <li><a class="dropdown-item" href="../articles/structured-data.html">Structured data</a></li>
     <li><a class="dropdown-item" href="../articles/tool-calling.html">Tool/function calling</a></li>
@@ -147,6 +147,27 @@ the console).</p></li>
 <code><a href="chat_perplexity.html">chat_perplexity</a>()</code></p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">chat</span> <span class="op">&lt;-</span> <span class="fu">chat_claude</span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">chat</span><span class="op">$</span><span class="fu">chat</span><span class="op">(</span><span class="st">"Tell me three jokes about statisticians"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Here are three statistics-themed jokes:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1. How do you tell the difference between an introverted statistician and</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> an extroverted statistician?</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> The extroverted statistician looks at *your* shoes when they're talking </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> to you.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2. A statistician is someone who can put their head in an oven and their </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> feet in a freezer and say "on average, I feel fine."</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3. Three statisticians go hunting. They spot a deer, and the first </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> statistician shoots, missing three feet to the left. The second </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> statistician shoots and misses three feet to the right. The third </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> statistician jumps up and shouts "We got it! We got it! On average, we </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> hit it!"</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

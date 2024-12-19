@@ -19,11 +19,11 @@ Learn more in vignette("tool-calling").'><meta property="og:image" content="http
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/ellmer.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/elmer.html">Getting started with ellmer</a></li>
-    <li><a class="dropdown-item" href="../articles/prompt-design.html">Prompt design</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/prompt-design.html">Prompt design</a></li>
     <li><a class="dropdown-item" href="../articles/streaming-async.html">Streaming and async APIs</a></li>
     <li><a class="dropdown-item" href="../articles/structured-data.html">Structured data</a></li>
     <li><a class="dropdown-item" href="../articles/tool-calling.html">Tool/function calling</a></li>
@@ -78,6 +78,10 @@ function.</p></dd>
 <dd><p>The name of the function.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>An S7 <code>ToolDef</code> object.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
@@ -101,8 +105,8 @@ function.</p></dd>
 <span class="r-in"><span><span class="st">  Give me five numbers from a random normal distribution.</span></span></span>
 <span class="r-in"><span><span class="st">"</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> To provide you with five numbers from a random normal distribution, I </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> need to know the mean and the standard deviation you want for the </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> distribution. Could you please specify these parameters?</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> need the mean and standard deviation values for the distribution. Could </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> you please specify these parameters?</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Look at the chat history to see how tool calling works:</span></span></span>
 <span class="r-in"><span><span class="co"># Assistant sends a tool request which is evaluated locally and</span></span></span>

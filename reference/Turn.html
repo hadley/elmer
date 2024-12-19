@@ -33,11 +33,11 @@ vignette("tool-calling").'><meta property="og:image" content="https://ellmer.tid
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/ellmer.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/elmer.html">Getting started with ellmer</a></li>
-    <li><a class="dropdown-item" href="../articles/prompt-design.html">Prompt design</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/prompt-design.html">Prompt design</a></li>
     <li><a class="dropdown-item" href="../articles/streaming-async.html">Streaming and async APIs</a></li>
     <li><a class="dropdown-item" href="../articles/structured-data.html">Structured data</a></li>
     <li><a class="dropdown-item" href="../articles/tool-calling.html">Tool/function calling</a></li>
@@ -101,7 +101,24 @@ input and output tokens (respectively) used in this turn. Currently
 only recorded for assistant turns.</p></dd>
 
 </dl></div>
+    <div class="section level2">
+    <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
+    <p>An S7 <code>Turn</code> object</p>
+    </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">Turn</span><span class="op">(</span>role <span class="op">=</span> <span class="st">"user"</span>, contents <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="Content.html">ContentText</a></span><span class="op">(</span><span class="st">"Hello, world!"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;ellmer::Turn&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ role    : chr "user"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ contents:List of 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  .. $ : &lt;ellmer::ContentText&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  ..  ..@ text: chr "Hello, world!"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ json    : list()</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ tokens  : num [1:2] 0 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  @ text    : chr "Hello, world!"</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

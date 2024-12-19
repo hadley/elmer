@@ -19,11 +19,11 @@ image, while content_image_file() is used to provide the image data itself."><me
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/ellmer.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/elmer.html">Getting started with ellmer</a></li>
-    <li><a class="dropdown-item" href="../articles/prompt-design.html">Prompt design</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/prompt-design.html">Prompt design</a></li>
     <li><a class="dropdown-item" href="../articles/streaming-async.html">Streaming and async APIs</a></li>
     <li><a class="dropdown-item" href="../articles/structured-data.html">Structured data</a></li>
     <li><a class="dropdown-item" href="../articles/tool-calling.html">Tool/function calling</a></li>
@@ -115,13 +115,12 @@ the <code>chat()</code>, <code>stream()</code>, <code>chat_async()</code>, or <c
 <span class="r-in"><span>  <span class="fu">content_image_url</span><span class="op">(</span><span class="st">"https://www.r-project.org/Rlogo.png"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  <span class="fu">content_image_file</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"httr2.png"</span>, package <span class="op">=</span> <span class="st">"ellmer"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> The first image shows the logo of the R programming language, featuring a</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> blue letter "R" inside a gray circular shape.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> The first image is the logo of the R programming language, which features</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> a large blue "R" over a gray stylized "C."</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> The second image is a hexagonal logo for the `httr2` package in R. It </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> depicts a red silhouette of a baseball player swinging a bat, with </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> "httr2" written above in stylized white text, set against a dark blue </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> background.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> The second image is a hexagonal logo for the "httr2" package in R. It </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> shows the text "httr2" with a silhouette of a baseball player swinging a </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> bat, set against a dark blue background.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">waiting</span> <span class="op">~</span> <span class="va">eruptions</span>, data <span class="op">=</span> <span class="va">faithful</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="content_image_url-1.png" alt="" width="700" height="433"></span>
@@ -133,14 +132,13 @@ the <code>chat()</code>, <code>stream()</code>, <code>chat_async()</code>, or <c
 <span class="r-in"><span><span class="st">   2-5 major visual patterns."</span>,</span></span>
 <span class="r-in"><span>   <span class="fu">content_image_plot</span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> The image is an XKCD-style line chart with two intersecting lines on a </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> plot labeled with time on the x-axis and data on the y-axis. One line </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> represents 'exploration time,' which decreases over time, while the other</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> signifies 'work you’re editing the Wikipedia article about,' which </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> increases sharply at the beginning before leveling off. The intersection </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> marks a point labeled with the humorous note 'time at which the interest </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> becomes about the Wikipedia article itself.' The plot humorously </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> illustrates distraction and shifting focus during research tasks.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> This image is a line plot displaying the exponential growth of a </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> function. The x-axis represents time while the y-axis shows the </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> corresponding values of the function. A notable pattern is the steep </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> incline starting at the origin and rapidly increasing as it moves to the </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> right, demonstrating the classic J-shaped curve characteristic of </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> exponential growth functions. The line consistently rises without any </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> dips or plateaus, emphasizing continuous and accelerating growth.</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
