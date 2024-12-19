@@ -1,4 +1,3 @@
-/Users/hadleywickham/Documents/llms/elmer/DESCRIPTION
 Package: ellmer
 Title: Chat with Large Language Models
 Version: 0.0.0.9000
@@ -9,7 +8,7 @@ Authors@R: c(
   )
 Description: Chat with large language models from a range of providers
   including 'Claude', 'OpenAI', 'Azure', 'Bedrock', and 'Google' 'Gemini'.
-  Supports streaming, asyncronous calls, tool calling, and structured data
+  Supports streaming,a asyncronous calls, tool calling, and structured data
   extraction.
 License: MIT + file LICENSE
 URL: https://ellmer.tidyverse.org, https://github.com/tidyverse/ellmer
